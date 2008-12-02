@@ -1,5 +1,5 @@
-Architecture
-============
+Architecture Goals
+==================
 
 - `WSGI <http://wsgi.org>`_ (`PEP 333 <http://www.python.org/dev/peps/pep-0333/>`_) compliant application and `middleware <http://www.wsgi.org/wsgi/Middleware_and_Utilities>`_ stack
 - A real-time messaging hub using the `Advanced Message Queuing Protocol (AMQP) <http://http://amqp.org/>`_

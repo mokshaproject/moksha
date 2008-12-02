@@ -1,0 +1,39 @@
+{# Filename: .templates/layout.html #}
+{% extends '!layout.html' %}
+
+{% block rootrellink %}
+  <li>
+  <a href="{{ pathto('index') }}"><b>Moksha--{{ release }}</b></a>
+  </li>
+{% endblock %}
+
+{% block relbaritems %}
+  {% if current_page_name != 'index' %}
+    <li> <b>/</b> <a href="{{ pathto(current_page_name) }}">{{ title }}</a></li>
+  {% endif %}
+{% endblock %}
+
+{%- block document %}
+    <div class="document">
+      <div class="documentwrapper">
+      {%- if builder != 'htmlhelp' %}
+        <div class="bodywrapper">
+      {%- endif %}
+          <div class="body">
+            {% block body %}{% endblock %}
+          </div>
+      {%- if builder != 'htmlhelp' %}
+        </div>
+      {%- endif %}
+      
+ 
+      
+      </div>
+{%- endblock %}
+
+{% block footer %}
+{{ super() }}
+
+{% endblock %}
+
+

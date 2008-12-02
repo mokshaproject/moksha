@@ -1,0 +1,54 @@
+{# Filename: .templates/layout.html #}
+{% extends '!layout.html' %}
+
+{% block rootrellink %}
+  <li>
+  <a href="{{ pathto('index') }}"><b>TurboGears--{{ release }}</b></a>
+  </li>
+{% endblock %}
+
+{% block relbaritems %}
+  {% if current_page_name != 'index' %}
+    <li> <b>/</b> <a href="{{ pathto(current_page_name) }}">{{ title }}</a></li>
+  {% endif %}
+{% endblock %}
+
+{%- block document %}
+    <div class="document">
+      <div class="documentwrapper">
+      {%- if builder != 'htmlhelp' %}
+        <div class="bodywrapper">
+      {%- endif %}
+          <div class="body">
+            {% block body %}{% endblock %}
+            <div id="disqus_thread"></div><script type="text/javascript" src="http://disqus.com/forums/tg-site/embed.js"></script><noscript><a href="http://tg-site.disqus.com/?url=ref">View the discussion thread.</a></noscript>
+          </div>
+      {%- if builder != 'htmlhelp' %}
+        </div>
+      {%- endif %}
+      
+ 
+      
+      </div>
+{%- endblock %}
+
+{% block footer %}
+{{ super() }}
+
+<script type="text/javascript">
+//<![CDATA[
+(function() {
+		var links = document.getElementsByTagName('a');
+		var query = '?';
+		for(var i = 0; i < links.length; i++) {
+			if(links[i].href.indexOf('#disqus_thread') >= 0) {
+				query += 'url' + i + '=' + encodeURIComponent(links[i].href) + '&';
+			}
+		}
+		document.write('<script type="text/javascript" src="http://disqus.com/forums/tg-site/get_num_replies.js' + query + '"></' + 'script>');
+	})();
+//]]>
+</script>
+{% endblock %}
+
+
