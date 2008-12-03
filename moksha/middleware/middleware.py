@@ -22,9 +22,9 @@ import moksha
 import logging
 import pkg_resources
 
-from pylons import config
 from webob import Request, Response
 from shove import Shove
+from pylons import config
 from feedcache.cache import Cache
 
 from moksha.wsgiapp import MokshaApp
@@ -51,6 +51,7 @@ class MokshaMiddleware(object):
         self.feed_cache = Cache(self.feed_storage)
         self.apps = {} # {'appname': {'controller': RootController, ... }}
         self.load_applications()
+        self.load_renderers()
 
     def __call__(self, environ, start_response):
         environ['paste.registry'].register(moksha.apps, self.apps)
@@ -64,10 +65,48 @@ class MokshaMiddleware(object):
             response = request.get_response(self.application)
         return response(environ, start_response)
 
-    def load_plugins(self):
-        log.info('Loading Moksha plugins')
-        for plugin_entry in pkg_resources.iter_entry_points('moksha.plugin'):
-            if not plugin_entry.name in self.plugins:
-                log.info('Loading %s plugin' % plugin_entry.name)
-                plugin_class = plugin_entry.load()
-                self.plugins[plugin_entry.name] = plugin_class()
+    def load_applications(self):
+        log.info('Loading moksha applications')
+        for app_entry in pkg_resources.iter_entry_points('moksha.application'):
+            if not app_entry.name in self.apps:
+                log.info('Loading %s application' % app_entry.name)
+                app_class = app_entry.load()
+
+                try:
+                    app_path = pkg_resources.resource_filename(app_entry.name,
+                                                               None)
+                except ImportError:
+                    log.warning('%s app does not contain egg-info!  Skipping.' %
+                                app_entry.name)
+                    continue
+
+                self.apps[app_entry.name] = {
+                        'controller': app_class(),
+                        'path': os.path.dirname(app_path),
+                }
+
+                # setup static paths for applications
+                #   the StatiURLParser middleware only accepts 1 path?!
+                # setup template directories for applications
+
+    def load_renderers(self):
+        """ Load our template renderers with our application paths """
+        template_paths = config['pylons.paths']['templates']
+        for app in self.apps.values():
+            if app['path'] not in template_paths:
+                template_paths.append(app['path'])
+
+        from mako.lookup import TemplateLookup
+        config['pylons.app_globals'].mako_lookup = TemplateLookup(
+            directories=template_paths, module_directory=template_paths,
+            input_encoding='utf-8', output_encoding='utf-8',
+            imports=['from webhelpers.html import escape'],
+            default_filters=['escape'], filesystem_checks=False)
+        
+        from genshi.template import TemplateLoader
+        def template_loaded(template):
+            "Plug-in our i18n function to Genshi."
+            template.filters.insert(0, Translator(ugettext))
+        config['pylons.app_globals'].genshi_loader = TemplateLoader(
+            search_path=template_paths, auto_reload=False,
+            callback=template_loaded)
