@@ -1,2 +1,7 @@
 .svn
 *.swp
+*.pyc
+*.pyo
+data
+docs/_build
+*.swo
