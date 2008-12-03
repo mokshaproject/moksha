@@ -49,15 +49,16 @@ class MokshaMiddleware(object):
         self.mokshaapp = MokshaApp()
         self.feed_storage = Shove('file://' + config['feed_cache'])
         self.feed_cache = Cache(self.feed_storage)
-        self.plugins = {}
-        self.load_plugins()
+        self.apps = {} # {'appname': {'controller': RootController, ... }}
+        self.load_applications()
 
     def __call__(self, environ, start_response):
+        environ['paste.registry'].register(moksha.apps, self.apps)
         environ['paste.registry'].register(moksha.feed_cache, self.feed_cache)
         request = Request(environ)
         if request.path.startswith('/appz'):
             app = request.path.split('/')[1]
-            environ['moksha.plugins'] = self.plugins
+            environ['moksha.apps'] = self.apps
             response = request.get_response(self.mokshaapp)
         else:
             response = request.get_response(self.application)

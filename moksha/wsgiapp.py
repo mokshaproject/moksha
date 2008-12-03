@@ -40,4 +40,4 @@ class MokshaApp(PylonsApp):
         match = environ['wsgiorg.routing_args'][1]
         #environ['pylons.routes_dict'] = match
         app = match['url'].split('/')[1]
-        return environ['moksha.plugins'].get(app)
+        return environ['moksha.apps'][app]['controller']
