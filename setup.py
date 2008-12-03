@@ -1,9 +1,4 @@
-try:
-    from setuptools import setup, find_packages
-except ImportError:
-    from ez_setup import use_setuptools
-    use_setuptools()
-    from setuptools import setup, find_packages
+from setuptools import setup, find_packages
 
 setup(
     name='moksha',
@@ -16,7 +11,11 @@ setup(
         "TurboGears2",
         "ToscaWidgets >= 0.9.1",
         "zope.sqlalchemy",
-                ],
+        "Shove",
+        "feedcache",
+        "feedparser",
+        "tw.jquery",
+    ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
     test_suite='nose.collector',
