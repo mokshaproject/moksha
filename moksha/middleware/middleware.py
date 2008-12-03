@@ -27,6 +27,7 @@ from shove import Shove
 from pylons import config
 from feedcache.cache import Cache
 
+from moksha.exc import ApplicationNotFound
 from moksha.wsgiapp import MokshaApp
 
 log = logging.getLogger(__name__)
@@ -60,7 +61,10 @@ class MokshaMiddleware(object):
         if request.path.startswith('/appz'):
             app = request.path.split('/')[1]
             environ['moksha.apps'] = self.apps
-            response = request.get_response(self.mokshaapp)
+            try:
+                response = request.get_response(self.mokshaapp)
+            except ApplicationNotFound:
+                response = Response(status='404 Not Found')
         else:
             response = request.get_response(self.application)
         return response(environ, start_response)
