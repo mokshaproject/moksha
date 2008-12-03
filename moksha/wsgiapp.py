@@ -17,6 +17,7 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 
 from pylons.wsgiapp import PylonsApp
+from moksha.exc import ApplicationNotFound
 
 class MokshaApp(PylonsApp):
     """ Moksha WSGI Application.
@@ -38,6 +39,14 @@ class MokshaApp(PylonsApp):
         #config.redirect = self.redirect_to
         # http://www.wsgi.org/wsgi/Specifications/routing_args
         match = environ['wsgiorg.routing_args'][1]
-        #environ['pylons.routes_dict'] = match
+
         app = match['url'].split('/')[1]
+        if not app in environ['moksha.apps']:
+            raise ApplicationNotFound(app)
+
+        # Remaining arguments
+        match['url'] = '/'.join(match['url'].strip('/').split('/')[2:])
+
+        environ['pylons.routes_dict'] = match
+
         return environ['moksha.apps'][app]['controller']
