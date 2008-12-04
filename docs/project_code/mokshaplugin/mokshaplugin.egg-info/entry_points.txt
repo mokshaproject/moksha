@@ -1,0 +1,10 @@
+
+    [paste.app_factory]
+    main = mokshaplugin.config.middleware:make_app
+
+    [paste.app_install]
+    main = pylons.util:PylonsInstaller
+
+    [moksha.application]
+    mokshaplugin = mokshaplugin.controllers.root:RootController
+    
