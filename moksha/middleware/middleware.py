@@ -36,7 +36,7 @@ class MokshaMiddleware(object):
     """
     A layer of WSGI middleware that is responsible for setting up the moksha
     environment, as well as handling every request/response in the application.
-    
+
     If a request for an application comes in (/apps/$NAME), it will dispatch to
     the RootController of that application as defined in it's egg-info.
 
@@ -51,12 +51,15 @@ class MokshaMiddleware(object):
         self.feed_storage = Shove('file://' + config['feed_cache'])
         self.feed_cache = Cache(self.feed_storage)
         self.apps = {} # {'appname': {'controller': RootController, ... }}
+        self.widgets = {}
         self.load_applications()
+        self.load_widgets()
         self.load_renderers()
 
     def __call__(self, environ, start_response):
         environ['paste.registry'].register(moksha.apps, self.apps)
         environ['paste.registry'].register(moksha.feed_cache, self.feed_cache)
+        #environ['paste.registry'].register(moksha.widgets, self.widgets)
         request = Request(environ)
         if request.path.startswith('/appz'):
             app = request.path.split('/')[1]
@@ -85,13 +88,30 @@ class MokshaMiddleware(object):
                     continue
 
                 self.apps[app_entry.name] = {
+                        'name': app_entry.name,
                         'controller': app_class(),
                         'path': os.path.dirname(app_path),
                 }
 
-                # setup static paths for applications
-                #   the StatiURLParser middleware only accepts 1 path?!
-                # setup template directories for applications
+    def load_widgets(self):
+        log.info('Loading moksha widgets')
+        for widget_entry in pkg_resources.iter_entry_points('moksha.widget'):
+            if not widget_entry.name in self.widgets:
+                log.info('Loading %s widget' % widget_entry.name)
+                widget_class = widget_entry.load()
+
+                try:
+                    widget_path = pkg_resources.resource_filename(widget_entry.name, None)
+                except ImportError:
+                    log.warning('%s widgetdoes not contain egg-info!  Skipping.' %
+                                widget_entry.name)
+                    continue
+
+                self.widgets[widget_entry.name] = {
+                        'name': widget_entry.name,
+                        'widget': widget_class(),
+                        'path': os.path.dirname(widget_path),
+                }
 
     def load_renderers(self):
         """ Load our template renderers with our application paths """
@@ -106,7 +126,7 @@ class MokshaMiddleware(object):
             input_encoding='utf-8', output_encoding='utf-8',
             imports=['from webhelpers.html import escape'],
             default_filters=['escape'], filesystem_checks=False)
-        
+
         from genshi.template import TemplateLoader
         def template_loaded(template):
             "Plug-in our i18n function to Genshi."
