@@ -39,5 +39,9 @@ setup(
 
     [moksha.application]
     mokshaplugin = mokshaplugin.controllers.root:RootController
+
+    [moksha.widget]
+    obamafeed = mokshaplugin.controllers.root:ObamaFeed
+
     """,
 )

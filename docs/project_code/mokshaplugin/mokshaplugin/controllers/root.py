@@ -3,13 +3,20 @@ from mokshaplugin.lib.base import BaseController
 from tg import expose, flash, require, tmpl_context
 from pylons.i18n import ugettext as _
 
-from moksha.widgets.layout import LayoutWidget
+from moksha import Feed
+from moksha.layout import LayoutWidget
+
 layout_widget = LayoutWidget('layout')
 
-from myfedora.widgets.feed import Feed
-
 class ObamaFeed(Feed):
+    """ The Obama Feed Widget.
+
+    This widget resides on the ``moksha.widget`` entry point, and is
+    automatically rendered by the moksha layout engine.
+    """
     url = 'http://www.theobamafeed.com/feed'
+    name = 'The Obama Feed'
+
 
 class RootController(BaseController):
 
@@ -20,6 +27,5 @@ class RootController(BaseController):
 
     @expose('mako:mokshaplugin.templates.mako')
     def foo(self, *args, **kw):
-        print "FOO!"
         tmpl_context.layout = layout_widget
         return dict()
