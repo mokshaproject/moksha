@@ -10,10 +10,12 @@
 
 		<div id="content" class="ui-sortable">
 			<h2>Content</h2>
-			<dl class="sort">
-				<dt>Blog</dt>
-				<dd>Main blog post</dd>
-			</dl>
+			% for widget in content:
+	            <dl class="sort">
+		    		<dt>${widget['name']}</dt>
+				    <dd>${widget['widget']()}</dd>
+ 				</dl>
+			% endfor
 		</div>
 
 		<div id="sidebar" class="ui-sortable">

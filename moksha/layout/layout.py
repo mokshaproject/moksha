@@ -16,6 +16,8 @@
 # Copyright 2008, Red Hat, Inc.
 # Authors: Luke Macken <lmacken@redhat.com>
 
+import moksha
+
 from tw.api import Widget, JSLink, CSSLink
 from tw.jquery import jquery_js
 
@@ -27,12 +29,15 @@ ui_droppable_js = JSLink(filename='static/ui/ui.droppable.js', modname=__name__)
 ui_sortable_js = JSLink(filename='static/ui/ui.sortable.js', modname=__name__)
 
 class LayoutWidget(Widget):
-    template = 'mako:moksha.widgets.layout.templates.layout'
-    params = {}
+    template = 'mako:moksha.layout.templates.layout'
+    params = ['header', 'content', 'sidebar', 'footer']
     css = [layout_css]
     javascript = [jquery_js, layout_js, ui_core_js, ui_draggable_js,
                   ui_droppable_js, ui_sortable_js]
 
+    header = content = sidebar = footer = []
+
     def update_params(self, d):
         super(LayoutWidget, self).update_params(d)
-        # stuff apps into a slick layout
+        for widget in moksha.widgets.itervalues():
+            d['content'].append(widget)
