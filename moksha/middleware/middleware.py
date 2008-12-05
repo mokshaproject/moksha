@@ -79,20 +79,12 @@ class MokshaMiddleware(object):
             if not app_entry.name in self.apps:
                 log.info('Loading %s application' % app_entry.name)
                 app_class = app_entry.load()
-
-                try:
-                    app_path = pkg_resources.resource_filename(app_entry.name,
-                                                               None)
-                except ImportError:
-                    log.warning('%s app does not contain egg-info!  Skipping.' %
-                                app_entry.name)
-                    continue
-
+                app_path = app_entry.dist.location
                 self.apps[app_entry.name] = {
                         'name': app_entry.name,
                         'controller': app_class(),
-                        'path': os.path.dirname(app_path),
-                }
+                        'path': app_path,
+                        }
 
     def load_widgets(self):
         log.info('Loading moksha widgets')
@@ -100,19 +92,12 @@ class MokshaMiddleware(object):
             if not widget_entry.name in self.widgets:
                 log.info('Loading %s widget' % widget_entry.name)
                 widget_class = widget_entry.load()
-
-                try:
-                    widget_path = pkg_resources.resource_filename(widget_entry.name, None)
-                except ImportError:
-                    log.warning('%s widgetdoes not contain egg-info!  Skipping.' %
-                                widget_entry.name)
-                    continue
-
+                widget_path = widget_entry.dist.location
                 self.widgets[widget_entry.name] = {
                         'name': widget_entry.name,
                         'widget': widget_class(),
-                        'path': os.path.dirname(widget_path),
-                }
+                        'path': widget_path,
+                        }
 
     def load_renderers(self):
         """ Load our template renderers with our application paths """
