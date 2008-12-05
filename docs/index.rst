@@ -3,14 +3,6 @@ Moksha Documentation
 
 Moksha is a platform for creating realtime collaborative applications.
 
-Getting Started
----------------
-
-.. toctree::
-   :maxdepth: 2
-
-   main/BasicMoves
-
 Architecture
 ------------
 
