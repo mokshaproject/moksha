@@ -52,7 +52,7 @@ class Feed(Widget):
                 print entry.title
 
     """
-    template = 'mako:/myfedora/widgets/templates/feed_home.html'
+    template = 'mako:moksha.feed.templates.feed_home'
     params = {
             'name': 'The name of this feed',
             'link': 'The url to the site that this feed is for',
