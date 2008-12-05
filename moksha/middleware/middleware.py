@@ -50,16 +50,17 @@ class MokshaMiddleware(object):
         self.mokshaapp = MokshaApp()
         self.feed_storage = Shove('file://' + config['feed_cache'])
         self.feed_cache = Cache(self.feed_storage)
-        self.apps = {} # {'appname': {'controller': RootController, ... }}
+        self.apps = {}
         self.widgets = {}
         self.load_applications()
         self.load_widgets()
         self.load_renderers()
 
     def __call__(self, environ, start_response):
+        log.debug('MokshaMiddleware.__call__')
         environ['paste.registry'].register(moksha.apps, self.apps)
         environ['paste.registry'].register(moksha.feed_cache, self.feed_cache)
-        #environ['paste.registry'].register(moksha.widgets, self.widgets)
+        environ['paste.registry'].register(moksha.widgets, self.widgets)
         request = Request(environ)
         if request.path.startswith('/appz'):
             app = request.path.split('/')[1]

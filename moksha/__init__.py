@@ -6,3 +6,6 @@ feed_cache = StackedObjectProxy()
 
 # All loaded moksha applications
 apps = StackedObjectProxy()
+
+# All loaded ToscaWidgets
+widgets = StackedObjectProxy()
