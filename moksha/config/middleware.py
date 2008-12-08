@@ -7,7 +7,8 @@ from moksha.config.environment import load_environment
 make_base_app = base_config.setup_tg_wsgi_app(load_environment)
 
 def make_app(global_conf, full_stack=True, **app_conf):
-    app = make_base_app(global_conf, full_stack=True, **app_conf)
+    from moksha.middleware import MokshaMiddleware
+    app = make_base_app(global_conf, wrap_app=MokshaMiddleware, full_stack=True, **app_conf)
     #Wrap your base turbogears app with custom middleware
     return app
 
