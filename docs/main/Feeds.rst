@@ -56,3 +56,24 @@ to iterate over the entries as necessary.
     feed = Feed(url='http://foo.com/feed.xml')
     for entry in feed.iterentries():
         print entry.title
+
+Using the moksha feed cache by hand
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The moksha Feed widget automatically handles fetching and caching your feeds
+using the global moksha feed cache.  The moksha middleware automatically
+handles setting up this object, and making it available for all of the
+applications and widgets.  Moksha utilizes `Doug Hellmann's feedcache module <http://www.doughellmann.com/projects/feedcache>`_, which intelligently handles
+all of the hard work for us.
+
+Here is an example of using the feed cache to manually fetch a feed.
+
+
+.. code-block:: python
+
+    import moksha
+    feed = moksha.feed_cache.fetch('http://foo.com/feed.xml')
+    for entry in feed.entries:
+        print entry
+
+:Note: The moksha.feed_cache object is a :class:`paste.registry.StackedObjectProxy` instance, and is setup by the :class:`moksha.middleware.MokshaMiddleware` before each request reaches your application.  Thus, it only works during requests and cannot be used without using the MokshaMiddleware.
