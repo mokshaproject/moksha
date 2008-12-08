@@ -1,5 +1,5 @@
 <div id="${id}" class="list">
-    <h3><a href="${link}" target="_blank">${name}</a></h3>
+    <h3><a href="${link}" target="_blank">${title}</a></h3>
     <table>
         % for entry in entries:
             <tr>
