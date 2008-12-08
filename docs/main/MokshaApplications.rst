@@ -39,10 +39,23 @@ and store them in ``moksha.apps`` and ``moksha.widgets`` dictionaries.
 These can then be accessed at any time by any application or widget during
 any request.
 
-Writing applications and widgets
---------------------------------
+Writing applications and widgets using TurboGears2
+--------------------------------------------------
 
 .. toctree::
    :maxdepth: 1
 
    tg2/docs/index
+
+
+Configuration
+-------------
+
+Moksha will reads every application's ``production.ini`` or ``development.ini``
+upon startup and loads all of the ``[DEFAULT]`` variables into the global
+:class:`pylons.config` object.  This enables TG2/Pylons Moksha applications to
+use the config object as they would do normally.  However, this requires that
+applications do not have conflicting configuration variable names.  Moksha will
+display a warning message for each variable conflict.  Resolving these can be
+done by namespacing your configuration variables.  For example, if your config
+variable is `foo=bar`, you could rename it to `myapp.foo=bar`.
