@@ -1,6 +1,6 @@
 """Main Controller"""
 from mokshaplugin.lib.base import BaseController
-from tg import expose, flash, require, tmpl_context
+from tg import expose, flash, require, tmpl_context, config
 from pylons.i18n import ugettext as _
 
 from moksha import Feed
@@ -15,8 +15,6 @@ class ObamaFeed(Feed):
     automatically rendered by the moksha layout engine.
     """
     url = 'http://www.theobamafeed.com/feed'
-    name = 'The Obama Feed'
-
 
 class RootController(BaseController):
 
