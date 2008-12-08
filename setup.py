@@ -35,5 +35,8 @@ setup(
 
     [paste.app_install]
     main = pylons.util:PylonsInstaller
+
+    [moksha.widget]
+    orbited = moksha.hub:OrbitedWidget
     """,
 )
