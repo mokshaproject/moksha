@@ -57,10 +57,9 @@ class MokshaMiddleware(object):
         self.load_renderers()
 
     def __call__(self, environ, start_response):
-        log.debug('MokshaMiddleware.__call__')
         environ['paste.registry'].register(moksha.apps, self.apps)
-        environ['paste.registry'].register(moksha.feed_cache, self.feed_cache)
         environ['paste.registry'].register(moksha.widgets, self.widgets)
+        environ['paste.registry'].register(moksha.feed_cache, self.feed_cache)
         request = Request(environ)
         if request.path.startswith('/appz'):
             app = request.path.split('/')[1]
