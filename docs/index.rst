@@ -12,6 +12,14 @@ Architecture
    main/Architecture
    main/Technology
 
+Middleware
+----------
+
+.. toctree::
+   :maxdepth: 2
+
+   main/Middleware
+
 Applications
 ------------
 
