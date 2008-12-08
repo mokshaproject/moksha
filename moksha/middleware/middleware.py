@@ -25,6 +25,7 @@ import pkg_resources
 from webob import Request, Response
 from shove import Shove
 from pylons import config
+from paste.deploy import appconfig
 from feedcache.cache import Cache
 
 from moksha.exc import ApplicationNotFound
@@ -40,21 +41,21 @@ class MokshaMiddleware(object):
     If a request for an application comes in (/apps/$NAME), it will dispatch to
     the RootController of that application as defined in it's egg-info.
 
-    Creating a new moksha application requires adding the ``moksha.application``
-    setuptools entry-point to your setup.py
-
     """
     def __init__(self, application):
         log.info('Creating MokshaMiddleware')
-        self.application = application
-        self.mokshaapp = MokshaApp()
-        self.feed_storage = Shove('file://' + config['feed_cache'])
-        self.feed_cache = Cache(self.feed_storage)
         self.apps = {}
         self.widgets = {}
+        self.mokshaapp = MokshaApp()
+        self.application = application
+
         self.load_applications()
         self.load_widgets()
         self.load_renderers()
+        self.load_configs()
+
+        self.feed_storage = Shove('file://' + config['feed_cache'])
+        self.feed_cache = Cache(self.feed_storage)
 
     def __call__(self, environ, start_response):
         environ['paste.registry'].register(moksha.apps, self.apps)
@@ -119,3 +120,34 @@ class MokshaMiddleware(object):
         config['pylons.app_globals'].genshi_loader = TemplateLoader(
             search_path=template_paths, auto_reload=False,
             callback=template_loaded)
+
+    def load_configs(self):
+        """ Load the configuration files for all applications.
+
+        Here we iterate over all applications, loading their configuration
+        files and merging their [DEFAULT] configuration into ours.  This
+        requires that applications do not have conflicting configuration
+        variable names.  To mitigate this, applications should use some basic
+        variable namespacing, such as `myapp.myvariable = myvalue`.
+
+        We first make sure to load up Moksha's configuration, for the cases
+        where it is being run as WSGI middleware in a different environment.
+
+        """
+        moksha_conf = os.path.abspath(__file__ + '/../../../')
+        for app in [{'path': moksha_conf}] + self.apps.values():
+            for configfile in ('production.ini', 'development.ini'):
+                confpath = os.path.join(app['path'], configfile)
+                if os.path.exists(confpath):
+                    log.debug('Loading configuration: %s' % confpath)
+                    conf = appconfig('config:' + confpath)
+                    for entry in conf.global_conf:
+                        if entry.startswith('_'):
+                            continue
+                        if entry in config:
+                            log.warning('Conflicting variable: %s' % entry)
+                            continue
+                        else:
+                            config[entry] = conf.global_conf[entry]
+                            log.debug('Set `%s` in global config' % entry)
+                    break
