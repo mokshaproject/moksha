@@ -20,6 +20,8 @@ import pylons
 import moksha
 
 from tw.api import Widget
+
+# @@ Remove or port this dep
 from myfedora.lib.utils import fullurl
 
 class Feed(Widget):
@@ -33,7 +35,7 @@ class Feed(Widget):
        1) Subclassing
 
           class MyFeed(Feed):
-              url = 'http://foo.bar/feed.xml'
+              url = 'http://foo.com/feed.xml'
 
           myfeed = MyFeed()
           myfeed() # renders the widget, usually done in the template
@@ -41,20 +43,20 @@ class Feed(Widget):
        2) As ToscaWidget children
 
           class MyWidget(Widget):
-              myfeedurl = 'http://foo.bar/feed.xml'
+              myfeedurl = 'http://foo.com/feed.xml'
               children = [Feed('myfeed', url=myfeedurl)]
               template = "${c.myfeed()}"
 
         3) As a generator
 
-            feed = Feed(url='http://foo.bar/feed.xml')
+            feed = Feed(url='http://foo.com/feed.xml')
             for entry in feed.iterentries():
                 print entry.title
 
     """
     template = 'mako:moksha.feed.templates.feed_home'
     params = {
-            'name': 'The name of this feed',
+            'title': 'The title of this feed',
             'link': 'The url to the site that this feed is for',
             'entries': 'A list of feed entries',
     }
@@ -104,5 +106,5 @@ class Feed(Widget):
                     break
                 d['entries'].append(entry)
         else:
-            for entry in self.iterentries():
+            for entry in self.iterentries(d):
                 d['entries'].append(entry)
