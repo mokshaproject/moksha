@@ -15,5 +15,5 @@ Setting up a TurboGears2 environment
 Generating Moksha documentation
 -------------------------------
 
-    $ cd docs
-    $ make html
+    | $ cd docs
+    | $ make html
