@@ -4,13 +4,10 @@ Hacking on Moksha
 
 :Status: Incomplete
 
-Setting up a TurboGears2 environment
-------------------------------------
+Getting the code
+----------------
 
-.. toctree::
-   :maxdepth: 2
-
-   tg2/docs/main/QuickStart
+    | $ git clone git://git.fedorahosted.org/git/moksha
 
 Generating Moksha documentation
 -------------------------------
