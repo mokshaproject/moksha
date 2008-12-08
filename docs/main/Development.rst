@@ -7,7 +7,13 @@ Hacking on Moksha
 Setting up a TurboGears2 environment
 ------------------------------------
 
-Generating documentation::
+.. toctree::
+   :maxdepth: 2
+
+   tg2/docs/main/QuickStart
+
+Generating Moksha documentation
+-------------------------------
 
     $ cd docs
     $ make html
