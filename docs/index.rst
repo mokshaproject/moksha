@@ -3,7 +3,7 @@ Moksha Documentation
 
 :Status: Draft.  Under heavy development.
 
-Moksha is a platform for creating realtime collaborative applications.
+Moksha is a platform for creating collaborative applications.
 
 Architecture
 ------------

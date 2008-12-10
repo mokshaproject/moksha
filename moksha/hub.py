@@ -32,8 +32,8 @@ class OrbitedWidget(Widget):
         'onread': 'A javascript callback for when new data is read',
         'onclose': 'A javascript callback for when the connection closes',
     }
-    javascript = [orbited_js]
     onopen = onread = onclose = js_callback('function(){}')
+    javascript = [orbited_js]
     template = """
         <script type="text/javascript">
             Orbited.settings.port = 9000
@@ -49,6 +49,46 @@ class OrbitedWidget(Widget):
             }
             $(document).ready(function() {
                 connect()
-            });
+            })
         </script>
     """
+
+################################################################################
+
+import qpid
+from qpid.client import Client
+
+AMQP_SPEC = '/usr/share/amqp/amqp.0-10.xml'
+QPID_HOST = '127.0.0.1'
+QPID_PORT = 5672
+QPID_USER = 'guest'
+QPID_PASSWORD = 'guest'
+
+class MokshaHub(object):
+
+    client = None # qpid client
+    session = None # qpid client session
+
+    def __init__(self):
+        self.init_qpid_client()
+        self.init_qpid_session()
+
+    def init_qpid_client(self):
+        self.client = Client(QPID_HOST, QPID_PORT, qpid.spec.load(AMQP_SPEC))
+        self.client.start()
+        #self.client.start({'LOGIN': QPID_USER, 'PASSWORD': QPID_PASSWORD})
+
+    def init_qpid_client_session(self):
+        self.session = self.client.session()
+        self.session.session_open()
+
+    def close_session(self):
+        self.session.session_close()
+
+    def create_queue(self, queue, routing_key, exchange='amq.direct'):
+        self.session.queue_declare(queue=queue)
+        self.session.queue_bind(exchange=exchange, queue=queue,
+                                routing_key=routing_key)
+
+    def send_message(self, routing_key, message):
+        raise NotImplementedError
