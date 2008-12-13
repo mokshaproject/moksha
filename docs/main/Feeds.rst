@@ -54,6 +54,7 @@ to iterate over the entries as necessary.
     from moksha.widgets import Feed
 
     feed = Feed(url='http://foo.com/feed.xml')
+    print '%d entries' % feed.num_entries()
     for entry in feed.iterentries():
         print entry.title
 
