@@ -1,4 +1,4 @@
-<div id="${id}" class="list announce">
+<div id="${id}" class="list">
     <h3><a href="${link}" target="_blank">${title}</a></h3>
     <ul>
         % for entry in entries:
