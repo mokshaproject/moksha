@@ -97,9 +97,11 @@ class Feed(Widget):
             entry['uid'] = '%s_%d' % (self.id, i)
             yield entry
 
-    @property
+    def entries(self):
+        return [entry for entry in self.iterentries()]
+
     def num_entries(self):
-        return len(self.entries)
+        return len(self.entries())
 
     def update_params(self, d):
         super(Feed, self).update_params(d)
