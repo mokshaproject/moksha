@@ -4,6 +4,7 @@ from moksha.feed import Feed
 class TestFeed(object):
 
     def test_feed_subclassing(self):
+        """ Ensure that we can easily subclass our Feed widget """
         class MyFeed(Feed):
             url = 'http://lewk.org/rss'
         feed = MyFeed()
@@ -15,15 +16,40 @@ class TestFeed(object):
             pass
 
     def test_widget_children(self):
+        """ Ensure that we can easily set Feeds as ToscaWidget children """
         class MyWidget(Widget):
             myfeedurl = 'http://lewk.org/rss'
             children = [Feed('myfeed', url=myfeedurl)]
-            template = "mako:${c.myfeed()}"
+            engine_name = 'mako'
+            template = "${c.myfeed()}"
         widget = MyWidget()
         assert widget.c.myfeed
+        rendered = widget()
+        assert '<div id="myfeed"' in rendered
+
+    def test_genshi_widget(self):
+        """ Ensure that our Feed widget can be rendered in a Genshi widget """
+        class MyWidget(Widget):
+            children = [Feed('myfeed', url='http://lewk.org/rss')]
+            engine_name = 'genshi'
+            template = """
+            <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+              "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+              <html xmlns="http://www.w3.org/1999/xhtml"
+                    xmlns:py="http://genshi.edgewall.org/"
+                    xmlns:xi="http://www.w3.org/2001/XInclude">
+                ${c.myfeed()}
+             </html>
+            """
+        widget = MyWidget()
+        rendered = widget()
+        print rendered
+        assert '<div id="myfeed"' in rendered
 
     def test_feed_generator(self):
+        """ Ensure that our Feed object can return a generator """
         feed = Feed(url='http://lewk.org/rss')
         iter = feed.iterentries()
         data = iter.next()
         assert iter.next()
+
