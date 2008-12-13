@@ -75,13 +75,6 @@ class Feed(Widget):
             return super(Feed, cls).__new__(AlternateFeedView, *args, **kw)
         return super(Feed, cls).__new__(cls, *args, **kw)
 
-    def _get_full_url(self):
-        if self.url.startswith('/'):
-            feed_url = fullurl(self.url)
-        else:
-            feed_url = self.url
-        return feed_url
-
     def iterentries(self, d=None):
         url = self._get_full_url()
         feed = moksha.feed_cache.fetch(url)
