@@ -20,9 +20,14 @@ import pylons
 import moksha
 
 from tw.api import Widget
+from shove import Shove
+from feedcache.cache import Cache
 
-# @@ Remove or port this dep
-from myfedora.lib.utils import fullurl
+# An in-memory sqlite feed cache.  Utilized when the moksha WSGI middleware
+# is unavailable.  By default, it will try and use the centralized
+# moksha.feed_cache, which is setup by the middleware, but will gracefully
+# fallback to this cache.
+cache = None
 
 class Feed(Widget):
     """ A powerful Feed object.
@@ -76,8 +81,15 @@ class Feed(Widget):
         return super(Feed, cls).__new__(cls, *args, **kw)
 
     def iterentries(self, d=None):
-        url = self._get_full_url()
-        feed = moksha.feed_cache.fetch(url)
+        try:
+            feed = moksha.feed_cache.fetch(self.url)
+        except TypeError, e:
+            # MokshaMiddleware not running, so setup our own feed cache.
+            # This allows us to use this object outside of WSGI requests.
+            global cache
+            if not cache:
+                cache = Cache(Shove('sqlite:///:memory:'))
+            feed = cache.fetch(self.url)
         if d:
             d['link'] = feed.feed.link
             d['title'] = feed.feed.title
