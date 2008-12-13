@@ -71,7 +71,7 @@ class Feed(Widget):
             view = getattr(cls, 'view', False)
         if view:
             class AlternateFeedView(cls):
-                template = 'mako:/myfedora/widgets/templates/feed_%s.html' % view
+                template = 'mako:moksha.feed.templates.feed_%s' % view
             return super(Feed, cls).__new__(AlternateFeedView, *args, **kw)
         return super(Feed, cls).__new__(cls, *args, **kw)
 
