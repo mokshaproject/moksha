@@ -45,6 +45,7 @@ docs/main/BasicMoves.rst
 docs/main/Development.rst
 docs/main/Feeds.rst
 docs/main/GettingStarted.rst
+docs/main/Introduction.rst
 docs/main/Middleware.rst
 docs/main/MokshaApplications.rst
 docs/main/Technology.rst
@@ -1172,6 +1173,8 @@ moksha/templates/login.html
 moksha/templates/master.html
 moksha/templates/sidebars.html
 moksha/tests/__init__.py
+moksha/tests/test_feed.py
+moksha/tests/test_hub.py
 moksha/tests/test_models.py
 moksha/tests/functional/__init__.py
 moksha/tests/functional/test_root.py
