@@ -7,3 +7,4 @@ Architecture Goals
 - A powerful widget creation API that trivializes the creation of modular, scalable, reusable real-time widgets that can efficiently acquire data from a variety of sources.
 - A data aggregation layer that handles fetching feeds for the widgets, caching
   them, and sending them to Orbited, and via AMQP messages.
+- Automatically handles sharding application database models, by default, to allow for infinite scalability.
