@@ -12,5 +12,4 @@ Getting the code
 Generating Moksha documentation
 -------------------------------
 
-    | $ cd docs
-    | $ make html
+    | $ paver html
