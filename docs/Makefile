@@ -69,4 +69,4 @@ linkcheck:
 
 
 sync:
-	rsync -avz _build/html/ fedorapeople.org:~/public_html/moksha
+	rsync -avz .build/html/ fedorapeople.org:~/public_html/moksha
