@@ -5,6 +5,15 @@ Moksha Documentation
 
 Moksha is a platform for creating collaborative applications.
 
+Introduction
+------------
+
+.. toctree::
+   :maxdepth: 2
+
+   main/Introduction
+
+
 Architecture
 ------------
 
