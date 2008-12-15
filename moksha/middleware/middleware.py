@@ -178,6 +178,6 @@ class MokshaMiddleware(object):
         for name, app in self.apps.items():
             if app.get('model'):
                 log.debug('Creating database engine for %s' % app['name'])
-                self.engines[name] = create_engine('sqlite:///%s.db' % name)
+                self.engines[name] = create_engine(config['app_db'] % name)
                 app['model'].init_model(self.engines[name])
                 app['model'].metadata.create_all(bind=self.engines[name])
