@@ -4,15 +4,17 @@ from moksha import model
 from moksha.lib import app_globals, helpers
 
 base_config = AppConfig()
-base_config.renderers = []
-
 base_config.package = moksha
 
-#Set the default renderer
-base_config.default_renderer = 'genshi'
-base_config.renderers.append('genshi') 
+# Set the default renderer
+base_config.default_renderer = 'mako'
+base_config.renderers = []
+base_config.renderers.append('mako') 
 
-#Configure the base SQLALchemy Setup
+# @@ This is necessary at the moment.
+base_config.use_legacy_renderer = True
+
+# Configure the base SQLALchemy Setup
 base_config.use_sqlalchemy = True
 base_config.model = moksha.model
 base_config.DBSession = moksha.model.DBSession
