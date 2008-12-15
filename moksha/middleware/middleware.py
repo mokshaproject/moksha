@@ -174,7 +174,6 @@ class MokshaMiddleware(object):
         if they don't already exist.
 
         """
-        self.engines = {}
         for name, app in self.apps.items():
             if app.get('model'):
                 log.debug('Creating database engine for %s' % app['name'])
