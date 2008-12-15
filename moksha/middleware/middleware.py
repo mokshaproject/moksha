@@ -20,12 +20,16 @@ import os
 import sys
 import moksha
 import logging
+import datetime
 import pkg_resources
 
 from webob import Request, Response
 from shove import Shove
 from pylons import config
 from paste.deploy import appconfig
+from pylons.i18n import ugettext
+from genshi.filters import Translator
+from sqlalchemy import create_engine
 from feedcache.cache import Cache
 
 from moksha.exc import ApplicationNotFound
@@ -46,6 +50,7 @@ class MokshaMiddleware(object):
         log.info('Creating MokshaMiddleware')
         self.apps = {}
         self.widgets = {}
+        self.engines = {}
         self.mokshaapp = MokshaApp()
         self.application = application
 
@@ -53,6 +58,7 @@ class MokshaMiddleware(object):
         self.load_widgets()
         self.load_renderers()
         self.load_configs()
+        self.load_models()
 
         self.feed_storage = Shove('file://' + config['feed_cache'])
         self.feed_cache = Cache(self.feed_storage)
@@ -84,7 +90,14 @@ class MokshaMiddleware(object):
                         'name': app_entry.name,
                         'controller': app_class(),
                         'path': app_path,
+                        'model': None,
                         }
+                try:
+                    model = __import__('%s.model' % app_entry.name,
+                                       fromlist=[app_entry.name])
+                    self.apps[app_entry.name]['model'] = model
+                except ImportError:
+                    pass
 
     def load_widgets(self):
         log.info('Loading moksha widgets')
@@ -151,3 +164,20 @@ class MokshaMiddleware(object):
                             config[entry] = conf.global_conf[entry]
                             log.debug('Set `%s` in global config' % entry)
                     break
+
+    def load_models(self):
+        """ Setup the SQLAlchemy database models for all moksha applications.
+
+        This method will create a SQLAlchemy engine for each application
+        that has a model module.  It then takes this engine, binds it to
+        the application-specific metadata, and creates all of the tables,
+        if they don't already exist.
+
+        """
+        self.engines = {}
+        for name, app in self.apps.items():
+            if app.get('model'):
+                log.debug('Creating database engine for %s' % app['name'])
+                self.engines[name] = create_engine('sqlite:///%s.db' % name)
+                app['model'].init_model(self.engines[name])
+                app['model'].metadata.create_all(bind=self.engines[name])
