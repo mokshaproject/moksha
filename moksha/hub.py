@@ -16,10 +16,6 @@
 # Copyright 2008, Red Hat, Inc.
 # Authors: Luke Macken <lmacken@redhat.com>
 
-"""
-The Moksha Real-time Hub
-"""
-
 from tg import config
 from tw.api import Widget, JSLink, js_callback, js_function
 
