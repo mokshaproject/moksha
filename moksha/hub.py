@@ -20,11 +20,10 @@
 The Moksha Real-time Hub
 """
 
+from tg import config
 from tw.api import Widget, JSLink, js_callback, js_function
 
-# @@ Make the orbited url globally configurable
-ORBITED_URL = 'http://localhost:9000'
-orbited_js = JSLink(link=ORBITED_URL + '/static/Orbited.js')
+orbited_js = JSLink(link=config['orbited_url'] + '/static/Orbited.js')
 
 class OrbitedWidget(Widget):
     params = {
