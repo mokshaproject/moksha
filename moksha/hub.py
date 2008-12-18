@@ -19,7 +19,8 @@
 from tg import config
 from tw.api import Widget, JSLink, js_callback, js_function
 
-orbited_js = JSLink(link=config['orbited_url'] + '/static/Orbited.js')
+orbited_js = JSLink(link='http://%s:%s/static/Orbited.js' % (config['orbited_host'],
+                                                             config['orbited_port']))
 
 class OrbitedWidget(Widget):
     params = {
@@ -31,8 +32,8 @@ class OrbitedWidget(Widget):
     javascript = [orbited_js]
     template = """
         <script type="text/javascript">
-            Orbited.settings.port = 9000
-            Orbited.settings.hostname = 'localhost'
+            Orbited.settings.port = %(port)s
+            Orbited.settings.hostname = '%(host)s'
             document.domain = document.domain
             TCPSocket = Orbited.TCPSocket
             connect = function() {
@@ -40,10 +41,10 @@ class OrbitedWidget(Widget):
                 conn.onread = ${onread}
                 conn.onopen = ${onopen}
                 conn.onclose = ${onclose}
-                conn.open('localhost', 9000)
+                conn.open('%(host)s', %(port)s)
             }
             $(document).ready(function() {
                 connect()
             })
         </script>
-    """
+    """ % {'port': config['orbited_port'], 'host': config['orbited_host']}
