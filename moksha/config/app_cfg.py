@@ -9,6 +9,7 @@ base_config.package = moksha
 # Set the default renderer
 base_config.default_renderer = 'mako'
 base_config.renderers = []
+base_config.renderers.append('genshi') 
 base_config.renderers.append('mako') 
 
 # @@ This is necessary at the moment.
