@@ -1,5 +1,5 @@
-Moksha Middlware
-================
+Moksha Middleware
+=================
 
 Moksha can run as an application serving platform on its own, but
 also contains a small piece of WSGI middleware that provides your 
@@ -9,7 +9,10 @@ It currently provides the following functionality
 
     * Sets up the feed storage and cache for widgets
     * Handles dispatching moksha applications, which can be any WSGI app
-
+    * Handles dispatching to individual widgets, which are simply `ToscaWidgets.<http://toscawidgets.org>`_
+    * Sets up `SQLAlchemy` database engines for each application
+    * Initializes applications data models
+    * Loads all application configuration
 
 Using the MokshaMiddleware
 --------------------------
@@ -17,7 +20,6 @@ Using the MokshaMiddleware
 Using the MokshaMiddleware with an existing WSGI application is quite
 simple.  It will look a bit different with each framework, but here is
 how it looks in TurboGears2.
-
 
 .. code-block:: python
 
@@ -29,9 +31,7 @@ how it looks in TurboGears2.
     make_base_app = base_config.setup_tg_wsgi_app(load_environment)
 
     def make_app(global_conf, full_stack=True, **app_conf):
-
         from moksha.middlware import MokshaMiddleware
-
         app = make_base_app(global_conf, wrap_app=MokshaMiddleware,
                             full_stack, **app_conf)
         return app
