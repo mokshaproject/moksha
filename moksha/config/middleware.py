@@ -12,6 +12,14 @@ def make_app(global_conf, full_stack=True, **app_conf):
     app = make_base_app(global_conf, wrap_app=MokshaMiddleware,
                         full_stack=True, **app_conf)
 
+    if base_config.squeeze:
+        from repoze.squeeze.processor import ResourceSqueezingMiddleware
+        app = ResourceSqueezingMiddleware(
+                app,
+                cache_dir='public/cache',
+                url_prefix='/cache/',
+                )
+
     if base_config.profile:
         from repoze.profile.profiler import AccumulatingProfileMiddleware
         app = AccumulatingProfileMiddleware(
