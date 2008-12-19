@@ -1,0 +1,23 @@
+/*
+ *  Moksha UI Popup base css.  You most likely want to override this 
+ */
+
+.ui-moksha-popup {
+	border: 1px;
+}
+
+.ui-moksha-popup.ui-moksha-panel {
+	display: None;
+}
+
+.ui-moksha-popup.ui-moksha-popup-item {
+}
+
+.ui-moksha-popup.ui-moksha-popup-item.ui-moksha-selected {
+	border: 1px;
+}
+
+
+.ui-moksha-popup.ui-moksha-selected {
+	border: 1px;
+}
