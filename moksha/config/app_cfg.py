@@ -30,3 +30,7 @@ base_config.sa_auth.permission_class = model.Permission
 # override this if you would like to provide a different who plugin for 
 # managing login and logout of your application
 base_config.sa_auth.form_plugin = None
+
+# To enable the repoze.profile middleware.
+# After surfing around, navigate to /__profile__ to view results.
+base_config.profile = False
