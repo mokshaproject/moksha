@@ -3,7 +3,9 @@ Moksha Documentation
 
 :Status: Under heavy development.
 
-Moksha is a platform for creating collaborative, scalable, live applications.
+Moksha is a platform for creating live collaborative applications.
+Moksha provides a layer of cohesion and collaboration between existing
+applications, services, and communities.
 
 Introduction
 ------------
@@ -12,7 +14,10 @@ Introduction
    :maxdepth: 2
 
    main/Introduction
-
+   main/MokshaPlatform
+   main/DataAggregation
+   main/DataInterpretation
+   main/DataPersistence
 
 Architecture
 ------------
@@ -22,6 +27,8 @@ Architecture
 
    main/Architecture
    main/Technology
+   main/Infrastructure
+   main/Scalability
 
 Middleware
 ----------
@@ -45,6 +52,7 @@ Widgets
    :maxdepth: 2
 
    main/Feeds
+   main/tg2/docs/main/ToscaWidgets/ToscaWidgets
 
 Development
 -----------

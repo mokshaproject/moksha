@@ -17,5 +17,8 @@
 
 """ Exceptions used with Moksha """
 
-class ApplicationNotFound(Exception):
+class MokshaException(Exception):
+    pass
+
+class ApplicationNotFound(MokshaException):
     pass

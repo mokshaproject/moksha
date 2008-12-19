@@ -48,16 +48,17 @@ class MokshaMiddleware(object):
     """
     def __init__(self, application):
         log.info('Creating MokshaMiddleware')
-        self.apps = {}
-        self.widgets = {}
-        self.engines = {}
+        self.apps = {}    # {'app name': WSGI Controller}
+        self.widgets = {} # {'widget name': tw.api.Widget}
+        self.engines = {} # {'app name': sqlalchemy.engine.base.Engine}
         self.mokshaapp = MokshaApp()
         self.application = application
 
-        self.load_applications()
-        self.load_widgets()
+        self.load_paths()
         self.load_renderers()
         self.load_configs()
+        self.load_applications()
+        self.load_widgets()
         self.load_models()
 
         self.feed_storage = Shove('file://' + config['feed_cache'])
@@ -79,43 +80,65 @@ class MokshaMiddleware(object):
             response = request.get_response(self.application)
         return response(environ, start_response)
 
+    def load_paths(self):
+        """ Load the names and paths of all of the moksha applications and widgets.
+
+        We must do this before actually loading the widgets or applications, to ensure
+        that we parse and load each of their configuration files beforehand.
+        """
+        for app_entry in pkg_resources.iter_entry_points('moksha.application'):
+            if app_entry.name in self.apps:
+                raise MokshaException('Duplicate application name: %s' % app_entry.name)
+            app_path = app_entry.dist.location
+            self.apps[app_entry.name] = {
+                    'name': app_entry.name,
+                    'path': app_path,
+                    }
+        for widget_entry in pkg_resources.iter_entry_points('moksha.widget'):
+            if widget_entry.name in self.widgets:
+                raise MokshaException('Duplicate widget name: %s' % widget_entry.name)
+            widget_path = widget_entry.dist.location
+            self.widgets[widget_entry.name] = {
+                    'name': widget_entry.name,
+                    'path': widget_path,
+                    }
+
     def load_applications(self):
         log.info('Loading moksha applications')
         for app_entry in pkg_resources.iter_entry_points('moksha.application'):
-            if not app_entry.name in self.apps:
-                log.info('Loading %s application' % app_entry.name)
-                app_class = app_entry.load()
-                app_path = app_entry.dist.location
-                self.apps[app_entry.name] = {
-                        'name': app_entry.name,
-                        'controller': app_class(),
-                        'path': app_path,
-                        'model': None,
-                        }
-                try:
-                    model = __import__('%s.model' % app_entry.name,
-                                       fromlist=[app_entry.name])
-                    self.apps[app_entry.name]['model'] = model
-                except ImportError:
-                    pass
+            log.info('Loading %s application' % app_entry.name)
+            app_class = app_entry.load()
+            app_path = app_entry.dist.location
+            self.apps[app_entry.name] = {
+                    'name': app_entry.name,
+                    'controller': app_class(),
+                    'path': app_path,
+                    'model': None,
+                    }
+            try:
+                model = __import__('%s.model' % app_entry.name,
+                                   fromlist=[app_entry.name])
+                self.apps[app_entry.name]['model'] = model
+            except ImportError:
+                pass
 
     def load_widgets(self):
         log.info('Loading moksha widgets')
         for widget_entry in pkg_resources.iter_entry_points('moksha.widget'):
-            if not widget_entry.name in self.widgets:
-                log.info('Loading %s widget' % widget_entry.name)
-                widget_class = widget_entry.load()
-                widget_path = widget_entry.dist.location
-                self.widgets[widget_entry.name] = {
-                        'name': widget_entry.name,
-                        'widget': widget_class(),
-                        'path': widget_path,
-                        }
+            log.info('Loading %s widget' % widget_entry.name)
+            widget_class = widget_entry.load()
+            widget_path = widget_entry.dist.location
+            self.widgets[widget_entry.name] = {
+                    'name': widget_entry.name,
+                    'widget': widget_class(),
+                    'path': widget_path,
+                    }
 
     def load_renderers(self):
         """ Load our template renderers with our application paths """
         template_paths = config['pylons.paths']['templates']
-        for app in self.apps.values():
+        moksha_dir = os.path.abspath(__file__ + '/../../../')
+        for app in [{'path': moksha_dir}] + self.apps.values():
             if app['path'] not in template_paths:
                 template_paths.append(app['path'])
 

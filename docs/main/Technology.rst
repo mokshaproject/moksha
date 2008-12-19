@@ -1,6 +1,8 @@
 The technology that powers Moksha
 =================================
 
+.. image:: ../_static/moksha-technology.png
+
 Python
 ------
 An high-level interpreted, interactive, object-oriented programming language.

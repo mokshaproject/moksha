@@ -85,7 +85,7 @@ html_style = 'moksha.css'
 
 # The name of an image file (within the static path) to place at the top of
 # the sidebar.
-#html_logo = 'moksha.png'
+html_logo = 'moksha.png'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
