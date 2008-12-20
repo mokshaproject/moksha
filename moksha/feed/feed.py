@@ -91,10 +91,11 @@ class Feed(Widget):
                 cache = Cache(Shove('sqlite:///:memory:'))
             feed = cache.fetch(self.url)
         if d:
-            d['link'] = feed.feed.link
+            d['link'] = feed.feed.get('link')
             d['title'] = feed.feed.title
         for i, entry in enumerate(feed.entries):
             entry['uid'] = '%s_%d' % (self.id, i)
+            entry['link'] = entry.get('link')
             yield entry
 
     def entries(self):
