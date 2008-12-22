@@ -23,6 +23,7 @@ Caching layer                       Beaker
 Widget resource injection           ToscaWidgets
 Authentication                      repoze.who
 Authorization                       repoze.what
+Transaction management              repoze.tm2
 Error handling & Debugging          WebError
 Registry manager                    Paste
                  **Moksha Middleware**
