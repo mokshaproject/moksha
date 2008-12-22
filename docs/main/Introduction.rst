@@ -6,7 +6,7 @@ What is Moksha?
 
 A Platform
 ~~~~~~~~~~
-A highly scalable architecture for creating, running, and scaling dashboards of
+A highly scalable architecture for creating, running, and wielding dashboards of
 live collaborative widgets that extract and extend data from arbitrary
 resources in an intelligent and efficient manner.
 

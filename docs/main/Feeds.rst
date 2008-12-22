@@ -22,7 +22,7 @@ You can easily subclass the Feed widget and provide your own url.
 
 .. code-block:: python
 
-    from moksha.widgets import Feed
+    from moksha import Feed
 
     class MyFeed(Feed):
         url = 'http://foo.com/feed.xml'
@@ -40,7 +40,7 @@ ability access it in your template from the `c` context object.
 .. code-block:: python
 
     from tw.api import Widget
-    from moksha.widgets import Feed
+    from moksha import Feed
 
     class MyWidget(Widget):
         myfeedurl = 'http://foo.com/feed.xml'
@@ -55,7 +55,7 @@ to iterate over the entries as necessary.
 
 .. code-block:: python
 
-    from moksha.widgets import Feed
+    from moksha import Feed
 
     feed = Feed(url='http://foo.com/feed.xml')
     print '%d entries' % feed.num_entries()
