@@ -1,10 +1,8 @@
 """Main Controller"""
-from mokshaplugin.lib.base import BaseController
 from tg import expose, flash, require, tmpl_context, config
-from pylons.i18n import ugettext as _
-
-from moksha import Feed
+from moksha import _, Feed
 from moksha.layout import LayoutWidget
+from mokshaplugin.lib.base import BaseController
 
 layout_widget = LayoutWidget('layout')
 

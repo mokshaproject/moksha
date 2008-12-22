@@ -1,21 +1,22 @@
-"""Main Controller"""
-from moksha.lib.base import BaseController
-from tg import expose, flash, require
-from pylons.i18n import ugettext as _
-#from tg import redirect, validate
-#from moksha.model import DBSession, metadata
-#from dbsprockets.dbmechanic.frameworks.tg2 import DBMechanic
-#from dbsprockets.saprovider import SAProvider
+from tg import expose, flash, require, tmpl_context, redirect, validate
 from repoze.what import predicates
-from moksha.controllers.secc import Secc
+from moksha.controllers.secc import AdminController
+from moksha.lib.base import BaseController
+from moksha.layout import LayoutWidget
+from moksha.model import DBSession
+from moksha import _
+
+## Our main layout engine
+layout_widget = LayoutWidget('layout')
 
 class RootController(BaseController):
-    #admin = DBMechanic(SAProvider(metadata), '/admin')
-    secc = Secc()
+
+    admin = AdminController()
 
     @expose('moksha.templates.index')
     def index(self):
-        return dict(page='index')
+        tmpl_context.layout_widget = layout_widget
+        return dict()
 
     @expose('moksha.templates.about')
     def about(self):
