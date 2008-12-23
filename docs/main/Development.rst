@@ -5,14 +5,27 @@ Hacking on Moksha
 Getting the code
 ----------------
 
-    | git clone git://git.fedorahosted.org/git/moksha
+.. code-block:: none
+
+    git clone git://git.fedorahosted.org/git/moksha
 
 Running Moksha
 --------------
 
-    | paster serve development.ini
+.. code-block:: none
+
+    paster serve development.ini
 
 Generating Moksha documentation
 -------------------------------
 
-    | paver html
+.. code-block:: none
+
+    paver html
+
+Running the Moksha test suite
+-----------------------------
+
+.. code-block:: none
+
+    nosetests
