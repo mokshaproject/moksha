@@ -54,6 +54,14 @@ Widgets
    main/Feeds
    main/tg2/docs/main/ToscaWidgets/ToscaWidgets
 
+Model
+-----
+
+.. toctree::
+   :maxdepth: 2
+
+   main/MokshaModel
+
 Development
 -----------
 .. toctree::
