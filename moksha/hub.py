@@ -80,13 +80,6 @@ class MokshaHub(object):
             log.warning('qmf.console not available')
             self.qmf = None
 
-    def close(self):
-        if not self.session.error():
-            self.session.close(timeout=self.timeout)
-        self.conn.close(timeout=self.timeout)
-        if self.qmf:
-            self.qmf.delBroker(self.qmf_broker)
-
     def create_queue(self, queue, routing_key, exchange='amq.direct',
                      auto_delete=False, durable=False, **kw):
         self.session.queue_declare(queue=queue, auto_delete=auto_delete,
@@ -119,7 +112,13 @@ class MokshaHub(object):
     def query(self, queue):
         return self.session.queue_query(queue=queue)
 
-    # ability to get the latest messages from a given queue?
+    def close(self):
+        if not self.session.error():
+            self.session.close(timeout=self.timeout)
+        self.conn.close(timeout=self.timeout)
+        if self.qmf:
+            self.qmf.delBroker(self.qmf_broker)
+    __del__ = close
 
 if __name__ == '__main__':
     sh = logging.StreamHandler()
