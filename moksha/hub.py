@@ -30,7 +30,7 @@ class MokshaHub(object):
     queues = []
     exchanges = []
     client = None
-    channel = None
+    session = None
     amqp_spec = qpid.spec.default()
 
     def __init__(self, broker='localhost', timeout=10):
