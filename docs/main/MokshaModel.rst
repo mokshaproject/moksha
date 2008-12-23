@@ -59,8 +59,8 @@ Querying facts for certain entity characteristics
 Creating a dict-like polymorphic-valued vertical table
 ------------------------------------------------------
 
-Moksha provides a `vertical` module that makes it easy to define
-polymorphic-valued vertical database models.  A good example of this is
+Moksha provides a :mod:`moksha.model.vertical` module that makes it easy to
+define polymorphic-valued `vertical database <http://en.wikipedia.org/wiki/Partition_(database)>`_ models, using `SQLAlchemy <http://sqlalchemy.org`_.  A good example of this is
 the Entity/Fact model described above.
 
 .. code-block:: python
