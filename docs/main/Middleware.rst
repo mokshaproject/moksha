@@ -9,7 +9,7 @@ It currently provides the following functionality
 
     * Sets up the feed storage and cache for widgets
     * Handles dispatching moksha applications, which can be any WSGI app
-    * Handles dispatching to individual widgets, which are simply `ToscaWidgets.<http://toscawidgets.org>`_
+    * Handles dispatching to individual widgets, which are simply `ToscaWidgets <http://toscawidgets.org>`_
     * Sets up `SQLAlchemy` database engines for each application
     * Initializes applications data models
     * Loads all application configuration
