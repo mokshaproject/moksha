@@ -1,29 +1,29 @@
-=================
-Hacking on Moksha
-=================
+===================
+Hacking with Moksha
+===================
 
 Getting the code
 ----------------
 
 .. code-block:: none
 
-    git clone git://git.fedorahosted.org/git/moksha
+    git clone git://git.fedorahosted.org/git/
 
-Running Moksha
---------------
+Running
+-------
 
 .. code-block:: none
 
     paster serve development.ini
 
-Generating Moksha documentation
+Generating documentation
 -------------------------------
 
 .. code-block:: none
 
     paver html
 
-Running the Moksha test suite
+Running the test suite
 -----------------------------
 
 .. code-block:: none
