@@ -19,7 +19,7 @@ Using the MokshaMiddleware
 
 Using the MokshaMiddleware with an existing WSGI application is quite
 simple.  It will look a bit different with each framework, but here is
-how it looks in TurboGears2.
+how it looks in TurboGears2.  If you're using Moksha as a stand-alone platform, this is automatically setup for you.
 
 .. code-block:: python
 
