@@ -81,14 +81,16 @@ class MokshaMiddleware(object):
         return response(environ, start_response)
 
     def load_paths(self):
-        """ Load the names and paths of all of the moksha applications and widgets.
+        """ Load the names and paths of all moksha applications and widgets.
 
-        We must do this before actually loading the widgets or applications, to ensure
-        that we parse and load each of their configuration files beforehand.
+        We must do this before actually loading the widgets or applications, to
+        ensure that we parse and load each of their configuration files
+        beforehand.
         """
         for app_entry in pkg_resources.iter_entry_points('moksha.application'):
             if app_entry.name in self.apps:
-                raise MokshaException('Duplicate application name: %s' % app_entry.name)
+                raise MokshaException('Duplicate application name: %s' % 
+                                      app_entry.name)
             app_path = app_entry.dist.location
             self.apps[app_entry.name] = {
                     'name': app_entry.name,
@@ -96,7 +98,8 @@ class MokshaMiddleware(object):
                     }
         for widget_entry in pkg_resources.iter_entry_points('moksha.widget'):
             if widget_entry.name in self.widgets:
-                raise MokshaException('Duplicate widget name: %s' % widget_entry.name)
+                raise MokshaException('Duplicate widget name: %s' % 
+                                      widget_entry.name)
             widget_path = widget_entry.dist.location
             self.widgets[widget_entry.name] = {
                     'name': widget_entry.name,
