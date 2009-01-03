@@ -37,6 +37,11 @@ class Feed(Widget):
 
     Ways of creating utilizing the Feed widget:
 
+       0) Specifying the URL render-time
+
+         feed = Feed()
+         feed(url='http://foo.com/feed.xml')
+
        1) Subclassing
 
           class MyFeed(Feed):
@@ -59,6 +64,7 @@ class Feed(Widget):
                 print entry.title
 
     """
+    url = None
     template = 'mako:moksha.feed.templates.feed_home'
     params = {
             'title': 'The title of this feed',
@@ -81,15 +87,16 @@ class Feed(Widget):
         return super(Feed, cls).__new__(cls, *args, **kw)
 
     def iterentries(self, d=None):
+        url = self.url or d.get('url')
         try:
-            feed = moksha.feed_cache.fetch(self.url)
+            feed = moksha.feed_cache.fetch(url)
         except TypeError, e:
             # MokshaMiddleware not running, so setup our own feed cache.
             # This allows us to use this object outside of WSGI requests.
             global cache
             if not cache:
                 cache = Cache(Shove('sqlite:///:memory:'))
-            feed = cache.fetch(self.url)
+            feed = cache.fetch(url)
         if d:
             d['link'] = feed.feed.get('link')
             d['title'] = feed.feed.title

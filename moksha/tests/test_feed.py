@@ -53,3 +53,8 @@ class TestFeed(object):
         data = iter.next()
         assert iter.next()
 
+    def test_feed_render_url(self):
+        """ Ensure that a generic feed can be rendered with a url """
+        feed = Feed()
+        rendered = feed(url='http://lewk.org/rss')
+        assert 'l e w k . o r g' in rendered
