@@ -28,7 +28,9 @@ Using the cache within a widget
         def update_params(self, d):
             super(MyWidget, self).update_params(d)
             c = cache.get_cache('mywidget')
-            d['entries'] = c.get_value(key='entries', createfunc=self.get_entries)
+            d['entries'] = c.get_value(key='entries',
+                                       createfunc=self.get_entries,
+                                       expiretime=3600)
 
         def get_entries(self):
             """ Expensive operation goes here... """
