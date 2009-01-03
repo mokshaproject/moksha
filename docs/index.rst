@@ -45,6 +45,7 @@ Applications
    :maxdepth: 2
 
    main/MokshaApplications
+   main/Caching
 
 Widgets
 -------
