@@ -63,7 +63,29 @@ accessed using the code below::
 Such a value is a dictionary and is often called "the identity dict". It will 
 only be defined if the current user has been authenticated.
 
-The username will be available in ``identity['repoze.who.userid']``.
+.. tip::
+
+    There is a short-cut to the code above in the WSGI ``request``, which will
+    be defined in ``{yourproject}.lib.base.BaseController`` if you enabled
+    authentication and authorization when you created the project.
+    
+    For example, to check whether the user has been authenticated you may
+    use::
+    
+        # ...
+        from tg import request
+        # ...
+        if request.identity:
+            flash('You are authenticated!')
+     
+     ``request.identity`` will equal to ``None`` if the user has not been
+     authenticated.
+     
+     That short-cut will also be set in the template context.
+
+The username will be available in ``identity['repoze.who.userid']``
+(or ``request.identity['repoze.who.userid']``, depending on the method you
+select).
 
 
 How it works in TurboGears applications

@@ -183,7 +183,7 @@ Edit controllers/root.py::
 
 
             # save entry
-            DBSession.save(entry)
+            DBSession.add(entry)
 
             # query record from Movie object record = DBSession.query(Movie).filter(Movie.title=='Transformer').one()
 
@@ -250,5 +250,4 @@ Reference
 ----------
 
  * `SQLAlchemy Object Relational Tutorial <http://www.sqlalchemy.org/docs/04/ormtutorial.html>`_
- * `Using Elixir with pylons <http://cleverdevil.org/computing/68/using-elixir-with-pylons>`_ (not supported yet)
- * `Elixir Tutorial <http://elixir.ematia.de/trac/wiki/TutorialDivingIn>`_ (not supported yet)
+

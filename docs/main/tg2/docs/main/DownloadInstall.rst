@@ -48,7 +48,9 @@ If you have curl or  wget installed you can do this with a single command:
 Setting up a Virtual Environment
 ---------------------------------
 
-First, install ``virtualenv`` using this command:
+.. info :: Virtualenv is a tool that you can use to keep your python path clean and tidy.It allows you to install new packages and all of their dependencies into a clean working environment -- thus eliminating the possibility that installing turbogears or some other new package will break your existing python environment.So, while not strictly necessary, we recommend using virtualenv.  
+
+So, first we will install ``virtualenv`` using this command:
 
 On Windows::
 
@@ -56,8 +58,7 @@ On Windows::
 
 On Unix: 
 
-You will likely need root permissions to install virtualenv in you your system's  
-site-packages directory: 
+You will likely need root permissions to install virtualenv in you your system's site-packages directory: 
 
 .. code-block:: bash
 
@@ -93,11 +94,15 @@ that produces something like this::
 
 	$ cd tg2env
 
+On windows you activate a virtualenv this way::
+
+    Scripts\activate.bat
+
 .. code-block:: bash
 	
 	$ source bin/activate
 
-and now your prompt should look something like this (if you're on unix)::
+and now your prompt should change to indicate that you're in a virtualenv.  It will look something like this (if you're on unix)::
 
 	(tg2env)usrname@host:tgenv$
 
@@ -108,8 +113,7 @@ We've included pre-compiled binaries for windows users, but if you're on unix
 you'll need a working version of the GCC compiler installed, as well as the 
 python headers.   On OSX this means installing Xcode (available on the OS X cd
 or at http://developer.apple.com/tools/xcode/), and on Debian derived linux 
-versions this requires python-dev (available via ``apt-get install python-dev``), 
-Fedora users will need the python-devel rpm, etc. 
+versions this requires python-dev and build-esentials (available via ``apt-get install python-dev``), Fedora users will need the python-devel rpm, etc. 
 
 If you've got the compilers and python header files, you'll be able to install 
 the latest version of turbogears via:  
@@ -118,7 +122,7 @@ the latest version of turbogears via:
 
 	$ easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
 
-A whole bunch of packages should download.  (This may take a several min.)
+All of turbogears, and all of it's dependencies should download and install themselves.  (This may take a several min.)
 
 Validate the installation:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

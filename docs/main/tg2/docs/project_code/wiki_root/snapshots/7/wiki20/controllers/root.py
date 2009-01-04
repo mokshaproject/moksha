@@ -47,5 +47,5 @@ class RootController(BaseController):
     @expose("wiki20.templates.edit")
     def notfound(self, pagename):
         page = Page(pagename=pagename, data="")
-        DBSession.save(page)
+        DBSession.add(page)
         return dict(wikipage=page)

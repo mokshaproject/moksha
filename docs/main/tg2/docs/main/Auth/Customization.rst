@@ -23,10 +23,17 @@ available directives are all optional:
 * ``form_identifies`` (bool): Whether your custom challenger should also be
   used as an identifier (e.g., an instance of 
   :mod:`repoze.who.plugins.form.RedirectingFormPlugin`).
-* ``identifiers``: Set of secondary :mod:`repoze.who` identifiers.
-* ``authenticators``: Set of secondary :mod:`repoze.who` authenticators.
-* ``challengers``: Set of secondary :mod:`repoze.who` challengers.
-* ``mdproviders``: Set of secondary :mod:`repoze.who` metadata providers.
+* You may also customize the parameters sent to
+  :class:`repoze.who.middleware.PluggableAuthenticationMiddleware`. For example,
+  to set an additional :mod:`repoze.who` authenticator, you may use something
+  like this in ``{yourproject}.config``::
+  
+      # ...
+      from repoze.who.plugins.basicauth import BasicAuthPlugin
+      # ...
+      http_auth = BasicAuthPlugin('something')
+      app_cfg.sa_auth.authenticators = [('http_auth', http_auth)]
+      # ...
 
 Customizing the model structure assumed by the quickstart
 ---------------------------------------------------------
@@ -307,7 +314,7 @@ quickstart, you should follow the instructions described in this section:
             u.email_address = u'manager@somedomain.com'
             u.password = u'managepass'
         
-            model.DBSession.save(u)
+            model.DBSession.add(u)
         
             g = model.Group()
             g.group_name = u'managers'
@@ -315,14 +322,14 @@ quickstart, you should follow the instructions described in this section:
         
             g.users.append(u)
         
-            model.DBSession.save(g)
+            model.DBSession.add(g)
         
             p = model.Permission()
             p.permission_name = u'manage'
             p.description = u'This permission give an administrative right to the bearer'
             p.groups.append(g)
         
-            model.DBSession.save(p)
+            model.DBSession.add(p)
             model.DBSession.flush()
         
             u1 = model.User()
@@ -331,7 +338,7 @@ quickstart, you should follow the instructions described in this section:
             u1.email_address = u'editor@somedomain.com'
             u1.password = u'editpass'
         
-            model.DBSession.save(u1)
+            model.DBSession.add(u1)
             model.DBSession.flush()
             
             transaction.commit()
@@ -342,6 +349,18 @@ quickstart, you should follow the instructions described in this section:
        finally run the command below from the same directory::
        
            paster setup-app development.ini
+
+.. note::
+
+    You may also want to define a short-cut to the ``identity`` dictionary
+    in the WSGI ``request`` and the template context. To do so, in 
+    ``{yourproject}.lib.base.BaseController``, add the following lines in
+    the ``__call__`` method::
+    
+        # ...
+        request.identity = request.environ.get('repoze.who.identity')
+        tmpl_context.identity = request.identity
+        # ...
 
 
 Disabling authentication and authorization

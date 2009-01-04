@@ -13,6 +13,11 @@ The overall process for creating a form is as follows:
 * if you are creating an edit form, extract the row data from the database.
 * call the widget in your template, passing in row data when appropriate.
 
+An `example project`_ (working with latest trunk as of r5963) has been attached so
+that people can try this easily and see the full project working.
+
+.. _example project: ../../_static/toscasample.tgz
+
 
 Tutorial
 -------------------
@@ -25,6 +30,9 @@ Let's start with a simple SQLAlchemy model that has a Movie object like this ``m
 ::
 
  # model/__init__.py
+ from sqlalchemy import Column, Table, types
+ from sqlalchemy.orm import mapper
+
  movie_table = Table("movie", metadata,
      Column("id", types.Integer, primary_key=True),
      Column("title", types.String(100), nullable=False),
@@ -41,6 +49,11 @@ Let's start with a simple SQLAlchemy model that has a Movie object like this ``m
 
 Our movie has a smattering of the different standard data types so that we can show off some simple ToscaWidgets form widgets.
 
+To setup your database you should run the following::
+
+    paster setup-app development.ini
+
+this will create the database schema in the database referenced in your config file.
 
 Basic Form
 ----------
@@ -85,7 +98,7 @@ Create a new template in your templates directory, lets call it new_form.html.  
        xmlns:xi="http://www.w3.org/2001/XInclude">
  
  <!-- This line is important, since it will automatically handle including any required resources in the head -->
- <xi:include href="../master.html" />
+ <xi:include href="master.html" />
  
  <head>
    <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
@@ -111,13 +124,14 @@ To show your form on the screen, we need to add a new controller method that loo
      @expose("genshi:toscasample.templates.new_form")
      def new(self, **kw):
          """Form to add new record"""
+         import pylons
          # Passing the form in the return dict is no longer kosher, you can 
          # set pylons.c.form instead and use c.form in your template
          # (remember to 'import pylons' too)
-         pylons.c.form = model_form
-         return dict(modelname='Movie')
+         pylons.c.form = create_movie_form
+         return dict(modelname='Movie', page='ToscaTuto')
 
-Run the application, surf to `http://localhost:8080/new_form/ <http://localhost:8080/new_form/>`_ You will see a form that looks like this:
+Run the application, surf to `http://localhost:8080/new/ <http://localhost:8080/new/>`_ You will see a form that looks like this:
 
 
 .. image:: http://docs.turbogears.org/2.0/RoughDocs/ToscaWidgets/Forms?action=AttachFile&do=get&target=movie_form.png
@@ -253,13 +267,28 @@ The first thing we need to do is add a validator to each of the fields which we 
           genre = SingleSelectField(options=genrechoices)
           description = TextArea(attrs=dict(rows=3, cols=25))
 
-Note that we removed the date format from the CalendarDatePicker.  This is because the DateConverter will take whatever date is entered in the box and convert it to a datetime object, which is much better understood by the orm than a date string.
+Note that we removed the date format from the CalendarDatePicker. This is
+because the DateConverter will take whatever date is entered in the box
+and convert it to a datetime object, which is much better understood by the orm
+than a date string.
 
-Our controller gets a new validator decorator for the creation of the movie entry.
+Our controller gets a new validator decorator for the creation of the
+movie entry. Don't forget to uncomment the lines::
+
+    from tg import redirect, validate
+    from toscasample.model import DBSession, metadata
+
+
+and to add this new line to the import section::
+
+    from toscasample.model import Movie
+
+    
+in the same file or you'll get errors.
 
 ::
 
-    @validate(new_movie, error_handler=new)
+    @validate(create_movie_form, error_handler=new)
     @expose()
     def create(self, **kw):
         """A movie and save it to the database"""
@@ -267,9 +296,9 @@ Our controller gets a new validator decorator for the creation of the movie entr
         movie.title = kw['title']
         movie.year = kw['year']
         movie.release_date = kw['release_date']
-        movie.descrpition = kw['description']
+        movie.description = kw['description']
         movie.genre = kw['genre']
-        DBSession.save(movie)
+        DBSession.add(movie)
         flash("Movie was successfully created.")
         raise redirect("list")
 
@@ -281,6 +310,44 @@ And the resulting form on a bad entry will give you a output like this:
 
 
 In short, there are many things you can do with validators, but that the above example gives you a basic understanding of how validators can be used to check user input.
+
+The handler to display your movie list should look something like this::
+
+    @expose("genshi:toscasample.templates.movielist")
+    def list(self, **kw):
+        """a simple list for movies"""
+        movies = DBSession.query(Movie)
+        return dict(movies=movies, page='Movie list')
+
+and you should also have a template named movielist.html in your templates dir
+which should contain this::
+
+    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    <html xmlns="http://www.w3.org/1999/xhtml"
+          xmlns:py="http://genshi.edgewall.org/"
+          xmlns:xi="http://www.w3.org/2001/XInclude">
+
+    <!-- This line is important, since it will automatically handle including any required resources in the head -->
+    <xi:include href="master.html" />
+
+    <head>
+      <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
+      <title>Movie List</title>
+    </head>
+
+    <body>
+    <h1>Movie List</h1>
+
+        <ol>
+          <li py:for="movie in movies">${movie.title}, ${movie.year}</li>
+        </ol>
+
+    <a href="${tg.url('/new')}">Add a Movie</a>
+    </body>
+    </html>
+
+
 
 Available Validators
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -32,6 +32,8 @@ When not using forms, the story gets a bit more complex. Basically, you need to
 specify which validator goes with which argument using the ``validators``
 keyword argument. Here's a simple example::
     
+    from formencode import validators
+    
     @expose('json')
     @validate(validators={"a":validators.Int(), "b":validators.Email})
     def two_validators(self, a=None, b=None, *args):
@@ -48,8 +50,8 @@ be available there for the rest of the request.   In this case if there are vali
 errors, we grab both the error messages and the original `unvalidated` values 
 and return them in the error message. 
 
-FormEncode and TurboGears provide a number of useful pre-made validators
-for you to use,  are available in the ``turbogears.validators`` module.
+FormEncode provides a number of useful pre-made validators
+for you to use,  are available in the ``formencode.validators`` module.
 
 For most validators, you can pass keyword arguments for more specific
 constraints. 
@@ -175,12 +177,12 @@ Schema validation
 ----------------------
 
 Sometimes you need more power and flexibility than you can get from validating
-individual form fields.   Fortuanately FormEncode provides just the thing for
+individual form fields.   Fortunately FormEncode provides just the thing for
 us -- Schema validators. 
 
 If you want to do multiple-field validation, reuse validators or just clean up
 your code, validation ``Schema``'s are the way to go. You create a validation
-schema by inheriting from ``turbogears.validators.Schema`` and pass the newly
+schema by inheriting from ``formencode.validators.Schema`` and pass the newly
 created ``Schema`` as the ``validators`` argument instead of passing a
 dictionary.  
 

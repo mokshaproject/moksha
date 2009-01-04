@@ -60,12 +60,9 @@ widgets: *simple* form field widgets -- text inputs and checkboxes -- and
 Simple form field widgets generally correspond to the default browser inputs
 but some, like the date picker, have extra smarts to make your user's lives
 easier. You can get an overview of which widgets are available on your install
-by checking out the `widget browser`_ in the `toolbox`_.
+by checking out paster tg-info, and you can find more detaills about particular widgets by using the the toscawidgets widget browser:
 
-(Note that the toolbox and widget browser are not yet implemented in TG 2.0.  The 1.0 versions are substantially accurate for 2.0, however.)
-
-.. _widget browser: 1.0/WidgetBrowser
-.. _toolbox: 1.0/Toolbox
+http://toscawidgets.org/documentation/WidgetBrowser/
 
 Compound widgets, like forms, usually act as containers for fields. In
 particular, a forms provides layout (Table or List) for its fields and is
@@ -134,7 +131,7 @@ covered, to the template ``add.html``::
     def add(self):
         """Show the comment form."""
 
-        if pylons.c.form_errors:
+        if tg.tmpl_context.form_errors:
             flash('There was a problem with the form!')
         return dict(form=comment_form)
 
@@ -338,7 +335,7 @@ over details`_, but that's the basic idea.
 
 If ``@validate()`` does throw an error, the ``error_handler`` method takes
 care of them.  If a validation error occurs, TurboGears will store a dictionary
-of FormEncode validation errors in pylons.c.form_errors.
+of FormEncode validation errors in tg.tmpl_context.form_errors.
 
 In the example, we're re-using ``add`` so that the form will be re-displayed
 if errors occur. Let's have a look at the ``add`` method again::
@@ -347,7 +344,7 @@ if errors occur. Let's have a look at the ``add`` method again::
     def add(self):
         """Show the comment form."""
 
-        if pylons.c.form_errors:
+        if tg.tmpl_context.form_errors:
             flash('There was a problem with the form!')
         return dict(form=comment_form)
 

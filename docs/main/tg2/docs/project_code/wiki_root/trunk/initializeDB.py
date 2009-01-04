@@ -14,6 +14,6 @@ metadata.create_all(engine)
 page = Page("FrontPage", "initial data")
 
 # Save the page object to the in memory DBSession
-DBSession.save(page)
+DBSession.add(page)
 transaction.commit()
 

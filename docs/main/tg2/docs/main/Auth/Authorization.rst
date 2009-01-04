@@ -136,13 +136,13 @@ to do is pass the predicate to that decorator. For example::
 Controller-level authorization
 ------------------------------
 If you want that all the actions from a given controller meet a common
-authorization criteria, then you may define the ``require`` attribute of
+authorization criteria, then you may define the ``_require`` attribute of
 your controller class::
 
     from yourproject.lib.base import BaseController
 
     class Admin(BaseController):
-        require = authorize.has_permission('manage')
+        _require = authorize.has_permission('manage')
 
         @expose('yourproject.templates.index')
         def index(self):

@@ -80,7 +80,7 @@ process when it asks you if you want auth::
   Do you need authentication and authorization in this project? [yes]
 
 You'll then get authentication and authorization code added for you, including
-the SQLAlchemy/Elixir-powered model definitions in ``{yourpackage}.model.auth`` 
+the SQLAlchemy-powered model definitions in ``{yourpackage}.model.auth`` 
 and the relevant settings in ``{yourpackage}.config.app_cfg``. It also defines 
 the default users, groups and permissions in ``{yourpackage}.websetup``, which 
 you may want to customize.
@@ -94,7 +94,7 @@ command from your project's root directory::
 .. note::
   This module is :mod:`repoze.what.plugins.quickstart` and only works if your
   users' credentials, groups and permissions are stored in a `SQLAlchemy
-  <http://www.sqlalchemy.org/>`_/`Elixir <http://elixir.ematia.de/>`_-managed 
+  <http://www.sqlalchemy.org/>`_ -managed 
   database. To implement it on an existing project, or customize the model 
   structure assumed by it, you have to read the documentation for 
   :mod:`repoze.what.plugins.quickstart`.

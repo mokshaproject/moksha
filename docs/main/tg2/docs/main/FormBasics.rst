@@ -2,14 +2,14 @@ TurboGears Form handling overview:
 ===================================
 
 The first thing to say about TurboGears form handling is that we turn form
-submission values in to Controller params, and allow you to do whatever you 
+submission values into Controller params, and allow you to do whatever you 
 want for form generation/submission in the templates. 
 
 So, you can always handle forms without using any of these tools, forms can be 
 coded up in your templates, and the values can be processed in your controller. 
 
 But creating forms, processing form results, and handling form errors is one of 
-the most common activities TG2 provides several tools to help you make forms 
+the most common activities. TG2 provides several tools to help you make forms 
 with complex javascript enabled features quickly and easily, and to make 
 handling validation errors, and requesting updated information from your users 
 easy. 
