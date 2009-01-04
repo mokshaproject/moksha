@@ -15,6 +15,9 @@ setup(
         "feedcache",
         "feedparser",
         "tw.jquery",
+        "repoze.squeeze",
+        "repoze.profile",
+        "stompservice"
     ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
