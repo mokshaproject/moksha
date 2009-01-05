@@ -16,29 +16,23 @@
 # Copyright 2008, Red Hat, Inc.
 # Authors: Luke Macken <lmacken@redhat.com>
 
+import logging
+import sqlalchemy
 from datetime import datetime
 from sqlalchemy import *
-from sqlalchemy.orm import relation, comparable_property, EXT_CONTINUE
+from sqlalchemy.orm import relation, comparable_property
 from sqlalchemy.orm.collections import attribute_mapped_collection
-from sqlalchemy.orm.interfaces import MapperExtension
+from moksha.hook import MokshaHookMapperExtension
 from moksha.model import metadata, DBSession, DeclarativeBase
 from moksha.model.vertical import (PolymorphicVerticalProperty,
                                    VerticalPropertyDictMixin)
 
-class MokshaMapperExtension(MapperExtension):
-    """ A mapper extension that intercepts inserts/updates/deletes """
-    def after_insert(self, mapper, connection, instance):
-        return EXT_CONTINUE
-    def after_update(self, mapper, connection, instance):
-        return EXT_CONTINUE
-    def after_delete(self, mapper, connection, instance):
-        return EXT_CONTINUE
-
+moksha_mapper_extension = MokshaHookMapperExtension()
 
 class Fact(PolymorphicVerticalProperty, DeclarativeBase):
     """ A polymorphic-valued vertical table property """
     __tablename__ = 'facts'
-    __mapper_args__ = {'extension': MokshaMapperExtension()}
+    __mapper_args__ = {'extension': moksha_mapper_extension}
 
     id = Column(Integer, ForeignKey('entities.id'), primary_key=True)
     key = Column(Unicode(64), primary_key=True)
@@ -75,6 +69,7 @@ class Entity(VerticalPropertyDictMixin, DeclarativeBase):
       apple.facts['color'] = Fact('color', 'red')
     """
     __tablename__ = 'entities'
+    __mapper_args__ = {'extension': moksha_mapper_extension}
     _property_type = Fact
     _property_mapping = 'facts'
 
