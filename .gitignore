@@ -5,3 +5,4 @@
 data
 docs/_build
 *.swo
+prompt.py
