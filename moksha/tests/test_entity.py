@@ -64,3 +64,26 @@ class TestEntity(TestModel):
         DBSession.add(self.entity)
         assert (DBSession.query(Fact).
                 filter(with_characteristic(u'l33t', True))).one()
+
+    """
+    def test_hooks(self):
+        from moksha.hook import Hook, MokshaHookMapperExtension
+        from moksha.model import model
+        insert = update = delete = False
+
+        class MyHook(Hook):
+            def after_insert(self, instance):
+                insert = True
+            def after_update(self, instance):
+                update = True
+            def after_delete(self, instance):
+                delete = True
+
+        model.moksha_mapper_extension.hooks['after_insert'].append(MyHook())
+
+        # create a new entity
+        something = Entity(u'something')
+        DBSession.add(something)
+        DBSession.flush()
+        assert insert
+    """
