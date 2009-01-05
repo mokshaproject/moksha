@@ -26,3 +26,23 @@ class LiveGraphWidget(Widget):
     def update_params(self, d):
         super(LiveGraphWidget, self).update_params(d)
         self.add_call(js_function('init_graph')('livegraph'))
+
+
+from tw.jquery.flot import FlotWidget
+
+class LiveFlotWidget(Widget):
+    children = [stomp_widget, FlotWidget('flot')]
+    params = ['id', 'height', 'width', 'onconnectedframe', 'onmessageframe']
+    onconnectedframe = stomp_subscribe('/topic/flot_example')
+    onmessageframe = js_callback("""function(frame){
+            var data = JSON.parse(frame.body)[0];
+            $.plot($("#liveflot"), data["data"], data["options"]);
+    }""")
+    template = """
+        <div id="${id}" style="width:${width};height:${height};"/>
+        ${c.stomp(onmessageframe=onmessageframe,
+                  onconnectedframe=onconnectedframe)}
+    """
+    engine_name = 'mako'
+    height = '300px'
+    width = '500px'

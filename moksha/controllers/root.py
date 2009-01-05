@@ -14,6 +14,9 @@ layout_widget = LayoutWidget('layout')
 from moksha.examples.livegraph import LiveGraphWidget
 live_graph = LiveGraphWidget('livegraph')
 
+from moksha.examples.livegraph import LiveFlotWidget
+live_flot = LiveFlotWidget('liveflot')
+
 class RootController(BaseController):
 
     admin = AdminController()
@@ -31,7 +34,8 @@ class RootController(BaseController):
 
     @expose('moksha.templates.widget')
     def stomp(self):
-        tmpl_context.widget = live_graph
+        #tmpl_context.widget = live_graph
+        tmpl_context.widget = live_flot
         return dict()
 
     @expose('moksha.templates.about')
