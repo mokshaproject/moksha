@@ -40,6 +40,6 @@ setup(
     main = pylons.util:PylonsInstaller
 
     [moksha.widget]
-    orbited = moksha.hub:OrbitedWidget
+    livegraph = moksha.examples.livegraph:LiveGraphWidget
     """,
 )

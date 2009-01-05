@@ -1,0 +1,20 @@
+body, html, h1 {
+    margin: 0px;
+    padding: 0px;
+    font-family: sans-serif;
+    background-color: #f3ffe2;
+}
+
+.bar {
+    background-color: #38f;
+    height: 12px;
+    width: 200px;
+    margin: 3px 0px;
+}
+
+#container {
+    margin: auto;
+    border: 2px solid #000;
+    width: 400px;
+    background-color: #fff;
+}
