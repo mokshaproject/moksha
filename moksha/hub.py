@@ -82,8 +82,10 @@ class MokshaHub(object):
 
     def create_queue(self, queue, routing_key, exchange='amq.direct',
                      auto_delete=False, durable=False, **kw):
-        self.session.queue_declare(queue=queue, auto_delete=auto_delete,
-                                   durable=durable, **kw)
+        if queue not in self.queues:
+            self.session.queue_declare(queue=queue, auto_delete=auto_delete,
+                                       durable=durable, **kw)
+            self.queues.append(queue)
 
     def delete_queue(self, queue):
         self.session.queue_delete(queue=queue)
