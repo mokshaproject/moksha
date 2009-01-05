@@ -1,3 +1,5 @@
+import moksha
+
 from tg import expose, flash, require, tmpl_context, redirect, validate
 from repoze.what import predicates
 from moksha.controllers.secc import AdminController
@@ -6,16 +8,30 @@ from moksha.layout import LayoutWidget
 from moksha.model import DBSession
 from moksha import _
 
-## Our main layout engine
+## Widgets
 layout_widget = LayoutWidget('layout')
+
+from moksha.examples.livegraph import LiveGraphWidget
+live_graph = LiveGraphWidget('livegraph')
 
 class RootController(BaseController):
 
     admin = AdminController()
 
-    @expose('moksha.templates.index')
+    @expose('moksha.templates.widget')
     def index(self):
-        tmpl_context.layout_widget = layout_widget
+        tmpl_context.widget = layout_widget
+        return dict()
+
+    @expose('moksha.templates.widget')
+    def widget(self, name):
+        """ Display a widget by name """
+        tmpl_context.widget = moksha.widgets[name]
+        return dict()
+
+    @expose('moksha.templates.widget')
+    def stomp(self):
+        tmpl_context.widget = live_graph
         return dict()
 
     @expose('moksha.templates.about')
