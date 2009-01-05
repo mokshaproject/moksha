@@ -5,3 +5,6 @@ Shove
 feedcache
 feedparser
 tw.jquery
+repoze.squeeze
+repoze.profile
+stompservice
