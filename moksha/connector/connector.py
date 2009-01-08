@@ -45,6 +45,33 @@ class IConnector(object):
         """
         raise NotImplementedError
     
+    def _dispatch(self, op, resource_path, params, _cookies = None, **kwds):
+        """ This method is for dispatching to the correct interface which
+        is mostly used by the connector engine
+        
+        :op: operation to dispatch to (e.g. request_data or query)
+        :resource_path: the path to the resource being requested (e.g.
+                        the path information in the URL that comes after 
+                        the base path) 
+        :params: a dictionary of name value pairs which are sent as
+                   parameters in the request (e.g. the query string in a http
+                   get request)  
+        :cookies: a dictionary of name value pairs which are sent as cookies
+                  with the request.  If your resource does not use 
+                  cookies you may use these values how inline with what the
+                  resource expects or ignore them completely. 
+        
+        :Returns:
+        
+            the results of the operation requested
+        """
+        
+        # TODO: devise a way to mark off methods which can be dispatched to 
+        if op in ('request_data', 'call', 'query'):
+            return getattr(self, op)(resource_path, params, _cookies, **kwds)
+        
+        return None
+        
     def request_data(self, resource_path, params, cookies):
         """ Implement this method to request raw data from a URL resource.
         The URL should be set in register and should never change.  You should
@@ -90,7 +117,7 @@ class IConnector(object):
         off with a configuration option
         """
         
-        raise NotImplementedError 
+        raise NotImplementedError
 
 class ICall(object):
     """ Method calling interface for resources that return structured data
@@ -197,7 +224,7 @@ class IQuery(object):
                       default_sort_order = None,
                       can_paginate = False):
         
-        cls._path[path] = {
+        cls._paths[path] = {
                              "primary_key_col": primary_key_col,
                              "default_sort_col": default_sort_col,
                              "default_sort_order": default_sort_order,
@@ -209,9 +236,9 @@ class IQuery(object):
     def register_column(cls, path, column, 
                         default_visible = True, 
                         can_sort = False, 
-                        can_filter_wildcard = False):
+                        can_filter_wildcards = False):
         
-        cls._path[path]["columns"][column] = {
+        cls._paths[path]["columns"][column] = {
                                                "default_visible": default_visible,
                                                "can_sort": can_sort,
                                                "can_filter_wildcards": can_filter_wildcards
@@ -219,6 +246,13 @@ class IQuery(object):
     
     def get_capabilities(self):
         return self._paths
+
+    def get_default_sort_col(self, path):
+        p = self._paths.get(path)
+        if p:
+            return p['default_sort_col']
+        
+        return None
 
 # TODO: Implement these two interfaces
 class IFeed(object):
