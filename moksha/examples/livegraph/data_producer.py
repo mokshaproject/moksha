@@ -15,6 +15,9 @@ INTERVAL = 300 # in ms
 
 class DataProducer(StompClientFactory):
 
+    username = 'guest'
+    password = 'guest'
+
     # Flot demo specific variables
     offset = 0.0
     skip = 0
@@ -48,6 +51,8 @@ class DataProducer(StompClientFactory):
 
         for bar in self.bars:
             bar[1] = bar[1] + (int(random() * 3) - 1)
+            if bar[1] <= -5: bar[1] = -4
+            if bar[1] >= 15: bar[1] = 15
         d2 = self.bars
 
         d3 = []
