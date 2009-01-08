@@ -8,14 +8,7 @@ from moksha.layout import LayoutWidget
 from moksha.model import DBSession
 from moksha import _
 
-## Widgets
 layout_widget = LayoutWidget('layout')
-
-from moksha.examples.livegraph import LiveGraphWidget
-live_graph = LiveGraphWidget('livegraph')
-
-from moksha.examples.livegraph import LiveFlotWidget
-live_flot = LiveFlotWidget('liveflot')
 
 class RootController(BaseController):
 
@@ -30,12 +23,6 @@ class RootController(BaseController):
     def widget(self, name):
         """ Display a widget by name """
         tmpl_context.widget = moksha.widgets[name]
-        return dict()
-
-    @expose('moksha.templates.widget')
-    def stomp(self):
-        #tmpl_context.widget = live_graph
-        tmpl_context.widget = live_flot
         return dict()
 
     @expose('moksha.templates.about')
