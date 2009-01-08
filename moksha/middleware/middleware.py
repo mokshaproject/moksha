@@ -133,7 +133,7 @@ class MokshaMiddleware(object):
             widget_path = widget_entry.dist.location
             self.widgets[widget_entry.name] = {
                     'name': widget_entry.name,
-                    'widget': widget_class(),
+                    'widget': widget_class(widget_entry.name),
                     'path': widget_path,
                     }
 
