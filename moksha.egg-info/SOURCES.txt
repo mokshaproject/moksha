@@ -2,7 +2,6 @@
 AUTHORS
 COPYING
 README
-deliverance.xml
 development.ini
 orbited.cfg
 pavement.py
@@ -1007,12 +1006,16 @@ moksha/config/__init__.py
 moksha/config/app_cfg.py
 moksha/config/environment.py
 moksha/config/middleware.py
+moksha/connector/__init__.py
+moksha/connector/connector.py
 moksha/controllers/__init__.py
 moksha/controllers/error.py
 moksha/controllers/root.py
 moksha/controllers/secc.py
 moksha/controllers/template.py
 moksha/examples/__init__.py
+moksha/examples/liveflot/__init__.py
+moksha/examples/liveflot/liveflot.py
 moksha/examples/livegraph/__init__.py
 moksha/examples/livegraph/data_producer.py
 moksha/examples/livegraph/livegraph.py
@@ -1043,6 +1046,9 @@ moksha/lib/__init__.py
 moksha/lib/app_globals.py
 moksha/lib/base.py
 moksha/lib/helpers.py
+moksha/live/__init__.py
+moksha/live/flot.py
+moksha/live/widget.py
 moksha/middleware/__init__.py
 moksha/middleware/middleware.py
 moksha/model/__init__.py
