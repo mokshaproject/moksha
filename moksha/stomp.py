@@ -35,7 +35,7 @@ def stomp_subscribe(topic):
 
 
 class StompWidget(Widget):
-    params = ['onopen', 'onerror', 'onerrorframe', 'onclose', 
+    params = ['onopen', 'onerror', 'onerrorframe', 'onclose',
               'onconnectedframe', 'onmessageframe']
     onopen = onconnectedframe = js_callback('function(){}')
     onerror = js_callback('function(error){ console.log("Error: " + error) }')
@@ -55,14 +55,14 @@ class StompWidget(Widget):
         stomp.onerror = ${onerror};
         stomp.onerrorframe = ${onerrorframe};
         stomp.onconnectedframe = ${onconnectedframe};
-        // To handle multiple destinations we 
-        // would have to check frame.headers.destination.
+        // To handle multiple destinations we
+        // would have to check frame.headers.destination
         stomp.onmessageframe = ${onmessageframe};
-        stomp.connect('%s', %s);
+        stomp.connect('%s', %s, '%s', '%s');
       </script>
     """ % (config['orbited_port'], config['orbited_host'],
-           config['stomp_host'], config['stomp_port'])
+           config['stomp_host'], config['stomp_port'],
+           config['stomp_user'], config['stomp_pass'])
     engine_name = 'mako'
-
 
 stomp_widget = StompWidget('stomp')
