@@ -26,11 +26,11 @@ setup(
     package_data={'moksha': ['i18n/*/LC_MESSAGES/*.mo',
                                  'templates/*/*',
                                  'public/*/*']},
-    #message_extractors = {'moksha': [
-    #        ('**.py', 'python', None),
-    #        ('templates/**.mako', 'mako', None),
-    #        ('templates/**.html', 'genshi', None),
-    #        ('public/**', 'ignore', None)]},
+    message_extractors = {'moksha': [
+            ('**.py', 'python', None),
+            ('templates/**.mako', 'mako', None),
+            ('templates/**.html', 'genshi', None),
+            ('public/**', 'ignore', None)]},
 
     entry_points="""
     [paste.app_factory]
@@ -40,6 +40,7 @@ setup(
     main = pylons.util:PylonsInstaller
 
     [moksha.widget]
-    livegraph = moksha.examples.livegraph:LiveGraphWidget
+    liveflot = moksha.live.flot:LiveFlotWidget
+    #livegraph = moksha.examples.livegraph:LiveGraphWidget
     """,
 )
