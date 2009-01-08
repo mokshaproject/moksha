@@ -125,7 +125,7 @@ class ICall(object):
         
         raise NotImplementedError
 
-class ITable(object):
+class IQuery(object):
     """ Query interface for data destined for a table or data grid
     
     Implement this interface if you want to provide access to data using 
@@ -140,7 +140,7 @@ class ITable(object):
     _paths = {}
     
     def query(self, resource_path, params, cookies, 
-              start = 0, 
+              offset = 0, 
               num_rows = 10,
               sort_col = None,
               sort_order = -1,
@@ -162,7 +162,7 @@ class ITable(object):
                   with the request.  If your resource does not use 
                   cookies you may use these values how inline with what the
                   resource expects or ignore them completely.
-        :start: if pagination is supported this sets the row to start at
+        :offset: if pagination is supported this sets the row to start at
         :num_rows: if pagination is supported this sets how many rows to 
                    return
         :sort_col: Which column we should sort by. None = default
@@ -170,7 +170,7 @@ class ITable(object):
         :filters: a hash of columns and their filters in this format:
                       { 
                         colname: {
-                                   "filter": filter,
+                                   "value": value,
                                    "op": operator # "=", "<", ">", etc.
                                  }
                       }
@@ -181,7 +181,7 @@ class ITable(object):
                   "total_rows": total_rows, # number of rows matched by query
                   "row_count": row_count,   # number of rows actually returned
                                             # due to pagination
-                  "start_row": start_row,   # number of first row returned due
+                  "offset": offset,   # number of first row returned due
                                             # to pagination
                   "rows": rows              # list of rows which were returned
                 }
