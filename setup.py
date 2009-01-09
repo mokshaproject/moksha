@@ -41,6 +41,6 @@ setup(
 
     [moksha.widget]
     liveflot = moksha.live.flot:LiveFlotWidget
-    #livegraph = moksha.examples.livegraph:LiveGraphWidget
+    livegraph = moksha.examples.livegraph:LiveGraphWidget
     """,
 )

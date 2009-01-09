@@ -993,7 +993,6 @@ moksha/exc.py
 moksha/hook.py
 moksha/hub.py
 moksha/orbited.py
-moksha/stomp.py
 moksha/websetup.py
 moksha/wsgiapp.py
 moksha.egg-info/PKG-INFO
@@ -1014,8 +1013,6 @@ moksha/controllers/root.py
 moksha/controllers/secc.py
 moksha/controllers/template.py
 moksha/examples/__init__.py
-moksha/examples/liveflot/__init__.py
-moksha/examples/liveflot/liveflot.py
 moksha/examples/livegraph/__init__.py
 moksha/examples/livegraph/data_producer.py
 moksha/examples/livegraph/livegraph.py
@@ -1048,6 +1045,7 @@ moksha/lib/base.py
 moksha/lib/helpers.py
 moksha/live/__init__.py
 moksha/live/flot.py
+moksha/live/stomp.py
 moksha/live/widget.py
 moksha/middleware/__init__.py
 moksha/middleware/middleware.py
