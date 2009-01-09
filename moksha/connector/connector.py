@@ -126,7 +126,7 @@ class ICall(object):
     XMLRPC resources)
     """
     
-    def call(self, resource_path, params, cookies):
+    def call(self, resource_path, params, _cookies):
         """ Implement this method to request structured data from a URL 
         resource. The URL should be set in register and should never change.  
         You should also consider validating the other arguments instead of just 
@@ -166,7 +166,7 @@ class IQuery(object):
     
     _paths = {}
     
-    def query(self, resource_path, params, cookies, 
+    def query(self, resource_path, params, _cookies, 
               offset = 0, 
               num_rows = 10,
               sort_col = None,
@@ -201,6 +201,12 @@ class IQuery(object):
                                    "op": operator # "=", "<", ">", etc.
                                  }
                       }
+                      
+                  - or -
+                  
+                  {
+                    colname: value  # assumes =
+                  }
                     
         :Returns:
             A hash with format:

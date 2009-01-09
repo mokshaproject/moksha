@@ -105,23 +105,27 @@ class MokshaMiddleware(object):
             
         return response(environ, start_response)
 
-    def _run_connector(self, conn, op, *path, **kwds):
+    def _run_connector(self, conn, op, *path, **remote_params):
         response = None
         # check last part of path to see if it is json data
-        params = None;
+        dispatch_params = {};
         
-        p = urllib.unquote_plus(path[-1].strip())
+        p = urllib.unquote_plus(path[-1].lstrip())
         if p.startswith('{'):
-            params = json.loads(p)
+            dispatch_params = json.loads(p)
+            path = path[:-1]
+        
+        # prevent trailing slash
+        if not p:
+            path = path[:-1]
         
         path = '/'.join(path)
         
         conn = self.connectors.get(conn)
         
-        if conn:
-            
+        if conn:    
             conn_obj = conn['connector_class']()
-            r = conn_obj._dispatch(op, path, params, **kwds)
+            r = conn_obj._dispatch(op, path, remote_params, **dispatch_params)
             if not isinstance(r, str):
                 r = json.dumps(r, separators=(',',':'))
                 
