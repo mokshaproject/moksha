@@ -19,21 +19,17 @@
 from tw.jquery.flot import FlotWidget
 from tw.api import js_callback
 from moksha.live import LiveWidget
-from moksha.stomp import stomp_subscribe
 
 class LiveFlotWidget(LiveWidget):
     """ A live graphing widget """
+    topic = 'flot_example'
     children = [FlotWidget('flot')]
     params = ['id', 'data', 'options', 'height', 'width',
-              'onconnectedframe', 'onmessageframe']
-    onconnectedframe = stomp_subscribe('/topic/flot_example')
-    onmessageframe = js_callback("""function(frame){
-            var data = JSON.parse(frame.body)[0];
-            $.plot($("#liveflot_flot"), data["data"], data["options"]);
-    }""")
-    template = "${c.flot(data=data,options=options,height=height,width=width)}"
+              'onconnectedframe', 'onmessageframe', 'topic']
+    onmessageframe = '$.plot($("#${id}"),json[0]["data"],json[0]["options"])'
+    template = '<div id="${id}" style="width:${width};height:${height};" />'
     engine_name = 'mako'
     height = '250px'
     width = '390px'
-    data = [{}]
     options = {}
+    data = [{}]
