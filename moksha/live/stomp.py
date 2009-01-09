@@ -58,8 +58,6 @@ class StompWidget(Widget):
         stomp.onerror = ${onerror};
         stomp.onerrorframe = ${onerrorframe};
         stomp.onconnectedframe = function(){ ${onconnectedframe} };
-        // To handle multiple destinations we
-        // would have to check frame.headers.destination
         stomp.onmessageframe = function(frame){
             var json = JSON.parse(frame.body);
             ${onmessageframe}
