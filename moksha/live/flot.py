@@ -17,7 +17,6 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 
 from tw.jquery.flot import FlotWidget
-from tw.api import js_callback
 from moksha.live import LiveWidget
 
 class LiveFlotWidget(LiveWidget):
@@ -25,10 +24,9 @@ class LiveFlotWidget(LiveWidget):
     topic = 'flot_example'
     children = [FlotWidget('flot')]
     params = ['id', 'data', 'options', 'height', 'width',
-              'onconnectedframe', 'onmessageframe', 'topic']
+              'onconnectedframe', 'onmessageframe']
     onmessageframe = '$.plot($("#${id}"),json[0]["data"],json[0]["options"])'
     template = '<div id="${id}" style="width:${width};height:${height};" />'
-    engine_name = 'mako'
     height = '250px'
     width = '390px'
     options = {}
