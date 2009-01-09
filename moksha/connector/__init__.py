@@ -1,1 +1,1 @@
-from connector import IConnector, ICall, ITable, IFeed, INotify
+from connector import IConnector, ICall, IQuery, IFeed, INotify
