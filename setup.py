@@ -43,5 +43,6 @@ setup(
     liveflot = moksha.live.flot:LiveFlotWidget
     livefeed = moksha.live.feed:LiveFeedWidget
     livegraph = moksha.examples.livegraph:LiveGraphWidget
+    chat = moksha.live.chat:LiveChatWidget
     """,
 )
