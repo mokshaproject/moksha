@@ -22,6 +22,7 @@ class DataProducer(StompClientFactory):
     offset = 0.0
     skip = 0
     bars = [[0, 3], [4, 8], [8, 5], [9, 13]]
+    n = 0
 
     def recv_connected(self, msg):
         print 'Connected; producing data'
@@ -35,12 +36,14 @@ class DataProducer(StompClientFactory):
 
     def send_data(self):
         # modify our data elements
-        self.data = [ 
-            min(max(datum+(random()-.5)*DELTA_WEIGHT*MAX_VALUE,0),MAX_VALUE)
-            for 
-            datum in self.data
-        ]
-        self.send(CHANNEL_NAME, json.encode(self.data))
+        self.n += 1
+        if self.n % 2 == 0:
+            self.data = [ 
+                min(max(datum+(random()-.5)*DELTA_WEIGHT*MAX_VALUE,0),MAX_VALUE)
+                for 
+                datum in self.data
+            ]
+            self.send(CHANNEL_NAME, json.encode(self.data))
 
         ## Generate flot data
         d1 = []
