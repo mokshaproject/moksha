@@ -25,9 +25,10 @@ import pkg_resources
 
 from webob import Request, Response
 from shove import Shove
-from pylons import config
-from paste.deploy import appconfig
+from pylons import config, tmpl_context
+from collections import defaultdict
 from pylons.i18n import ugettext
+from paste.deploy import appconfig
 from genshi.filters import Translator
 from sqlalchemy import create_engine
 from feedcache.cache import Cache
@@ -48,11 +49,12 @@ class MokshaMiddleware(object):
     """
     def __init__(self, application):
         log.info('Creating MokshaMiddleware')
+        self.application = application
+        self.mokshaapp = MokshaApp()
+
         self.apps = {}    # {'app name': WSGI Controller}
         self.widgets = {} # {'widget name': tw.api.Widget}
         self.engines = {} # {'app name': sqlalchemy.engine.base.Engine}
-        self.mokshaapp = MokshaApp()
-        self.application = application
 
         self.load_paths()
         self.load_renderers()
@@ -68,6 +70,7 @@ class MokshaMiddleware(object):
         environ['paste.registry'].register(moksha.apps, self.apps)
         environ['paste.registry'].register(moksha.widgets, self.widgets)
         environ['paste.registry'].register(moksha.feed_cache, self.feed_cache)
+        self.register_stomp(environ)
         request = Request(environ)
         if request.path.startswith('/appz'):
             app = request.path.split('/')[1]
@@ -79,6 +82,16 @@ class MokshaMiddleware(object):
         else:
             response = request.get_response(self.application)
         return response(environ, start_response)
+
+    def register_stomp(self, environ):
+        environ['paste.registry'].register(moksha.stomp, {
+            'onopen': [],
+            'onclose': [],
+            'onerror': [],
+            'onerrorframe': [],
+            'onconnectedframe': [],
+            'onmessageframe': defaultdict(list) # {topic: [js_callback,]}
+        })
 
     def load_paths(self):
         """ Load the names and paths of all moksha applications and widgets.
