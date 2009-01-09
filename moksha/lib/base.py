@@ -2,14 +2,15 @@
 
 Provides the BaseController class for subclassing.
 """
-from tg import TGController, tmpl_context
+from tg import TGController, tmpl_context, request
 from tg.render import render
-from tg import request
+from tw.api import WidgetBunch
+from pylons.i18n import _, ungettext, N_
 
 import moksha.model as model
 
-from pylons.i18n import _, ungettext, N_
-from tw.api import WidgetBunch
+from moksha.live.stomp import stomp_widget
+
 
 class Controller(object):
     """Base class for a web application's controller.
@@ -30,7 +31,7 @@ class BaseController(TGController):
         # TGController.__call__ dispatches to the Controller method
         # the request is routed to. This routing information is
         # available in environ['pylons.routes_dict']
-        
+        tmpl_context.stomp = stomp_widget
         tmpl_context.identity = request.environ.get('repoze.who.identity')
         return TGController.__call__(self, environ, start_response)
 class SecureController(BaseController):
