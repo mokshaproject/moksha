@@ -22,7 +22,7 @@ class DataProducer(StompClientFactory):
     password = 'guest'
 
     # Feed demo
-    feed_entries = Feed(url='http://lewk.org/rss').entries()
+    feed_entries = Feed(url='http://lewk.org/blog/index.rss20').entries()
 
     # Flot demo specific variables
     offset = 0.0

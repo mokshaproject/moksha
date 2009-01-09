@@ -37,4 +37,4 @@ class LiveFeedWidget(LiveWidget):
 
     def update_params(self, d):
         super(LiveFeedWidget, self).update_params(d)
-        d['feed'] = Feed(d['id'], url='http://lewk.org/rss')
+        d['feed'] = Feed(d['id'], url='http://lewk.org/blog/index.rss20')
