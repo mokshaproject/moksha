@@ -6,6 +6,9 @@ from twisted.internet.task import LoopingCall
 from random import random
 from orbited import json
 
+from moksha import Feed
+
+
 DATA_VECTOR_LENGTH = 10
 DELTA_WEIGHT = 0.1
 MAX_VALUE = 400 # NB: this in pixels
@@ -17,6 +20,9 @@ class DataProducer(StompClientFactory):
 
     username = 'guest'
     password = 'guest'
+
+    # Feed demo
+    feed_entries = Feed(url='http://lewk.org/rss').entries()
 
     # Flot demo specific variables
     offset = 0.0
@@ -35,9 +41,15 @@ class DataProducer(StompClientFactory):
         self.timer.start(INTERVAL/1000.0)
 
     def send_data(self):
-        # modify our data elements
         self.n += 1
-        if self.n % 2 == 0:
+
+        if self.n % 3 == 0:
+            entry = self.feed_entries[self.n % len(self.feed_entries)]
+            self.send('/topic/feed_example', json.encode(
+                [{'title': entry['title'], 'link': entry['link']}]))
+
+        # modify our data elements
+        if self.n % 2 == 0: # make the graph look independent of flot
             self.data = [ 
                 min(max(datum+(random()-.5)*DELTA_WEIGHT*MAX_VALUE,0),MAX_VALUE)
                 for 

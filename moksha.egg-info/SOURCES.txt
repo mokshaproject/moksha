@@ -1044,6 +1044,7 @@ moksha/lib/app_globals.py
 moksha/lib/base.py
 moksha/lib/helpers.py
 moksha/live/__init__.py
+moksha/live/feed.py
 moksha/live/flot.py
 moksha/live/stomp.py
 moksha/live/widget.py
