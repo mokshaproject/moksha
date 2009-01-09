@@ -16,64 +16,29 @@
 # Copyright 2008, Red Hat, Inc.
 # Authors: Luke Macken <lmacken@redhat.com>
 
+import moksha
+
 from tw.api import Widget
-from moksha.stomp import stomp_widget
+from moksha.live.stomp import stomp_widget, stomp_subscribe
 
 class LiveWidget(Widget):
+    """ A live streaming widget.
+
+    This widget handles automatically subscribing your widget to any given
+    topics, and registers all of the stomp callbacks.
     """
-    This class turns a widget into a live streaming widget.  It injects the
-    StompWidget, and configures it with any existing callbacks in your widget.
-    """
-    def __new__(cls, id=None, parent=None, children=[], **kw):
-        obj = Widget.__new__(cls, id, parent, children, **kw)
-        obj.children.append(stomp_widget)
-        stomp_args = ''
-        for callback in stomp_widget.params:
-            if callback in obj.params:
-                stomp_args += "%s=%s," % (callback, callback)
-        obj.template += "${c.stomp(%s)}" % (stomp_args[:-1])
-        return obj
-
-
-class NewParentLiveWidget(Widget):
-    """
-    This class turns a widget into a live streaming widget.  It injects the
-    StompWidget, and configures it with any existing callbacks in your widget.
-
-              Does this matter?  Can't we do something like this at 
-              instantiation?
-
-                widget.template += "stomp(${stomp_args})"
-
-             then in update_params()
-
-                callbacks = []
-                # get subclass's callbacks from D
-                d['stomp_args'] = join callbacks...
-    """
-    params = ['stomp_args']
-    def __new__(cls, id=None, parent=None, children=[], **kw):
-        obj = Widget.__new__(cls, id, parent, children, **kw)
-        obj.children.append(stomp_widget)
-        stomp_args = ''
-        for callback in stomp_widget.params:
-            if callback in obj.params:
-                stomp_args += "%s=%s," % (callback, callback)
-        obj.template += "${c.stomp(stomp_args)}"
-        #obj.template += "${c.stomp(%s)}" % (stomp_args[:-1])
-        return obj
-
     def update_params(self, d):
-        """
-        Register all of this widgets stomp callbacks.
-        """
+        """ Register this widgets stomp callbacks """
         super(LiveWidget, self).update_params(d)
-        stomp_args = ''
-        print "callbacks =", stomp_widget.callbacks
+        topic = stomp_subscribe(d['topic'])
+        topics = isinstance(d['topic'], list) and d['topic'] or [d['topic']]
+        moksha.stomp['onconnectedframe'].append(topic)
         for callback in stomp_widget.callbacks:
-            if callback in self.params:
-                stomp_args += "%s=%s," % (callback, callback)
-        d['stomp_args'] = stomp_args[:-1]
-        print "stomp_args = %r" % d['stomp_args']
-        print "self.params = %r" % self.params
-        #print "self.template = %r" % self.template
+            if callback == 'onmessageframe':
+                for topic in topics:
+                    cb = getattr(self, callback).replace('${id}', self.id)
+                    moksha.stomp[callback][topic].append(cb)
+            elif callback == 'onconnectedframe':
+                continue
+            elif callback in self.params:
+                moksha.stomp[callback].append(getattr(self, callback))
