@@ -27,18 +27,22 @@ class LiveWidget(Widget):
     This widget handles automatically subscribing your widget to any given
     topics, and registers all of the stomp callbacks.
     """
+    engine_name = 'mako'
+
     def update_params(self, d):
         """ Register this widgets stomp callbacks """
         super(LiveWidget, self).update_params(d)
-        topic = stomp_subscribe(d['topic'])
-        topics = isinstance(d['topic'], list) and d['topic'] or [d['topic']]
-        moksha.stomp['onconnectedframe'].append(topic)
+        topics = d.get('topic', getattr(self, 'topic', None))
+        if not topics:
+            raise MokshaException('You must specify a `topic` to subscribe to')
+        topics = isinstance(topics, list) and topics or [topics]
         for callback in stomp_widget.callbacks:
             if callback == 'onmessageframe':
                 for topic in topics:
                     cb = getattr(self, callback).replace('${id}', self.id)
                     moksha.stomp[callback][topic].append(cb)
             elif callback == 'onconnectedframe':
-                continue
+                moksha.stomp['onconnectedframe'].append(stomp_subscribe(topics))
             elif callback in self.params:
                 moksha.stomp[callback].append(getattr(self, callback))
+
