@@ -17,7 +17,8 @@ setup(
         "tw.jquery",
         "repoze.squeeze",
         "repoze.profile",
-        "stompservice"
+        "stompservice",
+        "orbited",
     ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
