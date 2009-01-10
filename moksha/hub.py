@@ -8,16 +8,20 @@ from orbited import json
 
 from moksha import Feed
 
+INTERVAL = 300 # in ms
 
+# Specific to the livegraph demo
 DATA_VECTOR_LENGTH = 10
 DELTA_WEIGHT = 0.1
 MAX_VALUE = 400 # NB: this in pixels
 CHANNEL_NAME = "/topic/graph"
-#INTERVAL = 1000 # in ms
-INTERVAL = 300 # in ms
 
-class DataProducer(StompClientFactory):
-
+class MokshaHub(StompClientFactory):
+    """
+    This module is currently only used for the default Moksha demo,
+    but will eventually be a plugin-driven expert system that handles
+    hooking into arbitrary events, and polling various resources.
+    """
     username = 'guest'
     password = 'guest'
 
@@ -99,5 +103,5 @@ class DataProducer(StompClientFactory):
         }]
         self.send('/topic/flot_example', json.encode(flot_data))
 
-reactor.connectTCP('localhost', 61613, DataProducer())
+reactor.connectTCP('localhost', 61613, MokshaHub())
 reactor.run()
