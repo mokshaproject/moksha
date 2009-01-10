@@ -20,8 +20,6 @@
 
 from tg import expose, flash
 from pylons.i18n import ugettext as _
-from dbsprockets.dbmechanic.frameworks.tg2 import DBMechanic
-from dbsprockets.saprovider import SAProvider
 from repoze.what.predicates import has_permission
 from moksha.model import DBSession, metadata
 from moksha.lib.base import BaseController, SecureController
@@ -29,8 +27,6 @@ from moksha.lib.base import BaseController, SecureController
 class AdminController(SecureController):
 
     require = has_permission('manage')
-
-    db = DBMechanic(SAProvider(metadata), '/admin/db')
 
     @expose('moksha.templates.index')
     def index(self):
