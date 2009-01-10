@@ -43,9 +43,25 @@ Running Orbited
 Running Moksha
 --------------
 
+You will need to open a new tab to run Moksha, since Orbited will be using the original shell.  This will require you to activate your virtualenv again, by running `source tg2env/bin/activate`.
+
 .. code-block:: bash
 
     $ paster serve development.ini
+
+Running the Moksha Hub
+----------------------
+
+The Moksha Hub will eventually be a plugin-driven expert system that monitors
+various data sources, allowing developers to implement hooks that take action
+upon specific events.  It will handle polling feeds, API calls, etc -- and will
+send messages to the AMQP message broker.
+
+At the moment, however, this hub merely provides data to the default Moksha demo page.
+
+.. code-block:: bash
+
+    $ python moksha/hub.py
 
 Using Moksha
 ------------
