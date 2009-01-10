@@ -34,8 +34,8 @@ Gives people the ability to create adhoc groups based around any
 project/idea/initiative/location.  Facilitates live interactive discourse,
 by default.  Ensures that every voice is heard.
 
-A Manager
+A Mentor
 ~~~~~~~~~
 Facilitates collaboration around various tasks, projects, ideas, etc.
 Maintains state for various workflow processes.  Delegates tasks to teams/users
-based on skills required to complete the task.  Makes sure things Get Done.
+based on skills required to complete the task.  Provides guidance to achieve goals.
