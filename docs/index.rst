@@ -18,6 +18,7 @@ Introduction
    main/DataAggregation
    main/DataInterpretation
    main/DataPersistence
+   main/Scalability
 
 Architecture
 ------------
@@ -25,10 +26,9 @@ Architecture
 .. toctree::
    :maxdepth: 2
 
-   main/Architecture
+   main/Features
    main/Technology
    main/Infrastructure
-   main/Scalability
 
 Getting Started
 ---------------
@@ -77,6 +77,7 @@ Development
    :maxdepth: 2
 
    main/Development
+   main/CallToAction
 
 Deployment
 ----------
