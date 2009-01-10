@@ -18,33 +18,34 @@ virtual Python environment, without changing your global site-packages.
 Setting up a Moksha virtualenv
 ------------------------------
 
-.. code-block:: none
+.. code-block:: bash
 
-    yum install python-virtualenv
+    # yum install python-virtualenv
 
 * Follow the TurboGears2 documentation for `Creating a virtual environment <http://turbogears.org/2.0/docs/main/DownloadInstall.html#create-a-virtual-environment>`_
 
 Getting the Moksha source
 -------------------------
 
-.. code-block:: none
+.. code-block:: bash
 
-    git clone git://git.fedorahosted.org/git/moksha ; cd moksha
-    python setup.py egg_info develop
+    $ git clone git://git.fedorahosted.org/git/moksha 
+    $ cd moksha
+    $ python setup.py egg_info develop
 
 Running Orbited
 ---------------
 
-.. code-block:: none
+.. code-block:: bash
 
-    orbited
+    $ orbited
 
 Running Moksha
 --------------
 
-.. code-block:: none
+.. code-block:: bash
 
-    paster serve development.ini
+    $ paster serve development.ini
 
 Using Moksha
 ------------
