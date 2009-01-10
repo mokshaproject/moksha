@@ -1,3 +1,4 @@
+=================
 Moksha Middleware
 =================
 
@@ -13,6 +14,8 @@ It currently provides the following functionality
     * Sets up `SQLAlchemy` database engines for each application
     * Initializes applications data models
     * Loads all application configuration
+    * Sets up the moksha resource connectors
+    * Sets up the stomp callback registry
 
 Using the MokshaMiddleware
 --------------------------
