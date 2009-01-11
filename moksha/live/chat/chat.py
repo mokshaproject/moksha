@@ -22,3 +22,4 @@ class LiveChatWidget(Widget):
     params = ['bootstrap']
     bootstrap = JSLink(filename='static/bootstrap.js', modname=__name__)
     template = '<div id="willowchat" reposition="true">${bootstrap}</div>'
+    visible = False

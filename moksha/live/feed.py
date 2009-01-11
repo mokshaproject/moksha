@@ -34,7 +34,9 @@ class LiveFeedWidget(LiveWidget):
               .show();
         });
     """
+    view = 'sidebar'
+    placement = 'sidebar'
 
     def update_params(self, d):
         super(LiveFeedWidget, self).update_params(d)
-        d['feed'] = Feed(d['id'], url='http://lewk.org/blog/index.rss20')
+        d['feed'] = Feed(d['id'], url=d.get('url', 'http://lewk.org/rss'))
