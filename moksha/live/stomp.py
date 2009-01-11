@@ -20,7 +20,7 @@ import moksha
 
 from tg import config
 from tw.api import Widget, JSLink, js_callback
-from moksha.orbited import orbited_js, orbited_url
+from moksha.live.orbited import orbited_js, orbited_url
 
 stomp_js = JSLink(link=orbited_url + '/static/protocols/stomp/stomp.js')
 
