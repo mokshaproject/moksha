@@ -1,8 +1,5 @@
-Introduction to Moksha
-======================
-
 What is Moksha?
----------------
+===============
 
 A Platform
 ~~~~~~~~~~
