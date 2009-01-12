@@ -16,9 +16,11 @@
 # Copyright 2008, Red Hat, Inc.
 # Authors: Luke Macken <lmacken@redhat.com>
 
+import moksha
+
 from tg import config
 from tw.api import Widget, JSLink, js_callback
-from moksha.orbited import orbited_js, orbited_url
+from moksha.live.orbited import orbited_js, orbited_url
 
 stomp_js = JSLink(link=orbited_url + '/static/protocols/stomp/stomp.js')
 
@@ -26,17 +28,18 @@ def stomp_subscribe(topic):
     """ Return a javascript callback that subscribes to a given topic,
         or a list of topics.
     """
-    sub = 'stomp.subscribe("%s");'
+    sub = 'stomp.subscribe("/topic/%s");'
     if isinstance(topic, list):
         sub = ''.join([sub % t for t in topic])
     else:
         sub = sub % topic
-    return js_callback('function(){ %s }' % sub)
+    return sub
 
 
 class StompWidget(Widget):
-    params = ['onopen', 'onerror', 'onerrorframe', 'onclose',
-              'onconnectedframe', 'onmessageframe']
+    callbacks = ['onopen', 'onerror', 'onerrorframe', 'onclose',
+                 'onconnectedframe', 'onmessageframe']
+    params = callbacks[:]
     onopen = onconnectedframe = js_callback('function(){}')
     onerror = js_callback('function(error){ console.log("Error: " + error) }')
     onclose = js_callback('function(c){ console.log("Lost Connection: " + c) }')
@@ -54,15 +57,35 @@ class StompWidget(Widget):
         stomp.onclose = ${onclose};
         stomp.onerror = ${onerror};
         stomp.onerrorframe = ${onerrorframe};
-        stomp.onconnectedframe = ${onconnectedframe};
-        // To handle multiple destinations we
-        // would have to check frame.headers.destination
-        stomp.onmessageframe = ${onmessageframe};
+        stomp.onconnectedframe = function(){ ${onconnectedframe} };
+        stomp.onmessageframe = function(frame){
+            var json = JSON.parse(frame.body);
+            ${onmessageframe}
+        };
         stomp.connect('%s', %s, '%s', '%s');
       </script>
     """ % (config['orbited_port'], config['orbited_host'],
            config['stomp_host'], config['stomp_port'],
            config['stomp_user'], config['stomp_pass'])
     engine_name = 'mako'
+
+    def update_params(self, d):
+        super(StompWidget, self).update_params(d)
+        for callback in self.callbacks:
+            if len(moksha.stomp[callback]):
+                cbs = ''
+                if callback == 'onmessageframe':
+                    for topic in moksha.stomp[callback]:
+                        for cb in moksha.stomp[callback][topic]:
+                            cbs += """
+                              if (frame.headers.destination == "/topic/%s") {
+                                  %s;
+                              }
+                            """ % (topic, str(cb))
+                else:
+                    for cb in moksha.stomp[callback]:
+                        cbs += str(cb)
+                d[callback] = cbs
+
 
 stomp_widget = StompWidget('stomp')

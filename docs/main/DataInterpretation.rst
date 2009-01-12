@@ -7,7 +7,8 @@ Moksha provides various mechanisms that allows applications to easily interpret 
 Collaborative glue
 ------------------
 
-Moksha allows anything to be tagged, shared, discussed, annotated, rated, etc.
+Moksha will allow anything to be tagged, shared, discussed, annotated, rated,
+etc.
 
 Extension Points
 ----------------
@@ -22,11 +23,11 @@ Live streams
 
 Any data source, even if moksha has to occasionally poll it, can be displayed
 as a 'live' widget on any web site.  Data streams can also easily expose
-themselves through a Qpid AMQP message queue, allowing other applications and
+themselves through a AMQP message queue, allowing other applications and
 services to interact with new data, as it is discovered.
 
 Hooks
 -----
 
-By being able to monitor various data sources in a "real time" fashion, this
-gives developers the ability to perform various actions upon various events.
+Moksha allows plugins to monitor arbitrary AMQP message queues, giving
+developers the ability to perform various actions upon various events.

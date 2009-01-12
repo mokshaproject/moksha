@@ -16,7 +16,6 @@
 # Copyright 2008, Red Hat, Inc.
 # Authors: Luke Macken <lmacken@redhat.com>
 
-import pylons
 import moksha
 
 from tw.api import Widget

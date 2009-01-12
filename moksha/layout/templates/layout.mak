@@ -20,18 +20,12 @@
 
 		<div id="sidebar" class="ui-sortable">
 			<h2>Sidebar</h2>
-			<dl class="sort">
-				<dt>Pages</dt>
-				<dd>Mini About</dd>
-			</dl>
-			<dl class="sort">
-				<dt>Blog</dt>
-				<dd>Monthly Archives</dd>
-			</dl>
-			<dl class="sort">
-				<dt>Links</dt>
-				<dd>Random Links</dd>
-			</dl>
+			% for widget in sidebar:
+				<dl class="sort">
+					<dt>${widget['name']}</dt>
+					<dd>${widget['widget']()}</dd>
+				</dl>
+			% endfor
 		</div>
 
 		<div class="clear"></div>
@@ -44,7 +38,6 @@
 			</dl>
 		</div>
 	</div>
-
 	<div id="meta">
 		<div id="components" class="ui-sortable">
 			<h2>Components</h2>
@@ -67,4 +60,9 @@
 	<div id="overlay">
 		<div id="preloader"><img src="/toscawidgets/resources/moksha.widgets.layout.layout/static/loader.gif" alt="" /></div>
 	</div>
+
+% for widget in invisible:
+	${widget['widget']()}
+% endfor
+
 </div>

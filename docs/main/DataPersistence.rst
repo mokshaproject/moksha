@@ -8,16 +8,16 @@ provides a variety of ways to enable data persistence.
 SQLAlchemy
 ----------
 
-The :class:`moksha.middleware.MokshaMiddleware` automatically handles setting up the database engines and initializing tables for all application models.  This gives Moksha the ability to properly handle vertically and horizontally scaling application databases.
+The :class:`moksha.middleware.MokshaMiddleware` automatically handles setting up the database engines and initializing tables for all application models.
 
 Cache
 -----
 
-Moksha gives every application and widget the ability to use a generic Cache
-object to store and retrieve arbitrary data, allowing developers to design
-efficient applications from the start.  This Cache object is setup by
-Moksha, and can easily be configured to work with any number of arbitrary data
-stores, such as memcached, Amazon S3, SQLite, etc.
+Every application and widget has the ability to use a powerful cache module to
+store and retrieve arbitrary data, allowing developers to design efficient
+applications from the start.  This Cache layer is setup by TG2, and can
+easily be configured to work with any number of arbitrary data stores, such as
+an in-memory cache, SQLite, memcached, Amazon S3, etc.
 
 Git
 ---

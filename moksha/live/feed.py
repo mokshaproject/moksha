@@ -16,17 +16,27 @@
 # Copyright 2008, Red Hat, Inc.
 # Authors: Luke Macken <lmacken@redhat.com>
 
-from tw.jquery.flot import FlotWidget
 from moksha.live import LiveWidget
+from moksha.feed import Feed
 
-class LiveFlotWidget(LiveWidget):
-    """ A live graphing widget """
-    topic = 'flot_example'
-    params = ['id', 'data', 'options', 'height', 'width', 'onmessageframe']
-    children = [FlotWidget('flot')]
-    onmessageframe = '$.plot($("#${id}"),json[0]["data"],json[0]["options"])'
-    template = '<div id="${id}" style="width:${width};height:${height};" />'
-    height = '250px'
-    width = '390px'
-    options = {}
-    data = [{}]
+class LiveFeedWidget(LiveWidget):
+    """ A live streaming feed widget """
+    topic = 'feed_example'
+    template = '${feed()}'
+    onmessageframe = """
+        $.each(json, function() {
+            $("#${id} ul li:last").remove();
+            $("<li/>").hide().html(
+                $("<a/>")
+                  .attr("href", this.link)
+                  .text(this.title))
+              .prependTo($("#${id} ul"))
+              .show();
+        });
+    """
+    view = 'sidebar'
+    placement = 'sidebar'
+
+    def update_params(self, d):
+        super(LiveFeedWidget, self).update_params(d)
+        d['feed'] = Feed(d['id'], url=d.get('url', 'http://lewk.org/rss'))

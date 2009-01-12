@@ -30,14 +30,20 @@ ui_sortable_js = JSLink(filename='static/ui/ui.sortable.js', modname=__name__)
 
 class LayoutWidget(Widget):
     template = 'mako:moksha.layout.templates.layout'
-    params = ['header', 'content', 'sidebar', 'footer']
+    params = ['header', 'content', 'sidebar', 'footer', 'invisible']
     css = [layout_css]
     javascript = [jquery_js, layout_js, ui_core_js, ui_draggable_js,
                   ui_droppable_js, ui_sortable_js]
 
-    header = content = sidebar = footer = []
+    header = content = sidebar = footer = invisible = []
 
     def update_params(self, d):
         super(LayoutWidget, self).update_params(d)
         for widget in moksha.widgets.itervalues():
-            d['content'].append(widget)
+            if hasattr(widget['widget'], 'visible') and \
+               not getattr(widget['widget'], 'visible'):
+                d['invisible'].append(widget)
+            elif hasattr(widget['widget'], 'view'):
+                d[getattr(widget['widget'], 'view')].append(widget)
+            else:
+                d['content'].append(widget)

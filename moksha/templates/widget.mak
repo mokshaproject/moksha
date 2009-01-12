@@ -7,5 +7,6 @@
   </head>
   <body>
     ${tmpl_context.widget()}
+    ${tmpl_context.stomp()}
   </body>
 </html>

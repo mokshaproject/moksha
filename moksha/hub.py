@@ -1,143 +1,107 @@
-# This file is part of Moksha.
-#
-# Moksha is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# Moksha is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Moksha.  If not, see <http://www.gnu.org/licenses/>.
-#
-# Copyright 2008, Red Hat, Inc.
-# Authors: Luke Macken <lmacken@redhat.com>
+#!/usr/bin/env python
+import math
+from stompservice import StompClientFactory
+from twisted.internet import reactor
+from twisted.internet.task import LoopingCall
+from random import random
+from orbited import json
 
-import qpid
-from qpid.util import connect, URL, ssl
-from qpid.client import Client
-from qpid.datatypes import Message
-from qpid.connection import Connection
+from moksha import Feed
 
-import logging
-log = logging.getLogger(__name__)
+INTERVAL = 300 # in ms
 
-class MokshaHub(object):
+# Specific to the livegraph demo
+DATA_VECTOR_LENGTH = 10
+DELTA_WEIGHT = 0.1
+MAX_VALUE = 400 # NB: this in pixels
+CHANNEL_NAME = "/topic/graph"
 
-    queues = []
-    exchanges = []
-    client = None
-    session = None
-    amqp_spec = qpid.spec.default()
+class MokshaHub(StompClientFactory):
+    """
+    This module is currently only used for the default Moksha demo,
+    but will eventually be a plugin-driven expert system that handles
+    hooking into arbitrary events, and polling various resources.
+    """
+    username = 'guest'
+    password = 'guest'
 
-    def __init__(self, broker='localhost', timeout=10):
-        """ Initialize the Moksha Hub.
+    # Feed demo
+    feed_entries = Feed(url='http://lewk.org/blog/index.rss20').entries()
 
-        `broker`
-            [amqps://][<user>[/<password>]@]<host>[:<port>]
+    # Flot demo specific variables
+    offset = 0.0
+    skip = 0
+    bars = [[0, 3], [4, 8], [8, 5], [9, 13]]
+    n = 0
 
-        """
-        self.set_broker(broker)
-        self.timeout = timeout
-        self.amqp_spec = qpid.spec.load(self.amqp_spec)
-        self.init_qpid_connection()
-        self.init_qpid_session()
-        self.init_qmf()
+    def recv_connected(self, msg):
+        print 'Connected; producing data'
+        self.data = [ 
+            int(random()*MAX_VALUE) 
+            for 
+            x in xrange(DATA_VECTOR_LENGTH)
+        ]
+        self.timer = LoopingCall(self.send_data)
+        self.timer.start(INTERVAL/1000.0)
 
-    def set_broker(self, broker):
-        self.url = URL(broker)
-        self.user = self.url.password or 'guest'
-        self.password = self.url.password or 'guest'
-        self.host = self.url.host
-        if self.url.scheme == URL.AMQPS:
-            self.ssl = True
-            default_port = 5671
-        else:
-            self.ssl = False
-            default_port = 5672
-        self.port = self.url.port or default_port
+    def send_data(self):
+        self.n += 1
 
-    def init_qpid_connection(self):
-        sock = connect(self.host, self.port)
-        if self.url.scheme == URL.AMQPS:
-            sock = ssl(sock)
-        self.conn = Connection(sock, self.amqp_spec, username=self.user,
-                               password=self.password)
-        self.conn.start(timeout=self.timeout)
+        if self.n % 3 == 0:
+            entry = self.feed_entries[self.n % len(self.feed_entries)]
+            self.send('/topic/feed_example', json.encode(
+                [{'title': entry['title'], 'link': entry['link']}]))
 
-    def init_qpid_session(self, session_name='moksha'):
-        self.session = self.conn.session(session_name, timeout=self.timeout)
+        # modify our data elements
+        if self.n % 2 == 0: # make the graph look independent of flot
+            self.data = [ 
+                min(max(datum+(random()-.5)*DELTA_WEIGHT*MAX_VALUE,0),MAX_VALUE)
+                for 
+                datum in self.data
+            ]
+            self.send(CHANNEL_NAME, json.encode(self.data))
 
-    def init_qmf(self):
-        try:
-            import qmf.console
-            self.qmf = qmf.console.Session()
-            self.qmf_broker = self.qmf.addBroker(str(self.url))
-        except ImportError:
-            log.warning('qmf.console not available')
-            self.qmf = None
+        ## Generate flot data
+        d1 = []
+        i = 0
+        for x in range(26):
+            d1.append((i, math.sin(i + self.offset)))
+            i += 0.5
 
-    def create_queue(self, queue, routing_key, exchange='amq.direct',
-                     auto_delete=False, durable=False, **kw):
-        if queue not in self.queues:
-            self.session.queue_declare(queue=queue, auto_delete=auto_delete,
-                                       durable=durable, **kw)
-            self.queues.append(queue)
+        for bar in self.bars:
+            bar[1] = bar[1] + (int(random() * 3) - 1)
+            if bar[1] <= -5: bar[1] = -4
+            if bar[1] >= 15: bar[1] = 15
+        d2 = self.bars
 
-    def delete_queue(self, queue):
-        self.session.queue_delete(queue=queue)
+        d3 = []
+        i = 0
+        for x in range(26):
+            d3.append((i, math.cos(i + self.offset)))
+            i += 0.5
+        self.offset += 0.1
 
-    def send_message(self, destination, message, routing_key='key',
-                     delivery_mode=2):
-        dp = self.session.delivery_properties(routing_key=routing_key,
-                                              delivery_mode=delivery_mode)
-        self.session.message_transfer(message=Message(dp, message))
+        d4 = []
+        i = 0
+        for x in range(26):
+            d4.append((i, math.sqrt(i * 10)))
+            i += 0.5
 
-    def subscribe(self, queue, destination, accept_mode=1, acquire_mode=0):
-        """ Subscribe to a specific queue destination """
-        self.session.message_subscribe(queue=queue, destination=destination,
-                                       accept_mode=accept_mode,
-                                       acquire_mode=acquire_mode)
-        self.session.message_flow(destination=destination,
-                                  unit=self.session.credit_unit.message,
-                                  value=0xFFFFFFFF)
-        self.session.message_flow(destination=destination,
-                                  unit=self.session.credit_unit.byte,
-                                  value=0xFFFFFFFF)
+        d5 = []
+        i = 0
+        for x in range(26):
+            d5.append((i, math.sqrt(i * self.offset)))
+            i += 0.5
 
-    def get(self, destination):
-        return self.session.incoming(destination).get(timeout=self.timeout)
+        flot_data = [{'data': [
+            {'data': d1, 'lines': {'show': 'true', 'fill': 'true'}},
+            {'data': d2, 'bars': {'show': 'true'}},
+            {'data': d3, 'points': {'show': 'true'}},
+            {'data': d4, 'lines': {'show': 'true'}},
+            {'data': d5, 'lines': {'show': 'true'}, 'points' : {'show': 'true'}}
+        ], 'options': {'yaxis' : { 'max' : '15' }}
+        }]
+        self.send('/topic/flot_example', json.encode(flot_data))
 
-    def query(self, queue):
-        return self.session.queue_query(queue=queue)
-
-    def close(self):
-        if not self.session.error():
-            self.session.close(timeout=self.timeout)
-        self.conn.close(timeout=self.timeout)
-        if self.qmf:
-            self.qmf.delBroker(self.qmf_broker)
-    __del__ = close
-
-if __name__ == '__main__':
-    sh = logging.StreamHandler()
-    log.setLevel(logging.DEBUG)
-    sh.setLevel(logging.DEBUG)
-    log.addHandler(sh)
-
-    print "Creating MokshaHub..."
-    hub = MokshaHub()
-    print "Creating queue..."
-    hub.create_queue('wtf', 'key', 'amq.topic', durable=True)
-    print "Sending message"
-    hub.send_message('wtf', 'wtf', 'wtf')
-    print "Subscribing to queue"
-    hub.subscribe('wtf', 'wtf')
-    print "Recieving message"
-    msg = hub.get('wtf')
-    print "msg = ", msg
-    hub.close()
-    print "Closed!"
+reactor.connectTCP('localhost', 61613, MokshaHub())
+reactor.run()

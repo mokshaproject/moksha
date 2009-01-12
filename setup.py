@@ -17,7 +17,9 @@ setup(
         "tw.jquery",
         "repoze.squeeze",
         "repoze.profile",
-        "stompservice"
+        "stompservice",
+        "orbited",
+        "twisted",
     ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
@@ -41,6 +43,8 @@ setup(
 
     [moksha.widget]
     liveflot = moksha.live.flot:LiveFlotWidget
-    #livegraph = moksha.examples.livegraph:LiveGraphWidget
+    livefeed = moksha.live.feed:LiveFeedWidget
+    livegraph = moksha.examples.livegraph:LiveGraphWidget
+    chat = moksha.live.chat:LiveChatWidget
     """,
 )

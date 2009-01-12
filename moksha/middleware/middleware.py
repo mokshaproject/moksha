@@ -17,10 +17,8 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 
 import os
-import sys
 import moksha
 import logging
-import datetime
 import pkg_resources
 import simplejson as json
 import urllib
@@ -28,13 +26,14 @@ import urllib
 from webob import Request, Response
 from shove import Shove
 from pylons import config
-from paste.deploy import appconfig
+from collections import defaultdict
 from pylons.i18n import ugettext
+from paste.deploy import appconfig
 from genshi.filters import Translator
 from sqlalchemy import create_engine
 from feedcache.cache import Cache
 
-from moksha.exc import ApplicationNotFound
+from moksha.exc import ApplicationNotFound, MokshaException
 from moksha.wsgiapp import MokshaApp
 
 log = logging.getLogger(__name__)
@@ -50,12 +49,13 @@ class MokshaMiddleware(object):
     """
     def __init__(self, application):
         log.info('Creating MokshaMiddleware')
-        self.connectors = {} # {'connector name': moksha.IConnector class}
+        self.application = application
+        self.mokshaapp = MokshaApp()
+
         self.apps = {}       # {'app name': WSGI Controller}
         self.widgets = {}    # {'widget name': tw.api.Widget}
         self.engines = {}    # {'app name': sqlalchemy.engine.base.Engine}
-        self.mokshaapp = MokshaApp()
-        self.application = application
+        self.connectors = {} # {'connector name': moksha.IConnector class}
 
         self.load_paths()
         self.load_renderers()
@@ -72,8 +72,9 @@ class MokshaMiddleware(object):
         environ['paste.registry'].register(moksha.apps, self.apps)
         environ['paste.registry'].register(moksha.widgets, self.widgets)
         environ['paste.registry'].register(moksha.feed_cache, self.feed_cache)
+        self.register_stomp(environ)
         request = Request(environ)
-        
+
         if request.path.startswith('/appz'):
             app = request.path.split('/')[1]
             environ['moksha.apps'] = self.apps
@@ -95,15 +96,25 @@ class MokshaMiddleware(object):
                     # reserved parameter
                     # FIXME: provide a proper error response
                     return Response(status='404 Not Found')
-                    
+
                 if k not in params:
                     params[k] = params.getall(k)
 
             response = self._run_connector(s[0], s[1], *s[2:], **params)
         else:
             response = request.get_response(self.application)
-            
+
         return response(environ, start_response)
+    
+    def register_stomp(self, environ):
+        environ['paste.registry'].register(moksha.stomp, {
+            'onopen': [],
+            'onclose': [],
+            'onerror': [],
+            'onerrorframe': [],
+            'onconnectedframe': [],
+            'onmessageframe': defaultdict(list) # {topic: [js_callback,]}
+        })
 
     def _run_connector(self, conn, op, *path, **remote_params):
         response = None
@@ -118,23 +129,21 @@ class MokshaMiddleware(object):
         # prevent trailing slash
         if not p:
             path = path[:-1]
-        
+
         path = '/'.join(path)
-        
         conn = self.connectors.get(conn)
-        
-        if conn:    
+
+        if conn:
             conn_obj = conn['connector_class']()
             r = conn_obj._dispatch(op, path, remote_params, **dispatch_params)
             if not isinstance(r, str):
                 r = json.dumps(r, separators=(',',':'))
-                
             response = Response(r)
-        else:    
+        else:
             response = Response(status='404 Not Found')
-        
+
         return response
-        
+
     def load_paths(self):
         """ Load the names and paths of all moksha applications and widgets.
 
@@ -169,14 +178,13 @@ class MokshaMiddleware(object):
             # call the register class method 
             # FIXME: Should we pass some resource in?
             conn_class.register()
-            
             conn_path = conn_entry.dist.location
             self.connectors[conn_entry.name] = {
                     'name': conn_entry.name,
                     'connector_class': conn_class,
                     'path': conn_path,
                     }
-        
+
     def load_applications(self):
         log.info('Loading moksha applications')
         for app_entry in pkg_resources.iter_entry_points('moksha.application'):

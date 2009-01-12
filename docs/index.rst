@@ -1,7 +1,7 @@
 Moksha Documentation
 ====================
 
-:Status: Very much a draft.
+:Status: Rough Draft
 
 Moksha is a platform for creating live collaborative applications.  It provides
 a layer of cohesion and collaboration between existing applications, services,
@@ -18,6 +18,7 @@ Introduction
    main/DataAggregation
    main/DataInterpretation
    main/DataPersistence
+   main/Scalability
 
 Architecture
 ------------
@@ -25,10 +26,17 @@ Architecture
 .. toctree::
    :maxdepth: 2
 
-   main/Architecture
+   main/Features
    main/Technology
    main/Infrastructure
-   main/Scalability
+
+Getting Started
+---------------
+
+.. toctree::
+   :maxdepth: 2
+
+   main/GettingStarted
 
 Middleware
 ----------
@@ -69,3 +77,11 @@ Development
    :maxdepth: 2
 
    main/Development
+   main/CallToAction
+
+Deployment
+----------
+.. toctree::
+   :maxdepth: 2
+
+   main/Deployment

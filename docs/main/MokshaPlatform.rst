@@ -14,7 +14,6 @@ Middleware Function                 Module
 ===============================     ===============
 Profiling                           repoze.profile
 Resource compression                repoze.squeeze
-Theming engine                      Deliverance
                  **TG2 Middleware**
 ---------------------------------------------------
 Application routing/dispatching     Routes

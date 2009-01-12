@@ -16,9 +16,8 @@
 # Copyright 2008, Red Hat, Inc.
 # Authors: Luke Macken <lmacken@redhat.com>
 
-from tw.api import Widget, CSSLink, JSLink, js_callback, js_function
-from moksha.live import LiveWidget
-from moksha.stomp import stomp_subscribe
+from tw.api import Widget, CSSLink, JSLink, js_function
+from moksha.live import LiveWidget, stomp_subscribe
 
 class LiveGraphWidget(LiveWidget):
     """
@@ -29,12 +28,11 @@ class LiveGraphWidget(LiveWidget):
     http://cometdaily.com/2008/10/10/scalable-real-time-web-architecture-part-2-a-live-graph-with-orbited-morbidq-and-jsio
     """
     params = ['id', 'onconnectedframe', 'onmessageframe']
-    onconnectedframe = stomp_subscribe('/topic/graph')
-    onmessageframe = js_callback('function(f){ modify_graph(bars, f.body) }')
+    topic = 'graph'
+    onmessageframe = 'modify_graph(bars, frame.body)'
     javascript = [JSLink(filename='static/livegraph.js', modname=__name__)]
     css = [CSSLink(filename='static/livegraph.css', modname=__name__)]
     template = '<div id="${id}" />'
-    engine_name = 'mako'
 
     def update_params(self, d):
         super(LiveGraphWidget, self).update_params(d)
