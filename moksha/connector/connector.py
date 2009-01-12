@@ -2,7 +2,7 @@
 #
 # Moksha is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
+# the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
 #
 # Moksha is distributed in the hope that it will be useful,
@@ -65,14 +65,13 @@ class IConnector(object):
         
             the results of the operation requested
         """
-        
-        # TODO: devise a way to mark off methods which can be dispatched to 
-        if op in ('request_data', 'call', 'query'):
+                # TODO: devise a way to mark off methods which can be dispatched to
+        if op in ('request_data', 'call', 'query', 'query_model'):
             return getattr(self, op)(resource_path, params, _cookies, **kwds)
         
         return None
         
-    def request_data(self, resource_path, params, cookies):
+    def request_data(self, resource_path, params, _cookies):
         """ Implement this method to request raw data from a URL resource.
         The URL should be set in register and should never change.  You should
         also consider validating the other arguments instead of just passing
@@ -221,6 +220,14 @@ class IQuery(object):
         """
         
         raise NotImplementedError
+    
+    def query_model(self, resource_path, noparams, _cookies):
+        """ Returns the registered model
+        
+            :Returns:
+                The path's model 
+        """
+        return self._paths[resource_path];
     
     @classmethod
     def register_path(cls, 
