@@ -21,8 +21,7 @@ Setting up a Moksha virtualenv
 .. code-block:: bash
 
     # yum install python-virtualenv
-
-* Follow the TurboGears2 documentation for `Creating a virtual environment <http://turbogears.org/2.0/docs/main/DownloadInstall.html#create-a-virtual-environment>`_
+    $ easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
 
 Getting the Moksha source
 -------------------------
