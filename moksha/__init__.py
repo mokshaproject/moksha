@@ -13,3 +13,14 @@ _widgets = StackedObjectProxy()
 
 # Per-request stomp callbacks registered by rendered widget
 stomp = StackedObjectProxy()
+
+def get_widget(name):
+    """ Get an widget by name.
+
+    This method returns a dictionary in the following format:
+
+        { 'name': 'widgetname',
+          'widget': <Widget instance>,
+          'path': '/path/to/widget' }
+    """
+    return _widgets[name]

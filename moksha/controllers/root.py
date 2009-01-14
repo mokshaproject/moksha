@@ -22,7 +22,7 @@ class RootController(BaseController):
     @expose('moksha.templates.widget')
     def widget(self, name):
         """ Display a widget by name """
-        tmpl_context.widget = moksha.widgets[name]
+        tmpl_context.widget = moksha.get_widget(name)
         return dict()
 
     @expose('moksha.templates.about')
