@@ -15,7 +15,7 @@ _widgets = StackedObjectProxy()
 stomp = StackedObjectProxy()
 
 def get_widget(name):
-    """ Get an widget by name.
+    """ Get a widget by name.
 
     This method returns a dictionary in the following format:
 
