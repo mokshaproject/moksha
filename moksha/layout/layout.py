@@ -39,7 +39,7 @@ class LayoutWidget(Widget):
 
     def update_params(self, d):
         super(LayoutWidget, self).update_params(d)
-        for widget in moksha.widgets.itervalues():
+        for widget in moksha._widgets.itervalues():
             if hasattr(widget['widget'], 'visible') and \
                not getattr(widget['widget'], 'visible'):
                 d['invisible'].append(widget)

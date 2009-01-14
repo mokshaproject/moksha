@@ -9,7 +9,7 @@ feed_cache = StackedObjectProxy()
 apps = StackedObjectProxy()
 
 # All loaded ToscaWidgets
-widgets = StackedObjectProxy()
+_widgets = StackedObjectProxy()
 
 # Per-request stomp callbacks registered by rendered widget
 stomp = StackedObjectProxy()

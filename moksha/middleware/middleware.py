@@ -70,7 +70,7 @@ class MokshaMiddleware(object):
 
     def __call__(self, environ, start_response):
         environ['paste.registry'].register(moksha.apps, self.apps)
-        environ['paste.registry'].register(moksha.widgets, self.widgets)
+        environ['paste.registry'].register(moksha._widgets, self.widgets)
         environ['paste.registry'].register(moksha.feed_cache, self.feed_cache)
         self.register_stomp(environ)
         request = Request(environ)
