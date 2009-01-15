@@ -17,10 +17,13 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 
 import moksha
+import logging
 
 from tw.api import Widget
 from shove import Shove
 from feedcache.cache import Cache
+
+log = logging.getLogger(__name__)
 
 # An in-memory sqlite feed cache.  Utilized when the moksha WSGI middleware
 # is unavailable.  By default, it will try and use the centralized
@@ -94,11 +97,21 @@ class Feed(Widget):
             # This allows us to use this object outside of WSGI requests.
             global cache
             if not cache:
-                cache = Cache(Shove('sqlite:///:memory:'))
+                cache = Cache(Shove('sqlite:///feeds.db'))
             feed = cache.fetch(url)
+        if not (200 <= feed.status < 400):
+            log.warning('Got %s status from %s: %s' % (
+                        feed.status, url, feed.headers.get('status')))
+            d['title'] = feed.headers.get('status')
+            d['link'] = feed.feed.get('link')
+            return
         if d:
             d['link'] = feed.feed.get('link')
-            d['title'] = feed.feed.title
+            try:
+                d['title'] = feed.feed.title
+            except AttributeError:
+                d['title'] = 'Unable to parse feed'
+                return
         for i, entry in enumerate(feed.entries):
             entry['uid'] = '%s_%d' % (self.id, i)
             entry['link'] = entry.get('link')
