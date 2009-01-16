@@ -27,6 +27,16 @@ class TestFeed(object):
         rendered = widget()
         assert '<div id="myfeed"' in rendered
 
+    def test_widget_child_with_dynamic_url(self):
+        class MyWidget(Widget):
+            params = ['url']
+            children = [Feed('feed')]
+            template = "${c.feed(url=url)}"
+            engine_name = 'mako'
+        widget = MyWidget()
+        rendered = widget(url='http://lewk.org/rss')
+        assert '<div id="feed"' in rendered
+
     def test_genshi_widget(self):
         """ Ensure that our Feed widget can be rendered in a Genshi widget """
         class MyWidget(Widget):
