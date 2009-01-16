@@ -20,7 +20,8 @@ Setting up a Moksha virtualenv
 
 .. code-block:: bash
 
-    # yum install python-virtualenv
+    # yum -y install python-virtualenv
+    # yum-builddep -y python-lxml
     $ easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
 
 Getting the Moksha source
