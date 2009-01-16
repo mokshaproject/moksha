@@ -8,7 +8,7 @@ pull in and manipulate external data sources in your application.
 
 When used within the Moksha Platform, the Feed object will utilize the central
 global `moksha.feed_cache`.  When used outside of the platform, it will
-automatically use an in-memory cache.
+automatically use a local sqlite database cache.
 
 API usage
 ---------

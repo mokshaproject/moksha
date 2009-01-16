@@ -65,7 +65,7 @@ class MokshaMiddleware(object):
         self.load_widgets()
         self.load_models()
 
-        self.feed_storage = Shove('file://' + config['feed_cache'])
+        self.feed_storage = Shove(config['feed_cache'])
         self.feed_cache = Cache(self.feed_storage)
 
     def __call__(self, environ, start_response):
