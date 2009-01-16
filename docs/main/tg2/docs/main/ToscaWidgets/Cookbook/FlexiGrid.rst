@@ -40,9 +40,9 @@ Optional Parameters:
 * **usepager** Whether pagination is to be used (*Default* : True)
 * **useRp** Whether rows per page select box is displayed (*Default* : True)
 * **rp** Rows per Page (*Default* : 25)
-* **searchItems** List of columns to be displayed in the drop down list for searching matching records. This is a list of dictionaries containing the attribute name and the display name. This example shows a list of searchitems::
+* **searchitems** List of columns to be displayed in the drop down list for searching matching records. This is a list of dictionaries containing the attribute name and the display name. This example shows a list of searchitems::
 
-    searchItems = [
+    searchitems = [
                 {'display':'Title', 'name':'title', 'isdefault':True},
                 {'display':'Year', 'name':'year'},
                 {'display':'Genre', 'name':'genera'}
@@ -51,13 +51,15 @@ Optional Parameters:
 * **showTableToggleButton** The entire grid can be collapsed and expanded conveniently using this button (*Default* : False)
 * **buttons** A list of buttons that should appear on the table header. Each button is provided as a dictionary. For example::
 
+    from tw.api import js_callback
+
     buttons=[
-      {'name':'Add', 'bclass':'add', 'onpress': 'add'},
-      {'name':'Delete', 'bclass':'delete', 'onpress': 'delete'},
+      {'name':'Add', 'bclass':'add', 'onpress': js_callback('add_record')},
+      {'name':'Delete', 'bclass':'delete', 'onpress': js_callback('delete_record')},
       {'separator':True}
     ]
 
-The onpress key takes a javascript callback function as value which is called when the button is pressed. In this example, the Add button triggers the callback function add()
+The onpress key takes a javascript callback function as value which is called when the button is pressed. In this example, the Add and Delete buttons call the callback functions add_record() and delete_record() respectively. These handlers must be coded separately and included in the template.
 
 * **width** The width of the grid in px
 * **height** The height of the grid in px
@@ -69,7 +71,7 @@ For example the widget could be instantiated as::
     grid = FlexiGrid(id='flex', fetchURL='fetch', title='Movies',
                 colModel=colModel, useRp=True, rp=10,
                 sortname='title', sortorder='asc', usepager=True,
-                searchItems=searchItems,
+                searchitems=searchitems,
                 showTableToggleButton=True,
                 buttons=buttons,
                 width=500,

@@ -95,7 +95,7 @@ class SVNClient:
 
 
 def get_file(path, revision = None, type = None, repository = None):
-    """ Read file from local filesystem of from a SCM repository. """
+    """ Read file from local filesystem or from a SCM repository. """
     if revision:
         if type == 'svn':
             scm = SVNClient()
@@ -235,7 +235,7 @@ def archive_directive(name, arguments, options, content, lineno,
                             {'archive' : archive},
                             content)
     roles.register_local_role(role_name, role)
-    return
+    return []
 
 
 def setup(app):

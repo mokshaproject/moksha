@@ -29,10 +29,10 @@ available directives are all optional:
   like this in ``{yourproject}.config``::
   
       # ...
-      from repoze.who.plugins.basicauth import BasicAuthPlugin
+      from repoze.who.plugins.htpasswd import HTPasswdPlugin, crypt_check
       # ...
-      http_auth = BasicAuthPlugin('something')
-      app_cfg.sa_auth.authenticators = [('http_auth', http_auth)]
+      htpasswd_auth = HTPasswdPlugin('/path/to/users.htpasswd', crypt_check)
+      app_cfg.sa_auth.authenticators = [('htpasswd_auth', htpasswd_auth)]
       # ...
 
 Customizing the model structure assumed by the quickstart

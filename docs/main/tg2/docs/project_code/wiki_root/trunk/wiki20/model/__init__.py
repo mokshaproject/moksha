@@ -52,6 +52,7 @@ def init_model(engine):
 
     #mapper(Reflected, t_reflected)
 
+##{ModelModules}
 # Import your model modules here. 
 from wiki20.model.page import Page, pages_table
-
+##

@@ -1,3 +1,6 @@
+.. archive:: wiki_root/trunk/
+  :file: Wiki20_final.zip
+ 
 The TurboGears 2 Wiki Tutorial
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -17,6 +20,8 @@ probably get your answer even faster. **Please don't post your problem
 reports as comments on this or any of the following pages of the
 tutorial**. Comments are for suggestions for improvement of the docs
 etc., not for seeking support.
+
+If you want to see the final version, you can download a copy of the wiki code  :arch:`here`.
 
 .. _TurboGears discussion list: http://groups.google.com/group/turbogears
 
@@ -51,8 +56,9 @@ To go through this tutorial, you'll need:
 #.  Two command line windows
     (you only *need* one, but two is nicer).
 
-#.  A database. Python 2.5 comes
-    **sqlite**, so if you have Python 2.5, don't do anything. If you're
+#.  A database. Python 2.5 comes with
+    **sqlite**, so if you have Python 2.5, don't do anything (though you will need 
+    sqlite3.0+ if you want to browse the database from the command line). If you're
     running Python 2.4, your best bet is sqlite 3.2+ with `pysqlite
     <http://cheeseshop.python.org/pypi/pysqlite>`_ 2.0+. Install it with::
 
@@ -84,7 +90,7 @@ Quickstart
 
 TurboGears provides a suite of tools for working with projects by adding
 several commands to the Python command line tool ``paster``. A few will
-be touched upon in this tutorial. (Check the `command line reference`_
+be touched upon in this tutorial. (Check the :ref:`Command Line Reference <commandline-reference>`
 for a full listing.) The first tool you'll need is ``quickstart``, which
 initializes a TurboGears project.  Go to one of your command line
 windows and run the following command::
@@ -95,13 +101,16 @@ windows and run the following command::
 
 You'll be prompted for the name of the project (this is the pretty name
 that human beings would appreciate), and the name of the package (this
-is the less-pretty name that Python will like). Here's what our choices
+is the less-pretty name that Python will like).  Here's what our choices 
 for this tutorial look like::
 
     $ paster quickstart
     Enter project name: Wiki 20
     Enter package name [wiki20]: wiki20
     Do you need authentication and authorization in this project? [yes] no
+
+We recommend you use the names given here: this documentation  
+looks for files in directories based on these names.
 
 Now **paster** will spit out a bunch of stuff::
 
@@ -126,16 +135,19 @@ From inside the ``Wiki-20`` directory, run this command::
 
     $ paster serve --reload development.ini
 
-(You'll get a warning that starts with ``No handlers could be found for
-logger "toscawidgets.view"``, but that's OK; your system will still
-run.)
-
 The ``--reload`` flag means that changes that you make in the project
 will automatically cause the server to restart itself. This way you
 immediately see the results.
 
 Point your browser at http://localhost:8080/, and you'll see a nice
 welcome page. You now have a working project!
+And you can access the project from within the python/ipython shell 
+by typing::
+
+    $ paster shell development.ini
+
+If ipython is installed within your virtual environment, it will be the
+default shell.
 
 Controller and View
 =================================
@@ -159,10 +171,8 @@ as do most modern web frameworks like Rails, Cake, Struts, etc.
     *templating engines* which allow you to create "template" files to
     specify how a page will always look, with hooks where the templating
     engine can substitute information provided by your web application.
-    TurboGears 2's default templating engine is `Genshi`_.  If you really
-    love another templating engine, there are `plugins available`_ for most
-    popular Python templating engines. See the
-    `using alternate templating engines`_ article for details.
+    TurboGears 2's default templating engine is `Genshi`_.  Although TG support 
+    several others out of the box which can be configured in your `config/app_cfg.py` file
 
 *   **Controller**: The controller is the way that you tell your web
     application how to respond to events that arrive on the server. In a web
@@ -198,14 +208,13 @@ template to use to render the page.  Our ``@expose()`` specifies::
 
     @expose('wiki20.templates.index')
 
-This gives the file name to use, including the path information (the
+This gives TurboGears the template to use, including the path information (the
 ``.html`` extension is implied). We'll look at this file shortly.
-
-The ``flash()`` function is a simple way to show a message.
 
 Each controller method returns a dictionary, as you can see at the end
 of ``index``. TG takes the key:value pairs in this dictionary and turns
 them into local variables that can be used in the template.
+
 
 Displaying the Page
 ---------------------------
@@ -220,8 +229,11 @@ even open it directly in your browser.
 Genshi directives are usually found within ``div`` or ``span`` tags, and
 begin with the ``py:`` namespace. Each one represents a python block of
 code, but instead of ending with the outdent as in python, the end of
-the tag represents the end of the block. Look through the ``index.html``
-file to see the Genshi directives.
+the tag represents the end of the block.  We'll see some simple
+Genshi directives in the sections on 
+:ref:`Editing pages <editing_pages>` and 
+:ref:`Adding views <adding_views>`.
+
 
 .. _Model-View-Controller paradigm: http://en.wikipedia.org/wiki/Model-view-controller
 .. _plugins available: http://www.turbogears.org/cogbin/
@@ -229,7 +241,6 @@ file to see the Genshi directives.
 .. _using alternate templating engines: http://docs.turbogears.org/1.0/AlternativeTemplating
 
 Next, we'll set up our data model, and create a database.
-
 
 Wiki Model and Database
 ============================================
@@ -242,11 +253,13 @@ module (so you can say ``import model``).
 In order to easily use our model within the application, modify the
 ``Wiki-20/wiki20/model/__init__.py`` file to add ``Page`` and ``pages_table``
 to the module. Add the following line
-*at the end of the file*. It's very important that this line is at the
-end because of some initialization ordering issues:
+*at the end of the file*:. 
 
-.. code:: Wiki-20/wiki20/model/__init__.py
-  :section: ModelModules
+.. code-block:: python
+
+    from wiki20.model.page import Page,pages_table
+
+.. warning:: It's very important that this line is at the end because `pages_table` requires the rest of the model to be initialized before it can be imported:
 
 Since a wiki is basically a linked collection of pages, we'll define a
 ``Page`` class as the name of our model. Create a new file called ``page.py`` in the
@@ -318,7 +331,7 @@ If you're familiar with SQLAlchemy this should look pretty standard to you.  The
 
     transaction.commit()
 
-where you're used to seeing ``Session.commit()`` we use ``transaction.commit`` this calls the transaction manager which helps us to support cross database transactions, as well as transactions in non relational databases, but ultimately in the case of SQLAlchemy it calls Session.commit() just like might if you were doing it directly. 
+where you're used to seeing ``Session.commit()`` we use ``transaction.commit`` this calls the transaction manager which helps us to support cross database transactions, as well as transactions in non relational databases, but ultimately in the case of SQLAlchemy it calls Session.commit() just like you might if you were doing it directly. 
 
 Now run the program from the ``Wiki-20`` directory:
 
@@ -327,6 +340,13 @@ Now run the program from the ``Wiki-20`` directory:
     $ python initializeDB.py
 
 
+.. warning:: 
+
+   Windows users using virtualenv must type ``python initializeDB.py``, 
+   and not rely on windows automatic python invocation when you 
+   just type ``initializeDB.py`` -- otherwise you will get the system python
+   not your virtualenv python, and you'll get import errors.
+   
 You'll see output, but you should not see error messages. At this point
 your database is created and has some initial data in it, which you can
 verify by looking at ``Wiki-20/devdata.db``. The file should exist and have
@@ -357,7 +377,7 @@ model. At the end of the ``import`` block, add this line::
     from wiki20.model.page import Page
 
 Now we will change the template used to present the data, by changing the
-``@expose`` line::
+``@expose('wiki20.templates.index')`` line to::
 
     @expose('wiki20.templates.page')
 
@@ -388,20 +408,17 @@ When we say::
 
    return dict(wikipage=page)
 
-The returned ``dict`` contains a single key called ``page`` and a single value
-containing the page that we looked up.
+The returned ``dict`` will create a template variable called ``wikipage`` that will evaluate to the ``page`` object that we looked it up.
 
 Here's the whole file after incorporating the above modifications:
 
-.. code::wiki_root/snapshots/2/wiki20/controllers/root.py
+.. code:: wiki_root/snapshots/2/wiki20/controllers/root.py
 
 Now our ``index()`` method fetches a record from the database (creating
 an instance of our mapped ``Page`` class along the way), and returns it
 to the template within a dictionary.
 
-Feel free to comment out (or remove) the ``flash()`` call too, to
-tidy the output up a bit.
-
+.. _adding_views:
 
 Adding Views (Templates)
 ===============================================
@@ -429,7 +446,7 @@ Similarly the lines::
   <xi:include href="header.html" />
   <xi:include href="footer.html" />
 
-Tell genshi to suck in the headers and footers for the page. 
+Tell genshi to pull in the headers and footers for the page. 
 
 Copy ``index.html`` into a file called ``page.html``. Now modify it for
 our purposes:
@@ -456,6 +473,8 @@ This is a basic XHTML page with three substitutions:
 
 When you refresh the output web page you should see "initial data" displayed on the page.
 
+.. _editing_pages:
+
 Editing pages
 ============================================
 
@@ -467,7 +486,6 @@ by clicking "Edit This Page," so we'll create a template for editing. First, mak
 
     cd wiki20/templates
     cp page.html edit.html
-    cd ../..
 
 We need to replace the content with an editing form and ensure people know this
 is an editing page. Here are the changes for ``edit.html``.
@@ -529,7 +547,7 @@ back to the viewing page.
 
 Although the ``page.data = data`` statement tells SQLAlchemy that you intend to store the page data in the database, nothing happens until the ``DBSession.flush()`` method is called. This is commonly refered to as the "unit of work" pattern, and it's an important structure for database developers because it allows SQLAlchemy to combine many operations into a single database update (or a minimized number of updates if some changes depend upon earlier changes) and thus be much more efficient in the database resources used.
 
-SQLALchemy also provides a ``DBSession.commit()`` method which flushes and commits any changes you've made in a trasaction.   TurboGears 2 provides a flexible transaction management system that automates this process wrapping each web request in it's own transaction and automatically rolling back that transaction if you get a python exception, or return an HTTP error code as your response.
+SQLALchemy also provides a ``DBSession.commit()`` method which flushes and commits any changes you've made in a transaction.   TurboGears 2 provides a flexible transaction management system that automates this process wrapping each web request in its own transaction and automatically rolling back that transaction if you get a python exception, or return an HTTP error code as your response.
 
 You don't have to do anything to use this transaction management system, it should just work. So, you can now make changes and save the page we were editing, just like a real
 wiki.
@@ -617,12 +635,13 @@ we might create a facade in the model, but here we'll favor simplicity. Notice
 that we can use the ``redirect()`` to pass parameters into the destination
 method.
 
-As for the ``notfound`` method, the first 5 lines of the method adds a row to
+As for the ``notfound`` method, the first two lines of the method add a row to
 the page table. From there, the path is exactly the same it would be
 for our ``edit`` method.
 
 With these changes in place, we have a fully functional wiki. Give it a try!
 You should be able to create new pages now.
+
 
 Adding a page list
 ============================================
@@ -641,7 +660,7 @@ After editing, our ``pagelist.html`` looks like:
 .. code:: wiki_root/trunk/wiki20/templates/pagelist.html
    :language: html
 
-The bolded section represents the Genshi code of interest. You can guess that
+The section in bold represents the Genshi code of interest. You can guess that
 the ``py:for`` is a python ``for`` loop, modified to fit into Genshi's XML. It
 iterates through each of the ``pages`` (which we'll send in via the controller,
 using a modification you'll see next). For each one, ``Page Name Here`` is
@@ -682,3 +701,12 @@ Now that you have a working Wiki, there are a number of further places to explor
 If you had any problems with this tutorial, or have ideas on how to make it
 better, please let us know on the mailing list! Suggestions are almost always
 incorporated.
+
+TODO list
+~~~~~~~~~
+
+ - Provide a repository with the code, with tags for each snapshot
+ - Update to use SQLAlchemy declarative syntax
+ - Update to use `websetup.py` instead of `initializeDB.py`
+
+

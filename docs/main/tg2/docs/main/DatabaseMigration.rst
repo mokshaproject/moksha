@@ -3,7 +3,7 @@ Database Schema Migration in TurboGears 2
 
 An automated method of applying database schema migrations helps to
 create a robust and reliable upgrade path for an application as it
-changes over time.  TurboGears 2 comes with a tool to 0incrementally
+changes over time.  TurboGears 2 comes with a tool to incrementally
 test and automatically deploy schema changes as needed.
 
 TurboGears 2 relies on the `sqlalchemy-migrate`_ project to 

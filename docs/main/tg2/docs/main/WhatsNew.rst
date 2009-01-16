@@ -78,7 +78,7 @@ Command changes
 
 Use paster command instead of the old tg-admin command.
 
-For exampel you now type ``paster quickstart`` rather than ``tg-admin quickstart`` to start a project. 
+For example you now type ``paster quickstart`` rather than ``tg-admin quickstart`` to start a project. 
 
 Here's a full list of the old command line tools and their new equivalents
 
@@ -105,6 +105,6 @@ New imports
   * import turbogears -> import tg
   * turbogears.config.get('sqlalchemy.dburi') -> pylons.config['sqlalchemy.url']
   * pylons.tmpl_context provides a request local place to stick stuff
-  * pylons.request  provides the rough equivelent of cherrypy.request
-  * pylons.response provides the equivelent of cherrypy.response
+  * pylons.request  provides the rough equivalent of cherrypy.request
+  * pylons.response provides the equivalent of cherrypy.response
 

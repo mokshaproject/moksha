@@ -122,6 +122,13 @@ the latest version of turbogears via:
 
 	$ easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
 
+.. warning :: if you are upgrading from a previous TG2 version you still need to provide the upgrade flag
+
+therefore your command should be:
+
+.. code-block:: bash
+	$ easy_install -Ui http://www.turbogears.org/2.0/downloads/current/index tg.devtools
+
 All of turbogears, and all of it's dependencies should download and install themselves.  (This may take a several min.)
 
 Validate the installation:

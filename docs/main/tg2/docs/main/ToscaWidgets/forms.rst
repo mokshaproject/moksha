@@ -1,10 +1,13 @@
+.. archive:: tosca_forms
+  :file: ToscaWidgetsFormsExample.zip
+
 Using ToscaWidgets to create Forms
 ==================================
 
 Introduction
 ------------
 
-One of the most useful features of ToscaWidgets is the ability to create forms with requisite validation.  Using existing form widgets it is relatively easy to add forms to your application to manage your database interactions.
+One of the most useful features of ToscaWidgets is the ability to create forms with requisite validation with a simple declarative syntax.  Using existing form widgets it is relatively easy to add forms to your application to manage your database interactions.
 
 The overall process for creating a form is as follows:
 
@@ -13,11 +16,8 @@ The overall process for creating a form is as follows:
 * if you are creating an edit form, extract the row data from the database.
 * call the widget in your template, passing in row data when appropriate.
 
-An `example project`_ (working with latest trunk as of r5963) has been attached so
-that people can try this easily and see the full project working.
-
-.. _example project: ../../_static/toscasample.tgz
-
+An :arch:`example project` has been attached so
+that people can try this easily.
 
 Tutorial
 -------------------
@@ -25,27 +25,10 @@ Tutorial
 For this tutorial, we will be implementing a form to add a movie to a movie database.
 
 
-Let's start with a simple SQLAlchemy model that has a Movie object like this ``model/__init__.py`` 
+Let's start with a simple SQLAlchemy model that has a Movie object at the bottom of `model/__init__.py`` like this: 
 
-::
-
- # model/__init__.py
- from sqlalchemy import Column, Table, types
- from sqlalchemy.orm import mapper
-
- movie_table = Table("movie", metadata,
-     Column("id", types.Integer, primary_key=True),
-     Column("title", types.String(100), nullable=False),
-     Column("description", types.Text, nullable=True),
-     Column("year", types.Integer, nullable=True),    
-     Column("genre", types.String(100), nullable=True),
-     Column("release_date", types.Date, nullable=True)    
-     )
-     
- class Movie(object):
-     pass
-     
- mapper(Movie, movie_table)
+.. code:: tosca_forms/toscasample/model/__init__.py
+  :section: BaseModel
 
 Our movie has a smattering of the different standard data types so that we can show off some simple ToscaWidgets form widgets.
 
@@ -58,59 +41,23 @@ this will create the database schema in the database referenced in your config f
 Basic Form
 ----------
 
-To create a form for the model add the following code in your root.py (this does not handle validation):
+To create a form for the model add the following code in your root.py, for now you can ignore the validator code, and you can even skip it if you want:
 
-::
+.. code:: tosca_forms/toscasample/controllers/root.py
+  :section: MovieForm
 
-  from tw.forms import TableForm, TextField, CalendarDatePicker, SingleSelectField, TextArea
-  from tw.api import WidgetsList
+In ToscaWidgets, every widget can have child widgets. This is particularly useful for forms, which are generally made up of form filed widgets. 
 
-  class MovieForm(TableForm):
-      # This WidgetsList is just a container
-      class fields(WidgetsList):
-          title = TextField()
-          year = TextField(size=4)
-          release_date = CalendarDatePicker()
-          genrechoices = ((1,"Action & Adventure"),
-                           (2,"Animation"),
-                           (3,"Comedy"),
-                           (4,"Documentary"),
-                           (5,"Drama"),
-                           (6,"Sci-Fi & Fantasy"))
-          genre = SingleSelectField(options=genrechoices)
-          description = TextArea()
+You can simply add nested classes which become children of the parrent widget. 
 
-  #then, we create an instance of this form
-  create_movie_form = MovieForm("create_movie_form", action='create')
-
-In ToscaWidgets, every widget can have child widgets. You can simply add nested classes which become children and then those child classes will be instantiated and appended to the widget.  In this case, we're adding some fields in a WidgetList to the FormTable.
+Then those child classes will be instantiated and appended to the widget.  In this case, we're adding some fields in a WidgetList to the FormTable widget.
 
 Form Template
 -------------
 Create a new template in your templates directory, lets call it new_form.html.  Here is what the Genshi template should look like.
 
-.. code-block:: html
-
- <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
-       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
- <html xmlns="http://www.w3.org/1999/xhtml"
-       xmlns:py="http://genshi.edgewall.org/"
-       xmlns:xi="http://www.w3.org/2001/XInclude">
- 
- <!-- This line is important, since it will automatically handle including any required resources in the head -->
- <xi:include href="master.html" />
- 
- <head>
-   <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
-   <title>Edit ${modelname}</title>
- </head>
- 
- <body>
- <h1>New ${modelname}</h1>
- ${tmpl_context.form()}
- 
- </body>
- </html>
+.. highlight:: html+genshi
+.. code:: tosca_forms/toscasample/templates/new_form.html
 
 
 The Controller
@@ -118,18 +65,10 @@ The Controller
 
 To show your form on the screen, we need to add a new controller method that looks like the following
 
-::
+.. highlight:: python
 
-     # we tell expose which template to use to display the form
-     @expose("genshi:toscasample.templates.new_form")
-     def new(self, **kw):
-         """Form to add new record"""
-         import pylons
-         # Passing the form in the return dict is no longer kosher, you can 
-         # set pylons.c.form instead and use c.form in your template
-         # (remember to 'import pylons' too)
-         pylons.c.form = create_movie_form
-         return dict(modelname='Movie', page='ToscaTuto')
+.. code:: tosca_forms/toscasample/controllers/root.py
+  :section: New
 
 Run the application, surf to `http://localhost:8080/new/ <http://localhost:8080/new/>`_ You will see a form that looks like this:
 
