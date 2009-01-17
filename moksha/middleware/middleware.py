@@ -105,7 +105,7 @@ class MokshaMiddleware(object):
             response = request.get_response(self.application)
 
         return response(environ, start_response)
-    
+
     def register_stomp(self, environ):
         environ['paste.registry'].register(moksha.stomp, {
             'onopen': [],
@@ -120,12 +120,12 @@ class MokshaMiddleware(object):
         response = None
         # check last part of path to see if it is json data
         dispatch_params = {};
-        
+
         p = urllib.unquote_plus(path[-1].lstrip())
         if p.startswith('{'):
             dispatch_params = json.loads(p)
             path = path[:-1]
-        
+
         # prevent trailing slash
         if not p:
             path = path[:-1]
