@@ -19,7 +19,9 @@
 from tg import config
 from tw.api import Widget, JSLink, js_callback, js_function
 
-orbited_url = 'http://%s:%s' % (config['orbited_host'], config['orbited_port'])
+orbited_host = config.get('orbited_host', 'localhost')
+orbited_port = config.get('orbited_port', 9000)
+orbited_url = 'http://%s:%s' % (orbited_host, orbited_port)
 orbited_js = JSLink(link=orbited_url + '/static/Orbited.js')
 
 class OrbitedWidget(Widget):
@@ -47,4 +49,4 @@ class OrbitedWidget(Widget):
                 connect()
             })
         </script>
-    """ % {'port': config['orbited_port'], 'host': config['orbited_host']}
+    """ % {'port': orbited_port, 'host': orbited_host}

@@ -2,11 +2,12 @@ import moksha
 
 from tg import expose, flash, require, tmpl_context, redirect, validate
 from repoze.what import predicates
-from moksha.controllers.secc import AdminController
-from moksha.lib.base import BaseController
-from moksha.layout import LayoutWidget
-from moksha.model import DBSession
+
 from moksha import _
+from moksha.model import DBSession
+from moksha.lib.base import BaseController
+from moksha.widgets.layout import LayoutWidget
+from moksha.controllers.secc import AdminController
 
 layout_widget = LayoutWidget('layout')
 

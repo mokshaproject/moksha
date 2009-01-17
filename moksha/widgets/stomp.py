@@ -20,7 +20,9 @@ import moksha
 
 from tg import config
 from tw.api import Widget, JSLink, js_callback
-from moksha.live.orbited import orbited_js, orbited_url
+
+from moksha.widgets.orbited import orbited_host, orbited_port
+from moksha.widgets.orbited import orbited_js, orbited_url
 
 stomp_js = JSLink(link=orbited_url + '/static/protocols/stomp/stomp.js')
 
@@ -64,9 +66,11 @@ class StompWidget(Widget):
         };
         stomp.connect('%s', %s, '%s', '%s');
       </script>
-    """ % (config['orbited_port'], config['orbited_host'],
-           config['stomp_host'], config['stomp_port'],
-           config['stomp_user'], config['stomp_pass'])
+    """ % (orbited_port, orbited_host,
+           config.get('stomp_host', 'localhost'),
+           config.get('stomp_port', 61613),
+           config.get('stomp_user', 'guest'),
+           config.get('stomp_pass', 'guest'))
     engine_name = 'mako'
 
     def update_params(self, d):

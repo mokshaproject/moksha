@@ -9,7 +9,7 @@ from pylons.i18n import _, ungettext, N_
 
 import moksha.model as model
 
-from moksha.live.stomp import stomp_widget
+from moksha.widgets.stomp import stomp_widget
 
 
 class Controller(object):

@@ -20,7 +20,7 @@ import moksha
 
 from tw.api import Widget
 from moksha.exc import MokshaException
-from moksha.live.stomp import stomp_widget, stomp_subscribe
+from moksha.widgets.stomp import stomp_widget, stomp_subscribe
 
 class LiveWidget(Widget):
     """ A live streaming widget.
@@ -46,4 +46,3 @@ class LiveWidget(Widget):
                 moksha.stomp['onconnectedframe'].append(stomp_subscribe(topics))
             elif callback in self.params:
                 moksha.stomp[callback].append(getattr(self, callback))
-

@@ -16,8 +16,8 @@
 # Copyright 2008, Red Hat, Inc.
 # Authors: Luke Macken <lmacken@redhat.com>
 
-from moksha.live import LiveWidget
-from moksha.feed import Feed
+from feed import Feed
+from moksha.widgets import LiveWidget
 
 class LiveFeedWidget(LiveWidget):
     """ A live streaming feed widget """

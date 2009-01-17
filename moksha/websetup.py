@@ -1,9 +1,9 @@
 """Setup the moksha application"""
 import logging
-
 import transaction
-from paste.deploy import appconfig
+
 from tg import config
+from paste.deploy import appconfig
 
 from moksha.config.environment import load_environment
 
