@@ -17,7 +17,7 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 
 from feed import Feed
-from moksha.widgets import LiveWidget
+from moksha.api.widgets import LiveWidget
 
 class LiveFeedWidget(LiveWidget):
     """ A live streaming feed widget """

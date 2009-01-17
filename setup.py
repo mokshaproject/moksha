@@ -42,9 +42,9 @@ setup(
     main = pylons.util:PylonsInstaller
 
     [moksha.widget]
-    liveflot = moksha.widgets.flot:LiveFlotWidget
-    livefeed = moksha.widgets.feed.live:LiveFeedWidget
+    liveflot = moksha.api.widgets.flot:LiveFlotWidget
+    livefeed = moksha.api.widgets.feed.live:LiveFeedWidget
     livegraph = moksha.examples.livegraph:LiveGraphWidget
-    chat = moksha.widgets.chat:LiveChatWidget
+    chat = moksha.api.widgets.chat:LiveChatWidget
     """,
 )

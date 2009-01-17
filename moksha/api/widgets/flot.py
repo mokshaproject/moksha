@@ -17,7 +17,7 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 
 from tw.jquery.flot import FlotWidget
-from moksha.widgets import LiveWidget
+from moksha.api.widgets import LiveWidget
 
 class LiveFlotWidget(LiveWidget):
     """ A live graphing widget """

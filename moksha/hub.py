@@ -25,7 +25,7 @@ from twisted.internet import reactor
 from twisted.internet.task import LoopingCall
 from stompservice import StompClientFactory
 
-from moksha.widgets.feed import Feed
+from moksha.api.widgets.feed import Feed
 
 INTERVAL = 300 # in ms
 

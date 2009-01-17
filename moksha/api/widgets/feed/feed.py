@@ -67,7 +67,7 @@ class Feed(Widget):
 
     """
     url = None
-    template = 'mako:moksha.widgets.feed.templates.feed_home'
+    template = 'mako:moksha.api.widgets.feed.templates.feed_home'
     params = {
             'title': 'The title of this feed',
             'link': 'The url to the site that this feed is for',

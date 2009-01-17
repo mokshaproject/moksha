@@ -6,8 +6,8 @@ from repoze.what import predicates
 from moksha import _
 from moksha.model import DBSession
 from moksha.lib.base import BaseController
-from moksha.widgets.layout import LayoutWidget
 from moksha.controllers.secc import AdminController
+from moksha.api.widgets.layout import LayoutWidget
 
 layout_widget = LayoutWidget('layout')
 

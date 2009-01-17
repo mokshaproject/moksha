@@ -29,7 +29,7 @@ ui_droppable_js = JSLink(filename='static/ui/ui.droppable.js', modname=__name__)
 ui_sortable_js = JSLink(filename='static/ui/ui.sortable.js', modname=__name__)
 
 class LayoutWidget(Widget):
-    template = 'mako:moksha.widgets.layout.templates.layout'
+    template = 'mako:moksha.api.widgets.layout.templates.layout'
     params = ['header', 'content', 'sidebar', 'footer', 'invisible']
     css = [layout_css]
     javascript = [jquery_js, layout_js, ui_core_js, ui_draggable_js,
