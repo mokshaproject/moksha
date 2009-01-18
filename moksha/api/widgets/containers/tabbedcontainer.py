@@ -1,15 +1,20 @@
 from tw.jquery.ui_tabs import JQueryUITabs
-from pylons import config
+from pylons import config, request
+from repoze.what import predicates
+
 import urllib
 
-def App(label="", url="", auth_levels=[], req_params={}):
-    # FIXME implement authentication checking
-    #       and enhance load to be able to do PUSH instead of GET
+def App(label="", url="", req_params={}, predicates=[]):
+    if predicates:
+        for p in predicates:
+            if not p.eval_with_environ(request.environ):
+                return None
+    
     return (label, url + "?" + urllib.urlencode(req_params))    
 
-def MokshaApp(label="", moksha_app="", req_params={}):
+def MokshaApp(label="", moksha_app="", req_params={}, predicates=()):
     # FIXME figure out how to pull auth info from an app
-    return App(label, '/appz/' + moksha_app, req_params)
+    return App(label, '/appz/' + moksha_app, req_params, predicates)
 
 """ 
 :Name: TabbedContainer
@@ -40,8 +45,18 @@ class TabbedContainer(JQueryUITabs):
         
         super(TabbedContainer, self).update_params(d)
         
-        tabs = eval(config.get(self.config_key, "None"), {"__builtins__":None}, {'MokshaApp': MokshaApp, 'App': App})
+        tabs = eval(config.get(self.config_key, "None"), {"__builtins__":None}, {'MokshaApp': MokshaApp, 
+                                                                                 'App': App,
+                                                                                 'predicates': predicates})
         if not tabs:
-            tabs = self.tabs
+            if isinstance(self.tabs, str):
+                tabs = eval(self.tabs, {"__builtins__":None}, {'MokshaApp': MokshaApp,
+                                                               'App': App,
+                                                               'predicates': predicates})
+            else:
+                tabs = self.tabs
 
+        # Filter out any None's in the list which signify apps which are
+        # not allowed to run with the current session's authorization level
+        tabs = filter(lambda x: x, tabs)
         d['tabs'] = tabs
