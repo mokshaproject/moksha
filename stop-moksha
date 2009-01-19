@@ -1,0 +1,5 @@
+#!/bin/bash
+kill $(cat paster.pid)
+kill $(cat orbited.pid)
+kill -9 $(cat hub.pid)
+rm *.pid
