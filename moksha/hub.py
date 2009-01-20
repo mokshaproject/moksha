@@ -1,126 +1,189 @@
-#!/usr/bin/env python
-# This file is part of Moksha.
-#
-# Moksha is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Moksha is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Moksha.  If not, see <http://www.gnu.org/licenses/>.
-#
-# Copyright 2008, Red Hat, Inc.
-# Authors: Luke Macken <lmacken@redhat.com>
+import logging
+log = logging.getLogger(__name__)
 
-import math
+from collections import defaultdict
 
-from random import random
-from orbited import json
 from twisted.internet import reactor
-from twisted.internet.task import LoopingCall
-from stompservice import StompClientFactory
+from twisted.internet.threads import deferToThread
+deferred = deferToThread.__get__
 
-from moksha.api.widgets.feed import Feed
 
-INTERVAL = 300 # in ms
+# TODO: load these from an entry point
+from moksha.api.hub import Consumer
 
-# Specific to the livegraph demo
-DATA_VECTOR_LENGTH = 10
-DELTA_WEIGHT = 0.1
-MAX_VALUE = 400 # NB: this in pixels
-CHANNEL_NAME = "/topic/graph"
+class MyConsumer(Consumer):
+    queue = 'testing'
+    def consume(self, message):
+        print "MyHook.consume(%s)" % message.body
 
-class MokshaHub(StompClientFactory):
+global_hooks = [MyConsumer]
+
+
+# @@ Caveats
+# At the moment, the queue name must be equal to the routing key.
+# This may cause limitations in the future, but for now it necessary
+# because we need to take the `routing_key` on an AMQP message, and deliver
+# it to a consumer who is watching a specific `queue`.  Since AMQP messages
+# do not contain the queue name, they need to be the same.
+
+from moksha.amqp import AMQPLibHub
+
+class MokshaHub(AMQPLibHub):
     """
-    This module is currently only used for the default Moksha demo,
-    but will eventually be a plugin-driven expert system that handles
-    hooking into arbitrary events, and polling various resources.
+    The Moksha Hub is responsible for initializing all of the Hooks,
+    AMQP queues, exchanges, etc.
     """
-    username = 'guest'
-    password = 'guest'
+    conn = None
+    topics = None
+    queues = None # {queue_name: [callback,]}
+    hooks = None # {queue_name: [<Hook instance>,]}
+    data_streams = None
 
-    # Feed demo
-    feed_entries = Feed(url='http://lewk.org/blog/index.rss20').entries()
+    def __init__(self, broker='127.0.0.1:5672', username='guest', password='guest', 
+                 ssl=False, main=False):
+        super(MokshaHub, self).__init__(broker, username=username, 
+                                        password=password, ssl=ssl)
+        self.queues = {}
+        if main:
+            self.__init_main_hub()
 
-    # Flot demo specific variables
-    offset = 0.0
-    skip = 0
-    bars = [[0, 3], [4, 8], [8, 5], [9, 13]]
-    n = 0
+    def __init_main_hub(self):
+        """ Initialize various items for the central Moksha hub """
+        log.debug('Initializing the main MokshaHub')
+        self.__init_topics()
+        self.__init_queues()
+        self.__init_hooks()
+        self.__init_data_streams()
 
-    def recv_connected(self, msg):
-        print 'Connected; producing data'
-        self.data = [ 
-            int(random()*MAX_VALUE) 
-            for 
-            x in xrange(DATA_VECTOR_LENGTH)
-        ]
-        self.timer = LoopingCall(self.send_data)
-        self.timer.start(INTERVAL/1000.0)
+    def __init_topics(self):
+        """ Initialize all "topics" from queues that hooks are watching """
+        self.topics = set()
+        for hook in global_hooks:
+            self.topics.add(hook.queue)
 
-    def send_data(self):
-        self.n += 1
+    def __init_hooks(self):
+        """ Initialize all Moksha Hook objects """
+        self.hooks = defaultdict(list)
+        for hook in global_hooks:
+            log.info('Initializing %s hook' % hook.__name__)
+            h = hook()
+            self.hooks[hook.queue].append(h)
+            log.debug("%s hook is watching the %r queue" % (hook.__name__, hook.queue))
+            self.watch_queue(hook.queue, callback=lambda msg: h.consume(msg))
 
-        if self.n % 3 == 0:
-            entry = self.feed_entries[self.n % len(self.feed_entries)]
-            self.send('/topic/feed_example', json.encode(
-                [{'title': entry['title'], 'link': entry['link']}]))
+    def __init_queues(self):
+        """ Declare and bind queues for each topic in self.topics """
+        self.queues = {}
+        for topic in self.topics:
+            if not topic in self.queues:
+                self.create_queue(topic)
+                self.queue_bind(topic, 'amq.topic')
 
-        # modify our data elements
-        if self.n % 2 == 0: # make the graph look independent of flot
-            self.data = [ 
-                min(max(datum+(random()-.5)*DELTA_WEIGHT*MAX_VALUE,0),MAX_VALUE)
-                for 
-                datum in self.data
-            ]
-            self.send(CHANNEL_NAME, json.encode(self.data))
+    def __init_data_streams(self):
+        """ Initialize all data streams """
+        log.info('Initializing data streams')
+        self.data_streams = []
+        # @@ dynamically suck these in from an entry point
+        #from moksha.streams.feed import FeedStream
+        from moksha.streams.demo import MokshaDemoDataStream
+        streams = [MokshaDemoDataStream]
+        for stream in streams:
+            self.data_streams.append(stream())
 
-        ## Generate flot data
-        d1 = []
-        i = 0
-        for x in range(26):
-            d1.append((i, math.sin(i + self.offset)))
-            i += 0.5
+    def watch_queue(self, queue, callback):
+        """
+        This method will cause the specified `callback` to be executed with
+        each message that goes through a given queue.
+        """
+        log.debug("watch_queue(%s)" % locals())
+        if not queue in self.queues:
+            self.create_queue(queue)
+            self.queue_bind(queue, 'amq.topic')
+        if len(self.queues[queue]) == 0:
+            self.consume(queue, callback=self.consume_message, no_ack=True)
+        self.queues[queue].append(callback)
 
-        for bar in self.bars:
-            bar[1] = bar[1] + (int(random() * 3) - 1)
-            if bar[1] <= -5: bar[1] = -4
-            if bar[1] >= 15: bar[1] = 15
-        d2 = self.bars
+    def consume_message(self, message):
+        """ The main Moksha message consumer.
 
-        d3 = []
-        i = 0
-        for x in range(26):
-            d3.append((i, math.cos(i + self.offset)))
-            i += 0.5
-        self.offset += 0.1
+        This method receives every message for every queue that is being 
+        "watched", via the :meth:MokshaHub.watch_queue, or by a :class:`Hook`.
+        It will then call
+        """
+        log.debug("consume_message(%s)" % message)
+        for callback in self.queues.get(message.delivery_info['routing_key'], []):
+            log.debug("calling %s" % callback)
+            callback(message)
 
-        d4 = []
-        i = 0
-        for x in range(26):
-            d4.append((i, math.sqrt(i * 10)))
-            i += 0.5
+    @deferred
+    def start(self):
+        """ The MokshaHub's main loop """
+        while self.channel.callbacks:
+            self.channel.wait()
+        print "self.channel =", self.channel
+        print self.channel.callbacks
 
-        d5 = []
-        i = 0
-        for x in range(26):
-            d5.append((i, math.sqrt(i * self.offset)))
-            i += 0.5
+    def stop(self):
+        log.debug("Stopping the MokshaHub")
+        if self.data_streams:
+            for source in self.data_streams:
+                log.debug("Stopping data stream %s" % source)
+                source.timer.stop()
+        if self.channel:
+            self.channel.close()
+        if self.conn:
+            self.conn.close()
+    __del__ = stop
 
-        flot_data = [{'data': [
-            {'data': d1, 'lines': {'show': 'true', 'fill': 'true'}},
-            {'data': d2, 'bars': {'show': 'true'}},
-            {'data': d3, 'points': {'show': 'true'}},
-            {'data': d4, 'lines': {'show': 'true'}},
-            {'data': d5, 'lines': {'show': 'true'}, 'points' : {'show': 'true'}}
-        ], 'options': {'yaxis' : { 'max' : '15' }}
-        }]
-        self.send('/topic/flot_example', json.encode(flot_data))
 
-reactor.connectTCP('localhost', 61613, MokshaHub())
-reactor.run()
+def main():
+    hub = MokshaHub(main=True)
+    hub.create_queue("testing")
+    hub.queue_bind("testing", "amq.topic")
+    hub.send_message('foo', exchange='amq.topic', routing_key='testing')
+
+    def callback(msg):
+        for key, val in msg.properties.items():
+            print '%s: %s' % (key, str(val))
+        for key, val in msg.delivery_info.items():
+            print '> %s: %s' % (key, str(val))
+        print ''
+        print msg.body
+        print '-------'
+
+    hub.watch_queue('testing', callback=callback)
+    hub.send_message('bar', routing_key='testing')
+    hub.start(hub)
+
+    # @@ Make this exit cleanly...
+    import os
+    import sys
+    import signal
+    def handle_signal(signum, stackframe):
+        print "handle_signal!"
+        from twisted.internet import reactor
+        if signum in [signal.SIGHUP, signal.SIGINT]:
+            reactor.stop()
+            hub.stop()
+            sys.exit(0)
+    signal.signal(signal.SIGHUP, handle_signal)
+    signal.signal(signal.SIGINT, handle_signal)
+
+    print "Running the reactor!"
+    reactor.run(installSignalHandlers=False)
+    print "Reactor stopped!"
+
+def setup_logger(verbose):
+    global log
+    sh = logging.StreamHandler()
+    level = verbose and logging.DEBUG or logging.INFO
+    log.setLevel(level)
+    sh.setLevel(level)
+    format = logging.Formatter("%(message)s")
+    sh.setFormatter(format)
+    log.addHandler(sh)
+
+if __name__ == '__main__':
+    import sys
+    setup_logger('-v' in sys.argv or '--verbose' in sys.argv)
+    main()
