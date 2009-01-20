@@ -1,6 +1,3 @@
-.. archive:: wiki_root/trunk/
-  :file: Wiki20_final.zip
- 
 The TurboGears 2 Wiki Tutorial
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

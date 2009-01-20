@@ -18,6 +18,7 @@ Introduction
    main/DataAggregation
    main/DataInterpretation
    main/DataPersistence
+   main/DataVisualization
    main/Scalability
 
 Architecture
@@ -63,13 +64,14 @@ Widgets
    main/Feeds
    main/tg2/docs/main/ToscaWidgets/ToscaWidgets
 
-Model
------
+..
+    Model
+    -----
 
-.. toctree::
-   :maxdepth: 2
+    .. toctree::
+       :maxdepth: 2
 
-   main/MokshaModel
+       main/MokshaModel
 
 Development
 -----------

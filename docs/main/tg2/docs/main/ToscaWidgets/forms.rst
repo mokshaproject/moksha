@@ -1,6 +1,3 @@
-.. archive:: tosca_forms
-  :file: ToscaWidgetsFormsExample.zip
-
 Using ToscaWidgets to create Forms
 ==================================
 
