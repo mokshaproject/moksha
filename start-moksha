@@ -1,7 +1,7 @@
 #!/bin/bash
 paster serve development.ini &
-echo $! >> paster.pid
+echo $! > paster.pid
 orbited &
-echo $! >> orbited.pid
+echo $! > orbited.pid
 python moksha/hub.py &
-echo $! >> hub.pid
+echo $! > hub.pid
