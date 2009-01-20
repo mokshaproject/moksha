@@ -16,28 +16,119 @@
 # Copyright 2008, Red Hat, Inc.
 # Authors: Luke Macken <lmacken@redhat.com>
 
-"""
-This module is currently under development.
-"""
-
-import qpid
-from qpid.util import connect, URL, ssl
-from qpid.client import Client
-from qpid.datatypes import Message
-from qpid.connection import Connection
-
 import logging
 log = logging.getLogger(__name__)
 
-class MokshaHub(object):
 
-    queues = []
-    exchanges = []
+
+class AMQPHub(object):
+    """
+    A skeleton class for what we expect from an AMQP implementation.
+    This allows us to bounce between different AMQP modules without too much
+    pain and suffering.
+    """
+    conn = None
+
+    def __init__(self, broker):
+        """ Initialize a connection to a specified broker.
+
+        This method must set self.channel to an active channel.
+        """
+        raise NotImplementedError
+
+    def create_queue(self, queue, exchange, durable, exclusive, auto_delete):
+        raise NotImplementedError
+
+    def send_message(self, message, exchange, routing_key, **kw):
+        raise NotImplementedError
+
+    def consume(self, queue, callback, no_ack):
+        raise NotImplementedError
+
+    def close(self):
+        raise NotImplementedError
+    __del__ = close
+
+
+import amqplib.client_0_8 as amqp
+
+class AMQPLibHub(AMQPHub):
+    """ An AMQPHub implemention using the amqplib module """
+
+    def __init__(self, broker, username=None, password=None, ssl=False):
+        self.conn = amqp.Connection(host=broker, ssl=ssl,
+                                    userid=username, password=password)
+        self.channel = self.conn.channel()
+        self.channel.access_request('/data', active=True, write=True, read=True)
+
+    def create_queue(self, queue, exchange='amq.fanout', durable=True,
+                     exclusive=False, auto_delete=False):
+        """ Declare a `queue` and bind it to an `exchange` """
+        log.debug("create_queue(%s)" % locals())
+        if not queue in self.queues:
+            log.info("Creating %s queue" % queue)
+            self.channel.queue_declare(queue, durable=durable, exclusive=exclusive,
+                                       auto_delete=auto_delete)
+            # exchange_declare... queue_bind
+            self.queues[queue] = []
+
+    def exchange_declare(exchange, type='fanout', durable=True, auto_delete=False):
+        self.channel.exchange_declare(exchange=exchange, type=type,
+                                      durable=durable, auto_delete=auto_delete)
+
+    def queue_bind(self, queue, exchange, routing_key=''):
+        log.debug("queue_bind(%s, %s)" % (queue, exchange))
+        self.channel.queue_bind(queue, exchange, routing_key=routing_key)
+
+    # Since queue_name == routing_key, should we just make this method
+    # def send_message(self, queue, message) ?
+    def send_message(self, message, exchange='amq.fanout', routing_key='', **kw):
+        """ Send an AMQP message to a given exchange with the specified routing key """
+        log.debug("send_message(%s)" % locals())
+        msg = amqp.Message(message, **kw)
+        self.channel.basic_publish(msg, exchange, routing_key=routing_key)
+
+    def get_message(self, queue):
+        """ Immediately grab a message from the queue.
+
+        This call will not block, and will return None if there are no new
+        messages in the queue.
+        """
+        log.debug("get_message(%s)" % queue)
+        msg = self.channel.basic_get(queue, no_ack=True)
+        return msg
+
+    def consume(self, queue, callback, no_ack=True):
+        """ Consume messages from a given `queue`, passing each of them to `callback` """
+        self.channel.basic_consume(queue, callback=callback, no_ack=no_ack)
+
+
+
+"""
+Below is an attempt at building the Moksha hub with the python-qpid bindings.
+
+There are two attempts, one using the AMQP 0.8 spec, and another using the 0.10.
+Both of these implementations are incomplete, most-likely buggy, and not fully
+integrated or tested with the MokshaHub.  They are here for reference, and to
+potentially utilize further down the road when we move from amqplib to python-qpid.
+"""
+
+try:
+    import qpid
+    from qpid.util import connect, URL, ssl
+    from qpid.client import Client
+    from qpid.datatypes import Message
+    from qpid.connection import Connection
+    from qpid.connection08 import Connection
+    from qpid.content import Content
+except ImportError:
+    pass
+
+class QpidAMQP08Hub(AMQPHub):
+
     client = None
-    session = None
-    amqp_spec = qpid.spec.default()
 
-    def __init__(self, broker='localhost', timeout=10):
+    def __init__(self, broker, username=None, password=None, ssl=False):
         """ Initialize the Moksha Hub.
 
         `broker`
@@ -45,11 +136,10 @@ class MokshaHub(object):
 
         """
         self.set_broker(broker)
-        self.timeout = timeout
-        self.amqp_spec = qpid.spec.load(self.amqp_spec)
         self.init_qpid_connection()
-        self.init_qpid_session()
-        self.init_qmf()
+
+        # We need 0.8 for RabbitMQ
+        self.amqp_spec=qpid.spec08.load('/usr/share/amqp/amqp.0-8.xml')
 
     def set_broker(self, broker):
         self.url = URL(broker)
@@ -65,6 +155,56 @@ class MokshaHub(object):
         self.port = self.url.port or default_port
 
     def init_qpid_connection(self):
+        self.client = Client(self.host, self.port, spec=self.amqp_spec)
+        self.client.start({'LOGIN': self.user, 'PASSWORD': self.password})
+        self.conn = self.client.channel(1)
+        self.conn.channel_open()
+        print "opened channel!"
+
+    def create_queue(self, queue, routing_key, exchange='amq.topic',
+                     auto_delete=False, durable=True, **kw):
+        self.conn.queue_declare(queue=queue, auto_delete=auto_delete,
+                                durable=durable, **kw)
+        self.conn.queue_bind(queue=queue, exchange=exchange,
+                             routing_key=routing_key)
+        print "Created %s queue" % queue
+
+
+    def send_message(self, message, exchange='amq.topic', routing_key=''):
+        self.conn.basic_publish(routing_key=routing_key,
+                                content=Content(message),
+                                exchange=exchange)
+
+    def get(self, queue):
+        t = self.conn.basic_consume(queue=queue, no_ack=True)
+        print "t.consumer_tag =", t.consumer_tag
+        q = self.client.queue(t.consumer_tag)
+        msg = q.get()
+        print "got message: ", msg
+        return msg.content.body
+        q.close()
+
+    def close(self):
+        if self.conn:
+            print "Closing connection"
+            self.conn.close()
+
+class QpidAMQP010Hub(AMQPHub):
+
+    def __init__(self, broker, username=None, password=None, ssl=False):
+        """ Initialize the Moksha Hub.
+
+        `broker`
+            [amqps://][<user>[/<password>]@]<host>[:<port>]
+
+        """
+        self.set_broker(broker)
+        self.amqp_spec = qpid.spec.load(qpid.spec.default())
+        self.init_qpid_connection()
+        self.init_qpid_session()
+        self.init_qmf()
+
+    def init_qpid_connection(self):
         sock = connect(self.host, self.port)
         if self.url.scheme == URL.AMQPS:
             sock = ssl(sock)
@@ -72,7 +212,7 @@ class MokshaHub(object):
                                password=self.password)
         self.conn.start(timeout=self.timeout)
 
-    def init_qpid_session(self, session_name='moksha'):
+    def init_qpid_session(self, session_name):
         self.session = self.conn.session(session_name, timeout=self.timeout)
 
     def init_qmf(self):
@@ -83,22 +223,6 @@ class MokshaHub(object):
         except ImportError:
             log.warning('qmf.console not available')
             self.qmf = None
-
-    def create_queue(self, queue, routing_key, exchange='amq.direct',
-                     auto_delete=False, durable=False, **kw):
-        if queue not in self.queues:
-            self.session.queue_declare(queue=queue, auto_delete=auto_delete,
-                                       durable=durable, **kw)
-            self.queues.append(queue)
-
-    def delete_queue(self, queue):
-        self.session.queue_delete(queue=queue)
-
-    def send_message(self, destination, message, routing_key='key',
-                     delivery_mode=2):
-        dp = self.session.delivery_properties(routing_key=routing_key,
-                                              delivery_mode=delivery_mode)
-        self.session.message_transfer(message=Message(dp, message))
 
     def subscribe(self, queue, destination, accept_mode=1, acquire_mode=0):
         """ Subscribe to a specific queue destination """
@@ -115,33 +239,21 @@ class MokshaHub(object):
     def get(self, destination):
         return self.session.incoming(destination).get(timeout=self.timeout)
 
+    def delete_queue(self, queue):
+        self.session.queue_delete(queue=queue)
+
+    def send_message(self, destination, message, routing_key='key',
+                     delivery_mode=2):
+        dp = self.session.delivery_properties(routing_key=routing_key,
+                                              delivery_mode=delivery_mode)
+        self.session.message_transfer(message=Message(dp, message))
+
     def query(self, queue):
         return self.session.queue_query(queue=queue)
 
     def close(self):
         if not self.session.error():
             self.session.close(timeout=self.timeout)
-        self.conn.close(timeout=self.timeout)
+        self.conn.close()
         if self.qmf:
             self.qmf.delBroker(self.qmf_broker)
-    __del__ = close
-
-if __name__ == '__main__':
-    sh = logging.StreamHandler()
-    log.setLevel(logging.DEBUG)
-    sh.setLevel(logging.DEBUG)
-    log.addHandler(sh)
-
-    print "Creating MokshaHub..."
-    hub = MokshaHub()
-    print "Creating queue..."
-    hub.create_queue('wtf', 'key', 'amq.topic', durable=True)
-    print "Sending message"
-    hub.send_message('wtf', 'wtf', 'wtf')
-    print "Subscribing to queue"
-    hub.subscribe('wtf', 'wtf')
-    print "Recieving message"
-    msg = hub.get('wtf')
-    print "msg = ", msg
-    hub.close()
-    print "Closed!"
