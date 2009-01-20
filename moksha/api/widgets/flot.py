@@ -21,7 +21,7 @@ from moksha.api.widgets import LiveWidget
 
 class LiveFlotWidget(LiveWidget):
     """ A live graphing widget """
-    topic = 'flot_example'
+    topic = 'flot_demo'
     params = ['id', 'data', 'options', 'height', 'width', 'onmessageframe']
     children = [FlotWidget('flot')]
     onmessageframe = '$.plot($("#${id}"),json[0]["data"],json[0]["options"])'

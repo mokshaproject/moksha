@@ -30,7 +30,7 @@ def stomp_subscribe(topic):
     """ Return a javascript callback that subscribes to a given topic,
         or a list of topics.
     """
-    sub = 'stomp.subscribe("/topic/%s");'
+    sub = 'stomp.subscribe("%s");'
     if isinstance(topic, list):
         sub = ''.join([sub % t for t in topic])
     else:
@@ -82,7 +82,7 @@ class StompWidget(Widget):
                     for topic in moksha.stomp[callback]:
                         for cb in moksha.stomp[callback][topic]:
                             cbs += """
-                              if (frame.headers.destination == "/topic/%s") {
+                              if (frame.headers.destination == "%s") {
                                   %s;
                               }
                             """ % (topic, str(cb))

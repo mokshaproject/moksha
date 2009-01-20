@@ -21,7 +21,7 @@ from moksha.api.widgets import LiveWidget
 
 class LiveFeedWidget(LiveWidget):
     """ A live streaming feed widget """
-    topic = 'feed_example'
+    topic = 'feed_demo'
     template = '${feed()}'
     onmessageframe = """
         $.each(json, function() {
