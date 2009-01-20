@@ -48,10 +48,12 @@ class StompWidget(Widget):
     onerrorframe = js_callback('function(f){ console.log("Error: " + f.body) }')
     onmessageframe = js_callback('function(frame){ console.log(frame) }')
     javascript = [orbited_js, stomp_js]
+    engine_name = 'mako'
     template = """
       <script>
         Orbited.settings.port = %s;
         Orbited.settings.hostname = '%s';
+        Orbited.settings.streaming = true;
         document.domain = document.domain;
         TCPSocket = Orbited.TCPSocket;
         stomp = new STOMPClient();
@@ -71,7 +73,6 @@ class StompWidget(Widget):
            config.get('stomp_port', 61613),
            config.get('stomp_user', 'guest'),
            config.get('stomp_pass', 'guest'))
-    engine_name = 'mako'
 
     def update_params(self, d):
         super(StompWidget, self).update_params(d)
