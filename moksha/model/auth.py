@@ -1,6 +1,8 @@
+import os
 import md5
 import sha
 from datetime import datetime
+from hashlib import sha1
 
 from tg import config
 from sqlalchemy import Table, ForeignKey, Column
@@ -37,19 +39,23 @@ class Group(DeclarativeBase):
     __tablename__ = 'tg_group'
 
     group_id = Column(Integer, autoincrement=True, primary_key=True)
-
-    group_name = Column(Unicode(16), unique=True)
-
+    group_name = Column(Unicode(16), unique=True, nullable=False)
     display_name = Column(Unicode(255))
-
     created = Column(DateTime, default=datetime.now)
-
     users = relation('User', secondary=user_group_table, backref='groups')
 
     def __repr__(self):
         return '<Group: name=%s>' % self.group_name
 
+    def __unicode__(self):
+        return self.group_name
 
+
+#
+# The 'info' argument we're passing to the email_address and password columns
+# contain metadata that Rum (http://python-rum.org/) can use generate an
+# admin interface for your models.
+#
 class User(DeclarativeBase):
     """Reasonably basic User definition. Probably would want additional
     attributes.
@@ -57,20 +63,20 @@ class User(DeclarativeBase):
     __tablename__ = 'tg_user'
 
     user_id = Column(Integer, autoincrement=True, primary_key=True)
-
-    user_name = Column(Unicode(16), unique=True)
-
-    email_address = Column(Unicode(255), unique=True)
-
+    user_name = Column(Unicode(16), unique=True, nullable=False)
+    email_address = Column(Unicode(255), unique=True, nullable=False,
+                           info={'rum': {'field':'Email'}})
     display_name = Column(Unicode(255))
-
-    _password = Column('password', Unicode(40))
-
+    _password = Column('password', Unicode(80),
+                       info={'rum': {'field':'Password'}})
     created = Column(DateTime, default=datetime.now)
 
     def __repr__(self):
         return '<User: email="%s", display name="%s">' % (
                 self.email_address, self.display_name)
+
+    def __unicode__(self):
+        return self.display_name or self.user_name
 
     @property
     def permissions(self):
@@ -93,7 +99,6 @@ class User(DeclarativeBase):
         """
         return DBSession.query(cls).filter(cls.user_name==username).first()
 
-
     def _set_password(self, password):
         """encrypts password on the fly using the encryption
         algo defined in the configuration
@@ -106,8 +111,8 @@ class User(DeclarativeBase):
         """
         return self._password
 
-    password = synonym('password', descriptor=property(_get_password,
-                                                       _set_password))
+    password = synonym('_password', descriptor=property(_get_password,
+                                                        _set_password))
 
     def __encrypt_password(self, algorithm, password):
         """Hash the given password with the specified algorithm. Valid values
@@ -117,29 +122,19 @@ class User(DeclarativeBase):
 
         if isinstance(password, unicode):
             password_8bit = password.encode('UTF-8')
-
         else:
             password_8bit = password
 
         if "md5" == algorithm:
             hashed_password = md5.new(password_8bit).hexdigest()
-
         elif "sha1" == algorithm:
             hashed_password = sha.new(password_8bit).hexdigest()
-
-        # TODO: re-add the possibility to provide own hasing algo
-        # here... just get the real config...
-
-        #elif "custom" == algorithm:
-        #    custom_encryption_path = turbogears.config.get(
-        #        "auth.custom_encryption", None )
-        #
-        #    if custom_encryption_path:
-        #        custom_encryption = turbogears.util.load_class(
-        #            custom_encryption_path)
-
-        #    if custom_encryption:
-        #        hashed_password = custom_encryption(password_8bit)
+        elif "salted_sha1" == algorithm:
+            salt = sha1()
+            salt.update(os.urandom(60))
+            hash = sha1()
+            hash.update(password_8bit + salt.hexdigest())
+            hashed_password = salt.hexdigest() + hash.hexdigest()
 
         # make sure the hased password is an UTF-8 object at the end of the
         # process because SQLAlchemy _wants_ a unicode object for Unicode columns
@@ -170,7 +165,14 @@ class User(DeclarativeBase):
         @type password: unicode object
         """
         algorithm = self.get_encryption_method()
-        return self.password == self.__encrypt_password(algorithm, password)
+        if "salted_sha1" == algorithm:
+            hashed_pass = sha1()
+            hashed_pass.update(password + self.password[:40])
+
+            return self.password[40:] == hashed_pass.hexdigest()
+
+        else:
+            return self.password == self.__encrypt_password(algorithm, password)
 
 
 class Permission(DeclarativeBase):
@@ -179,10 +181,10 @@ class Permission(DeclarativeBase):
     __tablename__ = 'tg_permission'
 
     permission_id = Column(Integer, autoincrement=True, primary_key=True)
-
-    permission_name = Column(Unicode(16), unique=True)
-
+    permission_name = Column(Unicode(16), unique=True, nullable=False)
     description = Column(Unicode(255))
-
     groups = relation(Group, secondary=group_permission_table,
                       backref='permissions')
+
+    def __unicode__(self):
+        return self.permission_name
