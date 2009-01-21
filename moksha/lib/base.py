@@ -32,27 +32,6 @@ class BaseController(TGController):
         # the request is routed to. This routing information is
         # available in environ['pylons.routes_dict']
         tmpl_context.stomp = stomp_widget
-        tmpl_context.identity = request.environ.get('repoze.who.identity')
+        request.identity = request.environ.get('repoze.who.identity')
+        tmpl_context.identity = request.identity
         return TGController.__call__(self, environ, start_response)
-class SecureController(BaseController):
-    """SecureController implementation for the repoze.what extension.
-    
-    it will permit to protect whole controllers with a single predicate
-    placed at the controller level.
-    The only thing you need to have is a 'require' attribute which must
-    be a callable. This callable will only be authorized to return True
-    if the user is allowed and False otherwise. This may change to convey info
-    when securecontroller is fully debugged...
-    """
-
-    def check_security(self):
-        errors = []
-        environ = request.environ
-        if not hasattr(self, "require") or \
-            self.require is None or \
-            self.require.eval_with_environ(environ, errors):
-            return True
-
-        # if we did not return this is an error :)
-        # TODO: do something with the errors variable like informing our user...
-        return False

@@ -22,11 +22,13 @@ from tg import expose, flash
 from pylons.i18n import ugettext as _
 from repoze.what.predicates import has_permission
 from moksha.model import DBSession, metadata
-from moksha.lib.base import BaseController, SecureController
+from moksha.lib.base import BaseController
 
-class AdminController(SecureController):
+class AdminController(BaseController):
 
-    require = has_permission('manage')
+    # The predicate that must be met for all the actions in this controller:
+    allow_only = has_permission('manage',
+            msg=_('Only for people with the "manage" permission'))
 
     @expose('moksha.templates.index')
     def index(self):
