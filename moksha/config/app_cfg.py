@@ -27,6 +27,11 @@ base_config.sa_auth.user_class = model.User
 base_config.sa_auth.group_class = model.Group
 base_config.sa_auth.permission_class = model.Permission
 
+# set a default hashing mechanism for the auth system
+# this makes sure the passwords are not stored in clear-text
+# inside the database. Choices are "md5", "sha1" or "salted_sha1"
+base_config.sa_auth.password_encryption_method = "salted_sha1"
+
 # override this if you would like to provide a different who plugin for 
 # managing login and logout of your application
 base_config.sa_auth.form_plugin = None
