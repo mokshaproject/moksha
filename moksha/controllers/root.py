@@ -7,6 +7,7 @@ from moksha import _
 from moksha.model import DBSession
 from moksha.lib.base import BaseController
 from moksha.controllers.secc import AdminController
+from moksha.controllers.error import ErrorController
 from moksha.api.widgets.layout import LayoutWidget
 
 layout_widget = LayoutWidget('layout')
@@ -14,6 +15,7 @@ layout_widget = LayoutWidget('layout')
 class RootController(BaseController):
 
     admin = AdminController()
+    error = ErrorController()
 
     @expose('moksha.templates.widget')
     def index(self):
@@ -31,7 +33,7 @@ class RootController(BaseController):
         return dict(page='about')
 
     @expose('moksha.templates.index')
-    @require(predicates.has_permission('manage'))
+    @require(predicates.has_permission('manage', msg=_('Only for managers')))
     def manage_permission_only(self, **kw):
         return dict(page='managers stuff')
 
