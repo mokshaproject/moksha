@@ -1,5 +1,5 @@
 from tw.api import Widget
-from moksha.feed import Feed
+from moksha.api.widgets.feed import Feed
 
 class TestFeed(object):
 
