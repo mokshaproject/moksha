@@ -3,5 +3,5 @@ paster serve development.ini &
 echo $! > paster.pid
 orbited &
 echo $! > orbited.pid
-python moksha/hub.py &
+python moksha/hub.py -v &
 echo $! > hub.pid

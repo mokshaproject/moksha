@@ -1,5 +1,11 @@
 #!/bin/bash
-kill $(cat paster.pid)
-kill $(cat orbited.pid)
-kill -9 $(cat hub.pid)
-rm *.pid
+if [ -f paster.pid ]; then
+    kill $(cat paster.pid)
+fi
+if [ -f orbited.pid ]; then
+    kill $(cat orbited.pid)
+fi
+if [ -f hub.pid ]; then
+    kill -9 $(cat hub.pid)
+fi
+rm -f *.pid
