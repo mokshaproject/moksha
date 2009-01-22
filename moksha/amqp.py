@@ -4,7 +4,7 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Moksha is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -19,7 +19,7 @@
 import logging
 log = logging.getLogger(__name__)
 
-
+from moksha.lib.utils import trace
 
 class AMQPHub(object):
     """
@@ -47,10 +47,12 @@ class AMQPHub(object):
 
     def close(self):
         raise NotImplementedError
-    __del__ = close
 
 
 import amqplib.client_0_8 as amqp
+
+NONPERSISTENT_DELIVERY = 1
+PERSISTENT_DELIVERY = 2
 
 class AMQPLibHub(AMQPHub):
     """ An AMQPHub implemention using the amqplib module """
@@ -61,47 +63,67 @@ class AMQPLibHub(AMQPHub):
         self.channel = self.conn.channel()
         self.channel.access_request('/data', active=True, write=True, read=True)
 
+    @trace
     def create_queue(self, queue, exchange='amq.fanout', durable=True,
                      exclusive=False, auto_delete=False):
         """ Declare a `queue` and bind it to an `exchange` """
-        log.debug("create_queue(%s)" % locals())
         if not queue in self.queues:
             log.info("Creating %s queue" % queue)
-            self.channel.queue_declare(queue, durable=durable, exclusive=exclusive,
+            self.channel.queue_declare(queue,
+                                       durable=durable,
+                                       exclusive=exclusive,
                                        auto_delete=auto_delete)
-            # exchange_declare... queue_bind
-            self.queues[queue] = []
 
-    def exchange_declare(exchange, type='fanout', durable=True, auto_delete=False):
+    @trace
+    def exchange_declare(exchange, type='fanout', durable=True,
+                         auto_delete=False):
         self.channel.exchange_declare(exchange=exchange, type=type,
                                       durable=durable, auto_delete=auto_delete)
 
+    @trace
     def queue_bind(self, queue, exchange, routing_key=''):
-        log.debug("queue_bind(%s, %s)" % (queue, exchange))
         self.channel.queue_bind(queue, exchange, routing_key=routing_key)
 
     # Since queue_name == routing_key, should we just make this method
     # def send_message(self, queue, message) ?
-    def send_message(self, message, exchange='amq.fanout', routing_key='', **kw):
-        """ Send an AMQP message to a given exchange with the specified routing key """
-        log.debug("send_message(%s)" % locals())
+    def send_message(self, message, exchange='amq.fanout', routing_key='', 
+                     delivery_mode=PERSISTENT_DELIVERY, **kw):
+        """
+        Send an AMQP message to a given exchange with the specified routing key 
+        """
         msg = amqp.Message(message, **kw)
+        msg.properties["delivery_mode"] = delivery_mode
         self.channel.basic_publish(msg, exchange, routing_key=routing_key)
 
+    @trace
     def get_message(self, queue):
         """ Immediately grab a message from the queue.
 
         This call will not block, and will return None if there are no new
         messages in the queue.
         """
-        log.debug("get_message(%s)" % queue)
         msg = self.channel.basic_get(queue, no_ack=True)
         return msg
 
+    @trace
     def consume(self, queue, callback, no_ack=True):
-        """ Consume messages from a given `queue`, passing each of them to `callback` """
+        """
+        Consume messages from a given `queue`, passing each to `callback` 
+        """
         self.channel.basic_consume(queue, callback=callback, no_ack=no_ack)
 
+    @trace
+    def close(self):
+        try:
+            if self.channel:
+                self.channel.close()
+        except Exception, e:
+            log.exception(e)
+        try:
+            if self.conn:
+                self.conn.close()
+        except Exception, e:
+            log.exception(e)
 
 
 """
