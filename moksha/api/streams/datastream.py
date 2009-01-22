@@ -1,6 +1,11 @@
 import logging
+
+from orbited import json
 from datetime import timedelta
 from twisted.internet.task import LoopingCall
+
+from moksha.hub import MokshaHub
+from moksha.api.hub import Consumer
 
 log = logging.getLogger(__name__)
 
@@ -27,6 +32,21 @@ What can they do?
 
 class DataStream(object):
     """ The parent DataStream class. """
+
+    def __init__(self):
+        self.hub = MokshaHub()
+
+    def send_message(self, topic, message):
+        """ Send a `message` to a specific `topic` """
+
+        # Automatically encode non-strings to JSON
+        if not isinstance(message, basestring):
+            message = json.encode(message)
+
+        self.hub.send_message(message, routing_key=topic)
+
+    def stop(self):
+        self.hub.stop()
 
 
 class PollingDataStream(DataStream):
