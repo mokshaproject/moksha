@@ -3,16 +3,20 @@ import logging
 log = logging.getLogger(__name__)
 
 from collections import defaultdict
+from threading import Thread
+
 from twisted.internet import reactor
 from twisted.internet.threads import deferToThread
 deferred = deferToThread.__get__
 
 from moksha.api.hub import Consumer
+from moksha.lib.utils import trace
+
 
 class MokshaConsumer(Consumer):
     queue = 'testing'
     def consume(self, message):
-        print "MyHook.consume(%s)" % message.body
+        print "MokshaConsumer.consume(%s)" % message.body
 
 
 # @@ Caveats
@@ -30,7 +34,6 @@ class MokshaHub(AMQPLibHub):
     AMQP queues, exchanges, etc.
     """
     conn = None
-    #topics = None
     queues = None # {queue_name: [callback,]}
     consumers = None # {queue_name: [<Consumer instance>,]}
     data_streams = None
@@ -39,7 +42,7 @@ class MokshaHub(AMQPLibHub):
                  password='guest', ssl=False, main=False):
         super(MokshaHub, self).__init__(broker, username=username, 
                                         password=password, ssl=ssl)
-        self.queues = {}
+        self.queues = defaultdict(list)
         if main:
             self.__init_main_hub()
 
@@ -48,59 +51,39 @@ class MokshaHub(AMQPLibHub):
         log.debug('Initializing the main MokshaHub')
         self.__init_consumers()
         self.__init_data_streams()
-        #self.__init_topics()
-        #self.__init_queues()
-
-    #def __init_topics(self):
-    #    """ Initialize all "topics" from queues that consumers are watching """
-    #    self.topics = set()
-    #    for consumer in self.consumers:
-    #        self.topics.add(consumer.queue)
 
     def __init_consumers(self):
         """ Initialize all Moksha Consumer objects """
         self.consumers = defaultdict(list)
         for consumer in pkg_resources.iter_entry_points('moksha.consumer'):
             c_class = consumer.load()
-            log.info('Initializing %s consumer' % c_class.__name__)
+            log.info('Loading %s consumer' % c_class.__name__)
             c = c_class()
             self.consumers[c.queue].append(c)
             log.debug("%s consumer is watching the %r queue" % (
                       c_class.__name__, c.queue))
             self.watch_queue(c.queue, callback=lambda msg: c.consume(msg))
 
-    #def __init_queues(self):
-    #    """ Declare and bind queues for each topic in self.topics """
-    #    self.queues = {}
-    #    for topic in self.topics:
-    #        if not topic in self.queues:
-    #            self.create_queue(topic)
-    #            self.queue_bind(topic, 'amq.topic')
-
     def __init_data_streams(self):
         """ Initialize all data streams """
-        log.info('Initializing data streams')
         self.data_streams = []
-        # @@ dynamically suck these in from an entry point
-        #from moksha.streams.feed import FeedStream
-        from moksha.streams.demo import MokshaDemoDataStream
-        streams = [MokshaDemoDataStream]
-        for stream in streams:
-            self.data_streams.append(stream())
+        for stream in pkg_resources.iter_entry_points('moksha.stream'):
+            stream_class = stream.load()
+            log.info('Loading %s data stream' % stream_class.__name__)
+            stream_obj = stream_class()
+            self.data_streams.append(stream_obj)
 
+    @trace
     def watch_queue(self, queue, callback):
         """
         This method will cause the specified `callback` to be executed with
         each message that goes through a given queue.
         """
-        log.debug("watch_queue(%s)" % locals())
-        if not queue in self.queues:
-            self.create_queue(queue)
-            self.queue_bind(queue, 'amq.topic')
         if len(self.queues[queue]) == 0:
             self.consume(queue, callback=self.consume_message, no_ack=True)
         self.queues[queue].append(callback)
 
+    @trace
     def consume_message(self, message):
         """ The main Moksha message consumer.
 
@@ -108,30 +91,33 @@ class MokshaHub(AMQPLibHub):
         "watched", via the :meth:MokshaHub.watch_queue, or by a :class:`Hook`.
         It will then call
         """
-        log.debug("consume_message(%s)" % message)
-        for callback in self.queues.get(message.delivery_info['routing_key'], []):
+        for callback in self.queues[message.delivery_info['routing_key']]:
             log.debug("calling %s" % callback)
-            callback(message)
+            Thread(target=callback, args=[message]).start()
 
     @deferred
     def start(self):
         """ The MokshaHub's main loop """
+        log.debug('MokshaHub.start()')
         while self.channel.callbacks:
-            self.channel.wait()
-        print "self.channel =", self.channel
-        print self.channel.callbacks
+            try:
+                self.channel.wait()
+            except Exception, e:
+                log.warning('Exception thrown while waiting on AMQP '
+                            'channel: %s' % str(e))
+                break
+        log.debug('No more channel callbacks; MokshaHub.start complete!')
 
     def stop(self):
         log.debug("Stopping the MokshaHub")
         if self.data_streams:
-            for source in self.data_streams:
-                log.debug("Stopping data stream %s" % source)
-                source.timer.stop()
-        if self.channel:
-            self.channel.close()
-        if self.conn:
-            self.conn.close()
-    __del__ = stop
+            for stream in self.data_streams:
+                log.debug("Stopping data stream %s" % stream)
+                stream.stop()
+        try:
+            self.close()
+        except Exception, e:
+            log.warning('Exception when closing AMQPHub: %s' % str(e))
 
 
 def main():
@@ -150,10 +136,10 @@ def main():
         print '-------'
 
     hub.watch_queue('testing', callback=callback)
-    hub.send_message('bar', routing_key='testing')
+    hub.send_message('bar', exchange='amq.topic', routing_key='testing')
     hub.start(hub)
 
-    # @@ Make this exit cleanly...
+    # @@ Fix this crap and make this exit cleanly...
     import os
     import sys
     import signal
