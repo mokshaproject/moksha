@@ -35,16 +35,25 @@ setup(
             ('public/**', 'ignore', None)]},
 
     entry_points="""
+
     [paste.app_factory]
     main = moksha.config.middleware:make_app
 
     [paste.app_install]
     main = pylons.util:PylonsInstaller
 
+    [moksha.stream]
+    demo = moksha.streams.demo:MokshaDemoDataStream
+    feed = moksha.streams.feed:FeedStream
+
+    [moksha.consumer]
+    moksha = moksha.hub:MokshaConsumer
+
     [moksha.widget]
     liveflot = moksha.api.widgets.flot:LiveFlotWidget
     livefeed = moksha.api.widgets.feed.live:LiveFeedWidget
     livegraph = moksha.examples.livegraph:LiveGraphWidget
     chat = moksha.api.widgets.chat:LiveChatWidget
+
     """,
 )
