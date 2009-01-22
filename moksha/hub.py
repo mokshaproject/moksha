@@ -1,22 +1,18 @@
+import pkg_resources
 import logging
 log = logging.getLogger(__name__)
 
 from collections import defaultdict
-
 from twisted.internet import reactor
 from twisted.internet.threads import deferToThread
 deferred = deferToThread.__get__
 
-
-# TODO: load these from an entry point
 from moksha.api.hub import Consumer
 
-class MyConsumer(Consumer):
+class MokshaConsumer(Consumer):
     queue = 'testing'
     def consume(self, message):
         print "MyHook.consume(%s)" % message.body
-
-global_hooks = [MyConsumer]
 
 
 # @@ Caveats
@@ -34,13 +30,13 @@ class MokshaHub(AMQPLibHub):
     AMQP queues, exchanges, etc.
     """
     conn = None
-    topics = None
+    #topics = None
     queues = None # {queue_name: [callback,]}
-    hooks = None # {queue_name: [<Hook instance>,]}
+    consumers = None # {queue_name: [<Consumer instance>,]}
     data_streams = None
 
-    def __init__(self, broker='127.0.0.1:5672', username='guest', password='guest', 
-                 ssl=False, main=False):
+    def __init__(self, broker='127.0.0.1:5672', username='guest',
+                 password='guest', ssl=False, main=False):
         super(MokshaHub, self).__init__(broker, username=username, 
                                         password=password, ssl=ssl)
         self.queues = {}
@@ -50,34 +46,36 @@ class MokshaHub(AMQPLibHub):
     def __init_main_hub(self):
         """ Initialize various items for the central Moksha hub """
         log.debug('Initializing the main MokshaHub')
-        self.__init_topics()
-        self.__init_queues()
-        self.__init_hooks()
+        self.__init_consumers()
         self.__init_data_streams()
+        #self.__init_topics()
+        #self.__init_queues()
 
-    def __init_topics(self):
-        """ Initialize all "topics" from queues that hooks are watching """
-        self.topics = set()
-        for hook in global_hooks:
-            self.topics.add(hook.queue)
+    #def __init_topics(self):
+    #    """ Initialize all "topics" from queues that consumers are watching """
+    #    self.topics = set()
+    #    for consumer in self.consumers:
+    #        self.topics.add(consumer.queue)
 
-    def __init_hooks(self):
-        """ Initialize all Moksha Hook objects """
-        self.hooks = defaultdict(list)
-        for hook in global_hooks:
-            log.info('Initializing %s hook' % hook.__name__)
-            h = hook()
-            self.hooks[hook.queue].append(h)
-            log.debug("%s hook is watching the %r queue" % (hook.__name__, hook.queue))
-            self.watch_queue(hook.queue, callback=lambda msg: h.consume(msg))
+    def __init_consumers(self):
+        """ Initialize all Moksha Consumer objects """
+        self.consumers = defaultdict(list)
+        for consumer in pkg_resources.iter_entry_points('moksha.consumer'):
+            c_class = consumer.load()
+            log.info('Initializing %s consumer' % c_class.__name__)
+            c = c_class()
+            self.consumers[c.queue].append(c)
+            log.debug("%s consumer is watching the %r queue" % (
+                      c_class.__name__, c.queue))
+            self.watch_queue(c.queue, callback=lambda msg: c.consume(msg))
 
-    def __init_queues(self):
-        """ Declare and bind queues for each topic in self.topics """
-        self.queues = {}
-        for topic in self.topics:
-            if not topic in self.queues:
-                self.create_queue(topic)
-                self.queue_bind(topic, 'amq.topic')
+    #def __init_queues(self):
+    #    """ Declare and bind queues for each topic in self.topics """
+    #    self.queues = {}
+    #    for topic in self.topics:
+    #        if not topic in self.queues:
+    #            self.create_queue(topic)
+    #            self.queue_bind(topic, 'amq.topic')
 
     def __init_data_streams(self):
         """ Initialize all data streams """
