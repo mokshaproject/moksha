@@ -58,9 +58,11 @@ class PollingDataStream(DataStream):
     frequency = None # Either a timedelta object, or the number of seconds
 
     def __init__(self):
+        super(PollingDataStream, self).__init__()
         self.timer = LoopingCall(self.poll)
         if isinstance(self.frequency, timedelta):
-            seconds = self.frequency.seconds + (self.frequency.days*24*60*60) + \
+            seconds = self.frequency.seconds + \
+                    (self.frequency.days * 24 * 60 * 60) + \
                     (self.frequency.microseconds / 1000000.0)
         else:
             seconds = self.frequency
@@ -69,3 +71,7 @@ class PollingDataStream(DataStream):
 
     def poll(self):
         raise NotImplementedError
+
+    def stop(self):
+        super(PollingDataStream, self).stop()
+        self.timer.stop()
