@@ -1,14 +1,14 @@
 Moksha Documentation
 ====================
 
-:Status: Rough Draft
+:Status: Under Development
 
 Moksha is a platform for creating live collaborative applications.  It provides
 a layer of cohesion and collaboration between existing applications, services,
 and communities.
 
-Introduction
-------------
+The Vision
+----------
 
 .. toctree::
    :maxdepth: 1
