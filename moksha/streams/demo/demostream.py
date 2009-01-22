@@ -2,12 +2,13 @@ import math
 from random import random
 from datetime import timedelta
 
-from moksha.api.hub import send_message
 from moksha.api.widgets.feed import Feed
 from moksha.api.streams import PollingDataStream
 
 class MokshaDemoDataStream(PollingDataStream):
-    """ This class provides the default Moksha demo with some fake data to render """
+    """
+    This class provides the default Moksha demo with some fake data to render
+    """
 
     frequency = timedelta(seconds=1)
 
@@ -33,7 +34,7 @@ class MokshaDemoDataStream(PollingDataStream):
         if self.n % 3 == 0:
             self.i += 1
             entry = self.feed_entries[self.n % len(self.feed_entries)]
-            send_message('feed_demo', [
+            self.send_message('feed_demo', [
                 {'title': entry['title'], 'link': entry['link'], 'i': self.i},
             ])
 
@@ -44,7 +45,7 @@ class MokshaDemoDataStream(PollingDataStream):
                 for 
                 datum in self.data
             ]
-            send_message('graph_demo', self.data)
+            self.send_message('graph_demo', self.data)
 
         ## Generate flot data
         d1 = []
@@ -87,4 +88,4 @@ class MokshaDemoDataStream(PollingDataStream):
         ], 'options': {'yaxis' : { 'max' : '15' }}
         }]
 
-        send_message('flot_demo', flot_data)
+        self.send_message('flot_demo', flot_data)
