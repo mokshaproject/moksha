@@ -2,8 +2,11 @@
 Using RabbitMQ with Moksha
 ==========================
 
-:Status: Hacked together.
-:Todo: Package RabbitMQ, so it can be properly installed and run.
+Moksha is currently being tested with the RabbitMQ AMQP message broker.
+Eventually, it should be able to work out of the box with any AMQP broker out
+there, but for now we need RabbitMQ because it has STOMP bindings.  Since the
+AMQP javascript bindings are currently under development, our widgets have to
+speak in the STOMP protocol to the broker, through Orbited.
 
 Install RabbitMQ
 ------------------
@@ -12,15 +15,16 @@ Install RabbitMQ
 
     http://www.rabbitmq.com/install.html
 
-Change the password of the guest account
-----------------------------------------
+.. 
+    Change the password of the guest account
+    ----------------------------------------
 
-.. code-block:: none
+    .. code-block:: none
 
-    rabbitmqctl change_password username newpassword
+        rabbitmqctl change_password username newpassword
 
-Then open Moksha's `development.ini` and set the `stomp_user` and
-`stomp_pass` to your newly set credentials.
+    Then open Moksha's `development.ini` and set the `stomp_user` and
+    `stomp_pass` to your newly set credentials.
 
 Grab the rabbitmq-stomp adapter
 -------------------------------
