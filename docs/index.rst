@@ -25,7 +25,7 @@ Architecture
 ------------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    main/Features
    main/Technology
@@ -54,6 +54,7 @@ Applications
    :maxdepth: 2
 
    main/MokshaApplications
+   main/Consumers
    main/Caching
 
 Widgets
