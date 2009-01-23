@@ -22,7 +22,7 @@ from datetime import datetime
 from sqlalchemy import *
 from sqlalchemy.orm import relation, comparable_property
 from sqlalchemy.orm.collections import attribute_mapped_collection
-from moksha.hook import MokshaHookMapperExtension
+from moksha.model.hook import MokshaHookMapperExtension
 from moksha.model import metadata, DBSession, DeclarativeBase
 from moksha.model.vertical import (PolymorphicVerticalProperty,
                                    VerticalPropertyDictMixin)
