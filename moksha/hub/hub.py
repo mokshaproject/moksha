@@ -1,68 +1,171 @@
+# This file is part of Moksha.
+#
+# Moksha is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Moksha is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Moksha.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Copyright 2008, Red Hat, Inc.
+# Authors: Luke Macken <lmacken@redhat.com>
+
+import os
+import sys
+import signal
 import pkg_resources
 import logging
-log = logging.getLogger(__name__)
 
-from collections import defaultdict
+from orbited import json
 from threading import Thread
-
+from collections import defaultdict
 from twisted.internet import reactor
 from twisted.internet.threads import deferToThread
-deferred = deferToThread.__get__
 
 from moksha.api.hub import Consumer
 from moksha.lib.utils import trace
+from moksha.hub.amqp import AMQPHub
+from moksha.hub.stomp import StompHub
 
+log = logging.getLogger(__name__)
+deferred = deferToThread.__get__
+
+AMQP = False
+STOMP = True
 
 class MokshaConsumer(Consumer):
-    queue = 'testing'
+    topic = 'feed_demo'
     def consume(self, message):
-        print "MokshaConsumer.consume(%s)" % message.body
+        print "MokshaConsumer.consume(%s)" % message
 
 
-# @@ Caveats
-# At the moment, the queue name must be equal to the routing key.
-# This may cause limitations in the future, but for now it necessary
-# because we need to take the `routing_key` on an AMQP message, and deliver
-# it to a consumer who is watching a specific `queue`.  Since AMQP messages
-# do not contain the queue name, they need to be the same.
+class OtherConsumer(Consumer):
+    topic = 'graph_demo'
+    def consume(self, message):
+        print "OtherConsumer.consume(%s)" % message
 
-from moksha.amqp import AMQPLibHub
 
-class MokshaHub(AMQPLibHub):
+class MokshaHub(StompHub, AMQPHub):
+
+    def __init__(self, broker='127.0.0.1', port='5672', username='guest',
+                 password='guest', ssl=False, topics=None):
+        # @@ read configuration...
+
+        # if there is an amqp host, load the amqp hub
+        if AMQP:
+            AMQPHub.__init__(self, broker + ':' + port, username=username,
+                             password=password, ssl=ssl)
+        # if there's a stomp_host, load the stomp hub
+        if STOMP:
+            self.topics = topics or {}
+            StompHub.__init__(self, broker, username=username,
+                              password=password, topics=self.topics.keys())
+
+    def send_message(self, topic, message, jsonify=True):
+        """ Send a message to a specific topic.
+
+        :topic: The stop to send the message to
+        :message: The message body.  Can be a string, list, or dict.
+        :jsonify: To automatically encode non-strings to JSON
+
+        """
+        if jsonify and not isinstance(message, basestring):
+            message = json.encode(message)
+        if AMQP:
+            AMQPHub.send_message(self, message, exchange=topic)
+        elif STOMP:
+            StompHub.send_message(self, topic, message)
+
+    @trace
+    def watch_topic(self, topic, callback):
+        """
+        This method will cause the specified `callback` to be executed with
+        each message that goes through a given topic.
+        """
+        if len(self.topics[topic]) == 0:
+            if AMQP:
+                self.subscribe(topic,
+                               callback=self.consume_amqp_message,
+                               no_ack=True)
+            if STOMP:
+                self.subscribe(topic)
+        self.topics[topic].append(callback)
+
+    @trace
+    def consume_amqp_message(self, message):
+        for callback in self.topics[message.delivery_info['routing_key']]:
+            Thread(target=callback, args=[message]).start()
+
+    def consume_stomp_message(self, message):
+        topic = message['headers'].get('destination')
+        for callback in self.topics.get(topic, []):
+            Thread(target=callback, args=[message]).start()
+
+    def start(self):
+        log.debug('MokshaHub.start()')
+        while True:
+            try:
+                AMQPHub.wait(self)
+            except Exception, e:
+                log.warning('Exception thrown while waiting on AMQP '
+                            'channel: %s' % str(e))
+                break
+        log.warning('MokshaHub.start exiting...')
+
+    def stop(self):
+        if AMQP:
+            try:
+                AMQPHub.close(self)
+            except Exception, e:
+                log.warning('Exception when closing AMQPHub: %s' % str(e))
+
+
+class CentralMokshaHub(MokshaHub):
     """
     The Moksha Hub is responsible for initializing all of the Hooks,
     AMQP queues, exchanges, etc.
     """
-    conn = None
-    queues = None # {queue_name: [callback,]}
-    consumers = None # {queue_name: [<Consumer instance>,]}
-    data_streams = None
+    topics = None # {topic_name: [<Consumer>,]}
+    data_streams = None # [<DataStream>,]
 
-    def __init__(self, broker='127.0.0.1:5672', username='guest',
-                 password='guest', ssl=False, main=False):
-        super(MokshaHub, self).__init__(broker, username=username, 
-                                        password=password, ssl=ssl)
-        self.queues = defaultdict(list)
-        if main:
-            self.__init_main_hub()
-
-    def __init_main_hub(self):
-        """ Initialize various items for the central Moksha hub """
-        log.debug('Initializing the main MokshaHub')
+    def __init__(self, broker='127.0.0.1', port='5672', username='guest',
+                 password='guest', ssl=False):
+        self.topics = defaultdict(list)
         self.__init_consumers()
+
+        MokshaHub.__init__(self, broker=broker, port=port, username=username,
+                           password=password, ssl=ssl,
+                           topics=self.topics)
+
+        self.__run_consumers()
         self.__init_data_streams()
 
     def __init_consumers(self):
         """ Initialize all Moksha Consumer objects """
-        self.consumers = defaultdict(list)
         for consumer in pkg_resources.iter_entry_points('moksha.consumer'):
             c_class = consumer.load()
-            log.info('Loading %s consumer' % c_class.__name__)
-            c = c_class()
-            self.consumers[c.queue].append(c)
-            log.debug("%s consumer is watching the %r queue" % (
-                      c_class.__name__, c.queue))
-            self.watch_queue(c.queue, callback=lambda msg: c.consume(msg))
+            log.debug("%s consumer is watching the %r topic" % (
+                      c_class.__name__, c_class.topic))
+            self.topics[c_class.topic].append(c_class)
+
+    def __run_consumers(self):
+        """ Instantiate the consumers """
+        for topic in self.topics:
+            for i, consumer in enumerate(self.topics[topic]):
+                c = consumer()
+                self.topics[topic][i] = c.consume
+                if AMQP:
+                    AMQPHub.watch_topic(c.topic,
+                                        callback=lambda msg: c.consume(msg))
+
+                # The StompHub will automatically subscribe to the topics
+                # when the stomp connection is successful.
 
     def __init_data_streams(self):
         """ Initialize all data streams """
@@ -74,86 +177,67 @@ class MokshaHub(AMQPLibHub):
             self.data_streams.append(stream_obj)
 
     @trace
-    def watch_queue(self, queue, callback):
-        """
-        This method will cause the specified `callback` to be executed with
-        each message that goes through a given queue.
-        """
-        if len(self.queues[queue]) == 0:
-            self.consume(queue, callback=self.consume_message, no_ack=True)
-        self.queues[queue].append(callback)
+    def create_topic(self, topic):
+        if AMQP:
+            AMQPHub.create_queue(topic)
 
-    @trace
-    def consume_message(self, message):
-        """ The main Moksha message consumer.
+        # We don't need to do anything special for Stomp
 
-        This method receives every message for every queue that is being 
-        "watched", via the :meth:MokshaHub.watch_queue, or by a :class:`Hook`.
-        It will then call
-        """
-        for callback in self.queues[message.delivery_info['routing_key']]:
-            log.debug("calling %s" % callback)
-            Thread(target=callback, args=[message]).start()
+        # @@ remove this when we keep track of this in a DB
+        if topic not in self.topics:
+            self.topics[topic] = []
 
     @deferred
     def start(self):
         """ The MokshaHub's main loop """
-        log.debug('MokshaHub.start()')
-        while self.channel.callbacks:
-            try:
-                self.channel.wait()
-            except Exception, e:
-                log.warning('Exception thrown while waiting on AMQP '
-                            'channel: %s' % str(e))
-                break
-        log.debug('No more channel callbacks; MokshaHub.start complete!')
+        MokshaHub.start(self)
 
     def stop(self):
-        log.debug("Stopping the MokshaHub")
+        log.debug("Stopping the CentralMokshaHub")
+        MokshaHub.stop(self)
         if self.data_streams:
             for stream in self.data_streams:
                 log.debug("Stopping data stream %s" % stream)
                 stream.stop()
-        try:
-            self.close()
-        except Exception, e:
-            log.warning('Exception when closing AMQPHub: %s' % str(e))
+        if AMQP:
+            try:
+                AMQPHub.close(self)
+            except Exception, e:
+                log.warning('Exception when closing AMQPHub: %s' % str(e))
+
 
 
 def main():
-    hub = MokshaHub(main=True)
-    hub.create_queue("testing")
-    hub.queue_bind("testing", "amq.topic")
-    hub.send_message('foo', exchange='amq.topic', routing_key='testing')
+    hub = CentralMokshaHub()
+    #hub.create_topic("testing")
+    #hub.queue_bind("testing", "amq.topic")
+    #hub.send_message('foo', exchange='amq.topic', routing_key='testing')
 
-    def callback(msg):
-        for key, val in msg.properties.items():
-            print '%s: %s' % (key, str(val))
-        for key, val in msg.delivery_info.items():
-            print '> %s: %s' % (key, str(val))
-        print ''
-        print msg.body
-        print '-------'
+    #def callback(msg):
+    #    for key, val in msg.properties.items():
+    #        print '%s: %s' % (key, str(val))
+    #    for key, val in msg.delivery_info.items():
+    #        print '> %s: %s' % (key, str(val))
+    #    print ''
+    #    print msg.body
+    #    print '-------'
 
-    hub.watch_queue('testing', callback=callback)
-    hub.send_message('bar', exchange='amq.topic', routing_key='testing')
-    hub.start(hub)
+    #hub.watch_topic('testing', callback=callback)
+    #hub.send_message('bar', exchange='amq.topic', routing_key='testing')
 
-    # @@ Fix this crap and make this exit cleanly...
-    import os
-    import sys
-    import signal
+    ## only with amqp ?
+    #hub.start(hub)
+
     def handle_signal(signum, stackframe):
-        print "handle_signal!"
         from twisted.internet import reactor
         if signum in [signal.SIGHUP, signal.SIGINT]:
             reactor.stop()
             hub.stop()
             sys.exit(0)
-    signal.signal(signal.SIGHUP, handle_signal)
-    signal.signal(signal.SIGINT, handle_signal)
 
     print "Running the reactor!"
+    signal.signal(signal.SIGHUP, handle_signal)
+    signal.signal(signal.SIGINT, handle_signal)
     reactor.run(installSignalHandlers=False)
     print "Reactor stopped!"
 
