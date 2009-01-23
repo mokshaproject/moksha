@@ -47,7 +47,7 @@ class AMQPLibHub(BaseAMQPHub):
                                        auto_delete=auto_delete)
 
     @trace
-    def exchange_declare(exchange, type='fanout', durable=True,
+    def exchange_declare(self, exchange, type='fanout', durable=True,
                          auto_delete=False):
         self.channel.exchange_declare(exchange=exchange, type=type,
                                       durable=durable, auto_delete=auto_delete)

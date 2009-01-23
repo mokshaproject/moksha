@@ -1,6 +1,10 @@
+import logging
+
 from datetime import timedelta
 
 from moksha.api.streams import PollingDataStream
+
+log = logging.getLogger(__name__)
 
 class FeedStream(PollingDataStream):
     """

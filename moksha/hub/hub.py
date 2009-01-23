@@ -16,7 +16,6 @@
 # Copyright 2008, Red Hat, Inc.
 # Authors: Luke Macken <lmacken@redhat.com>
 
-import os
 import sys
 import signal
 import pkg_resources
@@ -43,12 +42,6 @@ class MokshaConsumer(Consumer):
     topic = 'feed_demo'
     def consume(self, message):
         print "MokshaConsumer.consume(%s)" % message
-
-
-class OtherConsumer(Consumer):
-    topic = 'graph_demo'
-    def consume(self, message):
-        print "OtherConsumer.consume(%s)" % message
 
 
 class MokshaHub(StompHub, AMQPHub):
@@ -265,6 +258,5 @@ def setup_logger(verbose):
     log.addHandler(sh)
 
 if __name__ == '__main__':
-    import sys
     setup_logger('-v' in sys.argv or '--verbose' in sys.argv)
     main()

@@ -25,15 +25,18 @@ integrated or tested with the MokshaHub.  They are here for reference, and to
 potentially utilize further down the road when we move from amqplib to python-qpid.
 """
 
+import logging
 import qpid
+
 from qpid.util import connect, URL, ssl
 from qpid.client import Client
 from qpid.datatypes import Message
 from qpid.connection import Connection
-from qpid.connection08 import Connection
 from qpid.content import Content
 
 from moksha.base import BaseAMQPHub
+
+log = logging.getLogger(__name__)
 
 class QpidAMQP08Hub(BaseAMQPHub):
 

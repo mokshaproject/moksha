@@ -47,7 +47,7 @@ setup(
     feed = moksha.streams.feed:FeedStream
 
     [moksha.consumer]
-    moksha = moksha.hub:MokshaConsumer
+    moksha = moksha.hub.hub:MokshaConsumer
 
     [moksha.widget]
     liveflot = moksha.api.widgets.flot:LiveFlotWidget

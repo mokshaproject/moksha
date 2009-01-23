@@ -4,30 +4,8 @@ from datetime import timedelta
 from twisted.internet.task import LoopingCall
 
 from moksha.hub.hub import MokshaHub
-from moksha.api.hub import Consumer
 
 log = logging.getLogger(__name__)
-
-# setup.py
-# [moksha.stream]
-# feed = moksha.streams.feed:FeedStream
-
-"""
-Data Streams
-============
-
-Data streams in moksha are simply data generators that publish data
-to an AMQP message queue.
-
-
-What can they do?
-- Poll data resources, feeds, connectors, API's etc.
-    - Sends AMQP messages for new entries
-    - Can keep various caches warm, such as the feed cache.
-    - Can manipulate database models
-    - Pull & Commit git repositories
-
-"""
 
 class DataStream(object):
     """ The parent DataStream class. """

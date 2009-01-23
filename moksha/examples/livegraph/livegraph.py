@@ -16,9 +16,8 @@
 # Copyright 2008, Red Hat, Inc.
 # Authors: Luke Macken <lmacken@redhat.com>
 
-from tw.api import Widget, CSSLink, JSLink, js_function
+from tw.api import CSSLink, JSLink, js_function
 from moksha.api.widgets import LiveWidget
-from moksha.api.widgets.stomp import stomp_subscribe
 
 class LiveGraphWidget(LiveWidget):
     """

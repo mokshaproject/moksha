@@ -4,7 +4,6 @@ Provides the BaseController class for subclassing.
 """
 from tg import TGController, tmpl_context, request
 from tg.render import render
-from tw.api import WidgetBunch
 from pylons.i18n import _, ungettext, N_
 
 import moksha.model as model

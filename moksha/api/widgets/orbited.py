@@ -17,7 +17,7 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 
 from tg import config
-from tw.api import Widget, JSLink, js_callback, js_function
+from tw.api import Widget, JSLink, js_callback
 
 orbited_host = config.get('orbited_host', 'localhost')
 orbited_port = config.get('orbited_port', 9000)
