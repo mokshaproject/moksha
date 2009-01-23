@@ -99,13 +99,26 @@ class MokshaHub(StompHub, AMQPHub):
 
     @trace
     def consume_amqp_message(self, message):
-        for callback in self.topics[message.delivery_info['routing_key']]:
-            Thread(target=callback, args=[message]).start()
+        topic = message.delivery_info['routing_key']
+        try:
+            body = json.decode(message.body)
+        except Exception, e:
+            log.warning('Cannot decode message from JSON: %s' % e)
+            body = message.body
+        for callback in self.topics.get(topic, []):
+            Thread(target=callback, args=[body]).start()
 
     def consume_stomp_message(self, message):
         topic = message['headers'].get('destination')
+        if not topic:
+            return
+        try:
+            body = json.decode(message['body'])
+        except Exception, e:
+            log.warning('Cannot decode message from JSON: %s' % e)
+            body = message['body']
         for callback in self.topics.get(topic, []):
-            Thread(target=callback, args=[message]).start()
+            Thread(target=callback, args=[body]).start()
 
     def start(self):
         log.debug('MokshaHub.start()')

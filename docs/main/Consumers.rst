@@ -15,7 +15,7 @@ loaded, and receives each for the specified topic through the
     class FeedConsumer(Consumer):
         topic = 'feeds'
         def consume(self, message):
-            print message.body
+            print message
 
 :Note: The :class:`MokshaHub` currently executes each consumer in their own
        Thread, so be sure to employ thread-safety precausions when implementing
