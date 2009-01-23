@@ -8,16 +8,26 @@ there, but for now we need RabbitMQ because it has STOMP bindings.  Since the
 AMQP javascript bindings are currently under development, our widgets have to
 speak in the STOMP protocol to the broker, through Orbited.
 
-Install RabbitMQ
-------------------
 
-.. code-block:: none
 
-    http://www.rabbitmq.com/install.html
+Install and run RabbitMQ
+------------------------
 
-.. 
-    Change the password of the guest account
-    ----------------------------------------
+Moksha comes with a simple `run` script that should take care of everything for
+you.
+
+.. code-block:: bash
+
+    # yum -y install erlang{,-esdl}
+    $ cd rabbitmq
+    $ ./run
+
+
+Production modifications
+------------------------
+
+Change the password of the guest account
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     .. code-block:: none
 
@@ -25,19 +35,3 @@ Install RabbitMQ
 
     Then open Moksha's `development.ini` and set the `stomp_user` and
     `stomp_pass` to your newly set credentials.
-
-Grab the rabbitmq-stomp adapter
--------------------------------
-
-.. code-block:: none
-
-    hg clone http://hg.rabbitmq.com/rabbitmq-stomp
-
-Running RabbitMQ with the stomp adapter
----------------------------------------
-
-.. code-block:: none
-
-    cd rabbitmq-stomp
-    make start_server
-
