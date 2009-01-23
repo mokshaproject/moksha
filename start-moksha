@@ -1,4 +1,5 @@
 #!/bin/bash
+python setup.py egg_info develop
 paster serve development.ini &
 echo $! > paster.pid
 orbited &
