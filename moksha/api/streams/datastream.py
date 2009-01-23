@@ -1,10 +1,9 @@
 import logging
 
-from orbited import json
 from datetime import timedelta
 from twisted.internet.task import LoopingCall
 
-from moksha.hub import MokshaHub
+from moksha.hub.hub import MokshaHub
 from moksha.api.hub import Consumer
 
 log = logging.getLogger(__name__)
@@ -37,13 +36,10 @@ class DataStream(object):
         self.hub = MokshaHub()
 
     def send_message(self, topic, message):
-        """ Send a `message` to a specific `topic` """
-
-        # Automatically encode non-strings to JSON
-        if not isinstance(message, basestring):
-            message = json.encode(message)
-
-        self.hub.send_message(message, routing_key=topic)
+        try:
+            self.hub.send_message(topic, message)
+        except Exception, e:
+            log.error('Cannot send message: %s' % e)
 
     def stop(self):
         self.hub.stop()
