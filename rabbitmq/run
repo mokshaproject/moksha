@@ -1,0 +1,19 @@
+#!/bin/bash
+
+if [ ! -d rabbitmq-server ]; then
+	hg clone http://hg.rabbitmq.com/rabbitmq-server
+fi
+if [ ! -d rabbitmq-codegen ]; then
+	hg clone http://hg.rabbitmq.com/rabbitmq-codegen
+fi
+if [ ! -d rabbitmq-stomp ]; then
+	hg clone http://hg.rabbitmq.com/rabbitmq-stomp
+fi
+
+pushd /usr/lib*/erlang/erts-*/bin >/dev/null
+export PATH=$PATH:`pwd`
+popd >/dev/null
+
+pushd rabbitmq-stomp >/dev/null
+su -c 'make start_server'
+popd >/dev/null
