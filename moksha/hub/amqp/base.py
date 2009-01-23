@@ -46,5 +46,9 @@ class BaseAMQPHub(moksha.hub.MessagingHub):
     def bind_queue(self, queue, exchange):
         raise NotImplementedError
 
+    def wait(self):
+        """ Block for new messages """
+        raise NotImplementedError
+
     def close(self):
         raise NotImplementedError
