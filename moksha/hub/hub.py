@@ -253,7 +253,7 @@ def setup_logger(verbose):
     level = verbose and logging.DEBUG or logging.INFO
     log.setLevel(level)
     sh.setLevel(level)
-    format = logging.Formatter("%(message)s")
+    format = logging.Formatter('[moksha.hub] %(levelname)s %(asctime)s %(message)s')
     sh.setFormatter(format)
     log.addHandler(sh)
 
