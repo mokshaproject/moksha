@@ -20,6 +20,7 @@ setup(
         "orbited",
         "twisted",
         "amqplib",
+        "WidgetBrowser",
     ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
