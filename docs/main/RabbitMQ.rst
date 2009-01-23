@@ -23,6 +23,28 @@ you.
     $ ./run
 
 
+Configure Moksha to use RabbitMQ.
+---------------------------------
+
+Edit Moksha's `orbited.cfg` and comment out the `stomp` listener.
+
+.. code-block:: none
+
+    # This enables Orbited's built-in MorbidQ message queue.
+    # Comment this out if to use your own, eg: RabbitMQ
+    #stomp://:61613
+
+Then, edit Moksha's `development.ini` to point to your RabbitMQ broker.
+
+.. code-block:: none
+
+    [DEFAULT]
+    stomp_host = localhost
+    stomp_port = 61613
+    stomp_user = guest
+    stomp_pass = guest
+
+
 Production modifications
 ------------------------
 
