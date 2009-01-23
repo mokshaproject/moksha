@@ -16,8 +16,13 @@
 # Copyright 2008, Red Hat, Inc.
 # Authors: Luke Macken <lmacken@redhat.com>
 
+from random import random
+from datetime import timedelta
+
 from tw.api import CSSLink, JSLink, js_function
+
 from moksha.api.widgets import LiveWidget
+from moksha.api.streams import PollingDataStream
 
 class LiveGraphWidget(LiveWidget):
     """
@@ -37,3 +42,26 @@ class LiveGraphWidget(LiveWidget):
     def update_params(self, d):
         super(LiveGraphWidget, self).update_params(d)
         self.add_call(js_function('init_graph')(self.id))
+
+
+
+class LiveGraphDataStream(PollingDataStream):
+    """
+    This is the main data producer for our live graph widget.
+    """
+    frequency = timedelta(seconds=0.5)
+
+    data_vector_length = 10
+    delta_weight = 0.1
+    max_value = 400 # NB: this in pixels
+    data = [int(random()*max_value) for x in xrange(data_vector_length)]
+
+    def poll(self):
+        self.data = [
+            min(max(datum + (random() - .5) * self.delta_weight *
+                    self.max_value, 0),
+                self.max_value)
+            for
+            datum in self.data
+        ]
+        self.send_message('graph_demo', self.data)

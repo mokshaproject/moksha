@@ -10,19 +10,13 @@ class MokshaDemoDataStream(PollingDataStream):
     This class provides the default Moksha demo with some fake data to render
     """
 
-    frequency = timedelta(seconds=1)
+    frequency = timedelta(seconds=0.3)
 
     # Flot demo specific variables
     offset = 0.0
     skip = 0
     bars = [[0, 3], [4, 8], [8, 5], [9, 13]]
     n = 0
-
-    # Specific to the livegraph demo
-    data_vector_length = 10
-    delta_weight = 0.1
-    max_value = 400 # NB: this in pixels
-    data = [int(random()*max_value) for x in xrange(data_vector_length)]
 
     # Feed demo specific variables
     feed_entries = Feed(url='http://lewk.org/rss').entries()
@@ -37,15 +31,6 @@ class MokshaDemoDataStream(PollingDataStream):
             self.send_message('feed_demo', [
                 {'title': entry['title'], 'link': entry['link'], 'i': self.i},
             ])
-
-        # modify our data elements
-        if self.n % 2 == 0: # make the graph look independent of flot
-            self.data = [ 
-                min(max(datum+(random()-.5)*self.delta_weight*self.max_value ,0),self.max_value)
-                for 
-                datum in self.data
-            ]
-            self.send_message('graph_demo', self.data)
 
         ## Generate flot data
         d1 = []

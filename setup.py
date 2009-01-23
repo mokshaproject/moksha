@@ -44,8 +44,9 @@ setup(
     main = pylons.util:PylonsInstaller
 
     [moksha.stream]
-    demo = moksha.streams.demo:MokshaDemoDataStream
     feed = moksha.streams.feed:FeedStream
+    demo = moksha.streams.demo:MokshaDemoDataStream
+    livegraph = moksha.examples.livegraph:LiveGraphDataStream
 
     [moksha.consumer]
     moksha = moksha.hub.hub:MokshaConsumer
