@@ -16,6 +16,8 @@
 # Copyright 2008, Red Hat, Inc.
 # Authors: Luke Macken <lmacken@redhat.com>
 
+from moksha.hub.reactor import reactor
+
 import sys
 import signal
 import pkg_resources
@@ -24,7 +26,6 @@ import logging
 from orbited import json
 from threading import Thread
 from collections import defaultdict
-from twisted.internet import reactor
 from twisted.internet.threads import deferToThread
 
 from moksha.api.hub import Consumer
