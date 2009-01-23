@@ -20,7 +20,7 @@ setup(
         "orbited",
         "twisted",
         "amqplib",
-        "WidgetBrowser",
+        #"WidgetBrowser", # not in PyPi yet
     ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,

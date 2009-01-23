@@ -3,7 +3,7 @@ import moksha
 from tg import expose, flash, require, tmpl_context, redirect, validate
 from tg.controllers import WSGIAppController
 from repoze.what import predicates
-from widgetbrowser.wsgiapp import WidgetBrowser
+#from widgetbrowser.wsgiapp import WidgetBrowser
 
 from moksha import _
 from moksha.model import DBSession
@@ -18,7 +18,9 @@ class RootController(BaseController):
 
     admin = AdminController()
     error = ErrorController()
-    widgets = WSGIAppController(WidgetBrowser(interactive=False))
+
+    # Not packaged or in PyPi yet...
+    #widgets = WSGIAppController(WidgetBrowser(interactive=False))
 
     @expose('moksha.templates.widget')
     def index(self):
