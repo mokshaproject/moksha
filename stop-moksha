@@ -6,6 +6,6 @@ if [ -f orbited.pid ]; then
     kill $(cat orbited.pid)
 fi
 if [ -f hub.pid ]; then
-    kill -9 $(cat hub.pid)
+    kill $(cat hub.pid)
 fi
 rm -f *.pid
