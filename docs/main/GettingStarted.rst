@@ -35,21 +35,12 @@ Getting the Moksha source
     $ cd moksha
     $ python setup.py egg_info develop
 
-Installing the RabbitMQ AMQP message broker
--------------------------------------------
-
-.. toctree::
-   :maxdepth: 2
-
-   RabbitMQ
-
 Starting Moksha
 ---------------
 
 .. code-block:: bash
 
     $ ./start-moksha
-
 
 Stopping Moksha
 ---------------
