@@ -40,13 +40,9 @@
 	</div>
 	<div id="meta">
 		<div id="components" class="ui-sortable">
-			<h2>Components</h2>
+			<h2>Powered by</h2>
 			<dl class="sort">
-				<dt>Subheadline</dt>
-				<dd>Paragraph</dd>
-			</dl>
-			<dl class="sort">
-				<dd>Caption</dd>
+			<a href="http://moksha.fedorahosted.org"><img src="/images/moksha-logo.png" border="0"/></a>
 			</dl>
 		</div>
 
