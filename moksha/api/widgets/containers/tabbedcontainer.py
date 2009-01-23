@@ -1,20 +1,9 @@
 from tw.jquery.ui_tabs import JQueryUITabs
 from pylons import config, request
 from repoze.what import predicates
+from moksha.lib.helpers import eval_app_config
 
 import urllib
-
-def App(label="", url="", req_params={}, predicates=[]):
-    if predicates:
-        for p in predicates:
-            if not p.eval_with_environ(request.environ):
-                return None
-    
-    return (label, url + "?" + urllib.urlencode(req_params))    
-
-def MokshaApp(label="", moksha_app="", req_params={}, predicates=()):
-    # FIXME figure out how to pull auth info from an app
-    return App(label, '/appz/' + moksha_app, req_params, predicates)
 
 """ 
 :Name: TabbedContainer
@@ -45,14 +34,10 @@ class TabbedContainer(JQueryUITabs):
         
         super(TabbedContainer, self).update_params(d)
         
-        tabs = eval(config.get(self.config_key, "None"), {"__builtins__":None}, {'MokshaApp': MokshaApp, 
-                                                                                 'App': App,
-                                                                                 'predicates': predicates})
+        tabs = eval_app_config(config.get(self.config_key, "None"))
         if not tabs:
             if isinstance(self.tabs, str):
-                tabs = eval(self.tabs, {"__builtins__":None}, {'MokshaApp': MokshaApp,
-                                                               'App': App,
-                                                               'predicates': predicates})
+                tabs = eval_app_config(self.tabs)
             else:
                 tabs = self.tabs
 

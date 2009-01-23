@@ -2,14 +2,15 @@
 
 Provides the BaseController class for subclassing.
 """
-from tg import TGController, tmpl_context, request
+
+from tg import TGController, tmpl_context, request, url
 from tg.render import render
 from pylons.i18n import _, ungettext, N_
 
 import moksha.model as model
 
 from moksha.api.widgets.stomp import stomp_widget
-
+from moksha.lib.helpers import eval_and_check_predicates
 
 class Controller(object):
     """Base class for a web application's controller.
@@ -33,4 +34,11 @@ class BaseController(TGController):
         tmpl_context.stomp = stomp_widget
         request.identity = request.environ.get('repoze.who.identity')
         tmpl_context.identity = request.identity
+        
+        # we alias this for easy use in templates
+        tmpl_context.auth = eval_and_check_predicates
+        
+        # url is already taken
+        tmpl_context.get_url = url
+        
         return TGController.__call__(self, environ, start_response)
