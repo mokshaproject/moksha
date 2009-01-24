@@ -4,9 +4,11 @@
 if [ ! $VIRTUAL_ENV ]; then
     if [ ! -d tg2env ]; then
         echo "Initializing a TurboGears2 virtual environment"
-        virtualenv --no-site-packages tg2env
+        # trying to use a globally-installed python-qpid module...
+        #virtualenv --no-site-packages tg2env
+        virtualenv tg2env
         source tg2env/bin/activate
-        easy_install -U WebOb # Hack, to fix a broken dependency conflict.
+        easy_install "repoze.what>=1.0rc2" # Hack.
         easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
     else
         source tg2env/bin/activate
@@ -14,6 +16,8 @@ if [ ! $VIRTUAL_ENV ]; then
 fi
 
 python setup.py egg_info develop
+
+echo "Starting Moksha..."
 
 paster serve development.ini &
 echo $! > paster.pid
