@@ -33,7 +33,6 @@ Getting the Moksha source
 
     $ git clone git://git.fedorahosted.org/git/moksha 
     $ cd moksha
-    $ python setup.py egg_info develop
 
 Starting Moksha
 ---------------
