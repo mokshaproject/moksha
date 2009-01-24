@@ -26,7 +26,7 @@ class BaseAMQPHub(moksha.hub.MessagingHub):
     """
     conn = None
 
-    def __init__(self, broker):
+    def __init__(self, host, port, username, password):
         """ Initialize a connection to a specified broker.
 
         This method must set self.channel to an active channel.

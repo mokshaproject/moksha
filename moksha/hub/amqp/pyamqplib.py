@@ -17,6 +17,7 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 
 import logging
+
 import amqplib.client_0_8 as amqp
 
 from moksha.lib.utils import trace
