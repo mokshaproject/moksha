@@ -8,7 +8,8 @@ if [ ! $VIRTUAL_ENV ]; then
         #virtualenv --no-site-packages tg2env
         virtualenv tg2env
         source tg2env/bin/activate
-        easy_install "repoze.what>=1.0rc2" # Hack.
+        easy_install "repoze.what>=1.0rc2" # Hack around setuptools issues...
+        easy_install "WebOb>=0.9.5"
         easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
     else
         source tg2env/bin/activate
