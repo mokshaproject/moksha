@@ -1,8 +1,25 @@
 #!/bin/bash
+# Moksha initialization script
+
+if [ ! $VIRTUAL_ENV ]; then
+    if [ ! -d tg2env ]; then
+        echo "Initializing a TurboGears2 virtual environment"
+        virtualenv --no-site-packages tg2env
+        source tg2env/bin/activate
+        easy_install -U WebOb # Hack, to fix a broken dependency conflict.
+        easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
+    else
+        source tg2env/bin/activate
+    fi
+fi
+
 python setup.py egg_info develop
+
 paster serve development.ini &
 echo $! > paster.pid
+
 orbited &
 echo $! > orbited.pid
+
 python moksha/hub/hub.py -v &
 echo $! > hub.pid
