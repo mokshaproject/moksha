@@ -20,6 +20,7 @@ Rendering a url with the Feed object
 
 .. code-block:: python
 
+    from moksha import Feed
     feed = Feed()
     feed(url='http://lewk.org/rss')
 
