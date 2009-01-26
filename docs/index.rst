@@ -72,6 +72,7 @@ Widgets
    :maxdepth: 2
 
    main/Feeds
+   main/LiveWidget
 
 ..
     Model
