@@ -1,0 +1,1 @@
+from flot import LiveFlotWidget
