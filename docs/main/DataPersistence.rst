@@ -5,10 +5,12 @@ Data Persistence
 Moksha is designed to wield dynamic data from arbitrary resources.  It also
 provides a variety of ways to enable data persistence.
 
-SQLAlchemy
-----------
+`SQLAlchemy <http://sqlalchemy.org>`_
+-------------------------------------
 
-The :class:`moksha.middleware.MokshaMiddleware` automatically handles setting up the database engines and initializing tables for all application models.
+The :class:`moksha.middleware.MokshaMiddleware` automatically handles setting
+up the SQLAlchemy database engines and initializing tables for all application
+models.
 
 Cache
 -----
@@ -25,11 +27,3 @@ Git
 Moksha will also make it simple to define data sources that should persist in a
 git repository.  This allows developers to easily track, interpret, and
 reference revisions of arbitrary data sources.
-
-RHM
----
-
-`RHM <http://rhm.et.redhat.com>`_ is a persistence extension to the Qpid
-messaging system.  Since Moksha integrates with the Qpid AMQP messaging broker,
-the RHM extension will give Moksha applications the ability to define
-persistent durable messages queues.
