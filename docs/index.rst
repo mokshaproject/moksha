@@ -43,7 +43,7 @@ Applications
 ------------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    main/MokshaApplications
    main/Caching
@@ -80,7 +80,7 @@ Middleware
 ----------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    main/Middleware
 

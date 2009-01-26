@@ -9,8 +9,8 @@ Moksha entry points
 
 Moksha loads all applications and widgets from the ``moksha.application`` and
 ``moksha.widget`` setuptools entry point.  This allows for dynamic discovery
-of moksha applications just by pointing to your WSGI Controller, or ToscaWidget
-in your project's setup.py.
+of moksha applications just by pointing to your Root Controller, or ToscaWidget
+in your project's `setup.py`.
 
 Here is an example of a bare-bones setup.py, and how to integrate it with
 Moksha.
@@ -27,7 +27,7 @@ Moksha.
         mywidget = myproject.mywidgets:MyWidget
 
         [moksha.application]
-        myapp = myproject.controllers.root:BaseController
+        myapp = myproject.controllers.root:RootController
 
         """
     )
