@@ -1,2 +1,2 @@
-from hub import *
 from consumer import *
+from hub import *

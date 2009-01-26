@@ -16,9 +16,9 @@
 # Copyright 2008, Red Hat, Inc.
 # Authors: Luke Macken <lmacken@redhat.com>
 
-import moksha
+from moksha.hub.messaging import MessagingHub
 
-class BaseAMQPHub(moksha.hub.MessagingHub):
+class BaseAMQPHub(MessagingHub):
     """
     A skeleton class for what we expect from an AMQP implementation.
     This allows us to bounce between different AMQP modules without too much

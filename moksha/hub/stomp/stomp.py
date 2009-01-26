@@ -16,7 +16,6 @@
 # Copyright 2008, Red Hat, Inc.
 # Authors: Luke Macken <lmacken@redhat.com>
 
-import moksha
 import stomper
 import logging
 
@@ -25,10 +24,11 @@ from twisted.internet.protocol import ReconnectingClientFactory
 from moksha.lib.utils import trace
 from moksha.hub.reactor import reactor
 from moksha.hub.stomp.protocol import StompProtocol
+from moksha.hub.messaging import MessagingHub
 
 log = logging.getLogger('moksha.hub')
 
-class StompHub(moksha.hub.MessagingHub, ReconnectingClientFactory):
+class StompHub(MessagingHub, ReconnectingClientFactory):
     username = None
     password = None
     proto = None

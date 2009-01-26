@@ -55,10 +55,10 @@ Messaging
    :maxdepth: 1
 
    main/MessageBrokers
-   main/MokshaHub
    main/Topics
    main/Consumers
    main/DataStreams
+   main/MokshaHub
 
 Widgets
 -------

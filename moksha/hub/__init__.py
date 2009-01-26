@@ -1,1 +1,1 @@
-from messaging import MessagingHub
+from hub import MokshaHub

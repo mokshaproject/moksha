@@ -48,8 +48,8 @@ setup(
     demo = moksha.streams.demo:MokshaDemoDataStream
     livegraph = moksha.examples.livegraph:LiveGraphDataStream
 
-    [moksha.consumer]
-    moksha = moksha.hub.hub:MokshaConsumer
+    #[moksha.consumer]
+    #moksha = moksha.hub.hub:MokshaConsumer
 
     [moksha.widget]
     liveflot = moksha.api.widgets.flot:LiveFlotWidget

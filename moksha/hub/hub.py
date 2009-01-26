@@ -30,19 +30,11 @@ from threading import Thread
 from collections import defaultdict
 from paste.deploy import appconfig
 
-from moksha.api.hub import Consumer
 from moksha.lib.utils import trace
 from moksha.hub.amqp import AMQPHub
 from moksha.hub.stomp import StompHub
 
 log = logging.getLogger('moksha.hub')
-
-
-class MokshaConsumer(Consumer):
-    topic = 'feed_demo'
-    def consume(self, message):
-        print "MokshaConsumer.consume(%s)" % message
-
 
 class MokshaHub(StompHub, AMQPHub):
 
@@ -80,7 +72,13 @@ class MokshaHub(StompHub, AMQPHub):
         elif self.stomp_broker:
             StompHub.send_message(self, topic, message)
 
-    @trace
+    def close(self):
+        if self.amqp_broker:
+            try:
+                AMQPHub.close(self)
+            except Exception, e:
+                log.warning('Exception when closing AMQPHub: %s' % str(e))
+
     def watch_topic(self, topic, callback):
         """
         This method will cause the specified `callback` to be executed with
@@ -116,13 +114,6 @@ class MokshaHub(StompHub, AMQPHub):
         # feed all of our consumers
         for callback in self.topics.get(topic, []):
             Thread(target=callback, args=[body]).start()
-
-    def stop(self):
-        if self.amqp_broker:
-            try:
-                AMQPHub.close(self)
-            except Exception, e:
-                log.warning('Exception when closing AMQPHub: %s' % str(e))
 
 
 class CentralMokshaHub(MokshaHub):
@@ -192,7 +183,7 @@ class CentralMokshaHub(MokshaHub):
 
     def stop(self):
         log.debug("Stopping the CentralMokshaHub")
-        MokshaHub.stop(self)
+        MokshaHub.close(self)
         if self.data_streams:
             for stream in self.data_streams:
                 log.debug("Stopping data stream %s" % stream)
