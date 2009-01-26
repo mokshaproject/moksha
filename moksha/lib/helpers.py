@@ -1,11 +1,25 @@
 from webhelpers import date, feedgenerator, html, number, misc, text
 
-from repoze.what.predicates import  (Predicate, All, Any, has_all_permissions, 
+from repoze.what.predicates import  (Not, Predicate, All, Any, has_all_permissions, 
                                     has_any_permission, has_permission, 
                                     in_all_groups, in_any_group, in_group, 
                                     is_user, not_anonymous)
 
 import urllib
+import uuid
+
+import re
+
+scrub_filter = re.compile('[^_a-zA-Z0-9-]')
+
+def Category(label="", apps=[], auth=[]):
+    if not check_predicates(auth):
+        return None
+    
+    id = uuid.uuid4()
+    css_class =  scrub_filter.sub('_', label.lower())
+    
+    return {'label': label, 'apps': apps, 'id': id, 'css_class': css_class}
 
 def App(label="", url="", req_params={}, auth=[]):
     if not check_predicates(auth):
@@ -15,13 +29,16 @@ def App(label="", url="", req_params={}, auth=[]):
     if req_params:
         query_str = "?" + urllib.urlencode(req_params)
 
-    return (label, url + query_str)    
+    id = uuid.uuid4()
+
+    return {'label': label, 'url': url + query_str, 'id': id}    
 
 def MokshaApp(label="", moksha_app="", req_params={}, auth=[]):
     # FIXME figure out how to pull auth info from an app
     return App(label, '/appz/' + moksha_app, req_params, auth)
 
 _safe_predicate_callables = {
+                    'Not': Not,
                     'All': All,
                     'Any': Any, 
                     'has_all_permissions': has_all_permissions, 
@@ -33,7 +50,8 @@ _safe_predicate_callables = {
                     'is_user': is_user, 
                     'not_anonymous': not_anonymous}
 
-_app_config_callables = {'MokshaApp': MokshaApp,
+_app_config_callables = {'Category': Category,
+                         'MokshaApp': MokshaApp,
                          'App': App}
 
 _app_config_callables.update(_safe_predicate_callables)
