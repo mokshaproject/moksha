@@ -4,18 +4,8 @@
 if [ ! $VIRTUAL_ENV ]; then
     if [ ! -d tg2env ]; then
         echo "Initializing a TurboGears2 virtual environment"
-        # trying to use a globally-installed python-qpid module...
-        #virtualenv --no-site-packages tg2env
         virtualenv tg2env
         source tg2env/bin/activate
-
-        # The TG2 package index is currently hosed.. 
-        # It will be fixed in the next day or so, so these hacks should be
-        # very temporary
-        easy_install "repoze.what>=1.0rc2"
-        easy_install "WebOb>=0.9.5"
-        easy_install "Paste>=1.7.2"
-
         easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
     else
         source tg2env/bin/activate

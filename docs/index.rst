@@ -54,8 +54,17 @@ Applications
    :maxdepth: 2
 
    main/MokshaApplications
-   main/Consumers
    main/Caching
+
+Messaging
+---------
+
+.. toctree::
+   :maxdepth: 2
+
+   main/MessageBrokers
+   main/Topics
+   main/Consumers
 
 Widgets
 -------
@@ -63,7 +72,6 @@ Widgets
    :maxdepth: 2
 
    main/Feeds
-   main/tg2/docs/main/ToscaWidgets/ToscaWidgets
 
 ..
     Model
@@ -88,3 +96,10 @@ Deployment
    :maxdepth: 2
 
    main/Deployment
+
+Third-party Documentation
+-------------------------
+
+* `TurboGears <http://turbogears.org/2.0/docs/index.html>`_
+* `ToscaWidgets <http://toscawidgets.org/documentation>`_
+* `SQLAlchemy <http://www.sqlalchemy.org/docs/05>`_

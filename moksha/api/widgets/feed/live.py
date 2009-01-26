@@ -23,7 +23,7 @@ class LiveFeedWidget(LiveWidget):
     """ A live streaming feed widget """
     topic = 'feed_demo'
     template = '${feed()}'
-    onmessageframe = """
+    onmessage = """
         $.each(json, function() {
             $("#${id} ul li:last").remove();
             $("<li/>").hide().html(

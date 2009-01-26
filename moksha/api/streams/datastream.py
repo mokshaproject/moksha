@@ -5,7 +5,7 @@ from twisted.internet.task import LoopingCall
 
 from moksha.hub.hub import MokshaHub
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('moksha.hub')
 
 class DataStream(object):
     """ The parent DataStream class. """

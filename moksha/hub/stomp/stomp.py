@@ -15,45 +15,39 @@
 #
 # Copyright 2008, Red Hat, Inc.
 # Authors: Luke Macken <lmacken@redhat.com>
-#
-# Based on code from stomper's examples
-# (c) Oisin Mulvihill, 2007-07-26.
-# License: http://www.apache.org/licenses/LICENSE-2.0
 
 import moksha
 import stomper
 import logging
 
-from twisted.internet import reactor
 from twisted.internet.protocol import ReconnectingClientFactory
 
 from moksha.lib.utils import trace
+from moksha.hub.reactor import reactor
 from moksha.hub.stomp.protocol import StompProtocol
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('moksha.hub')
 
 class StompHub(moksha.hub.MessagingHub, ReconnectingClientFactory):
     username = None
     password = None
     proto = None
 
-    def __init__(self, host='localhost', port=61613, username='guest', 
-                 password='guest', ssl=False, topics=None):
+    def __init__(self, host, port, username, password, topics=None):
         self.username = username
         self.password = password
-        self.ssl = ssl
         self._topics = topics or []
-        reactor.connectTCP(host, port, self)
+        reactor.connectTCP(host, int(port), self)
 
     def buildProtocol(self, addr):
         self.proto = StompProtocol(self, self.username, self.password)
         return self.proto
 
     def clientConnectionLost(self, connector, reason):
-        print 'Lost connection.  Reason:', reason
+        log.info('Lost connection.  Reason: %s' % reason)
 
     def clientConnectionFailed(self, connector, reason):
-        print 'Connection failed. Reason:', reason
+        log.error('Connection failed. Reason: %s' % reason)
         ReconnectingClientFactory.clientConnectionFailed(self,
                                                          connector,
                                                          reason)
@@ -63,7 +57,6 @@ class StompHub(moksha.hub.MessagingHub, ReconnectingClientFactory):
         f.unpack(stomper.send(topic, message))
         self.proto.transport.write(f.pack())
 
-    @trace
     def subscribe(self, topic):
         if not self.proto:
             self._topics.append(topic)

@@ -7,14 +7,22 @@ Getting the code
 
 .. code-block:: bash
 
-    $ git clone git://git.fedorahosted.org/git/
+    $ git clone git://git.fedorahosted.org/git/moksha
 
-Running
--------
+Starting
+--------
 
 .. code-block:: bash
 
-    $ paster serve development.ini
+    $ ./start-moksha
+
+Stopping
+--------
+
+.. code-block:: bash
+
+    $ ./stop-moksha
+
 
 Generating documentation
 ------------------------

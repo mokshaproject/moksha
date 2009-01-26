@@ -39,7 +39,7 @@ Then, edit Moksha's `development.ini` to point to your RabbitMQ broker.
 .. code-block:: none
 
     [DEFAULT]
-    stomp_host = localhost
+    stomp_broker = localhost
     stomp_port = 61613
     stomp_user = guest
     stomp_pass = guest

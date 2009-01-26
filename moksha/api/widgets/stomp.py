@@ -42,11 +42,12 @@ class StompWidget(Widget):
     callbacks = ['onopen', 'onerror', 'onerrorframe', 'onclose',
                  'onconnectedframe', 'onmessageframe']
     params = callbacks[:]
-    onopen = onconnectedframe = js_callback('function(){}')
-    onerror = js_callback('function(error){ console.log("Error: " + error) }')
-    onclose = js_callback('function(c){ console.log("Lost Connection: " + c) }')
-    onerrorframe = js_callback('function(f){ console.log("Error: " + f.body) }')
-    onmessageframe = js_callback('function(frame){ console.log(frame) }')
+    onopen = js_callback('function(){}')
+    onerror = js_callback('function(error){}')
+    onclose = js_callback('function(c){}')
+    onerrorframe = js_callback('function(f){}')
+    onmessageframe = ''
+    onconnectedframe = ''
     javascript = [orbited_js, stomp_js]
     engine_name = 'mako'
     template = """
@@ -89,8 +90,12 @@ class StompWidget(Widget):
                             """ % (topic, str(cb))
                 else:
                     for cb in moksha.stomp[callback]:
-                        cbs += str(cb)
-                d[callback] = cbs
+                        if isinstance(cb, js_callback):
+                            cbs += '$(%s);' % str(cb)
+                        else:
+                            cbs += str(cb)
+                if cbs:
+                    d[callback] = cbs
 
 
 stomp_widget = StompWidget('stomp')
