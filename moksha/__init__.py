@@ -22,4 +22,4 @@ def get_widget(name):
           'widget': <Widget instance>,
           'path': '/path/to/widget' }
     """
-    return _widgets[name]
+    return _widgets[name]['widget']
