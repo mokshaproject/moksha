@@ -39,14 +39,6 @@ Getting Started
 
    main/GettingStarted
 
-Middleware
-----------
-
-.. toctree::
-   :maxdepth: 2
-
-   main/Middleware
-
 Applications
 ------------
 
@@ -60,16 +52,17 @@ Messaging
 ---------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    main/MessageBrokers
    main/Topics
    main/Consumers
+   main/DataStreams
 
 Widgets
 -------
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    main/Feeds
    main/LiveWidget
@@ -82,6 +75,14 @@ Widgets
        :maxdepth: 2
 
        main/MokshaModel
+
+Middleware
+----------
+
+.. toctree::
+   :maxdepth: 2
+
+   main/Middleware
 
 Development
 -----------
