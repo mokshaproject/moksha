@@ -54,8 +54,17 @@ Applications
    :maxdepth: 2
 
    main/MokshaApplications
-   main/Consumers
    main/Caching
+
+Messaging
+---------
+
+.. toctree::
+   :maxdepth: 2
+
+   main/MessageBrokers
+   main/Topics
+   main/Consumers
 
 Widgets
 -------
