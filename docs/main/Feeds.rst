@@ -18,8 +18,10 @@ The Feed API provides a flexible Feed object that can be utilize in many ways.
 Rendering a url with the Feed object
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-feed = Feed()
-feed(url='http://lewk.org/rss')
+.. code-block:: python
+
+    feed = Feed()
+    feed(url='http://lewk.org/rss')
 
 :Note: Usually you would instantiate a single Feed object somewhere in your project, and just call it with a `url` when rendering it in your templates.
 
