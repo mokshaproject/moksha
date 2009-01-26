@@ -9,3 +9,4 @@ prompt.py
 mokshaenv
 *.db
 .build
+tg2env
