@@ -20,7 +20,7 @@ Rendering a url with the Feed object
 
 .. code-block:: python
 
-    from moksha import Feed
+    from moksha.api.widgets.feed import Feed
     feed = Feed()
     feed(url='http://lewk.org/rss')
 
@@ -33,7 +33,7 @@ You can easily subclass the Feed widget and provide your own url.
 
 .. code-block:: python
 
-    from moksha import Feed
+    from moksha.api.widgets.feed import Feed
 
     class MyFeed(Feed):
         url = 'http://foo.com/feed.xml'
@@ -51,7 +51,7 @@ ability access it in your template from the `c` context object.
 .. code-block:: python
 
     from tw.api import Widget
-    from moksha import Feed
+    from moksha.api.widgets.feed import Feed
 
     class MyWidget(Widget):
         myfeedurl = 'http://foo.com/feed.xml'
@@ -66,7 +66,7 @@ to iterate over the entries as necessary.
 
 .. code-block:: python
 
-    from moksha import Feed
+    from moksha.api.widgets.feed import Feed
 
     feed = Feed(url='http://foo.com/feed.xml')
     print '%d entries' % feed.num_entries()
