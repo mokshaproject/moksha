@@ -16,6 +16,8 @@
 # Copyright 2008, Red Hat, Inc.
 # Authors: Luke Macken <lmacken@redhat.com>
 
+from tw.jquery import jquery_js
+
 from feed import Feed
 from moksha.api.widgets import LiveWidget
 
@@ -23,6 +25,7 @@ class LiveFeedWidget(LiveWidget):
     """ A live streaming feed widget """
     topic = 'feed_demo'
     template = '${feed()}'
+    javascript = [jquery_js]
     onmessage = """
         $.each(json, function() {
             $("#${id} ul li:last").remove();
