@@ -24,7 +24,7 @@ class LiveFlotWidget(LiveWidget):
     topic = 'flot_demo'
     params = ['id', 'data', 'options', 'height', 'width', 'onmessageframe']
     children = [FlotWidget('flot')]
-    onmessageframe = '$.plot($("#${id}"),json[0]["data"],json[0]["options"])'
+    onmessage = '$.plot($("#${id}"),json[0]["data"],json[0]["options"])'
     template = '<div id="${id}" style="width:${width};height:${height};" />'
     height = '250px'
     width = '390px'

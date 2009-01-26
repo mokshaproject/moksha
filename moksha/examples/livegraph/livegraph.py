@@ -34,7 +34,7 @@ class LiveGraphWidget(LiveWidget):
     """
     params = ['id', 'onconnectedframe', 'onmessageframe']
     topic = 'graph_demo'
-    onmessageframe = 'modify_graph(bars, frame.body)'
+    onmessage = 'modify_graph(bars, frame.body)'
     javascript = [JSLink(filename='static/livegraph.js', modname=__name__)]
     css = [CSSLink(filename='static/livegraph.css', modname=__name__)]
     template = '<div id="${id}" />'

@@ -40,7 +40,7 @@ class LiveWidget(Widget):
         for callback in stomp_widget.callbacks:
             if callback == 'onmessageframe':
                 for topic in topics:
-                    cb = getattr(self, callback).replace('${id}', self.id)
+                    cb = getattr(self, 'onmessage').replace('${id}', self.id)
                     moksha.stomp[callback][topic].append(cb)
             elif callback == 'onconnectedframe':
                 moksha.stomp['onconnectedframe'].append(stomp_subscribe(topics))
