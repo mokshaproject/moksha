@@ -21,7 +21,7 @@ Rendering a url with the Feed object
 .. code-block:: python
 
     from moksha.api.widgets.feed import Feed
-    feed = Feed()
+    feed = Feed('myfeed')
     feed(url='http://lewk.org/rss')
 
 :Note: Usually you would instantiate a single Feed object somewhere in your project, and just call it with a `url` when rendering it in your templates.
@@ -38,7 +38,7 @@ You can easily subclass the Feed widget and provide your own url.
     class MyFeed(Feed):
         url = 'http://foo.com/feed.xml'
 
-    myfeed = MyFeed()
+    myfeed = MyFeed('myfeed')
     myfeed() # renders the widget.  usually done in the template.
 
 As a child Widget
@@ -68,7 +68,7 @@ to iterate over the entries as necessary.
 
     from moksha.api.widgets.feed import Feed
 
-    feed = Feed(url='http://foo.com/feed.xml')
+    feed = Feed('myfeed', url='http://foo.com/feed.xml')
     print '%d entries' % feed.num_entries()
     for entry in feed.iterentries():
         print entry.title
