@@ -2,6 +2,7 @@ from decorator import decorator
 
 @decorator
 def trace(f, *args, **kw):
+    r = None
     try:
         r = f(*args, **kw)
     finally:
