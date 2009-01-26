@@ -19,7 +19,6 @@ setup(
         "repoze.profile",
         "orbited",
         "twisted",
-        "amqplib",
         #"WidgetBrowser", # not in PyPi yet
     ],
     packages=find_packages(exclude=['ez_setup']),
@@ -48,8 +47,8 @@ setup(
     demo = moksha.streams.demo:MokshaDemoDataStream
     livegraph = moksha.examples.livegraph:LiveGraphDataStream
 
-    #[moksha.consumer]
-    #moksha = moksha.hub.hub:MokshaConsumer
+    [moksha.consumer]
+    moksha = moksha.hub.hub:MokshaConsumer
 
     [moksha.widget]
     liveflot = moksha.api.widgets.flot:LiveFlotWidget
