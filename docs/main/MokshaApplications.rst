@@ -17,7 +17,7 @@ Moksha.
 
 .. code-block:: python
 
-    from setuptools import setup, find_packages
+    from setuptools import setup
 
     setup(
         name='myproject',
@@ -38,15 +38,6 @@ automatically load all applications and widgets from those entry points,
 and store them in ``moksha.apps`` and ``moksha._widgets`` dictionaries.
 These can then be accessed at any time by any application or widget during
 any request.
-
-Writing applications and widgets using TurboGears2
---------------------------------------------------
-
-.. toctree::
-   :maxdepth: 1
-
-   tg2/docs/index
-
 
 Configuration
 -------------
