@@ -19,6 +19,7 @@ setup(
         "repoze.profile",
         "orbited",
         "twisted",
+        "stomper",
         #"WidgetBrowser", # not in PyPi yet
     ],
     packages=find_packages(exclude=['ez_setup']),
