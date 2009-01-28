@@ -21,7 +21,6 @@ import logging
 
 from twisted.internet.protocol import ReconnectingClientFactory
 
-from moksha.lib.utils import trace
 from moksha.hub.reactor import reactor
 from moksha.hub.stomp.protocol import StompProtocol
 from moksha.hub.messaging import MessagingHub

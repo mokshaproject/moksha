@@ -44,7 +44,6 @@ class LiveGraphWidget(LiveWidget):
         self.add_call(js_function('init_graph')(self.id))
 
 
-
 class LiveGraphDataStream(PollingDataStream):
     """
     This is the main data producer for our live graph widget.

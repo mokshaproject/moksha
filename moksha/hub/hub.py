@@ -30,7 +30,7 @@ from threading import Thread
 from collections import defaultdict
 from paste.deploy import appconfig
 
-from moksha.lib.utils import trace
+from moksha.lib.helpers import trace
 from moksha.hub.amqp import AMQPHub
 from moksha.hub.stomp import StompHub
 

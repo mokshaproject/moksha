@@ -20,7 +20,7 @@ import logging
 
 import amqplib.client_0_8 as amqp
 
-from moksha.lib.utils import trace
+from moksha.lib.helpers import trace
 from moksha.hub.amqp.base import BaseAMQPHub
 
 log = logging.getLogger(__name__)
