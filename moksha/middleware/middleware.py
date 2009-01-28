@@ -228,7 +228,8 @@ class MokshaMiddleware(object):
         config['pylons.app_globals'].mako_lookup = TemplateLookup(
             directories=template_paths, module_directory=template_paths,
             input_encoding='utf-8', output_encoding='utf-8',
-            imports=['from webhelpers.html import escape'],
+            imports=['from webhelpers.html import escape',
+                     'import tg', 'from repoze.what.predicates import *'],
             default_filters=['escape'], filesystem_checks=False)
 
         from genshi.template import TemplateLoader
