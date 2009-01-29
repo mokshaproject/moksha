@@ -98,7 +98,7 @@ class MokshaMiddleware(object):
                     return Response(status='404 Not Found')
 
                 if k not in params:
-                    params[k] = params.getall(k)
+                    params[k] = p.getall(k)
 
             response = self._run_connector(s[0], s[1], *s[2:], **params)
         else:
@@ -124,6 +124,9 @@ class MokshaMiddleware(object):
         p = urllib.unquote_plus(path[-1].lstrip())
         if p.startswith('{'):
             dispatch_params = json.loads(p)
+            f = dispatch_params.get('filters')
+            if isinstance(f, basestring):
+                dispatch_params['filters'] = json.loads(f)
             path = path[:-1]
 
         # prevent trailing slash

@@ -1,43 +1,90 @@
+from webhelpers import date, feedgenerator, html, number, misc, text
+
+from repoze.what.predicates import  (Not, Predicate, All, Any, has_all_permissions, 
+                                    has_any_permission, has_permission, 
+                                    in_all_groups, in_any_group, in_group, 
+                                    is_user, not_anonymous)
+
 import urllib
 import uuid
 import re
 
 from decorator import decorator
-from webhelpers import date, feedgenerator, html, number, misc, text
-from repoze.what.predicates import  (Not, Predicate, All, Any,
-                                    has_all_permissions,
-                                    has_any_permission, has_permission,
-                                    in_all_groups, in_any_group, in_group,
-                                    is_user, not_anonymous)
 
 scrub_filter = re.compile('[^_a-zA-Z0-9-]')
 
-
-def Category(label="", apps=[], auth=[]):
-    if not check_predicates(auth):
+class ConfigWrapper(object):
+    @staticmethod
+    def process_wrappers(wrappers):
+        result = []
+        if isinstance(wrappers, ConfigWrapper):
+            w = wrappers.process()
+            if w:
+                result.apprend(w)
+        else:
+            for item in wrappers:
+                w = item.process()
+                if w:
+                    result.append(w)
+                    
+        return result
+        
+    def process(self):
         return None
 
-    id = uuid.uuid4()
-    css_class =  scrub_filter.sub('_', label.lower())
+class Category(ConfigWrapper):
+    def __init__(self, label="", apps=[], auth=[]):
+        self.label = label
+        self.apps = apps
+        self.auth = auth
+    
+    def process(self):    
+        if not check_predicates(self.auth):
+            return None
+    
+        id = uuid.uuid4()
+        css_class =  scrub_filter.sub('_', self.label.lower())
 
-    return {'label': label, 'apps': apps, 'id': id, 'css_class': css_class}
+        apps = self.process_wrappers(self.apps)
+        return {'label': self.label, 'apps': apps, 'id': id, 'css_class': css_class}
 
-def App(label="", url="", req_params={}, auth=[]):
-    if not check_predicates(auth):
-        return None
+class App(ConfigWrapper):
+    def __init__(self, label="", url="", req_params={}, auth=[]):
+        self.label = label
+        self.url = url
+        self.req_params = req_params
+        self.auth = auth
+        
+    def process(self):
+        if not check_predicates(self.auth):
+            return None
+    
+        apps = self.process_wrappers(self.apps)
+        return {'label': self.label, 'apps': apps, 'id': id, 'css_class': css_class}
 
-    query_str = ""
-    if req_params:
-        query_str = "?" + urllib.urlencode(req_params)
+class App(ConfigWrapper):
+    def __init__(self, label="", url="", req_params={}, auth=[]):
+        self.label = label
+        self.url = url
+        self.req_params = req_params
+        self.auth = auth
+        
+    def process(self):
+        if not check_predicates(self.auth):
+            return None
+    
+        query_str = ""
+        if self.req_params:
+            query_str = "?" + urllib.urlencode(self.req_params)
 
-    id = uuid.uuid4()
+        id = uuid.uuid4()
 
-    return {'label': label, 'url': url + query_str, 'id': id}    
+        return {'label': self.label, 'url': self.url + query_str, 'id': id}    
 
-
-def MokshaApp(label="", moksha_app="", req_params={}, auth=[]):
-    # FIXME figure out how to pull auth info from an app
-    return App(label, '/appz/' + moksha_app, req_params, auth)
+class MokshaApp(App):
+    def __init__(self, label="", moksha_app="", req_params={}, auth=[]):
+        # FIXME figure out how to pull auth info from an app
+        super(MokshaApp, self).__init__(label, '/appz/' + moksha_app, req_params, auth)
 
 _safe_predicate_callables = {
                     'Not': Not,
@@ -85,13 +132,14 @@ def check_predicates(predicates):
 
     from pylons import request
 
-    if isinstance(predicates, list) or isinstance(predicates, tuple):
+    if(isinstance(predicates, list) or isinstance(predicates, tuple)):
         for p in predicates:
             if not p.eval_with_environ(request.environ):
                 return False
         return True
 
-    if isinstance(predicates, Predicate):
+    
+    if(isinstance(predicates, Predicate)):
         return predicates.eval_with_environ(request.environ)
 
     return False

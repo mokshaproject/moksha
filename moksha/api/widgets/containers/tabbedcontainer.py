@@ -1,7 +1,7 @@
 from tw.jquery.ui_tabs import JQueryUITabs
 from pylons import config, request
 from repoze.what import predicates
-from moksha.lib.helpers import eval_app_config
+from moksha.lib.helpers import eval_app_config, ConfigWrapper
 
 import urllib
 
@@ -43,5 +43,5 @@ class TabbedContainer(JQueryUITabs):
 
         # Filter out any None's in the list which signify apps which are
         # not allowed to run with the current session's authorization level
-        tabs = filter(lambda x: x, tabs)
+        tabs = ConfigWrapper.process_wrappers(tabs)
         d['tabs'] = tabs
