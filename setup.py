@@ -57,5 +57,9 @@ setup(
     livegraph = moksha.examples.livegraph:LiveGraphWidget
     chat = moksha.api.widgets.chat:LiveChatWidget
     grid = moksha.api.widgets:Grid
+
+    [moksha.global]
+    jquery = tw.jquery:jquery_js
+
     """,
 )
