@@ -34,7 +34,7 @@ from sqlalchemy import create_engine
 from feedcache.cache import Cache
 
 from moksha.exc import ApplicationNotFound, MokshaException
-from moksha.wsgiapp import MokshaApp
+from moksha.wsgiapp import MokshaAppDispatcher
 
 log = logging.getLogger(__name__)
 
@@ -50,7 +50,7 @@ class MokshaMiddleware(object):
     def __init__(self, application):
         log.info('Creating MokshaMiddleware')
         self.application = application
-        self.mokshaapp = MokshaApp()
+        self.mokshaapp = MokshaAppDispatcher()
 
         self.apps = {}       # {'app name': WSGI Controller}
         self.menus = {}      # {'menu name': MokshaMenu}

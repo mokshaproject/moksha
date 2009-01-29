@@ -19,8 +19,8 @@
 from pylons.wsgiapp import PylonsApp
 from moksha.exc import ApplicationNotFound
 
-class MokshaApp(PylonsApp):
-    """ Moksha WSGI Application.
+class MokshaAppDispatcher(PylonsApp):
+    """ Moksha WSGI Application Dispatcher.
 
     This class handles resolving and dispatching to moksha applications.
     It is instantiated and utilized by the 
