@@ -51,6 +51,9 @@ setup(
     #[moksha.consumer]
     #moksha = moksha.hub.hub:MokshaConsumer
 
+    [moksha.application]
+    menu = moksha.api.menus.controllers:MokshaMenuController
+
     [moksha.widget]
     liveflot = moksha.api.widgets.flot:LiveFlotWidget
     livefeed = moksha.api.widgets.feed.live:LiveFeedWidget
@@ -61,5 +64,7 @@ setup(
     [moksha.global]
     jquery = tw.jquery:jquery_js
 
+    [moksha.menu]
+    default_menu = moksha.api.menus:MokshaDefaultMenu
     """,
 )

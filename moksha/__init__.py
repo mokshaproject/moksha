@@ -10,6 +10,9 @@ apps = StackedObjectProxy()
 # All loaded ToscaWidgets
 _widgets = StackedObjectProxy()
 
+# All loaded moksha menus
+menus = StackedObjectProxy()
+
 # Per-request stomp callbacks registered by rendered widget
 stomp = StackedObjectProxy()
 

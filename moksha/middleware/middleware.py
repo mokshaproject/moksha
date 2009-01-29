@@ -53,6 +53,7 @@ class MokshaMiddleware(object):
         self.mokshaapp = MokshaApp()
 
         self.apps = {}       # {'app name': WSGI Controller}
+        self.menus = {}      # {'menu name': MokshaMenu}
         self.widgets = {}    # {'widget name': tw.api.Widget}
         self.engines = {}    # {'app name': sqlalchemy.engine.base.Engine}
         self.connectors = {} # {'connector name': moksha.IConnector class}
@@ -64,6 +65,7 @@ class MokshaMiddleware(object):
         self.load_applications()
         self.load_widgets()
         self.load_models()
+        self.load_menus()
 
         self.feed_storage = Shove(config['feed_cache'])
         self.feed_cache = Cache(self.feed_storage)
@@ -72,6 +74,7 @@ class MokshaMiddleware(object):
         environ['paste.registry'].register(moksha.apps, self.apps)
         environ['paste.registry'].register(moksha._widgets, self.widgets)
         environ['paste.registry'].register(moksha.feed_cache, self.feed_cache)
+        environ['paste.registry'].register(moksha.menus, self.menus)
         self.register_stomp(environ)
         request = Request(environ)
 
@@ -195,7 +198,7 @@ class MokshaMiddleware(object):
             app_class = app_entry.load()
             app_path = app_entry.dist.location
             self.apps[app_entry.name] = {
-                    'name': app_entry.name,
+                    'name': getattr(app_class, 'name', app_entry.name),
                     'controller': app_class(),
                     'path': app_path,
                     'model': None,
@@ -214,10 +217,18 @@ class MokshaMiddleware(object):
             widget_class = widget_entry.load()
             widget_path = widget_entry.dist.location
             self.widgets[widget_entry.name] = {
-                    'name': widget_entry.name,
+                    'name': widget_class.__name__,
                     'widget': widget_class(widget_entry.name),
                     'path': widget_path,
                     }
+
+    def load_menus(self):
+        log.info('Loading moksha menus')
+        for menu_entry in pkg_resources.iter_entry_points('moksha.menu'):
+            log.info('Loading %s menu' % menu_entry.name)
+            menu_class = menu_entry.load()
+            menu_path = menu_entry.dist.location
+            self.menus[menu_entry.name] = menu_class(menu_entry.name)
 
     def load_renderers(self):
         """ Load our template renderers with our application paths """
