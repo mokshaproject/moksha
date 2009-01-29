@@ -56,6 +56,6 @@ setup(
     livefeed = moksha.api.widgets.feed.live:LiveFeedWidget
     livegraph = moksha.examples.livegraph:LiveGraphWidget
     chat = moksha.api.widgets.chat:LiveChatWidget
-
+    grid = moksha.api.widgets:Grid
     """,
 )

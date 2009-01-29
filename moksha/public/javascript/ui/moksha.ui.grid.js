@@ -1,37 +1,5 @@
 (function($) {
-  $.widget("ui.mokshagrid",{
-    /* public method list */
-    public_signals: ["ready"],
-    bind_api: function(api_list) {
-        var self = this;
-        for (var i in api_list) {
-            var pm = api_list[i];
-            var name = pm + ".mokshagrid";
-            
-            // proxy pattern (used for javascripts busted scoping rules)
-            (function() {
-                var proxied = self[pm];
-                if (!proxied)
-                    throw ('ERROR: binding api "' + pm + '" failed - method does not exist.'); 
-            
-                self.element.unbind(name).bind(name,
-                    function() {
-                        var args = []
-                        for (var ai=1; ai < arguments.length; ai++) {
-                            args.push(arguments[ai]);
-                        }
-                        
-                        return proxied.apply(self, args);
-                    });
-            })();
-        }
-    },
-    
-    bind_public_api: function() {
-        this.bind_api(this.public_methods);
-        this.bind_api(this.public_signals);
-    },
-    
+  $.widget("ui.mokshagrid",{    
     /* methods */
     
     init: function() {
@@ -40,13 +8,10 @@
     
       self.$visible_rows = [];
 
-      self.bind_public_api();
-
       // add placeholder for row appends
       self.$rowplaceholder = jQuery('<span />').addClass('moksha_rowplaceholder');
       self.$rowplaceholder.hide();
       
-      console.log(self.element);
       
       if (!self.element.is('table')) { 
           var t = self._generate_table();
@@ -167,7 +132,6 @@
             sort_order: o.sort_order,
         }
         
-        console.log(search_criteria);
         // TODO: Only trigger refresh signal if we have a cache miss
         self.refresh_data(event, search_criteria);
     },
@@ -186,8 +150,12 @@
             }
         }
         
+        var filters = search_criteria.filters
+        
         var dispatch_data = {offset: search_criteria.start_row,
-                             num_rows: search_criteria.rows_requested}
+                             num_rows: search_criteria.rows_requested,
+                             filters: filters
+                             }
                                                           
         if (search_criteria.sort_key) {                  
             dispatch_data["sort_col"] = search_criteria.sort_key;
@@ -225,7 +193,7 @@
       // hack to get the full html of the template including the root tag
       // this also removes the template from the document
       var container_div = jQuery('<div />');
-      var html = container_div.append(rowtemplate).html();
+      var html = unescape(container_div.append(rowtemplate).html());
       
       o.row_template = jQuery.template(html, {regx:'moksha'}).compile();
       
@@ -234,7 +202,6 @@
       self.$headers.unbind(o.event + '.mokshagrid').bind(o.event + '.mokshagrid', function(event) {
         var ckey = o.sort_key;
         var corder = o.sort_order;
-        console.log(event)
         var key = event.originalTarget.hash.substr(1);
       
         if (key == ckey) {
