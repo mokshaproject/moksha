@@ -47,6 +47,7 @@ Applications
 
    main/MokshaApplications
    main/Caching
+   main/GlobalResources
 
 Messaging
 ---------
