@@ -45,7 +45,7 @@ h1,h2,h3,h4,h5,h6 {
 
 
 .sidebar {
-  border: 1px solid #cce;
+  border: 1px solid #aaa;
   background-color: #eee;
   margin: 0.5em;
   margin-left: 1.5em;
@@ -53,13 +53,14 @@ h1,h2,h3,h4,h5,h6 {
   float: right;
   width: 200px;
   font-size: 88%;
-  background-color:#fffe1;
+  background-color:#FF8E4E;
+  background-image:url(../images/grad_orange_11x100.png);
   background-repeat:repeat-x;
 }
 
 .sidebar h2 {
   margin-top: 0;
-  color: black;
+  color: white;
 }
 
 .sidebar ul {
@@ -109,49 +110,33 @@ h1,h2,h3,h4,h5,h6 {
 
 
 #header {
-  height: 125px;
+  height: 80px;
   width: 777px;
-  background: blue URL('../images/strype2.png') repeat-y;
+  background: blue URL('../images/grad_blue_7x80.png') repeat-x;
   border-left: 1px solid #aaa;
   border-right: 1px solid #aaa;
   margin: 0 auto 0 auto;
-  color: black;
+  color: white;
 }
 
 .alogo {
+  color: white;
   font-size: 36px;
-  padding-left: 5px;
-  padding-top: 5px;
+  padding-left: 20px;
+  padding-top: 20px;
   padding-right: 20px;
+  margin-bottom: 0px;
   float: left;
 }
 
 .headtext {
   color: white;
-  font: x-small "Lucida Grande", "Lucida Sans Unicode", geneva, verdana, sans-serif;
-  font-size: 44px;
+  font-size: 24px;
   padding-left: 20px;
-  padding-top: 20px;
+  padding-top: 30px;
   padding-right: 20px;
   margin-bottom: 0px;
-}
-
-.currentpage {
- /* color: white;
-  font: x-small "Lucida Grande", "Lucida Sans Unicode", geneva, verdana, sans-serif;
-  font-size: 18px;
-  padding-top: 20px;
-  padding-right: 20px;
-  margin-bottom: 0px;
-  float: left;*/
-  margin: 0 auto 0.5em auto;
-  padding: 5px 5px 5px 50px;
-  background: #cec URL('../images/ok.png') left center no-repeat;
-  border: 1px solid #9c9;
-  width: 400px;
-  font-size: 120%;
-  font-weight: bolder;
-
+  float: left;
 }
 
 #footer {
@@ -186,33 +171,20 @@ span.code {
   background: #eee;
 }
 
-.flash { 
+#status_block {
   margin: 0 auto 0.5em auto;
-  padding: 5px 15px 15px 55px;
-  width: 680px;
+  padding: 15px 10px 15px 55px;
+  background: #cec URL('../images/ok.png') left center no-repeat;
+  border: 1px solid #9c9;
+  width: 450px;
   font-size: 120%;
   font-weight: bolder;
-}
-
-#status_ok {
-  background: #eef URL('../images/ok.png') left center no-repeat;
-  border: 1px solid #cce;
-}
-
-#status_warning {
-  background: #f99 URL('../images/error.png') left center no-repeat;
-  border: 1px solid #f33;
-}
-
-#status_alert {
-  background: #ff9 URL('../images/info.png') left center no-repeat;
-  border: 1px solid #ff0;
 }
 
 .notice {
   margin: 0.5em auto 0.5em auto;
   padding: 15px 10px 15px 55px;
-  width: 680px;
+  width: 450px;
   background: #eef URL('../images/info.png') left center no-repeat;
   border: 1px solid #cce;
 }
