@@ -78,6 +78,7 @@ class BaseController(TGController):
         tmpl_context.get_url = url
 
         # Inject our global resources
-        global_resources.register_resources()
+        if not request.path.startswith('/appz'):
+            global_resources.register_resources()
 
         return TGController.__call__(self, environ, start_response)
