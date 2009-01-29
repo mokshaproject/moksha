@@ -21,14 +21,12 @@ import moksha
 from tg import expose, flash, require, tmpl_context, redirect, validate
 from tg.controllers import WSGIAppController
 from repoze.what import predicates
-#from widgetbrowser.wsgiapp import WidgetBrowser
 
 from moksha import _
 from moksha.model import DBSession
 from moksha.lib.base import BaseController
 from moksha.controllers.secc import AdminController
 from moksha.controllers.error import ErrorController
-from moksha.api.widgets.layout import LayoutWidget
 
 layout_widget = LayoutWidget('layout')
 
@@ -37,13 +35,10 @@ class RootController(BaseController):
     admin = AdminController()
     error = ErrorController()
 
-    # Not packaged or in PyPi yet...
-    #widgets = WSGIAppController(WidgetBrowser(interactive=False))
-
-    @expose('moksha.templates.widget')
+    @expose('mako:moksha.templates.index')
     def index(self):
-        tmpl_context.widget = layout_widget
-        return dict()
+        tmpl_context.widget = moksha.menus['default_menu']
+        return {'title': 'Moksha'}
 
     @expose('moksha.templates.widget')
     def widget(self, name):
