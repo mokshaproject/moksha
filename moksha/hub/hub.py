@@ -44,13 +44,20 @@ class MokshaHub(StompHub, AMQPHub):
         self.amqp_broker = config.get('amqp_broker', None)
         self.stomp_broker = config.get('stomp_broker', None)
 
+        self.topics = defaultdict(list)
+        if topics:
+            for topic, callbacks in topics.iteritems():
+                if not isinstance(callbacks, list):
+                    callbacks = [callbacks]
+                for callback in callbacks:
+                    self.topics[topic].append(callback)
+
         if self.amqp_broker:
             log.info('Initializing AMQP support')
             AMQPHub.__init__(self, self.amqp_broker)
 
         if self.stomp_broker:
             log.info('Initializing STOMP support')
-            self.topics = topics or {}
             StompHub.__init__(self, self.stomp_broker,
                               port=config.get('stomp_port', 61613),
                               username=config.get('stomp_user', 'guest'),
@@ -124,7 +131,6 @@ class CentralMokshaHub(MokshaHub):
     data_streams = None # [<DataStream>,]
 
     def __init__(self):
-        self.topics = defaultdict(list)
         self.__init_consumers()
 
         MokshaHub.__init__(self, topics=self.topics)

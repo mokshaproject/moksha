@@ -35,17 +35,13 @@ class StompProtocol(Protocol, stomper.Engine):
         self.password = password
         self.counter = 1
         self.client = client
-        self.topics = client._topics or []
 
     def connected(self, msg):
         """Once connected, subscribe to message queues """
         stomper.Engine.connected(self, msg)
         log.info("StompProtocol Connected: session %s." % 
                  msg['headers']['session'])
-        for topic in self.topics:
-            log.debug('Subscribing to %s topic' % topic)
-            self.subscribe(topic)
-
+        self.client.connected()
         #f = stomper.Frame()
         #f.unpack(stomper.subscribe(topic))
         #print f
