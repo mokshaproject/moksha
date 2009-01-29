@@ -63,6 +63,17 @@ setup(
 
     [moksha.global]
     jquery = tw.jquery:jquery_js
+    jquery_ui_tabs = tw.jquery.ui_tabs:jquery_ui_tabs_js
+    #jquery_json_js = fedoracommunity.widgets:jquery_json_js
+    #jquery_template_js = fedoracommunity.widgets:jquery_template_js
+
+    # Enable support for the Blueprint CSS framework
+    blueprint_ie_css = moksha.widgets.blueprint:blueprint_ie_css
+    blueprint_screen_css = moksha.widgets.blueprint:blueprint_screen_css
+    blueprint_print_css = moksha.widgets.blueprint:blueprint_print_css
+
+    # Blueprint plugins
+    blueprint_fancytype_css = moksha.widgets.blueprint:blueprint_plugin_fancytype_css
 
     [moksha.menu]
     default_menu = moksha.api.menus:MokshaDefaultMenu
