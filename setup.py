@@ -62,6 +62,9 @@ setup(
     grid = moksha.api.widgets:Grid
 
     [moksha.global]
+    # Our live message pipeline
+    stomp = moksha.api.widgets.stomp:StompWidget
+
     jquery = tw.jquery:jquery_js
     jquery_ui_tabs = tw.jquery.ui_tabs:jquery_ui_tabs_js
     #jquery_json_js = fedoracommunity.widgets:jquery_json_js
