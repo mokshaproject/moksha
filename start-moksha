@@ -6,8 +6,9 @@ if [ ! $VIRTUAL_ENV ]; then
         echo "Initializing a TurboGears2 virtual environment"
         virtualenv tg2env
         source tg2env/bin/activate
-        easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
         easy_install -U WebOb
+        easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
+        easy_install tgext.crud
     else
         source tg2env/bin/activate
     fi
