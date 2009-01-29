@@ -20,7 +20,7 @@ class ConfigWrapper(object):
         if isinstance(wrappers, ConfigWrapper):
             w = wrappers.process()
             if w:
-                result.apprend(w)
+                result.append(w)
         else:
             for item in wrappers:
                 w = item.process()
