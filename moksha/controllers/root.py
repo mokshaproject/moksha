@@ -28,7 +28,8 @@ from moksha.lib.base import BaseController
 from moksha.controllers.secc import AdminController
 from moksha.controllers.error import ErrorController
 
-layout_widget = LayoutWidget('layout')
+from moksha.widgets.container import MokshaContainer
+container = MokshaContainer('moksha_container')
 
 class RootController(BaseController):
 
@@ -37,28 +38,16 @@ class RootController(BaseController):
 
     @expose('mako:moksha.templates.index')
     def index(self):
-        tmpl_context.widget = moksha.menus['default_menu']
+        tmpl_context.menu_widget = moksha.menus['default_menu']
         return {'title': 'Moksha'}
 
-    @expose('moksha.templates.widget')
-    def widget(self, name):
-        """ Display a widget by name """
-        tmpl_context.widget = moksha.get_widget(name)
-        return dict()
-
-    @expose('moksha.templates.about')
-    def about(self):
-        return dict(page='about')
-
-    @expose('moksha.templates.index')
-    @require(predicates.has_permission('manage', msg=_('Only for managers')))
-    def manage_permission_only(self, **kw):
-        return dict(page='managers stuff')
-
-    @expose('moksha.templates.index')
-    @require(predicates.is_user('editor'))
-    def editor_user_only(self, **kw):
-        return dict(page='editor stuff')
+    @expose('mako:moksha.templates.widget')
+    def widgets(self, widget, **kw):
+        tmpl_context.widget = moksha.get_widget(widget)
+        tmpl_context.container = container
+        kw['id'] = widget + '_container'
+        return {'title': moksha._widgets[widget]['name'],
+                'container_options': kw}
 
     @expose('moksha.templates.login')
     def login(self, **kw):
