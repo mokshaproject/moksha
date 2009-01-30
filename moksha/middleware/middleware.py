@@ -217,7 +217,8 @@ class MokshaMiddleware(object):
             widget_class = widget_entry.load()
             widget_path = widget_entry.dist.location
             self.widgets[widget_entry.name] = {
-                    'name': widget_class.__name__,
+                    'name': getattr(widget_class, '__name__',
+                                    widget_entry.name),
                     'widget': widget_class(widget_entry.name),
                     'path': widget_path,
                     }
