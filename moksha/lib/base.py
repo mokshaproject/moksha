@@ -46,7 +46,7 @@ class BaseController(TGController):
         ## Inject our global resources
         if not request.path.startswith('/appz'):
             tmpl_context.moksha_global_resources = global_resources
-            #global_resources.register_resources()
+            global_resources.register_resources()
         else:
             tmpl_context.moksha_global_resources = lambda: ''
 
