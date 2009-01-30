@@ -18,7 +18,7 @@
 
 """ A powerful dynamic Menu """
 
-from tw.api import JSLink, Widget, CSSLink
+from tw.api import JSLink, Widget, CSSLink, js_function
 from tw.jquery import jquery_js, jQuery
 
 modname = __name__
@@ -32,7 +32,7 @@ jquery_mbmenu_min_js = JSLink(modname=modname,
                               javascript=[jquery_js])
 
 
-class MokshaMenu(Widget):
+class MokshaMenuBase(Widget):
     template = "mako:moksha.api.menus.templates.mbmenu"
     javascript = [jquery_mbmenu_min_js]
     css = [CSSLink(modname=modname, filename='static/css/menu.css',
@@ -42,7 +42,7 @@ class MokshaMenu(Widget):
     params = ['callback', 'rootMenuSelector', 'menuSelector', 'id', 'menus',
               'additionalData', 'iconPath', 'menuWidth', 'openOnRight',
               'hasImages', 'fadeTime', 'adjustLeft', 'adjustTop', 'opacity',
-              'shadow', 'fadeInTime', 'fadeOutTime']
+              'shadow', 'fadeInTime', 'fadeOutTime', 'overflow', 'effect']
 
 
     rootMenuSelector = 'rootVoices'
@@ -61,6 +61,11 @@ class MokshaMenu(Widget):
     adjustTop = 10
     opacity = 0.95
     shadow = True
+    overflow = 2
+    effect = 'fade'
+
+
+class MokshaMenu(MokshaMenuBase):
 
     def update_params(self, d):
         super(MokshaMenu, self).update_params(d)
@@ -91,4 +96,37 @@ class MokshaMenu(Widget):
                 'adjustTop': d.adjustTop,
                 'opacity': d.opacity,
                 'shadow': d.shadow,
-            }))
+                }))
+
+
+class MokshaContextualMenu(MokshaMenuBase):
+
+    def update_params(self, d):
+        super(MokshaContextualMenu, self).update_params(d)
+
+        if not d.id:
+            raise Exception("MokshaMenu must have an id!")
+        if not d.callback:
+            raise Exception("Must provide a callback URL!")
+
+        menus = []
+        for menu in d.menus:
+            menus.append((menu.lower().replace(' ', ''), menu))
+        d.menus = menus
+
+        self.add_call(jQuery(str(js_function('document'))).buildContextualMenu({
+                'template': d.callback,
+                'menuWidth': d.menuWidth,
+                'rootMenuSelector': ".%s" % d.rootMenuSelector,
+                'menuSelector': ".%s" % d.menuSelector,
+                'iconPath': d.iconPath,
+                'hasImages': d.hasImages,
+                'fadeTime': d.fadeTime,
+                'fadeInTime': d.fadeInTime,
+                'fadeOutTime': d.fadeOutTime,
+                'adjustLeft': d.adjustLeft,
+                'adjustTop': d.adjustTop,
+                'opacity': d.opacity,
+                'shadow': d.shadow,
+                'effect': d.effect,
+                }))
