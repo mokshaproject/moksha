@@ -84,7 +84,12 @@ class MokshaDefaultMenu(MokshaMenu):
                 'Account System': 'http://admin.fedoraproject.org/accounts',
                 'Hardware Database': 'http://smolts.org',
         }
-        menu = ''
+        menu = """
+            <a rel="text">
+                <img src="/images/fedora-icon.png" style="position:absolute;margin-top:-20px; margin-left:-25px;margin-bottom:10px"/><br>
+            </a>
+            <a rel="separator"></a>
+        """
         for title, url in links.items():
             menu += '<a href="%s">%s</a>' % (url, title)
         return menu
