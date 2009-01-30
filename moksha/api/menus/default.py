@@ -70,3 +70,21 @@ class MokshaDefaultMenu(MokshaMenu):
         <a href="https://fedorahosted.org/moksha/report/3">Tickets</a>
         <a href="https://fedorahosted.org/moksha/">Wiki</a>
         """
+
+    def fedora(self, *args, **kw):
+        links = {
+                'Wiki': 'http://fedoraproject.org/wiki',
+                'Hosted': 'http://fedorahosted.org',
+                'Bugzilla': 'http://bugzilla.redhat.com',
+                'Elections': 'https://admin.fedoraproject.org/voting',
+                'Translations': 'http://translate.fedoraproject.org',
+                'Build System': 'http://koji.fedoraproject.org',
+                'Update System': 'http://bodhi.fedoraproject.org',
+                'Package Database': 'http://admin.fedoraproject.org/pkgdb',
+                'Account System': 'http://admin.fedoraproject.org/accounts',
+                'Hardware Database': 'http://smolts.org',
+        }
+        menu = ''
+        for title, url in links.items():
+            menu += '<a href="%s">%s</a>' % (url, title)
+        return menu
