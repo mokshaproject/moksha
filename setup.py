@@ -83,5 +83,6 @@ setup(
 
     [moksha.menu]
     default_menu = moksha.api.menus:MokshaDefaultMenu
+    contextual_menu = moksha.api.menus:MokshaContextMenu
     """,
 )

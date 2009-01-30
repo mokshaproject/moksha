@@ -39,6 +39,7 @@ class RootController(BaseController):
     @expose('mako:moksha.templates.index')
     def index(self):
         tmpl_context.menu_widget = moksha.menus['default_menu']
+        tmpl_context.contextual_menu_widget = moksha.menus['contextual_menu']
         return {'title': 'Moksha'}
 
     @expose('mako:moksha.templates.widget')

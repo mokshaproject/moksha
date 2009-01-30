@@ -1,6 +1,6 @@
 <%def name="header()">
 <div class="span-24 top">
-  ${tmpl_context.menu_widget()}
+<center> ${tmpl_context.menu_widget()} </center>
 
 ## <a href="/"><img src="/images/moksha-logo-small.png"/></a>
 ## <hr class="space">

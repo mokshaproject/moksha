@@ -11,25 +11,30 @@
   </head>
 
   <body>
-    <div class="container">
-      ${header()}
-      <div class="span-4">
-        ## Left sidebar
+    <a cmenu="contextual_menu_default">
+      <div class="container">
+        ${header()}
+        <div class="span-4">
+          ## Left sidebar
+        </div>
+        <div class="span-16">
+
+          ## Main content
+          <div id="content"></div>
+        </div>
+        <div class="span-4 last">
+          ## Right sidebar
+        </div>
+        <hr class="space">
+        <hr class="space">
+        ${footer()}
       </div>
-      <div class="span-16">
-        ## Main content
-        <div id="content"></div>
-      </div>
-      <div class="span-4 last">
-        ## Right sidebar
-      </div>
-      <hr class="space">
-      <hr class="space">
-      ${footer()}
-    </div>
+    </a>
 
     ## Inject our global resources
     ${tmpl_context.moksha_global_resources()}
+
+    ${tmpl_context.contextual_menu_widget()}
 
   </body>
 </html>
