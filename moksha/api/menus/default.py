@@ -80,4 +80,5 @@ class MokshaDefaultMenu(MokshaMenu):
         <a href="http://moksha.fedorahosted.org" target="_blank">Moksha Homepage</a>
         <a href="http://lmacken.fedorapeople.org/moksha/">Documentation</a>
         <a href="https://fedorahosted.org/moksha/report/3">Tickets</a>
+        <a href="https://fedorahosted.org/moksha/">Wiki</a>
         """
