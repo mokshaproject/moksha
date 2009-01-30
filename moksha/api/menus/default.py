@@ -42,7 +42,7 @@ class MokshaDefaultMenu(MokshaMenu):
         </a>
         """
         for app in moksha.apps:
-            menu += '<a href="#">%s</a>' % moksha.apps[app]['name']
+            menu += '<a href="#" disabled=true>%s</a>' % moksha.apps[app]['name']
         return menu
 
     def widgets(self, *args, **kw):
