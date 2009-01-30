@@ -17,53 +17,41 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 
 import moksha
-from moksha.api.menus import MokshaMenu
+from moksha.api.menus import MokshaMenu, MokshaContextualMenu
 
-# @@ set widget 'Names' somewhere...  __name__ ?
-# done, now do it with menus and apps..
+class MokshaContextMenu(MokshaContextualMenu):
 
-"""
-The default Moksha Menu.
-
-Moksha Menu API
----------------
-
-Howto..
-    - define a MokshaMenu class with a `menu`, which is a list of top-level
-      menu entries.
-    - for dynamic menus, when selected, the corresponding method will be
-      called on your menu object.  For example, if your menu is named
-      'My Menu', then the 'mymenu' method will be executed when the menu
-      is selcted.
-
-Ideas
-- Do we want each menu to point to a controller for handling the dynamic
-  menu requests?
-
-    benefits... we keep logic in these methods, and html elsewhere
-                -we can use Mako...
-                -@expose API ?
-    drawbacks..
-        - each menu/submenu needs to be stored in it's own template file
-        - running mako == overhead
-
-TODO:
-    - test submenu's
-    - test non-dynamic menus
-    - make themable
-"""
+    def default(self, *args, **kw):
+        return """
+            <a rel="text">
+                <img src="/images/moksha-icon.png" style="position:absolute;margin-top:-20px; margin-left:-25px;margin-bottom:10px"/><br/>
+            </a>
+            <a href="http://moksha.fedorahosted.org" target="_blank">Moksha Homepage</a>
+            <a href="http://lmacken.fedorapeople.org/moksha/">Documentation</a>
+            <a href="https://fedorahosted.org/moksha/report/3">Tickets</a>
+            <a href="https://fedorahosted.org/moksha/">Wiki</a>
+        """
 
 class MokshaDefaultMenu(MokshaMenu):
-    menus = ['Moksha', 'Applications', 'Widgets']
+    menus = ['Moksha', 'Applications', 'Widgets', 'Fedora']
 
     def applications(self, *args, **kw):
-        menu = ""
+        menu = """
+        <a rel="text">
+            <img src="/images/gears.png" style="position:absolute;margin-top:-20px; margin-left:-25px;margin-bottom:10px"/><br>
+        </a>
+        """
         for app in moksha.apps:
             menu += '<a href="#">%s</a>' % moksha.apps[app]['name']
         return menu
 
     def widgets(self, *args, **kw):
-        menu = ""
+        menu = """
+        <a rel="text">
+            <img src="/images/block.png" style="position:absolute;margin-top:-20px; margin-left:-25px;margin-bottom:10px"/>
+            <br/>
+        </a>
+        """
         for id, widget in moksha._widgets.iteritems():
             menu += """
                 <a href="#" onclick="$('<div/>').appendTo('#content').load('/widgets/%s'); return false;">%s</a>
