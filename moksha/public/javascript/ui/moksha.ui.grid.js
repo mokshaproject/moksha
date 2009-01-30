@@ -20,10 +20,6 @@
       } else {
           self._setup_template();
       }      
-          
-      jQuery(document).bind('ready', function (event) {
-                                 self.element.trigger('ready', event);
-                             });
     },
     
     destroy: function() {
@@ -186,7 +182,8 @@
       var self = this;
       var o = self.options;
       
-      var rowtemplate = jQuery('.rowtemplate',self.element);
+      var rowtemplate = jQuery('.rowtemplate', self.element);
+      rowtemplate.removeClass('rowtemplate')
       if (rowtemplate.length)
           rowtemplate.after(self.$rowplaceholder);
 
