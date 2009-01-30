@@ -2,5 +2,5 @@
   <br/> <br/> <br/> <br/>
   <br/> <br/> <br/> <br/>
   <br/> <br/> <br/> <br/>
-  <center><img src="/images/moksha-logo-small.png"/></center>
+  <center><img src="/images/moksha-logo.png"/></center>
 </%def>
