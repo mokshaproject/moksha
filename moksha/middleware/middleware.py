@@ -26,6 +26,7 @@ import urllib
 from webob import Request, Response
 from shove import Shove
 from pylons import config
+from inspect import isclass
 from collections import defaultdict
 from pylons.i18n import ugettext
 from paste.deploy import appconfig
@@ -216,10 +217,14 @@ class MokshaMiddleware(object):
             log.info('Loading %s widget' % widget_entry.name)
             widget_class = widget_entry.load()
             widget_path = widget_entry.dist.location
+            if isclass(widget_class):
+                widget = widget_class(widget_entry.name)
+            else:
+                widget = widget_class
             self.widgets[widget_entry.name] = {
                     'name': getattr(widget_class, '__name__',
                                     widget_entry.name),
-                    'widget': widget_class(widget_entry.name),
+                    'widget': widget,
                     'path': widget_path,
                     }
 
