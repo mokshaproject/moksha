@@ -64,11 +64,10 @@ class MokshaDefaultMenu(MokshaMenu):
 
     def widgets(self, *args, **kw):
         menu = ""
-        from pprint import pprint
-        pprint(moksha._widgets)
-        for widget in moksha._widgets:
-            menu += '<a href="#">%s</a>' % moksha._widgets[widget]['name']
-        print menu
+        for id, widget in moksha._widgets.iteritems():
+            menu += """
+                <a href="#" onclick="$('<div/>').appendTo('#content').load('/widgets/%s'); return false;">%s</a>
+            """ % (id, widget['name'])
         return menu
 
     def moksha(self, *args, **kw):
