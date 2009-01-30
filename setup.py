@@ -66,7 +66,10 @@ setup(
     stomp = moksha.api.widgets.stomp:StompWidget
 
     jquery = tw.jquery:jquery_js
-    jquery_ui_tabs = tw.jquery.ui_tabs:jquery_ui_tabs_js
+    #jquery_ui_tabs = tw.jquery.ui_tabs:jquery_ui_tabs_js
+    jquery_ui_core = moksha.widgets.container:ui_core_js
+    jquery_ui_draggable = moksha.widgets.container:ui_draggable_js
+    jquery_ui_resizable = moksha.widgets.container:ui_resizable_js
     #jquery_json_js = fedoracommunity.widgets:jquery_json_js
     #jquery_template_js = fedoracommunity.widgets:jquery_template_js
 
