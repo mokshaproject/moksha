@@ -18,7 +18,7 @@
 
 """ A powerful dynamic Menu """
 
-from tw.api import JSLink, Widget, CSSLink, js_function
+from tw.api import JSLink, Widget, CSSLink, js_function, js_callback
 from tw.jquery import jquery_js, jQuery
 
 modname = __name__
@@ -114,7 +114,7 @@ class MokshaContextualMenu(MokshaMenuBase):
             menus.append((menu.lower().replace(' ', ''), menu))
         d.menus = menus
 
-        self.add_call(jQuery(str(js_function('document'))).buildContextualMenu({
+        self.add_call(jQuery(js_callback('document')).buildContextualMenu({
                 'template': d.callback,
                 'menuWidth': d.menuWidth,
                 'rootMenuSelector': ".%s" % d.rootMenuSelector,
