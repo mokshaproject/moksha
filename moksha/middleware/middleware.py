@@ -206,7 +206,8 @@ class MokshaMiddleware(object):
                     }
             try:
                 model = __import__('%s.model' % app_entry.name,
-                                   fromlist=[app_entry.name])
+                                   globals(), locals(), 
+                                   [app_entry.name])
                 self.apps[app_entry.name]['model'] = model
             except ImportError:
                 pass
