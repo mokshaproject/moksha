@@ -33,10 +33,10 @@ class ConfigWrapper(object):
         return None
 
 class Category(ConfigWrapper):
-    def __init__(self, label="", apps=[], auth=[]):
+    def __init__(self, label="", apps=None, auth=None):
         self.label = label
-        self.apps = apps
-        self.auth = auth
+        self.apps = apps or []
+        self.auth = auth or []
     
     def process(self):    
         if not check_predicates(self.auth):
@@ -49,11 +49,11 @@ class Category(ConfigWrapper):
         return {'label': self.label, 'apps': apps, 'id': id, 'css_class': css_class}
 
 class App(ConfigWrapper):
-    def __init__(self, label="", url="", req_params={}, auth=[]):
+    def __init__(self, label="", url="", req_params=None, auth=None):
         self.label = label
         self.url = url
-        self.req_params = req_params
-        self.auth = auth
+        self.req_params = req_params or {}
+        self.auth = auth or []
         
     def process(self):
         if not check_predicates(self.auth):
@@ -63,11 +63,11 @@ class App(ConfigWrapper):
         return {'label': self.label, 'apps': apps, 'id': id, 'css_class': css_class}
 
 class App(ConfigWrapper):
-    def __init__(self, label="", url="", req_params={}, auth=[]):
+    def __init__(self, label="", url="", req_params=None, auth=None):
         self.label = label
         self.url = url
-        self.req_params = req_params
-        self.auth = auth
+        self.req_params = req_params or {}
+        self.auth = auth or []
         
     def process(self):
         if not check_predicates(self.auth):
@@ -82,7 +82,7 @@ class App(ConfigWrapper):
         return {'label': self.label, 'url': self.url + query_str, 'id': id}    
 
 class MokshaApp(App):
-    def __init__(self, label="", moksha_app="", req_params={}, auth=[]):
+    def __init__(self, label="", moksha_app="", req_params=None, auth=None):
         # FIXME figure out how to pull auth info from an app
         super(MokshaApp, self).__init__(label, '/appz/' + moksha_app, req_params, auth)
 
