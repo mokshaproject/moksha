@@ -53,8 +53,6 @@ class StompWidget(Widget):
 
         /* Create a new TCPSocket & Stomp client */
         if (typeof stomp == 'undefined') {
-            console.log('Creating new stomp client');
-
             var moksha_callbacks = new Object();
 
             Orbited.settings.port = %s;
@@ -72,7 +70,6 @@ class StompWidget(Widget):
                 var json = JSON.parse(f.body);
                 var dest = f.headers.destination;
                 if (moksha_callbacks[dest]) {
-                    console.log('Running callbacks for ' + dest);
                     for (var i = 0; i < moksha_callbacks[dest].length; i++) {
                         moksha_callbacks[dest][i](json);
                     }
