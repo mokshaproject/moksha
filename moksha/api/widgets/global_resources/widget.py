@@ -8,9 +8,14 @@ log = logging.getLogger(__name__)
 
 class GlobalResourceInjectionWidget(Widget):
     """
-    Injects all global resources, such as JavaScript and CSS, on every page.
-    This widget will pull in all JSLink and CSLink widgets that are listed
-    on the `[moksha.global]` entry-point.
+    This widget will pull in all JSLink, CSSLink, and Widget resources that
+    are listed on the `[moksha.global]` entry-point.
+
+    :Note: Global Widget injection will only work when the global_resource
+           widget is actually rendered in the template.  Otherwise, only JS
+           and CSS resources fill get injected.  Moksha's index.mak template
+           handles this for us, otherwise you can import the `global_resources`
+           widget from this module and do it yourself.
     """
     javascript = []
     children = []
