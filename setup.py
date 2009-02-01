@@ -44,9 +44,9 @@ setup(
     main = pylons.util:PylonsInstaller
 
     [moksha.stream]
-    feed = moksha.streams.feed:FeedStream
     demo = moksha.streams.demo:MokshaDemoDataStream
-    livegraph = moksha.examples.livegraph:LiveGraphDataStream
+    #livegraph = moksha.examples.livegraph:LiveGraphDataStream
+    #feed = moksha.streams.feed:FeedStream
 
     #[moksha.consumer]
     #moksha = moksha.hub.hub:MokshaConsumer
@@ -57,19 +57,20 @@ setup(
     [moksha.widget]
     liveflot = moksha.api.widgets.flot:LiveFlotWidget
     livefeed = moksha.api.widgets.feed.live:LiveFeedWidget
-    livegraph = moksha.examples.livegraph:LiveGraphWidget
-    chat = moksha.api.widgets.chat:LiveChatWidget
-    grid = moksha.api.widgets:Grid
+    #chat = moksha.api.widgets.chat:LiveChatWidget
+    #livegraph = moksha.examples.livegraph:LiveGraphWidget
+    #grid = moksha.api.widgets:Grid
 
     [moksha.global]
-    # Our live message pipeline
-    stomp = moksha.api.widgets.stomp:StompWidget
+    # The pipeline for our live widgets
+    stomp_js = moksha.api.widgets.stomp:stomp_js
+    orbited = moksha.api.widgets.orbited:orbited_js
 
     jquery = tw.jquery:jquery_js
-    #jquery_ui_tabs = tw.jquery.ui_tabs:jquery_ui_tabs_js
     jquery_ui_core = moksha.widgets.container:ui_core_js
     jquery_ui_draggable = moksha.widgets.container:ui_draggable_js
     jquery_ui_resizable = moksha.widgets.container:ui_resizable_js
+    #jquery_ui_tabs = tw.jquery.ui_tabs:jquery_ui_tabs_js
     #jquery_json_js = fedoracommunity.widgets:jquery_json_js
     #jquery_template_js = fedoracommunity.widgets:jquery_template_js
 
