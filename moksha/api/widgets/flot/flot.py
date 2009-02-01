@@ -16,16 +16,17 @@
 # Copyright 2008, Red Hat, Inc.
 # Authors: Luke Macken <lmacken@redhat.com>
 
-from tw.jquery.flot import FlotWidget
+from tw.jquery.flot import flot_js, excanvas_js, flot_css
 from moksha.api.widgets import LiveWidget
 
 class LiveFlotWidget(LiveWidget):
     """ A live graphing widget """
     topic = 'flot_demo'
     params = ['id', 'data', 'options', 'height', 'width', 'onmessage']
-    children = [FlotWidget('flot')]
     onmessage = '$.plot($("#${id}"),json[0]["data"],json[0]["options"])'
     template = '<div id="${id}" style="width:${width};height:${height};" />'
+    javascript = [flot_js, excanvas_js]
+    css = [flot_css]
     height = '250px'
     width = '390px'
     options = {}
