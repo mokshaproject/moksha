@@ -10,7 +10,7 @@ class MokshaDemoDataStream(PollingDataStream):
     This class provides the default Moksha demo with some fake data to render
     """
 
-    frequency = timedelta(seconds=0.3)
+    frequency = timedelta(seconds=0.5)
 
     # Flot demo specific variables
     offset = 0.0
