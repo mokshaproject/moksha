@@ -29,11 +29,11 @@ class LiveWidget(Widget):
     topics, and registers all of the stomp callbacks.
     """
     engine_name = 'mako'
-    children = [stomp_widget]
 
     def __init__(self, *args, **kw):
-        self.template = self.template + '${c.stomp()}'
         super(LiveWidget, self).__init__(*args, **kw)
+        self.children.append(stomp_widget)
+        self.template = self.template + '${c.stomp()}'
 
     def update_params(self, d):
         """ Register this widgets stomp callbacks """
