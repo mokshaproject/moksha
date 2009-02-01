@@ -34,8 +34,6 @@ class LiveFeedWidget(LiveWidget):
               .show();
         });
     """
-    view = 'sidebar'
-    placement = 'sidebar'
 
     def update_params(self, d):
         super(LiveFeedWidget, self).update_params(d)
