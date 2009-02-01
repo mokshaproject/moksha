@@ -2,7 +2,10 @@ import os
 import md5
 import sha
 from datetime import datetime
-from hashlib import sha1
+try:
+    from hashlib import sha1
+except ImportError:
+    from sha import sha as sha1
 
 from tg import config
 from sqlalchemy import Table, ForeignKey, Column
