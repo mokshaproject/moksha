@@ -21,8 +21,7 @@ import moksha
 from tg import config
 from tw.api import Widget, JSLink, js_callback
 
-from moksha.api.widgets.orbited import orbited_host, orbited_port
-from moksha.api.widgets.orbited import orbited_js, orbited_url
+from moksha.api.widgets.orbited import orbited_host, orbited_port, orbited_url
 
 stomp_js = JSLink(link=orbited_url + '/static/protocols/stomp/stomp.js')
 
@@ -41,33 +40,60 @@ def stomp_subscribe(topic):
 class StompWidget(Widget):
     callbacks = ['onopen', 'onerror', 'onerrorframe', 'onclose',
                  'onconnectedframe', 'onmessageframe']
-    params = callbacks[:]
+    params = callbacks[:] + ['topics']
     onopen = js_callback('function(){}')
     onerror = js_callback('function(error){}')
     onclose = js_callback('function(c){}')
     onerrorframe = js_callback('function(f){}')
     onmessageframe = ''
     onconnectedframe = ''
-    javascript = [orbited_js, stomp_js]
     engine_name = 'mako'
     template = """
       <script>
-        Orbited.settings.port = %s;
-        Orbited.settings.hostname = '%s';
-        Orbited.settings.streaming = true;
-        document.domain = document.domain;
-        TCPSocket = Orbited.TCPSocket;
-        stomp = new STOMPClient();
-        stomp.onopen = ${onopen};
-        stomp.onclose = ${onclose};
-        stomp.onerror = ${onerror};
-        stomp.onerrorframe = ${onerrorframe};
-        stomp.onconnectedframe = function(){ ${onconnectedframe} };
-        stomp.onmessageframe = function(frame){
-            var json = JSON.parse(frame.body);
-            ${onmessageframe}
-        };
-        stomp.connect('%s', %s, '%s', '%s');
+
+        /* Create a new TCPSocket & Stomp client */
+        if (typeof stomp == 'undefined') {
+            console.log('Creating new stomp client');
+
+            var moksha_callbacks = new Object();
+
+            Orbited.settings.port = %s;
+            Orbited.settings.hostname = '%s';
+            Orbited.settings.streaming = true;
+            document.domain = document.domain;
+            TCPSocket = Orbited.TCPSocket;
+            stomp = new STOMPClient();
+            stomp.onopen = ${onopen};
+            stomp.onclose = ${onclose};
+            stomp.onerror = ${onerror};
+            stomp.onerrorframe = ${onerrorframe};
+            stomp.onconnectedframe = function(){ ${onconnectedframe} };
+            stomp.onmessageframe = function(f){
+                var json = JSON.parse(f.body);
+                var dest = f.headers.destination;
+                if (moksha_callbacks[dest]) {
+                    console.log('Running callbacks for ' + dest);
+                    for (var i = 0; i < moksha_callbacks[dest].length; i++) {
+                        moksha_callbacks[dest][i](json);
+                    }
+                }
+            };
+
+            stomp.connect('%s', %s, '%s', '%s');
+
+        /* Utilize the existing stomp connection */
+        } else {
+            ${onconnectedframe}
+        }
+
+        %% for topic in topics:
+            var topic = "${topic}";
+            if (!moksha_callbacks[topic]) {
+                moksha_callbacks[topic] = [];
+            }
+            moksha_callbacks[topic].push(function(json){ ${onmessageframe}; });
+        %% endfor
+
       </script>
     """ % (orbited_port, orbited_host,
            config.get('stomp_host', 'localhost'),
@@ -77,17 +103,15 @@ class StompWidget(Widget):
 
     def update_params(self, d):
         super(StompWidget, self).update_params(d)
+        d.topics = []
         for callback in self.callbacks:
             if len(moksha.stomp[callback]):
                 cbs = ''
                 if callback == 'onmessageframe':
                     for topic in moksha.stomp[callback]:
+                        d.topics.append(topic)
                         for cb in moksha.stomp[callback][topic]:
-                            cbs += """
-                              if (frame.headers.destination == "%s") {
-                                  %s;
-                              }
-                            """ % (topic, str(cb))
+                            cbs += "%s;" % str(cb)
                 else:
                     for cb in moksha.stomp[callback]:
                         if isinstance(cb, js_callback):
