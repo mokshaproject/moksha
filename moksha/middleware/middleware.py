@@ -27,7 +27,6 @@ from webob import Request, Response
 from shove import Shove
 from pylons import config
 from inspect import isclass
-from collections import defaultdict
 from pylons.i18n import ugettext
 from paste.deploy import appconfig
 from genshi.filters import Translator
@@ -35,6 +34,7 @@ from sqlalchemy import create_engine
 from feedcache.cache import Cache
 
 from moksha.exc import ApplicationNotFound, MokshaException
+from moksha.lib.helpers import defaultdict
 from moksha.wsgiapp import MokshaAppDispatcher
 
 log = logging.getLogger(__name__)

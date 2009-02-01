@@ -27,10 +27,9 @@ import logging
 from tg import config
 from orbited import json
 from threading import Thread
-from collections import defaultdict
 from paste.deploy import appconfig
 
-from moksha.lib.helpers import trace
+from moksha.lib.helpers import trace, defaultdict
 from moksha.hub.amqp import AMQPHub
 from moksha.hub.stomp import StompHub
 
