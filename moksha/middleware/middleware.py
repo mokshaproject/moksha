@@ -239,27 +239,92 @@ class MokshaMiddleware(object):
 
     def load_renderers(self):
         """ Load our template renderers with our application paths """
-        template_paths = config['pylons.paths']['templates']
-        moksha_dir = os.path.abspath(__file__ + '/../../../')
-        for app in [{'path': moksha_dir}] + self.apps.values():
-            if app['path'] not in template_paths:
-                template_paths.append(app['path'])
+        #template_paths = config['pylons.paths']['templates']
+        #moksha_dir = os.path.abspath(__file__ + '/../../../')
+        #for app in [{'path': moksha_dir}] + self.apps.values():
+        #    if app['path'] not in template_paths:
+        #        template_paths.append(app['path'])
 
+        #config['pylons.paths']['templates'] = template_paths
+
+        from mako.template import Template
         from mako.lookup import TemplateLookup
-        config['pylons.app_globals'].mako_lookup = TemplateLookup(
-            directories=template_paths, module_directory=template_paths,
-            input_encoding='utf-8', output_encoding='utf-8',
-            imports=['from webhelpers.html import escape',
-                     'import tg', 'from repoze.what.predicates import *'],
-            default_filters=['escape'], filesystem_checks=False)
+        from tg.util import get_dotted_filename
 
-        from genshi.template import TemplateLoader
-        def template_loaded(template):
-            "Plug-in our i18n function to Genshi."
-            template.filters.insert(0, Translator(ugettext))
-        config['pylons.app_globals'].genshi_loader = TemplateLoader(
-            search_path=template_paths, auto_reload=False,
-            callback=template_loaded)
+        class DottedTemplateLookup(object):
+            """this is an emulation of the Mako template lookup
+            that will handle get_template and support dotted names
+            in python path notation to support zipped eggs
+            """
+            def __init__(self, input_encoding, output_encoding,
+                         imports, default_filters):
+                print "\n\nusing dotted template lookups!\n\n"
+                self.input_encoding = input_encoding
+                self.output_encoding = output_encoding
+                self.imports = imports
+                self.default_filters = default_filters
+
+            def adjust_uri(self, uri, relativeto):
+                """this method is used by mako for filesystem based reasons.
+                In dotted lookup land we don't adjust uri so se just return
+                the value we are given without any change
+                """
+                if '.' in uri:
+                    """we are in the DottedTemplateLookup system so dots in
+                    names should be treated as a python path.
+                    Since this method is called by template inheritance we must
+                    support dotted names also in the inheritance.
+                    """
+                    result = get_dotted_filename(template_name=uri,
+                                                 template_extension='.mak')
+
+                else:
+                    """no dot detected, just return plain name
+                    """
+                    result = uri
+
+                return result
+
+            def get_template(self, template_name):
+                """this is the emulated method that must return a template
+                instance based on a given template name
+                """
+                return Template(open(template_name).read(),
+                    input_encoding=self.input_encoding,
+                    output_encoding=self.output_encoding,
+                    default_filters=self.default_filters,
+                    imports=self.imports,
+                    lookup=self)
+
+        if config.get('use_dotted_templatenames', True):
+            # support dotted names by injecting a slightly different template
+            # lookup system that will return templates from dotted template
+            # notation.
+            config['pylons.app_globals'].mako_lookup = DottedTemplateLookup(
+                input_encoding='utf-8', output_encoding='utf-8',
+                imports=[], default_filters=[])
+                # @@: these cause problems when displaying headers/footers
+                #imports=['from webhelpers.html import escape'],
+                #default_filters=['escape'])
+
+        else:
+            # if no dotted names support was required we will just setup
+            # a file system based template lookup mechanism
+            config['pylons.app_globals'].mako_lookup = TemplateLookup(
+                directories=self.paths['templates'],
+                module_directory=self.paths['templates'],
+                input_encoding='utf-8', output_encoding='utf-8',
+                imports=['from webhelpers.html import escape'],
+                default_filters=['escape'],
+                filesystem_checks=self.auto_reload_templates)
+
+        #from genshi.template import TemplateLoader
+        #def template_loaded(template):
+        #    "Plug-in our i18n function to Genshi."
+        #    template.filters.insert(0, Translator(ugettext))
+        #config['pylons.app_globals'].genshi_loader = TemplateLoader(
+        #    search_path=template_paths, auto_reload=False,
+        #    callback=template_loaded)
 
     def load_configs(self):
         """ Load the configuration files for all applications.
