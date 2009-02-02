@@ -18,7 +18,8 @@
 
 import moksha
 
-from tg import expose, flash, require, tmpl_context, redirect, validate
+from tg import (expose, flash, require, tmpl_context, redirect, validate,
+                override_template)
 from tg.controllers import WSGIAppController
 from repoze.what import predicates
 
@@ -40,15 +41,17 @@ class RootController(BaseController):
     def index(self):
         tmpl_context.menu_widget = moksha.menus['default_menu']
         tmpl_context.contextual_menu_widget = moksha.menus['contextual_menu']
-        return {'title': 'Moksha'}
+        return dict(title='Moksha')
 
-    @expose('mako:moksha.templates.widget')
-    def widgets(self, widget, **kw):
+    @expose('mako:moksha.templates.widgetcontainer')
+    def widgets(self, widget, chrome=True, **kw):
         tmpl_context.widget = moksha.get_widget(widget)
+        if not chrome or not getattr(tmpl_context.widget, 'visible', True):
+            override_template(self.widgets, 'mako:moksha.templates.widget')
+            return dict(options={})
         tmpl_context.container = container
         kw['id'] = widget + '_container'
-        return {'title': moksha._widgets[widget]['name'],
-                'container_options': kw}
+        return dict(title=moksha._widgets[widget]['name'], container_options=kw)
 
     @expose('moksha.templates.login')
     def login(self, **kw):
