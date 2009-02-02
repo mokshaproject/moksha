@@ -108,7 +108,6 @@ class ChatController(BaseController):
             opts['roomId'] = request.headers.get('referer', 'default')
         opts['protocol'] = self.config['backendProtocol']
         opts['addr'] = self.config['backendAddr']
-        print "op_info returning [True, %r]" % opts
         return [True, opts]
 
     def op_not_found(self):
