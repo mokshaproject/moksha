@@ -44,7 +44,6 @@ class MokshaMenuBase(Widget):
               'hasImages', 'fadeTime', 'adjustLeft', 'adjustTop', 'opacity',
               'shadow', 'fadeInTime', 'fadeOutTime', 'overflow', 'effect']
 
-
     rootMenuSelector = 'rootVoices'
     menuSelector = 'menuContainer'
     callback = '/appz/menu'
