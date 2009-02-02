@@ -49,6 +49,8 @@ class RootController(BaseController):
         if not chrome or not getattr(tmpl_context.widget, 'visible', True):
             override_template(self.widgets, 'mako:moksha.templates.widget')
             return dict(options={})
+        else:
+            override_template(self.widgets, 'mako:moksha.templates.widgetcontainer')
         tmpl_context.container = container
         kw['id'] = widget + '_container'
         return dict(title=moksha._widgets[widget]['name'], container_options=kw)
