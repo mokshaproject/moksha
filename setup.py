@@ -53,11 +53,12 @@ setup(
 
     [moksha.application]
     menu = moksha.api.menus.controllers:MokshaMenuController
+    chat = moksha.api.widgets.chat.controllers:ChatController
 
     [moksha.widget]
     liveflot = moksha.api.widgets.flot:LiveFlotWidget
     livefeed = moksha.api.widgets.feed.live:LiveFeedWidget
-    #chat = moksha.api.widgets.chat:LiveChatWidget
+    chat = moksha.api.widgets.chat:LiveChatWidget
     #livegraph = moksha.examples.livegraph:LiveGraphWidget
     #grid = moksha.api.widgets:Grid
 
