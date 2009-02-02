@@ -11,9 +11,7 @@ base_config.default_renderer = 'mako'
 base_config.renderers = []
 base_config.renderers.append('genshi') 
 base_config.renderers.append('mako') 
-
-# @@ This is necessary at the moment.
-base_config.use_legacy_renderer = True
+base_config.use_dotted_templatenames = True
 
 # Configure the base SQLALchemy Setup
 base_config.use_sqlalchemy = True
