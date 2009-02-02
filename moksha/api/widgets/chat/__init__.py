@@ -1,1 +1,1 @@
-from chat import LiveChatWidget
+from chat import LiveChatWidget, LiveChatFrameWidget

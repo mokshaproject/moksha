@@ -1,6 +1,5 @@
 (function() {
 var gatherOptions = function(roomOptions, container) {
-    console.log('grandma');
     var opts = {}
     var containerOptions = [ 'width', 'height', 'roomClass', 'reposition', 'theme' ]
     for (var key in roomOptions) {
@@ -34,6 +33,7 @@ var gatherOptions = function(roomOptions, container) {
 
 var loaded = function() {
     if (!window.WillowChat) {
+        console.log('creating new willowchat?');
         WillowChat = {}
     }
     if (!WillowChat.util) {
@@ -49,11 +49,8 @@ var loaded = function() {
     var roomClass = container.getAttribute('roomClass');
     var roomClass= roomClass ? roomClass : 'default'
     s = document.createElement('script')
-    //var baseurl = 'http://' + WillowChat.hostHeader
-    // @@ HACK
-    var baseurl = 'http://localhost:8080';
-    var orbitedurl = 'http://localhost:8007';
-    s.src = orbitedurl + '/rooms?jsonp=WillowChat.util.optionsCallback&op=info&roomClass=' + roomClass
+    var baseurl = 'http://' + WillowChat.hostHeader
+    s.src = baseurl + '/appz/chat/rooms?jsonp=WillowChat.util.optionsCallback&op=info&roomClass=' + roomClass
 
     WillowChat.util.optionsCallback = function(result) {
         success = result[0]
@@ -63,7 +60,8 @@ var loaded = function() {
         room = result[1]
         var opts = gatherOptions(room, container);
         ifr = document.createElement('iframe')
-        ifr.src = baseurl + '/toscawidgets/resources/moksha.live.chat.chat/static/index.html?json=1&opts=' +  escape(JSON.stringify(opts))
+        var staticurl = baseurl + '/toscawidgets/resources/moksha.api.widgets.chat.chat/static'
+        ifr.src = '/appz/chat/index?json=1&opts=' +  escape(JSON.stringify(opts))
         ifr.style.border = "0px";
         ifr.style.width = "100%";
         ifr.style.height = "100%";
@@ -73,7 +71,7 @@ var loaded = function() {
         }
         var s = document.createElement('script')
         // TODO: whats the deal with this? Can't we do any better?
-        s.src =  baseurl + '/toscawidgets/resources/moksha.live.chat.chat/static/chrome.js?ienocache=' + Math.floor(Math.random()*10000)
+        s.src = staticurl + '/themes/' + opts.theme + '/chrome.js?ienocache=' + Math.floor(Math.random()*10000)
         if (s.addEventListener) {
             s.addEventListener('load', chromeCallback, false)
         }
@@ -96,19 +94,10 @@ var loaded = function() {
 
 }
 
-
-$(document).ready(function() {
+$(document).ready(function(){
+    if (!window.WillowChat) { WillowChat = {} }; WillowChat.hostHeader = "${host}";
     loaded();
 });
-
-/*
-if (window.addEventListener) {
-    window.addEventListener('load', loaded, false);
-}
-else if (window.attachEvent) {
-    window.attachEvent('onload', loaded);
-}
-*/
 
 })();
 if (!this.JSON) {
