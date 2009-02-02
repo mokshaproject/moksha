@@ -10,6 +10,7 @@ import uuid
 import re
 
 from decorator import decorator
+import moksha
 
 scrub_filter = re.compile('[^_a-zA-Z0-9-]')
 
@@ -59,32 +60,39 @@ class App(ConfigWrapper):
         if not check_predicates(self.auth):
             return None
     
-        apps = self.process_wrappers(self.apps)
-        return {'label': self.label, 'apps': apps, 'id': id, 'css_class': css_class}
-
-class App(ConfigWrapper):
-    def __init__(self, label="", url="", req_params=None, auth=None):
-        self.label = label
-        self.url = url
-        self.req_params = req_params or {}
-        self.auth = auth or []
-        
-    def process(self):
-        if not check_predicates(self.auth):
-            return None
-    
         query_str = ""
         if self.req_params:
             query_str = "?" + urllib.urlencode(self.req_params)
 
         id = uuid.uuid4()
 
-        return {'label': self.label, 'url': self.url + query_str, 'id': id}    
+        return {'label': self.label, 'url': self.url + query_str, 'id': id}
 
 class MokshaApp(App):
     def __init__(self, label="", moksha_app="", req_params=None, auth=None):
         # FIXME figure out how to pull auth info from an app
         super(MokshaApp, self).__init__(label, '/appz/' + moksha_app, req_params, auth)
+
+class Widget(ConfigWrapper):
+    def __init__(self, label="", widget="", params=None, auth=None):
+        self.label = label
+        self.widget = widget
+        self.params = params or {}
+        self.auth = auth or []
+        
+    def process(self):
+        if not check_predicates(self.auth):
+            return None
+        
+        id = uuid.uuid4()
+
+        return {'label': self.label, 'widget': self.widget , 'params':self.params, 'id': id}    
+
+class MokshaWidget(Widget):
+    def __init__(self, label="", name="", params=None, auth=None):
+        print "********************** ", moksha._widgets
+        widget = moksha._widgets[name]['widget']
+        super(MokshaWidget, self).__init__(label=label, widget=widget, params=params, auth=auth)  
 
 _safe_predicate_callables = {
                     'Not': Not,
@@ -101,7 +109,9 @@ _safe_predicate_callables = {
 
 _app_config_callables = {'Category': Category,
                          'MokshaApp': MokshaApp,
-                         'App': App}
+                         'Widget': Widget,
+                         'App': App,
+                         'MokshaWidget': MokshaWidget}
 
 _app_config_callables.update(_safe_predicate_callables)
 

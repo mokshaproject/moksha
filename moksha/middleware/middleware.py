@@ -63,8 +63,8 @@ class MokshaMiddleware(object):
         self.load_renderers()
         self.load_configs()
         self.load_connectors()
-        self.load_applications()
         self.load_widgets()
+        self.load_applications()
         self.load_models()
         self.load_menus()
 
@@ -73,7 +73,8 @@ class MokshaMiddleware(object):
 
     def __call__(self, environ, start_response):
         environ['paste.registry'].register(moksha.apps, self.apps)
-        environ['paste.registry'].register(moksha._widgets, self.widgets)
+        
+        # environ['paste.registry'].register(moksha._widgets, self.widgets)
         environ['paste.registry'].register(moksha.feed_cache, self.feed_cache)
         environ['paste.registry'].register(moksha.menus, self.menus)
         self.register_stomp(environ)
@@ -228,6 +229,8 @@ class MokshaMiddleware(object):
                     'widget': widget,
                     'path': widget_path,
                     }
+            
+        moksha._widgets = self.widgets
 
     def load_menus(self):
         log.info('Loading moksha menus')
