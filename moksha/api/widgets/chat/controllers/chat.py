@@ -41,8 +41,13 @@ class ChatController(BaseController):
             log.info('No `chat.backend` defined; disabling chat functionality')
             return
         backend = urlparse.urlparse(backend)
-        self.config['backendProtocol'] = backend.scheme
-        self.config['backendAddr'] = [backend.hostname, backend.port]
+        if hasattr(backend, 'scheme'): # Python 2.5+
+            self.config['backendProtocol'] = backend.scheme
+            self.config['backendAddr'] = [backend.hostname, backend.port]
+        else: # Python 2.4
+            self.config['backendProtocol'] = backend[0]
+            host, port = backend[1].split(':')
+            self.config['backendAddr'] = [host, port]
         self.config['startBuiltin'] = config.get('chat.builtin', False)
         self.config['rooms'] = {}
         display_opts = {
