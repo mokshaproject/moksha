@@ -1,8 +1,8 @@
 from webhelpers import date, feedgenerator, html, number, misc, text
 
-from repoze.what.predicates import  (Not, Predicate, All, Any, has_all_permissions, 
-                                    has_any_permission, has_permission, 
-                                    in_all_groups, in_any_group, in_group, 
+from repoze.what.predicates import  (Not, Predicate, All, Any, has_all_permissions,
+                                    has_any_permission, has_permission,
+                                    in_all_groups, in_any_group, in_group,
                                     is_user, not_anonymous)
 
 import urllib
@@ -15,8 +15,32 @@ import moksha
 scrub_filter = re.compile('[^_a-zA-Z0-9-]')
 
 class ConfigWrapper(object):
+    """ Base class for container configuration wrappers
+
+    Configuration Wrappers are python objects which can be embedded in
+    configuration stores (files and databases) or used directly to
+    insert web applications into containers.  Wrappers also integrate
+    repoze.what predicates which are checked when the wrapper is processed.
+    If the prediates return False the web application is not displayed to
+    the user.  This makes it easy to build composite Moksha applications
+    where what the user is show is dictated by their authorization level.
+
+    Configuration wrapper are only standard data structures with the ability
+    to process predicates.  A container widget is needed to convert the
+    configuration into rendered applications on a page.
+
+    Derive from this class to create new configuration syntax
+
+    """
+
     @staticmethod
     def process_wrappers(wrappers):
+        """ Helper method for evlauating a list of wrappers
+
+        :returns: a list of hashes for each of the application
+                  that will be displayed
+        """
+
         result = []
         if isinstance(wrappers, ConfigWrapper):
             w = wrappers.process()
@@ -27,39 +51,100 @@ class ConfigWrapper(object):
                 w = item.process()
                 if w:
                     result.append(w)
-                    
+
         return result
-        
+
     def process(self):
+        """Override this in derived classes to return a hash representing
+        the configuration option
+        """
         return None
 
 class Category(ConfigWrapper):
-    def __init__(self, label="", apps=None, auth=None):
+    """A configuration wrapper class that displays a list of application
+    and/or widget wrappers
+
+    :Example:
+        left_column = Category("Left Column Apps",
+                               [App(...), App(...)],
+                               not_anonymous())
+    """
+
+    def __init__(self, label="", apps=None, css_class=None, auth=None):
+        """
+        :label: The category heading the container should use when rendering
+                a category.  Labels for categories are not rendered in the
+                default template. If a css_class is not defined the label
+                becomes the css class for the div once it has been scrubbed
+                by making it all lower case and replacing illegal characters
+                with underscores.
+        :apps: A list of wrappers representing application configurations
+        :auth: A list of predicates which are evaluate before the wrapper
+               is sent to the container.  If it evaluates to False it does not
+               get sent.
+        :css_class: Either a string or list of strings defining the css class
+                    for this category
+        """
+
         self.label = label
         self.apps = apps or []
         self.auth = auth or []
-    
-    def process(self):    
+        if not css_class:
+            css_class = scrub_filter.sub('_', self.label.lower())
+        elif isinstance(css_class, list) or isinstance(css_class, tuple):
+            css_class = ' '.join(css_class)
+
+        self.css_class = css_class
+
+    def process(self):
+        """Check the predicates and construct the dict
+
+        :returns: a dict with all the configuration data for this category
+        """
+
         if not check_predicates(self.auth):
             return None
-    
+
         id = uuid.uuid4()
-        css_class =  scrub_filter.sub('_', self.label.lower())
 
         apps = self.process_wrappers(self.apps)
         return {'label': self.label, 'apps': apps, 'id': id, 'css_class': css_class}
 
 class App(ConfigWrapper):
+    """A configuration wrapper class that displays an application pointed to
+    by a url
+
+    :Example:
+        hello_app = App('Hello World App',
+                        '/appz/moksha.helloworld',
+                        {'greeter_name': 'J5'},
+                        not_anonymous())
+    """
     def __init__(self, label="", url="", req_params=None, auth=None):
+        """
+        :label: The title the application should use when rendering
+                in a container.  Leave this blank if you do not wish the
+                application to be visibly labeled when rendered
+        :url: the url to load this application from
+        :req_params: A dict of request parameters to send to the application
+                     when loading it from a url
+        :auth: A list of predicates which are evaluate before the wrapper
+               is sent to the container.  If it evaluates to False it does not
+               get sent.
+        """
         self.label = label
         self.url = url
         self.req_params = req_params or {}
         self.auth = auth or []
-        
+
     def process(self):
+        """Check the predicates and construct the dict
+
+        :returns: a dict with all the configuration data for this application
+        """
         if not check_predicates(self.auth):
             return None
-    
+
         query_str = ""
         if self.req_params:
             query_str = "?" + urllib.urlencode(self.req_params)
@@ -69,50 +154,131 @@ class App(ConfigWrapper):
         return {'label': self.label, 'url': self.url + query_str, 'id': id}
 
 class MokshaApp(App):
+    """A configuration wrapper class that displays a Moksa application
+    selected by name. This differes from App in that you don't have to
+    know the url, only the name the application is mounted under.  In
+    future versions we may also try and get the auth predicated from
+    the application's own configuration.
+
+    :Example:
+        hello_app = App('Hello World Moksha App',
+                        'moksha.helloworld',
+                        {'greeter_name': 'J5'},
+                        not_anonymous())
+
+    """
+
     def __init__(self, label="", moksha_app="", req_params=None, auth=None):
+        """
+        :label: The title the application should use when rendering
+                in a container.  Leave this blank if you do not wish the
+                application to be visibly labeled when rendered
+        :moksha_app: the name of the entry point registered under the
+                     moksha.application section
+        :req_params: A dict of request parameters to send to the application
+                     when loading it
+        :auth: A list of predicates which are evaluate before the wrapper
+               is sent to the container.  If it evaluates to False it does not
+               get sent.
+        """
         # FIXME figure out how to pull auth info from an app
         super(MokshaApp, self).__init__(label, '/appz/' + moksha_app, req_params, auth)
 
 class Widget(ConfigWrapper):
+    """A configuration wrapper class that displays a ToscaWidget.  Use this
+    instead of an App when the time it takes to load an application from a url
+    is more than the time it takes to just embed it in the template.  Widgets
+    also lack the ability to respond to remote requests via controllers.
+
+    :Example:
+        class HelloWidget(tw.api.Widget):
+            pass
+
+        hello_widget = Widget('Hello World Widget',
+                        HelloWidget(),
+                        {'greeter_name': 'J5'},
+                        not_anonymous())
+
+    """
     def __init__(self, label="", widget="", params=None, auth=None):
+        """
+        :label: The title the widget should use when rendering
+                in a container.  Leave this blank if you do not wish the
+                widget to be visibly labeled when rendered
+        :widget: the ToscaWidget to be rendered
+        :params: A dict of parameters to send to the widgets update_params
+                 method when rendering it
+        :auth: A list of predicates which are evaluate before the wrapper
+               is sent to the container.  If it evaluates to False it does not
+               get sent.
+        """
         self.label = label
         self.widget = widget
         self.params = params or {}
         self.auth = auth or []
-        
+
     def process(self):
         if not check_predicates(self.auth):
             return None
-        
+
         id = uuid.uuid4()
 
-        return {'label': self.label, 'widget': self.widget , 'params':self.params, 'id': id}    
+        return {'label': self.label, 'widget': self.widget , 'params':self.params, 'id': id}
 
 class MokshaWidget(Widget):
-    def __init__(self, label="", name="", params=None, auth=None):
-        print "********************** ", moksha._widgets
-        widget = moksha._widgets[name]['widget']
-        super(MokshaWidget, self).__init__(label=label, widget=widget, params=params, auth=auth)  
+    """A configuration wrapper class that displays a ToscaWidget registered
+    in Moksha's widget dictionary.
 
+    :Example:
+        hello_moksha_widget = Widget('Hello Moksha Widget',
+                                     'moksha.hello',
+                                     {'greeter_name': 'J5'},
+                                     not_anonymous())
+
+    """
+    def __init__(self, label="", name="", params=None, auth=None):
+        """
+        :label: The title the widget should use when rendering
+                in a container.  Leave this blank if you do not wish the
+                widget to be visibly labeled when rendered
+        :name:  the name of the entry point registered under the
+                moksha.widget section
+        :params: A dict of parameters to send to the widgets update_params
+                 method when rendering it
+        :auth: A list of predicates which are evaluate before the wrapper
+               is sent to the container.  If it evaluates to False it does not
+               get sent.
+        """
+        widget = moksha._widgets[name]['widget']
+        super(MokshaWidget, self).__init__(label=label, widget=widget, params=params, auth=auth)
+
+
+# setup the dictionary of acceptable callables when eval'ing predicates from
+# a configuration file - this makes up the keywords of the predicate
+# configuration format
 _safe_predicate_callables = {
                     'Not': Not,
                     'All': All,
-                    'Any': Any, 
-                    'has_all_permissions': has_all_permissions, 
-                    'has_any_permission': has_any_permission, 
-                    'has_permission': has_permission, 
-                    'in_all_groups': in_all_groups, 
-                    'in_any_group': in_any_group, 
-                    'in_group': in_group, 
-                    'is_user': is_user, 
+                    'Any': Any,
+                    'has_all_permissions': has_all_permissions,
+                    'has_any_permission': has_any_permission,
+                    'has_permission': has_permission,
+                    'in_all_groups': in_all_groups,
+                    'in_any_group': in_any_group,
+                    'in_group': in_group,
+                    'is_user': is_user,
                     'not_anonymous': not_anonymous}
 
+# setup the dictionary of acceptable callables when eval'ing config wrappers
+# from a configuration file - this makes up the keywords of the config wrapper
+# configuration format
 _app_config_callables = {'Category': Category,
                          'MokshaApp': MokshaApp,
                          'Widget': Widget,
                          'App': App,
                          'MokshaWidget': MokshaWidget}
 
+# config wrapper configuration can also utilize predicates
 _app_config_callables.update(_safe_predicate_callables)
 
 
@@ -120,24 +286,28 @@ def eval_app_config(config_str):
     """
     Safely evaluates application configuration strings for storing application
     layout data in a moksha configuration file
+
+    :return: the evaluated configuration wrapper configuration
     """
     return eval(config_str, {"__builtins__":None}, _app_config_callables)
 
 
 def eval_predicates(predicate_str):
-    """ 
+    """
     Safely evaluates a string of predicates
+
+    :return: the evaluated predicate configuration
     """
     return eval(predicate_str, {"__builtins__":None}, _safe_predicate_callables)
 
 
 def check_predicates(predicates):
     """
-    Using the current WSGI environment evaluate a list of predicates.  
+    Using the current WSGI environment run a list of predicates.
     This can only be used when inside a WSGI request
 
-    Return False is any one is False 
-    Return True if they are all True
+    :return: False is any one is False
+    :return: True if they are all True
     """
 
     from pylons import request
@@ -148,7 +318,7 @@ def check_predicates(predicates):
                 return False
         return True
 
-    
+
     if(isinstance(predicates, Predicate)):
         return predicates.eval_with_environ(request.environ)
 
@@ -156,6 +326,14 @@ def check_predicates(predicates):
 
 
 def eval_and_check_predicates(predicate_str):
+    """
+    Using the current WSGI environment evaluate a predicate sting and run
+    the resulting predicate list. This can only be used when inside a WSGI
+    request
+
+    :return: False is any one is False
+    :return: True if they are all True
+    """
     p = eval_predicates(predicate_str)
     return check_predicates(p)
 

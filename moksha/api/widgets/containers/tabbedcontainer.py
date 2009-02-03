@@ -8,22 +8,26 @@ import urllib
 """
 :Name: TabbedContainer
 :Type: Container
-
-:Notes:  We may need to create a tab javascript object that inherits from
-         jQuery.ui.tabs
 """
 class TabbedContainer(JQueryUITabs):
     """
     :tabs: An ordered list of application tabs to display
-           Application descriptors can come is a couple of forms
+           Application descriptors come from the config wrappers in
+           moksha.lib.helpers
 
-           * tuple - (label, url, {request parameters})
-           * App class - App(label = label,
-                             url = url,
-                             req_params = {request parameters})
-           * MokshaApp class - MokshaApp(label = label,
-                                         application = moksha app name,
-                                         req_params = {request parameters})
+           tabs can either be in serialized string format or as a list of
+           config wrapper objects.  Using strings means you don't have to
+           import the wrappers and predicates but can get unwieldy if there
+           is a long list of wrappers
+
+    :config_key: the configuration key used to store the serialized tab config
+                 in a configuration file instead of embeding it in the widget
+
+    :template: you must provide a template in order to get styling correct.  The
+               default template has minimal functionality.  The documentation
+               for jQuery.UI.Tabs can be found at http://ui.jquery.org.
+               FIXME: Write a tutorial and provide helper widgets so
+               creating a template becomes really easy.
     """
     css=[] # remove the default css
     template = 'mako:moksha.api.widgets.containers.templates.tabbedcontainer'

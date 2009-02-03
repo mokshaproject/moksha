@@ -1,7 +1,7 @@
 <div>
     Sample Template - you should subclass and create your own layout
   <div id="container">
-  % for c in layout:
+    % for c in layout:
         ${applist_widget(category = c)}
     % endfor
     </div>
