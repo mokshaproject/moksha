@@ -19,24 +19,12 @@
 from tw.api import Widget, JSLink, CSSLink
 from tw.jquery import jquery_js, jQuery
 
-# @@ put this stuff in the tw.jquery modules
-
-ui_core_js = JSLink(filename='static/js/ui/ui.core.js',
-                    modname=__name__, javascript=[jquery_js])
-ui_draggable_js = JSLink(filename='static/js/ui/ui.draggable.js',
-                         modname=__name__, javascript=[ui_core_js])
-ui_resizable_js = JSLink(filename='static/js/ui/ui.resizable.js',
-                         modname=__name__, javascript=[ui_core_js])
-
-container_js = JSLink(filename='static/js/mbContainer.js',
-                      modname=__name__)
-container_css = CSSLink(filename='static/css/mbContainer.css',
-                        modname=__name__)
-
+container_js = JSLink(filename='static/js/mbContainer.js', modname=__name__)
+container_css = CSSLink(filename='static/css/mbContainer.css', modname=__name__)
 
 class MokshaContainer(Widget):
     template = 'mako:moksha.widgets.container.templates.container'
-    javascript = [container_js] # , ui_draggable_js, ui_resizable_js]
+    javascript = [container_js]
     css = [container_css]
     options = ['draggable', 'droppable', 'resizable', 'stikynote']
     button_options = ['iconize', 'minimize', 'close']
@@ -48,7 +36,6 @@ class MokshaContainer(Widget):
     content = '' # either text, or a Widget
     title = 'Moksha Container'
     skin = 'skin3' # skin[1-7]
-    #id = 'moksha_container'
 
     # Pixel tweaking
     width = 400
