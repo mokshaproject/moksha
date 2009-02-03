@@ -19,7 +19,7 @@ class MokshaDemoDataStream(PollingDataStream):
     n = 0
 
     # Feed demo specific variables
-    feed_entries = Feed(url='http://lewk.org/rss').entries()
+    feed_entries = Feed(url='http://doggdot.us/rss').entries()
     i = 0
 
     def poll(self):

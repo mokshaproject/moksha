@@ -16,10 +16,34 @@
 # Copyright 2008, Red Hat, Inc.
 # Authors: Luke Macken <lmacken@redhat.com>
 
-from tw.api import Widget, JSLink
+from tw.api import Widget, JSLink, CSSLink
+from tw.jquery import jquery_js
+
+from moksha.api.widgets.orbited import orbited_js
+
+irc2_js = JSLink(filename='static/irc2.js',
+                 javascript=[orbited_js],
+                 modname=__name__)
+
+willowchat_js = JSLink(filename='static/willowchat.js',
+                       javascript=[jquery_js, irc2_js],
+                       modname=__name__)
+
+gui_js = JSLink(filename='static/gui.js',
+                javascript=[willowchat_js],
+                modname=__name__)
+
+willowchat_css = CSSLink(filename='static/style.css', modname=__name__)
+
 
 class LiveChatWidget(Widget):
     params = ['bootstrap']
-    bootstrap = JSLink(filename='static/bootstrap.js', modname=__name__)
+    bootstrap = JSLink(link='/appz/chat/bootstrap')
     template = '<div id="willowchat" reposition="true">${bootstrap}</div>'
     visible = False
+
+
+class LiveChatFrameWidget(Widget):
+    template = 'mako:moksha.api.widgets.chat.templates.chat'
+    javascript = [orbited_js, willowchat_js, irc2_js, gui_js, jquery_js]
+    css = [willowchat_css]

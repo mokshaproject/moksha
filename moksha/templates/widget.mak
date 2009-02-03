@@ -1,7 +1,6 @@
 <html>
   <head></head>
   <body>
-    ${tmpl_context.container(content=tmpl_context.widget, title=title,
-                             **container_options)}
+    ${tmpl_context.widget(**options)}
   </body>
 </html>

@@ -241,7 +241,12 @@ class MokshaMiddleware(object):
             self.menus[menu_entry.name] = menu_class(menu_entry.name)
 
     def load_renderers(self):
-        """ Load our template renderers with our application paths """
+        """ Load our template renderers with our application paths.
+
+        We are currently overloading TG2's default Mako renderer because
+        the default `escape` filter causes our widgets to show up as escaped HTML.
+
+         """
         #template_paths = config['pylons.paths']['templates']
         #moksha_dir = os.path.abspath(__file__ + '/../../../')
         #for app in [{'path': moksha_dir}] + self.apps.values():
@@ -261,7 +266,6 @@ class MokshaMiddleware(object):
             """
             def __init__(self, input_encoding, output_encoding,
                          imports, default_filters):
-                print "\n\nusing dotted template lookups!\n\n"
                 self.input_encoding = input_encoding
                 self.output_encoding = output_encoding
                 self.imports = imports
@@ -306,9 +310,6 @@ class MokshaMiddleware(object):
             config['pylons.app_globals'].mako_lookup = DottedTemplateLookup(
                 input_encoding='utf-8', output_encoding='utf-8',
                 imports=[], default_filters=[])
-                # @@: these cause problems when displaying headers/footers
-                #imports=['from webhelpers.html import escape'],
-                #default_filters=['escape'])
 
         else:
             # if no dotted names support was required we will just setup
@@ -317,17 +318,7 @@ class MokshaMiddleware(object):
                 directories=self.paths['templates'],
                 module_directory=self.paths['templates'],
                 input_encoding='utf-8', output_encoding='utf-8',
-                imports=['from webhelpers.html import escape'],
-                default_filters=['escape'],
                 filesystem_checks=self.auto_reload_templates)
-
-        #from genshi.template import TemplateLoader
-        #def template_loaded(template):
-        #    "Plug-in our i18n function to Genshi."
-        #    template.filters.insert(0, Translator(ugettext))
-        #config['pylons.app_globals'].genshi_loader = TemplateLoader(
-        #    search_path=template_paths, auto_reload=False,
-        #    callback=template_loaded)
 
     def load_configs(self):
         """ Load the configuration files for all applications.

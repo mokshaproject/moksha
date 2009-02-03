@@ -32,6 +32,7 @@ class MokshaContextMenu(MokshaContextualMenu):
             <a href="https://fedorahosted.org/moksha/">Wiki</a>
         """
 
+
 class MokshaDefaultMenu(MokshaMenu):
     menus = ['Moksha', 'Applications', 'Widgets', 'Fedora']
 
