@@ -46,26 +46,26 @@ CSS to position those categories in your layout.
 Lets look at each individual component.
 
 * Category 'Test Applications' - This tells the container that you want to group
-a number of applications under the 'Test Application' title which in essence
-creates a div with class 'test_applications'.  You may also want to specify
-css_class instead of relying on the label.
+  a number of applications under the 'Test Application' title which in essence
+  creates a div with class 'test_applications'.  You may also want to specify
+  css_class instead of relying on the label.
 
 * MokshaApp 'Hello World 1': here we dynamically load the moksha application
-installed on the ``moksha.application`` entry point as ``moksha.helloworld``.
-We then send it a dictionary of keys - in this case the key 'name'.
+  installed on the ``moksha.application`` entry point as ``moksha.helloworld``.
+  We then send it a dictionary of keys - in this case the key 'name'.
 
 * App 'Hello World 2': This is the same as the above but instead of giving
-the application name we give it the url the application is mounted on.  We
-also send in different configuration data. The App object allows for non
-moksha web apps and static content to be placed in a container.
+  the application name we give it the url the application is mounted on.  We
+  also send in different configuration data. The App object allows for non
+  moksha web apps and static content to be placed in a container.
 
 * MokshaWidget 'Hello World 3': Again this is the same as above but we pass in
-a widget installed on the ``moksha.widget`` entry point as
-``moksha.helloworldwidget``.  We also pass in a auth predicate.  If the
-authorization evaluates to True, in this case if the user is anonymous, the
-widget will be embedded in the page.  If not then it is removed.  Predicates
-are defined by the :module:`repoze.what.authorize` module and can be added to
-any ConfigWrapper.
+  a widget installed on the ``moksha.widget`` entry point as
+  ``moksha.helloworldwidget``.  We also pass in a auth predicate.  If the
+  authorization evaluates to True, in this case if the user is anonymous, the
+  widget will be embedded in the page.  If not then it is removed.  Predicates
+  are defined by the :module:`repoze.what.authorize` module and can be added to
+  any ConfigWrapper.
 
 Tabbed Container
 ----------------
@@ -82,6 +82,7 @@ subclassed in order to point it to the correct resources.
 Here is an example on how to subclass a TabbedContainer:
 
 mainnav.py
+
 .. code-block:: python
     from moksha.api.widgets.containers import TabbedContainer
 
@@ -90,6 +91,7 @@ mainnav.py
         config_key = 'myapp.mainnav.apps'
 
 mainnav.mak
+
 .. code-block:: html
     <div>
       <ul id="${id}">
@@ -117,6 +119,7 @@ mainnav.mak
     </div>
 
 development.ini
+
 .. code-block:: python
     [DEFAULT]
     myapp.mainnav.apps = (MokshaApp('Home', 'myapp.home'),
@@ -143,7 +146,8 @@ subclassed in order to point it to the correct resources.
 
 Here is an example on how to subclass a DashboardContainer:
 
-mainnav.py
+homepage.py
+
 .. code-block:: python
     from moksha.api.widgets.containers import DashboardContainer
 
@@ -166,6 +170,7 @@ mainnav.py
              ]
 
 homepagecontainer.mak
+
 .. code-block:: html
   <div id="${id}">
     <div>
@@ -189,15 +194,15 @@ dynamically loading content in the browser means that there are some issues
 to consider.
 
 * Id's may clash.  It is suggested that when using jQuery
-or any other javascript dom tool to generate a uuid and do all of your
-selections relative to that id. It is also suggested you namespace your id's
-and only use classes to style.
+  or any other javascript dom tool to generate a uuid and do all of your
+  selections relative to that id. It is also suggested you namespace your id's
+  and only use classes to style.
 
 * Javascript may load more than once.  If all you uses is widgets you are fine
-as ToscaWidgets will take care of duplicate resource requests.  However a
-powerful concept in moksha is the ability to load applications asynchronously
-so that the user does not have to wait for the server to finish processing a
-page before any data is streamed to them.  It is suggested you make heavy use
-of global resources in order to aleviate the issue.  At some point we may
-introduce a way for the browser to filter out already loaded javascript and
-other resources.
+  as ToscaWidgets will take care of duplicate resource requests.  However a
+  powerful concept in moksha is the ability to load applications asynchronously
+  so that the user does not have to wait for the server to finish processing a
+  page before any data is streamed to them.  It is suggested you make heavy use
+  of global resources in order to aleviate the issue.  At some point we may
+  introduce a way for the browser to filter out already loaded javascript and
+  other resources.
