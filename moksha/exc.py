@@ -22,3 +22,6 @@ class MokshaException(Exception):
 
 class ApplicationNotFound(MokshaException):
     pass
+
+class WidgetNotFound(MokshaException):
+    pass
