@@ -84,6 +84,7 @@ Here is an example on how to subclass a TabbedContainer:
 mainnav.py
 
 .. code-block:: python
+
     from moksha.api.widgets.containers import TabbedContainer
 
     class MainNav(TabbedContainer):
@@ -93,6 +94,7 @@ mainnav.py
 mainnav.mak
 
 .. code-block:: html
+
     <div>
       <ul id="${id}">
         % for t in tabs:
@@ -121,6 +123,7 @@ mainnav.mak
 development.ini
 
 .. code-block:: python
+
     [DEFAULT]
     myapp.mainnav.apps = (MokshaApp('Home', 'myapp.home'),
                           MokshaApp('2nd Tab', 'myapp.tab2'),
@@ -149,6 +152,7 @@ Here is an example on how to subclass a DashboardContainer:
 homepage.py
 
 .. code-block:: python
+
     from moksha.api.widgets.containers import DashboardContainer
 
     class HomePageContainer(DashboardContainer):
@@ -172,6 +176,7 @@ homepage.py
 homepagecontainer.mak
 
 .. code-block:: html
+
   <div id="${id}">
     <div>
       <div id="right-content-column">
