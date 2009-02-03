@@ -68,7 +68,7 @@ Widgets
 
    main/Feeds
    main/LiveWidget
-
+   main/MokshaContainerWidgets
 ..
     Model
     -----
