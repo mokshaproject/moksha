@@ -1,0 +1,171 @@
+#tower_defense {
+    float:left;
+}
+
+/*
+   From the always helpful article on styling buttons.
+   http://particletree.com/features/rediscovering-the-button-element/
+   */
+
+button{
+    margin:0 7px 0 0;
+    background-color:#f5f5f5;
+    border:1px solid #dedede;
+    border-top:1px solid #eee;
+    border-left:1px solid #eee;
+    font-size:100%;
+    line-height:110%;
+    text-decoration:none;
+    font-weight:bold;
+    color:#565656;
+    cursor:pointer;
+    padding:5px 10px 6px 7px; /* Links */
+}
+button:hover {
+    background-color:#dff4ff;
+    border:1px solid #c2e1ef;
+    color:#336699;
+}
+button:active{
+    background-color:#6299c5;
+    border:1px solid #6299c5;
+    color:#fff;
+}
+
+button.active_mode {
+    background-color:#6299c5;
+    border:1px solid #6299c5;
+    color:#fff;
+}
+
+div#game {
+    background-color: #888; 
+    padding-left: 10px; 
+    padding-top: 20px; 
+    padding-bottom: 20px;
+    overflow: auto;
+}
+
+#game div {
+    overflow:auto
+}
+
+#menu {
+    float: left;
+}
+
+#top_controls .item {
+    padding-right: 10px;
+}
+
+#middle {
+    overflow: auto;
+}
+
+#bottom_controls {
+    padding-bottom:10px;
+    padding-top:5px;
+    width: 100%;
+}
+
+#game_over {
+    font-size: 150%;
+    background-color: #000;
+    color: #f73;
+}
+
+.error {
+    background-color: #000;
+    color: #f73;
+}
+
+div#side {
+    float: left;
+}
+
+#tower {
+    display: none;
+}
+
+#creep {
+    display: none;
+}
+
+#side table {
+    margin-left: 10px;
+    margin-top: 10px;
+    border: solid 1px black;
+}
+#side .message_area {
+    margin-left: 10px;
+    margin-top: 10px;
+    border: solid 1px black;
+}
+#logging_button {
+    display: none;
+}
+
+.hotkey {
+    text-decoration: underline;
+}
+
+#help {
+    background: white;
+    margin-top: 25px;
+    margin-left: 20px;
+    padding-left: 30px;
+    padding-right: 30px;
+    width: 500px;
+    height: 400px;
+    position: absolute;
+    z-index: 1000;
+    display: none;
+    border: 3px solid black;
+}
+
+
+#help-sections div {
+    display: none;
+}
+
+#help-sections div.visible {
+    display: block;
+}
+
+#help-headers {
+    padding: 10px;
+    border-bottom: 2px solid black;
+}
+
+a.section {
+    margin-left: 5px;
+    margin-right: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    text-decoration: none;
+    color: black;
+}
+
+a.section:hover {
+    color: #AAA;
+}
+a.section.active {       color: #2259a5; font-weight: bold;}
+a.section.active:hover { color: #2259a5;}
+
+#help .missile-tower { color: rgb(250,150,50); }
+#help .laser-tower { color: rgb(90,150,50); }
+#help .cannon-tower { color: rgb(100,120,140); }
+#help .gatling-tower { color: rgb(250,250,50); }
+
+#help .normal-creep { color: rgb(255,255,0);}
+#help .quick-creep {color: rgb(200,150,50);}
+#help .strong-creep {color: rgb(0,255,255);}
+#help .boss-creep {color: rgb(255,100,150);}
+
+#help .neutral-terrain {color: rgb(200,200,200);}
+#help .mountain-terrain {color: rgb(228,51,51);}
+#help .water-terrain {color: rgb(78,150,236);}
+#help .power-plant-terrain {color: rgb(189,194,78);}
+
+#help .bomb {color: rgb(100,120,140);}
+#help .nuke {color: rgb(255,70,30);}
