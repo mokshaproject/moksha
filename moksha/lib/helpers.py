@@ -108,7 +108,7 @@ class Category(ConfigWrapper):
         id = uuid.uuid4()
 
         apps = self.process_wrappers(self.apps)
-        return {'label': self.label, 'apps': apps, 'id': id, 'css_class': css_class}
+        return {'label': self.label, 'apps': apps, 'id': id, 'css_class': self.css_class}
 
 class App(ConfigWrapper):
     """A configuration wrapper class that displays an application pointed to
