@@ -10,10 +10,22 @@ When used within the Moksha Platform, the Feed object will utilize the central
 global `moksha.feed_cache`.  When used outside of the platform, it will
 automatically use a local sqlite database cache.
 
+The Moksha Feed Widget
+----------------------
+
+.. code-block:: python
+
+    from moksha.api.widgets.feed import Feed
+
+.. widgetbrowser:: moksha.widgets.demos.FeedDemo
+   :tabs: demo, source, template
+   :size: large
+
+
 API usage
 ---------
 
-The Feed API provides a flexible Feed object that can be utilize in many ways.
+The Feed object can be utilize in many ways.
 
 Rendering a url with the Feed object
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
