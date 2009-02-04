@@ -155,7 +155,5 @@ code_path = test_path = os.path.dirname(os.path.abspath(__file__)) + os.path.sep
 #
 # Enable the ToscaWidgets WidgetBrowser
 #
-#try:
-#    extensions.append("widgetbrowser.sphinx_ext")
-#except ImportError:
-#    print "Unable to import the WidgetBrowser; skipping."
+import moksha.widgetbrowser
+extensions.append("moksha.widgetbrowser.sphinx_ext")
