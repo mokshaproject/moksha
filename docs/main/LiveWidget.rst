@@ -23,10 +23,26 @@ the 'stuff' message topic, and will perform an `alert` upon new messages.
         template = "Hi, I'm a live widget!"
 
 
-The Live Feed Widget
---------------------
+Live Feeds
+----------
 
-Moksha provides an example :class:`LiveFeedWidget` that displays messages from the `feed_example` topic, using jQuery.
+A Live Feed Demo Widget
+~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. code-block:: python
+
+    from moksha.api.widgets.feed.live import LiveFeedWidget
+
+.. widgetbrowser:: moksha.widgets.demos.LiveFeedDemo
+   :tabs: demo, source, template, parameters
+   :size: large
+
+The Live Feed Widget
+~~~~~~~~~~~~~~~~~~~~
+
+The :class:`LiveFeedWidget` itself is just a simple :class:`LiveWidget` that
+uses a little bit of jQuery to add and remove feed entries from a list.
 
 .. code-block:: python
 
@@ -35,32 +51,20 @@ Moksha provides an example :class:`LiveFeedWidget` that displays messages from t
 
     class LiveFeedWidget(LiveWidget):
         """ A live streaming feed widget """
-        topic = 'feed_example'
+        params = {
+                'url': 'The feed URL',
+                'topic': 'A topic or list of topics to subscribe to',
+                'feed': 'A moksha Feed object',
+        }
+        template = '${feed(id=id, url=url)}'
         onmessage = """
             $.each(json, function() {
                 $("#${id} ul li:last").remove();
-                $("<li/>").hide().html(
+                $("<li/>").html(
                     $("<a/>")
                       .attr("href", this.link)
                       .text(this.title))
-                  .prependTo($("#${id} ul"))
-                  .show();
+                  .prependTo($("#${id} ul"));
             });
         """
-        template = '${feed()}'
-        url = None
-
-        def update_params(self, d):
-            super(LiveFeedWidget, self).update_params(d)
-            d['feed'] = Feed(d['id'], url=d.url)
-
-Using the LiveFeedWidget
-------------------------
-
-.. code-block:: python
-
-    from moksha.api.widgets.feed import LiveFeedWidget
-
-    class MyLiveWidget(LiveFeedWidget):
-        topic = 'feeds.myfeed'
-        url = 'http://foo.com/bar.xml'
+        feed = Feed()

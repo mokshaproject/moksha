@@ -27,7 +27,7 @@ class MokshaContextMenu(MokshaContextualMenu):
                 <img src="/images/moksha-icon.png" style="position:absolute;margin-top:-20px; margin-left:-25px;margin-bottom:10px"/><br/>
             </a>
             <a href="http://moksha.fedorahosted.org" target="_blank">Moksha Homepage</a>
-            <a href="http://lmacken.fedorapeople.org/moksha/">Documentation</a>
+            <a href="/widget">Documentation</a>
             <a href="https://fedorahosted.org/moksha/report/3">Tickets</a>
             <a href="https://fedorahosted.org/moksha/">Wiki</a>
         """
@@ -68,7 +68,7 @@ class MokshaDefaultMenu(MokshaMenu):
         </a>
         <a rel="separator"></a>
         <a href="http://moksha.fedorahosted.org" target="_blank">Moksha Homepage</a>
-        <a href="http://lmacken.fedorapeople.org/moksha/">Documentation</a>
+        <a href="/widget">Documentation</a>
         <a href="https://fedorahosted.org/moksha/report/3">Tickets</a>
         <a href="https://fedorahosted.org/moksha/">Wiki</a>
         """

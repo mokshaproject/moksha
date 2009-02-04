@@ -37,3 +37,8 @@ Running the test suite
 .. code-block:: bash
 
     $ nosetests
+
+Profiling the WSGI stack
+------------------------
+
+Open the :file:`moksha/config/app_cfg.py` file and set the `base_config.profile` variable to `True`.  After surfing around your application, you can then go to `http://localhost:8080/__profile__ <http://localhost:8080/__profile__>`_ to view your profiling statistics.
