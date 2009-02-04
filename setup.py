@@ -58,12 +58,13 @@ setup(
     chat = moksha.api.widgets.chat.controllers:ChatController
 
     [moksha.widget]
+    livefeed_demo = moksha.widgets.demos:LiveFeedDemo
     liveflot = moksha.api.widgets.flot:LiveFlotWidget
-    livefeed = moksha.api.widgets.feed.live:LiveFeedWidget
     chat = moksha.api.widgets.chat:LiveChatWidget
     #livegraph = moksha.examples.livegraph:LiveGraphWidget
     #grid = moksha.api.widgets:Grid
     ptd = moksha.widgets.misc.ptd:ProcessedTowerDefense
+
 
     [moksha.global]
     # The pipeline for our live widgets
@@ -86,8 +87,8 @@ setup(
     blueprint_screen_css = moksha.widgets.blueprint:blueprint_screen_css
     blueprint_print_css = moksha.widgets.blueprint:blueprint_print_css
 
-    # Blueprint plugins
-    blueprint_fancytype_css = moksha.widgets.blueprint:blueprint_plugin_fancytype_css
+    ## Blueprint plugins
+    #blueprint_fancytype_css = moksha.widgets.blueprint:blueprint_plugin_fancytype_css
 
     konami_js = moksha.widgets.misc.ptd:konami
 
