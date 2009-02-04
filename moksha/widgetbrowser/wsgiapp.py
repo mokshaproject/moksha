@@ -4,6 +4,7 @@ import os
 import inspect
 import logging
 from pkg_resources import resource_filename
+from genshi.core import Markup
 from genshi.template import TemplateLoader, Context
 from webob import Request, Response, exc
 import tw
@@ -216,6 +217,8 @@ class WidgetBrowser(object):
         else:
             _disp = ''
         widget_output = util.display_widget(widget, _disp, self.context)
+        if not callable(widget_output):
+            widget_output = Markup(widget_output)
         return self.render('show_widget.html', locals())
 
     def widgets(self, req, resp):
