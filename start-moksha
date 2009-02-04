@@ -5,11 +5,12 @@ if [ ! $VIRTUAL_ENV ]; then
     if [ ! -d tg2env ]; then
         echo "Initializing a TurboGears2 virtual environment"
         virtualenv --no-site-packages tg2env
+        #virtualenv tg2env
         source tg2env/bin/activate
-        easy_install -U WebOb
+        #easy_install -i http://www.turbogears.org/2.0/downloads/2.0b5/index tg.devtools
         easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
-        easy_install tgext.crud
-        easy_install tw.jquery==dev
+        easy_install "tw.jquery==dev"
+        pushd moksha/widgetbrowser; python setup.py develop; popd
     else
         source tg2env/bin/activate
     fi
