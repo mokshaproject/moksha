@@ -90,6 +90,7 @@ setup(
     ## Blueprint plugins
     #blueprint_fancytype_css = moksha.widgets.blueprint:blueprint_plugin_fancytype_css
 
+    # ↑ ↑ ↓ ↓ ← → ← → b a
     konami_js = moksha.widgets.misc.ptd:konami
 
     [moksha.menu]
