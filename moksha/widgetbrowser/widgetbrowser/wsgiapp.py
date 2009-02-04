@@ -11,8 +11,6 @@ import tw
 from tw.api import Widget, WidgetType, make_middleware
 from widgetbrowser import util, widgets, repl
 
-from moksha.api.widgets.global_resources import global_resources as moksha_global_resources
-
 try:
     from formencode import Invalid
     have_formencode = True
@@ -82,7 +80,6 @@ class WidgetBrowser(object):
         app = StaticURLParser(self.built_docs)
         resources = widgets.widgetbrowser_js.retrieve_resources()
         tw.framework.register_resources(resources)
-        moksha_global_resources.register_resources()
         return app(environ, start_response)
 
     _widget_controllers = {}

@@ -44,7 +44,7 @@ class BaseController(TGController):
         tmpl_context.get_url = url
 
         ## Inject our global resources
-        if request.path.startswith('/appz') or request.path.startswith('/widget'):
+        if request.path.startswith('/appz') or request.path.startswith('/widgets'):
             # Don't inject global resources for apps or widgets.
             tmpl_context.moksha_global_resources = lambda: ''
         else:
