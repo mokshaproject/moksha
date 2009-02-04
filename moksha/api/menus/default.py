@@ -54,9 +54,10 @@ class MokshaDefaultMenu(MokshaMenu):
         </a>
         """
         for id, widget in moksha._widgets.iteritems():
-            menu += """
-                <a href="#" onclick="$('<div/>').appendTo('#content').load('/widgets/%s'); return false;">%s</a>
-            """ % (id, widget['name'])
+            if not getattr(widget['widget'], 'hidden', False):
+                menu += """
+                    <a href="#" onclick="$('<div/>').appendTo('#footer').load('/widgets/%s?chrome=True'); return false;">%s</a>
+                """ % (id, widget['name'])
         return menu
 
     def moksha(self, *args, **kw):

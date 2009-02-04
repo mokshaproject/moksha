@@ -18,8 +18,7 @@
 
 import moksha
 
-from tg import (expose, flash, require, tmpl_context, redirect, validate,
-                override_template)
+from tg import expose, flash, require, tmpl_context, redirect, validate
 from tg.controllers import WSGIAppController
 from repoze.what import predicates
 
@@ -43,17 +42,21 @@ class RootController(BaseController):
         tmpl_context.contextual_menu_widget = moksha.menus['contextual_menu']
         return dict(title='Moksha')
 
-    @expose('mako:moksha.templates.widgetcontainer')
-    def widgets(self, widget, chrome=True, **kw):
-        tmpl_context.widget = moksha.get_widget(widget)
-        if not chrome or not getattr(tmpl_context.widget, 'visible', True):
-            override_template(self.widgets, 'mako:moksha.templates.widget')
-            return dict(options={})
+    @expose('mako:moksha.templates.widget')
+    def widgets(self, widget, chrome=None, **kw):
+        options = {}
+        w = moksha._widgets.get(widget)
+        if not w:
+            raise WidgetNotFound(widget)
+        if chrome and getattr(w['widget'], 'visible', True):
+            tmpl_context.widget = container
+            options['content'] = w['widget']
+            options['title'] =  w['name']
+            options['id'] = widget + '_container'
         else:
-            override_template(self.widgets, 'mako:moksha.templates.widgetcontainer')
-        tmpl_context.container = container
-        kw['id'] = widget + '_container'
-        return dict(title=moksha._widgets[widget]['name'], container_options=kw)
+            tmpl_context.widget = w['widget']
+        options.update(kw)
+        return dict(options=options)
 
     @expose('moksha.templates.login')
     def login(self, **kw):

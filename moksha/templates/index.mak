@@ -18,14 +18,12 @@
           ## Left sidebar
         </div>
         <div class="span-16">
-
           ## Main content
           <div id="content"></div>
         </div>
         <div class="span-4 last">
           ## Right sidebar
         </div>
-        <hr class="space">
         <hr class="space">
         ${footer()}
       </div>
@@ -34,6 +32,7 @@
     ## Inject our global resources
     ${tmpl_context.moksha_global_resources()}
 
+    ## Setup our right-click contextual menu
     ${tmpl_context.contextual_menu_widget()}
 
   </body>
