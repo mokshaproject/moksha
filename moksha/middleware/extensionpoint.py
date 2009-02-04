@@ -76,6 +76,7 @@ class MokshaExtensionPointMiddleware(object):
     """
     def __init__(self, application, module='moksha', dir='plugins/extensions'):
         log.info('Creating MokshaExtensionPointMiddleware')
+        self.application = application
 
         # if debug is False condense javascript to optimize
         self.__debug = config.get('moksha.extension_points.debug')
