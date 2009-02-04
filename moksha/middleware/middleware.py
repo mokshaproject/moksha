@@ -70,8 +70,7 @@ class MokshaMiddleware(object):
         self.feed_cache = Cache(self.feed_storage)
 
     def __call__(self, environ, start_response):
-        environ['paste.registry'].register(moksha.apps, self.apps)
-
+        # environ['paste.registry'].register(moksha.apps, self.apps)
         # environ['paste.registry'].register(moksha._widgets, self.widgets)
         environ['paste.registry'].register(moksha.feed_cache, self.feed_cache)
         environ['paste.registry'].register(moksha.menus, self.menus)
@@ -147,6 +146,8 @@ class MokshaMiddleware(object):
                 self.apps[app_entry.name]['model'] = model
             except ImportError:
                 pass
+
+        moksha._apps = self.apps
 
     def load_widgets(self):
         log.info('Loading moksha widgets')

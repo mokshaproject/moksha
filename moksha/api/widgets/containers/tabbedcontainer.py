@@ -1,9 +1,19 @@
 from tw.jquery.ui_tabs import JQueryUITabs
+from tw.api import Widget
 from pylons import config, request
 from repoze.what import predicates
 from moksha.lib.helpers import eval_app_config, ConfigWrapper
 
 import urllib
+
+class TabbedContainerTabs(Widget):
+    template = 'mako:moksha.api.widgets.containers.templates.tabbedcontainer_tabs'
+
+class TabbedContainerPanes(Widget):
+    template = 'mako:moksha.api.widgets.containers.templates.tabbedcontainer_panes'
+
+tabwidget = TabbedContainerTabs('tabs')
+panewidget = TabbedContainerPanes('panes')
 
 """
 :Name: TabbedContainer
@@ -49,3 +59,7 @@ class TabbedContainer(JQueryUITabs):
         # not allowed to run with the current session's authorization level
         tabs = ConfigWrapper.process_wrappers(tabs)
         d['tabs'] = tabs
+        d['tabwidget'] = tabwidget
+        d['panewidget'] = panewidget
+        d['root_id'] = d['id']
+

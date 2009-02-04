@@ -7,7 +7,7 @@ from tg import config
 
 class AppListWidget(Widget):
     template = 'mako:moksha.api.widgets.containers.templates.layout_applist'
-    properties = ['layout', 'category']
+    properties = ['category']
 
     def update_params(self, d):
         super(AppListWidget, self).update_params(d)

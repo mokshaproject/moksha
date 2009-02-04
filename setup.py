@@ -64,7 +64,7 @@ setup(
     #livegraph = moksha.examples.livegraph:LiveGraphWidget
     #grid = moksha.api.widgets:Grid
     ptd = moksha.widgets.misc.ptd:ProcessedTowerDefense
-
+    placeholder = moksha.api.widgets:Placeholder
 
     [moksha.global]
     # The pipeline for our live widgets

@@ -117,25 +117,34 @@ class App(ConfigWrapper):
     :Example:
         hello_app = App('Hello World App',
                         '/appz/moksha.helloworld',
-                        {'greeter_name': 'J5'},
-                        not_anonymous())
+                        params={'greeter_name': 'J5'},
+                        auth=not_anonymous())
     """
-    def __init__(self, label="", url="", req_params=None, auth=None):
+    def __init__(self, label="", url="", content_id="",
+                 params=None, auth=None):
         """
         :label: The title the application should use when rendering
                 in a container.  Leave this blank if you do not wish the
                 application to be visibly labeled when rendered
         :url: the url to load this application from
-        :req_params: A dict of request parameters to send to the application
-                     when loading it from a url
+        :content_id: the id to use for url navigation and associating the
+                     content with a control such as tabs needing to know
+                     which div to add the content to when selected. If
+                     this is not set we scrub the label of illegal characters
+                     lower case it and use that as the content_id
+        :params: A dict of request parameters to send to the application
+                 when loading it from a url
         :auth: A list of predicates which are evaluate before the wrapper
                is sent to the container.  If it evaluates to False it does not
                get sent.
         """
         self.label = label
         self.url = url
-        self.req_params = req_params or {}
+        self.params = params or {}
         self.auth = auth or []
+        self.content_id = content_id
+        if self.label and not self.content_id:
+            self.content_id = scrub_filter.sub('_', self.label.lower())
 
     def process(self):
         """Check the predicates and construct the dict
@@ -146,12 +155,13 @@ class App(ConfigWrapper):
             return None
 
         query_str = ""
-        if self.req_params:
-            query_str = "?" + urllib.urlencode(self.req_params)
+        if self.params:
+            query_str = "?" + urllib.urlencode(self.params)
 
         id = uuid.uuid4()
 
-        return {'label': self.label, 'url': self.url + query_str, 'id': id}
+        return {'label': self.label, 'url': self.url + query_str, 'id': id,
+                'content_id': self.content_id}
 
 class MokshaApp(App):
     """A configuration wrapper class that displays a Moksa application
@@ -163,26 +173,44 @@ class MokshaApp(App):
     :Example:
         hello_app = App('Hello World Moksha App',
                         'moksha.helloworld',
-                        {'greeter_name': 'J5'},
-                        not_anonymous())
+                        params={'greeter_name': 'J5'},
+                        auth=not_anonymous())
 
     """
-
-    def __init__(self, label="", moksha_app="", req_params=None, auth=None):
+    def __init__(self, label="", moksha_app="", content_id="",
+                 params=None, auth=None):
         """
         :label: The title the application should use when rendering
                 in a container.  Leave this blank if you do not wish the
                 application to be visibly labeled when rendered
         :moksha_app: the name of the entry point registered under the
                      moksha.application section
-        :req_params: A dict of request parameters to send to the application
-                     when loading it
+        :content_id: the id to use for url navigation and associating the
+                     content with a control such as tabs needing to know
+                     which div to add the content to when selected. If
+                     this is not set we scrub the label of illegal characters
+                     lower case it and use that as the content_id
+        :params: A dict of request parameters to send to the application
+                 when loading it
         :auth: A list of predicates which are evaluate before the wrapper
                is sent to the container.  If it evaluates to False it does not
                get sent.
         """
         # FIXME figure out how to pull auth info from an app
-        super(MokshaApp, self).__init__(label, '/appz/' + moksha_app, req_params, auth)
+        self.app = moksha_app
+        super(MokshaApp, self).__init__(label,
+                                        '/appz/' + moksha_app,
+                                        content_id,
+                                        params, auth)
+
+    def process(self):
+        # We return a placeholder if the app is not registered
+        if not moksha._apps.has_key(self.app):
+            return MokshaWidget(self.label, 'placeholder',
+                                self.content_id,
+                                {'appname':self.app}, self.auth).process()
+
+        return super(MokshaApp, self).process()
 
 class Widget(ConfigWrapper):
     """A configuration wrapper class that displays a ToscaWidget.  Use this
@@ -196,16 +224,22 @@ class Widget(ConfigWrapper):
 
         hello_widget = Widget('Hello World Widget',
                         HelloWidget(),
-                        {'greeter_name': 'J5'},
-                        not_anonymous())
+                        params={'greeter_name': 'J5'},
+                        auth=not_anonymous())
 
     """
-    def __init__(self, label="", widget="", params=None, auth=None):
+    def __init__(self, label="", widget=None, content_id="",
+                 params=None, auth=None):
         """
         :label: The title the widget should use when rendering
                 in a container.  Leave this blank if you do not wish the
                 widget to be visibly labeled when rendered
         :widget: the ToscaWidget to be rendered
+        :content_id: the id to use for url navigation and associating the
+                     content with a control such as tabs needing to know
+                     which div to add the content to when selected. If
+                     this is not set we scrub the label of illegal characters
+                     lower case it and use that as the content_id
         :params: A dict of parameters to send to the widgets update_params
                  method when rendering it
         :auth: A list of predicates which are evaluate before the wrapper
@@ -217,13 +251,18 @@ class Widget(ConfigWrapper):
         self.params = params or {}
         self.auth = auth or []
 
+        self.content_id = content_id
+        if self.label and not content_id:
+            self.content_id = scrub_filter.sub('_', self.label.lower())
+
     def process(self):
         if not check_predicates(self.auth):
             return None
 
         id = uuid.uuid4()
-
-        return {'label': self.label, 'widget': self.widget , 'params':self.params, 'id': id}
+        url = '#' + self.content_id
+        return {'label': self.label, 'url': url,'widget': self.widget ,
+                'params':self.params, 'id': id, 'content_id': self.content_id}
 
 class MokshaWidget(Widget):
     """A configuration wrapper class that displays a ToscaWidget registered
@@ -232,25 +271,33 @@ class MokshaWidget(Widget):
     :Example:
         hello_moksha_widget = Widget('Hello Moksha Widget',
                                      'moksha.hello',
-                                     {'greeter_name': 'J5'},
-                                     not_anonymous())
+                                     params={'greeter_name': 'J5'},
+                                     auth=not_anonymous())
 
     """
-    def __init__(self, label="", name="", params=None, auth=None):
+    def __init__(self, label="", moksha_widget="", content_id="",
+                 params=None, auth=None):
         """
         :label: The title the widget should use when rendering
                 in a container.  Leave this blank if you do not wish the
                 widget to be visibly labeled when rendered
-        :name:  the name of the entry point registered under the
-                moksha.widget section
+        :content_id: the id to use for url navigation and associating the
+                     content with a control such as tabs needing to know
+                     which div to add the content to when selected. If
+                     this is not set we scrub the label of illegal characters
+                     lower case it and use that as the content_id
+        :moksha_widget: the name of the entry point registered under the
+                        moksha.widget section
         :params: A dict of parameters to send to the widgets update_params
                  method when rendering it
         :auth: A list of predicates which are evaluate before the wrapper
                is sent to the container.  If it evaluates to False it does not
                get sent.
         """
-        widget = moksha._widgets[name]['widget']
-        super(MokshaWidget, self).__init__(label=label, widget=widget, params=params, auth=auth)
+        widget = moksha._widgets[moksha_widget]['widget']
+        super(MokshaWidget, self).__init__(label=label, widget=widget,
+                                           content_id=content_id, params=params,
+                                           auth=auth)
 
 
 # setup the dictionary of acceptable callables when eval'ing predicates from

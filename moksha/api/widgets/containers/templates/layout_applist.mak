@@ -6,11 +6,11 @@
             % endif
             <dd id="${app['id']}">
                         % if app.has_key('widget'):
-                            ${app['widget'](app['params'])}
+                            ${app['widget'](**app['params'])}
                         % endif
                     </dd>
 
-                  % if app.has_key('url'):
+                  % if not app.has_key('widget'):
                     <script type="text/javascript">
                           $("#${app['id']}").load("${app['url']}");
                     </script>
