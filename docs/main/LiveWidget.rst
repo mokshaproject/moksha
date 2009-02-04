@@ -26,6 +26,16 @@ the 'stuff' message topic, and will perform an `alert` upon new messages.
 The Live Feed Widget
 --------------------
 
+.. code-block:: python
+
+    from moksha.api.widgets.feed.live import LiveFeedWidget
+
+.. widgetbrowser:: moksha.widgets.demos.LiveFeedDemo
+   :tabs: demo, source, template, parameters
+   :size: large
+
+--------------------------------------------------------------------------------
+
 Moksha provides an example :class:`LiveFeedWidget` that displays messages from the `feed_example` topic, using jQuery.
 
 .. code-block:: python
