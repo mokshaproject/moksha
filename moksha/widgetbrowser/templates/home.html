@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<?python
+from widgetbrowser import widgets
+?>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"
+      xmlns:py="http://genshi.edgewall.org/">
+  <head>
+    <title>WidgetBrowser</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <style>
+        .ui-tabs-panel {
+            border-bottom: solid 1px #94ada7;
+            padding-left: 1.5em;
+        }
+        .ui-tabs-panel iframe {
+            width: 100%;
+            border: 0;
+            min-height: 500px;
+        }
+        #home {
+            min-height: 450px;
+        }
+    </style>
+  </head>
+  <body class="flora">
+    <div id="main">
+        <ul>
+            <li><a href="#home"><span>Home</span></a></li>
+            <li><a href="#terminal" class="use_iframe"><span>Terminal</span></a></li>
+            <li><a href="${url('/widgets/')}" class="use_iframe"><span>Widgets</span></a></li>
+        </ul>
+        <div id="home">
+            <h1>Welcome to Toscawidgets' Browser</h1>
+            <p>
+            </p>
+        </div>
+        <div id="terminal">
+            ${widgets.repl(prefix=url('_repl/'))}
+        </div>
+    </div>
+    <div id="footer">
+    <p>&copy; 2008. Alberto Valverde González</p>
+    </div>
+    <script type="text/javascript">
+        //<![CDATA[
+        jQuery(function () {
+            jQuery('#main > ul').tabs({
+                select: function (ui) {
+                    var url = jQuery.data(ui.tab, 'load.iframe_src');
+                    var iframe = jQuery('iframe', ui.panel);
+                    if (url && !iframe.attr('src')) {
+                        iframe.attr('src', url);
+                    }
+                }
+            });
+        });
+        //]]>
+    </script>
+  </body>
+</html>
