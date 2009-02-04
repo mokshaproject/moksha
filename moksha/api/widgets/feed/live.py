@@ -21,20 +21,20 @@ from moksha.api.widgets import LiveWidget
 
 class LiveFeedWidget(LiveWidget):
     """ A live streaming feed widget """
-    topic = 'feed_demo'
-    template = '${feed()}'
+    params = {
+            'url': 'The feed URL',
+            'topic': 'A topic or list of topics to subscribe to',
+            'feed': 'A moksha Feed object',
+    }
+    template = '${feed(id=id, url=url)}'
     onmessage = """
         $.each(json, function() {
             $("#${id} ul li:last").remove();
-            $("<li/>").hide().html(
+            $("<li/>").html(
                 $("<a/>")
                   .attr("href", this.link)
                   .text(this.title))
-              .prependTo($("#${id} ul"))
-              .show();
+              .prependTo($("#${id} ul"));
         });
     """
-
-    def update_params(self, d):
-        super(LiveFeedWidget, self).update_params(d)
-        d['feed'] = Feed(d['id'], url=d.get('url', 'http://doggdot.us/rss'))
+    feed = Feed()
