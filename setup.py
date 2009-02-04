@@ -20,6 +20,8 @@ setup(
         "orbited",
         "twisted",
         "stomper",
+        "Sphinx",
+        "Paver",
         #"WidgetBrowser", # not in PyPi yet
     ],
     packages=find_packages(exclude=['ez_setup']),
