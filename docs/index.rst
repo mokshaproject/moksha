@@ -92,7 +92,6 @@ Development
    :maxdepth: 2
 
    main/Development
-   main/CallToAction
 
 Deployment
 ----------
