@@ -1,15 +1,15 @@
 # This file is part of Moksha.
-# 
+#
 # Moksha is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Moksha is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Moksha.  If not, see <http://www.gnu.org/licenses/>.
 #
@@ -57,12 +57,10 @@ class MokshaMiddleware(object):
         self.menus = {}      # {'menu name': MokshaMenu}
         self.widgets = {}    # {'widget name': tw.api.Widget}
         self.engines = {}    # {'app name': sqlalchemy.engine.base.Engine}
-        self.connectors = {} # {'connector name': moksha.IConnector class}
 
         self.load_paths()
         self.load_renderers()
         self.load_configs()
-        self.load_connectors()
         self.load_widgets()
         self.load_applications()
         self.load_models()
@@ -73,7 +71,7 @@ class MokshaMiddleware(object):
 
     def __call__(self, environ, start_response):
         environ['paste.registry'].register(moksha.apps, self.apps)
-        
+
         # environ['paste.registry'].register(moksha._widgets, self.widgets)
         environ['paste.registry'].register(moksha.feed_cache, self.feed_cache)
         environ['paste.registry'].register(moksha.menus, self.menus)
@@ -87,25 +85,6 @@ class MokshaMiddleware(object):
                 response = request.get_response(self.mokshaapp)
             except ApplicationNotFound:
                 response = Response(status='404 Not Found')
-        elif request.path.startswith('/moksha_connector'):
-            # FIXME: this should be separate middleware so other
-            #        frameworks can use connectors
-            s = request.path.split('/')[2:]
-
-            # since keys are not unique we need to condense them
-            # into an actual dictionary with multiple entries becoming lists 
-            p = request.params
-            params = {}
-            for k in p.iterkeys():
-                if k == '_cookies':
-                    # reserved parameter
-                    # FIXME: provide a proper error response
-                    return Response(status='404 Not Found')
-
-                if k not in params:
-                    params[k] = p.getall(k)
-
-            response = self._run_connector(s[0], s[1], *s[2:], **params)
         else:
             response = request.get_response(self.application)
 
@@ -121,36 +100,7 @@ class MokshaMiddleware(object):
             'onmessageframe': defaultdict(list) # {topic: [js_callback,]}
         })
 
-    def _run_connector(self, conn, op, *path, **remote_params):
-        response = None
-        # check last part of path to see if it is json data
-        dispatch_params = {};
 
-        p = urllib.unquote_plus(path[-1].lstrip())
-        if p.startswith('{'):
-            dispatch_params = json.loads(p)
-            f = dispatch_params.get('filters')
-            if isinstance(f, basestring):
-                dispatch_params['filters'] = json.loads(f)
-            path = path[:-1]
-
-        # prevent trailing slash
-        if not p:
-            path = path[:-1]
-
-        path = '/'.join(path)
-        conn = self.connectors.get(conn)
-
-        if conn:
-            conn_obj = conn['connector_class']()
-            r = conn_obj._dispatch(op, path, remote_params, **dispatch_params)
-            if not isinstance(r, str):
-                r = json.dumps(r, separators=(',',':'))
-            response = Response(r)
-        else:
-            response = Response(status='404 Not Found')
-
-        return response
 
     def load_paths(self):
         """ Load the names and paths of all moksha applications and widgets.
@@ -161,7 +111,7 @@ class MokshaMiddleware(object):
         """
         for app_entry in pkg_resources.iter_entry_points('moksha.application'):
             if app_entry.name in self.apps:
-                raise MokshaException('Duplicate application name: %s' % 
+                raise MokshaException('Duplicate application name: %s' %
                                       app_entry.name)
             app_path = app_entry.dist.location
             self.apps[app_entry.name] = {
@@ -170,27 +120,12 @@ class MokshaMiddleware(object):
                     }
         for widget_entry in pkg_resources.iter_entry_points('moksha.widget'):
             if widget_entry.name in self.widgets:
-                raise MokshaException('Duplicate widget name: %s' % 
+                raise MokshaException('Duplicate widget name: %s' %
                                       widget_entry.name)
             widget_path = widget_entry.dist.location
             self.widgets[widget_entry.name] = {
                     'name': widget_entry.name,
                     'path': widget_path,
-                    }
-
-    def load_connectors(self):
-        log.info('Loading moksha connectors')
-        for conn_entry in pkg_resources.iter_entry_points('moksha.connector'):
-            log.info('Loading %s connector' % conn_entry.name)
-            conn_class = conn_entry.load()
-            # call the register class method 
-            # FIXME: Should we pass some resource in?
-            conn_class.register()
-            conn_path = conn_entry.dist.location
-            self.connectors[conn_entry.name] = {
-                    'name': conn_entry.name,
-                    'connector_class': conn_class,
-                    'path': conn_path,
                     }
 
     def load_applications(self):
@@ -207,7 +142,7 @@ class MokshaMiddleware(object):
                     }
             try:
                 model = __import__('%s.model' % app_entry.name,
-                                   globals(), locals(), 
+                                   globals(), locals(),
                                    [app_entry.name])
                 self.apps[app_entry.name]['model'] = model
             except ImportError:
@@ -229,7 +164,7 @@ class MokshaMiddleware(object):
                     'widget': widget,
                     'path': widget_path,
                     }
-            
+
         moksha._widgets = self.widgets
 
     def load_menus(self):
