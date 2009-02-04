@@ -21,6 +21,8 @@ import moksha
 from tg import expose, flash, require, tmpl_context, redirect, validate
 from tg.controllers import WSGIAppController
 from repoze.what import predicates
+from pkg_resources import resource_filename
+from widgetbrowser import WidgetBrowser
 
 from moksha import _
 from moksha.model import DBSession
@@ -35,6 +37,13 @@ class RootController(BaseController):
 
     admin = AdminController()
     error = ErrorController()
+
+    # ToscaWidgets WidgetBrowser integration
+    widget = WSGIAppController(
+                WidgetBrowser(
+                    template_dirs=[resource_filename('moksha','templates/widget_browser')],
+                    full_stack=False,
+                    docs_dir='docs'))
 
     @expose('mako:moksha.templates.index')
     def index(self):
