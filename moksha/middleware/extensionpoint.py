@@ -71,18 +71,34 @@ class MokshaExtensionPointMiddleware(object):
     info : {'consumes':['build_message'],
             'author': 'John (J5) Palmieri <johnp@redhat.com>',
             'version': '0.1',
-            'name': 'Hello World Message'
+            'name': 'Hello World Message'}
 
     """
-    def __init__(self, application, module='moksha', dir='plugins/extensions'):
+    def __init__(self, application,
+                 entry_point='moksha.extension_point',
+                 test_dir=None):
+        """
+        :application: WSGI application to wrap
+        :extension_point: the python extry point which specifies modules to
+                          scan for JavaScript extension_points
+        :test_dir: a directory to scan for JavaScript extension_points which
+                   are being tested before they are added to the module
+        """
+
         log.info('Creating MokshaExtensionPointMiddleware')
 
         # if debug is False condense javascript to optimize
         self.__debug = config.get('moksha.extension_points.debug')
         self.__extension_cache = {}
+        self.application = application
 
-        # FIXME: figure out a way to load extensions like we load entry points
-        self.load_extensions(module, dir)
+        if test_dir:
+            self.load_extension_dir(test_dir)
+
+        for ep in pkg_resources.iter_entry_points(entry_point):
+            mod = ep.load()
+            dir = os.path.dirname(mod.__file__)
+            self.load_extension_dir(dir)
 
     def chunk_code(self, js, filename):
         start = js.find('{')
@@ -157,9 +173,8 @@ class MokshaExtensionPointMiddleware(object):
                 code.append(c.code)
                 self.__extension_cache[exttype] = code
 
-    def load_extensions(self, module, dir):
-        real_dir = pkg_resources.resource_filename(module, dir)
-        for root, dirs, files in os.walk(real_dir):
+    def load_extension_dir(self, dir):
+        for root, dirs, files in os.walk(dir):
             for name in files:
                 if name.endswith('js'):
                     path = os.path.join(root, name)
