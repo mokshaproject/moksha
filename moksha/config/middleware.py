@@ -2,7 +2,8 @@
 
 from moksha.config.app_cfg import base_config
 from moksha.config.environment import load_environment
-from moksha.middleware import MokshaMiddleware, MokshaConnectorMiddleware
+from moksha.middleware import (MokshaMiddleware, MokshaConnectorMiddleware,
+                              MokshaExtensionPointMiddleware)
 
 # Use base_config to setup the necessary WSGI App factory.
 # make_base_app will wrap the TG2 app with all the middleware it needs.
@@ -14,6 +15,7 @@ def make_app(global_conf, full_stack=True, **app_conf):
                         **app_conf)
 
     app = MokshaConnectorMiddleware(app)
+    app = MokshaExtensionPointMiddleware(app)
 
     if base_config.squeeze:
         from repoze.squeeze.processor import ResourceSqueezingMiddleware
