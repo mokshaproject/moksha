@@ -2,16 +2,16 @@ from pylons.i18n import ugettext as _
 from paste.registry import StackedObjectProxy
 
 # The central feed cache, used by the Feed widget.
-feed_cache = StackedObjectProxy()
+feed_cache = None
 
 # All loaded moksha applications
-apps = StackedObjectProxy()
+apps = None
 
 # All loaded ToscaWidgets
-_widgets = StackedObjectProxy()
+_widgets = None
 
 # All loaded moksha menus
-menus = StackedObjectProxy()
+menus = None
 
 # Per-request stomp callbacks registered by rendered widget
 stomp = StackedObjectProxy()

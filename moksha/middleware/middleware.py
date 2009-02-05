@@ -49,14 +49,14 @@ class MokshaMiddleware(object):
 
     """
     def __init__(self, application):
-        log.info('Creating MokshaMiddleware')
+        log.info('Creating Moksha Middleware')
         self.application = application
         self.mokshaapp = MokshaAppDispatcher()
 
-        self.apps = {}       # {'app name': WSGI Controller}
-        self.menus = {}      # {'menu name': MokshaMenu}
-        self.widgets = {}    # {'widget name': tw.api.Widget}
-        self.engines = {}    # {'app name': sqlalchemy.engine.base.Engine}
+        moksha.apps = {}        # {'app name': tg.TGController}
+        moksha._widgets = {}    # {'widget name': tw.api.Widget}
+        moksha.menus = {}       # {'menu name': moksha.api.menus.MokshaMenu}
+        self.engines = {}       # {'app name': sqlalchemy.engine.base.Engine}
 
         self.load_paths()
         self.load_renderers()
@@ -67,16 +67,11 @@ class MokshaMiddleware(object):
         self.load_menus()
 
         self.feed_storage = Shove(config['feed_cache'])
-        self.feed_cache = Cache(self.feed_storage)
+        moksha.feed_cache = Cache(self.feed_storage)
 
     def __call__(self, environ, start_response):
-        # environ['paste.registry'].register(moksha.apps, self.apps)
-        # environ['paste.registry'].register(moksha._widgets, self.widgets)
-        environ['paste.registry'].register(moksha.feed_cache, self.feed_cache)
-        environ['paste.registry'].register(moksha.menus, self.menus)
         self.register_stomp(environ)
         request = Request(environ)
-
         if request.path.startswith('/appz'):
             app = request.path.split('/')[1]
             environ['moksha.apps'] = self.apps
@@ -86,7 +81,6 @@ class MokshaMiddleware(object):
                 response = Response(status='404 Not Found')
         else:
             response = request.get_response(self.application)
-
         return response(environ, start_response)
 
     def register_stomp(self, environ):
@@ -107,20 +101,20 @@ class MokshaMiddleware(object):
         beforehand.
         """
         for app_entry in pkg_resources.iter_entry_points('moksha.application'):
-            if app_entry.name in self.apps:
+            if app_entry.name in moksha.apps:
                 raise MokshaException('Duplicate application name: %s' %
                                       app_entry.name)
             app_path = app_entry.dist.location
-            self.apps[app_entry.name] = {
+            moksha.apps[app_entry.name] = {
                     'name': app_entry.name,
                     'path': app_path,
                     }
         for widget_entry in pkg_resources.iter_entry_points('moksha.widget'):
-            if widget_entry.name in self.widgets:
+            if widget_entry.name in moksha._widgets:
                 raise MokshaException('Duplicate widget name: %s' %
                                       widget_entry.name)
             widget_path = widget_entry.dist.location
-            self.widgets[widget_entry.name] = {
+            moksha._widgets[widget_entry.name] = {
                     'name': widget_entry.name,
                     'path': widget_path,
                     }
@@ -131,7 +125,7 @@ class MokshaMiddleware(object):
             log.info('Loading %s application' % app_entry.name)
             app_class = app_entry.load()
             app_path = app_entry.dist.location
-            self.apps[app_entry.name] = {
+            moksha.apps[app_entry.name] = {
                     'name': getattr(app_class, 'name', app_entry.name),
                     'controller': app_class(),
                     'path': app_path,
@@ -141,11 +135,9 @@ class MokshaMiddleware(object):
                 model = __import__('%s.model' % app_entry.name,
                                    globals(), locals(),
                                    [app_entry.name])
-                self.apps[app_entry.name]['model'] = model
+                moksha.apps[app_entry.name]['model'] = model
             except ImportError:
                 pass
-
-        moksha._apps = self.apps
 
     def load_widgets(self):
         log.info('Loading moksha widgets')
@@ -157,14 +149,14 @@ class MokshaMiddleware(object):
                 widget = widget_class(widget_entry.name)
             else:
                 widget = widget_class
-            self.widgets[widget_entry.name] = {
+            moksha._widgets[widget_entry.name] = {
                     'name': getattr(widget_class, '__name__',
                                     widget_entry.name),
                     'widget': widget,
                     'path': widget_path,
                     }
 
-        moksha._widgets = self.widgets
+        moksha._widgets = moksha._widgets
 
     def load_menus(self):
         log.info('Loading moksha menus')
@@ -172,7 +164,7 @@ class MokshaMiddleware(object):
             log.info('Loading %s menu' % menu_entry.name)
             menu_class = menu_entry.load()
             menu_path = menu_entry.dist.location
-            self.menus[menu_entry.name] = menu_class(menu_entry.name)
+            moksha.menus[menu_entry.name] = menu_class(menu_entry.name)
 
     def load_renderers(self):
         """ Load our template renderers with our application paths.
@@ -183,7 +175,7 @@ class MokshaMiddleware(object):
          """
         #template_paths = config['pylons.paths']['templates']
         #moksha_dir = os.path.abspath(__file__ + '/../../../')
-        #for app in [{'path': moksha_dir}] + self.apps.values():
+        #for app in [{'path': moksha_dir}] + moksha.apps.values():
         #    if app['path'] not in template_paths:
         #        template_paths.append(app['path'])
 
@@ -268,7 +260,7 @@ class MokshaMiddleware(object):
 
         """
         moksha_conf = os.path.abspath(__file__ + '/../../../')
-        for app in [{'path': moksha_conf}] + self.apps.values():
+        for app in [{'path': moksha_conf}] + moksha.apps.values():
             for configfile in ('production.ini', 'development.ini'):
                 confpath = os.path.join(app['path'], configfile)
                 if os.path.exists(confpath):
@@ -294,7 +286,7 @@ class MokshaMiddleware(object):
         if they don't already exist.
 
         """
-        for name, app in self.apps.items():
+        for name, app in moksha.apps.items():
             if app.get('model'):
                 log.debug('Creating database engine for %s' % app['name'])
                 self.engines[name] = create_engine(config['app_db'] % name)

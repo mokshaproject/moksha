@@ -206,7 +206,7 @@ class MokshaApp(App):
 
     def process(self):
         # We return a placeholder if the app is not registered
-        if not moksha._apps.has_key(self.app):
+        if not moksha.apps.has_key(self.app):
             return MokshaWidget(self.label, 'placeholder',
                                 self.content_id,
                                 {'appname':self.app}, self.auth).process()

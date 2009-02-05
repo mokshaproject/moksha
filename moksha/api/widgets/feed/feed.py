@@ -90,9 +90,9 @@ class Feed(Widget):
 
     def iterentries(self, d=None):
         url = self.url or d.get('url')
-        try:
+        if moksha.feed_cache:
             feed = moksha.feed_cache.fetch(url)
-        except TypeError, e:
+        else:
             # MokshaMiddleware not running, so setup our own feed cache.
             # This allows us to use this object outside of WSGI requests.
             global cache
