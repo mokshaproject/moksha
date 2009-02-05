@@ -197,7 +197,8 @@ class MokshaApp(App):
                get sent.
         """
         # FIXME figure out how to pull auth info from an app
-        self.app = moksha_app
+        app = moksha_app.split('/')[0]
+        self.app = app
         super(MokshaApp, self).__init__(label,
                                         '/appz/' + moksha_app,
                                         content_id,
