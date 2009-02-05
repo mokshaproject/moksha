@@ -35,3 +35,7 @@ for entry_point in ('moksha.widget', 'moksha.menu', 'moksha.global'):
         else:
             widget = widget_class
         __all__.append(widget)
+
+# Other stuff that isn't exposed
+from moksha.widgets.container import MokshaContainer
+__all__.append(MokshaContainer)
