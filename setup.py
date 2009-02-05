@@ -45,6 +45,9 @@ setup(
     [paste.app_install]
     main = pylons.util:PylonsInstaller
 
+    [toscawidgets.widgets]
+    widgets = moksha.widgets.all
+
     [moksha.stream]
     demo = moksha.streams.demo:MokshaDemoDataStream
     #livegraph = moksha.examples.livegraph:LiveGraphDataStream
