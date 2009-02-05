@@ -18,8 +18,14 @@ class FeedStream(PollingDataStream):
     def poll(self):
         """ Poll all known feeds.
 
+        - Iterate over all feeds in our global moksha feed cache..
+            Problem:: the MokshaHub will not use this unless both it and the
+                      Moksha WSGI app are using the same `feed_cache` database.
+
         - Keep feed caches fresh.
-        - Send AMQP messages for new entries
+        - Send messages to topics for new entries
+            `feed.$NAME` topic ?
+            `tag.category
         """
         log.debug('FeedStream.poll()')
         # gather all feed urls... from all moksha.widget Feed objects, and 

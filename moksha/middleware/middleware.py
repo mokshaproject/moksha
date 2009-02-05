@@ -99,8 +99,6 @@ class MokshaMiddleware(object):
             'onmessageframe': defaultdict(list) # {topic: [js_callback,]}
         })
 
-
-
     def load_paths(self):
         """ Load the names and paths of all moksha applications and widgets.
 

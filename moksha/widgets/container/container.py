@@ -57,5 +57,4 @@ class MokshaContainer(Widget):
                 d.buttons += '%s,' % button[:1]
         d.buttons = d.buttons[:-1]
 
-        print "d.id = ", d.id
         self.add_call(jQuery('#%s' % d.id).buildContainers())
