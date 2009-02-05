@@ -73,12 +73,7 @@ class MokshaMiddleware(object):
         self.register_stomp(environ)
         request = Request(environ)
         if request.path.startswith('/appz'):
-            app = request.path.split('/')[1]
-            environ['moksha.apps'] = self.apps
-            try:
-                response = request.get_response(self.mokshaapp)
-            except ApplicationNotFound:
-                response = Response(status='404 Not Found')
+            response = request.get_response(self.mokshaapp)
         else:
             response = request.get_response(self.application)
         return response(environ, start_response)

@@ -27,15 +27,19 @@ from widgetbrowser import WidgetBrowser
 from moksha import _
 from moksha.model import DBSession
 from moksha.lib.base import BaseController
-from moksha.controllers.secc import AdminController
+#from moksha.controllers.secc import AdminController
+from moksha.exc import ApplicationNotFound
 from moksha.controllers.error import ErrorController
 
 from moksha.widgets.container import MokshaContainer
 container = MokshaContainer('moksha_container')
 
+#import os
+#os.putenv('TW_BROWSER_PREFIX', '/docs')
+
 class RootController(BaseController):
 
-    admin = AdminController()
+    #admin = AdminController()
     error = ErrorController()
 
     # ToscaWidgets WidgetBrowser integration
@@ -44,6 +48,14 @@ class RootController(BaseController):
                     template_dirs=[resource_filename('moksha','templates/widget_browser')],
                     full_stack=False,
                     docs_dir='docs'))
+
+    @expose()
+    def lookup(self, resource, *remainder):
+        if resource == 'appz':
+            app = remainder[0]
+            if app not in moksha.apps:
+                raise AppNotFoundException(app)
+            return moksha.apps[app]['controller'], remainder[1:]
 
     @expose('mako:moksha.templates.index')
     def index(self):
@@ -54,6 +66,7 @@ class RootController(BaseController):
     @expose('mako:moksha.templates.widget')
     def widgets(self, widget, chrome=None, **kw):
         options = {}
+        options.update(kw)
         w = moksha._widgets.get(widget)
         if not w:
             raise WidgetNotFound(widget)
@@ -64,7 +77,6 @@ class RootController(BaseController):
             options['id'] = widget + '_container'
         else:
             tmpl_context.widget = w['widget']
-        options.update(kw)
         return dict(options=options)
 
     @expose('moksha.templates.login')

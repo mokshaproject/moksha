@@ -17,7 +17,9 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 
 from pylons.wsgiapp import PylonsApp
-from moksha.exc import ApplicationNotFound
+
+import moksha
+from moksha.controllers.root import RootController
 
 class MokshaAppDispatcher(PylonsApp):
     """ Moksha WSGI Application Dispatcher.
@@ -26,6 +28,10 @@ class MokshaAppDispatcher(PylonsApp):
     It is instantiated and utilized by the 
     :class:`moksha.middleware.MokshaMiddleware`.
     """
+    def __init__(self, *args, **kw):
+        super(MokshaAppDispatcher, self).__init__(*args, **kw)
+        self.root = RootController()
+
     def resolve(self, environ, start_response): 
         """ Uses dispatching information found in
         ``environ['wsgiorg.routing_args']`` to retrieve the application
@@ -33,20 +39,5 @@ class MokshaAppDispatcher(PylonsApp):
         moksha application.
 
         """
-        # Update the Routes config object in case we're using Routes
-        # (Do we even need/want this routes configuration?)
-        #config = request_config()
-        #config.redirect = self.redirect_to
-        # http://www.wsgi.org/wsgi/Specifications/routing_args
-        match = environ['wsgiorg.routing_args'][1]
-
-        app = match['url'].split('/')[1]
-        if not app in environ['moksha.apps']:
-            raise ApplicationNotFound(app)
-
-        # Remaining arguments
-        match['url'] = '/'.join(match['url'].strip('/').split('/')[2:])
-
-        environ['pylons.routes_dict'] = match
-
-        return environ['moksha.apps'][app]['controller']
+        environ['pylons.routes_dict'] = environ['wsgiorg.routing_args'][1]
+        return self.root
