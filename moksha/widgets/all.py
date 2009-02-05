@@ -27,10 +27,11 @@ from inspect import isclass
 
 __all__ = []
 
-for widget_entry in pkg_resources.iter_entry_points('moksha.widget'):
-    widget_class = widget_entry.load()
-    if isclass(widget_class):
-        widget = widget_class(widget_entry.name)
-    else:
-        widget = widget_class
-    __all__.append(widget)
+for entry_point in ('moksha.widget', 'moksha.menu', 'moksha.global'):
+    for widget_entry in pkg_resources.iter_entry_points(entry_point):
+        widget_class = widget_entry.load()
+        if isclass(widget_class):
+            widget = widget_class(widget_entry.name)
+        else:
+            widget = widget_class
+        __all__.append(widget)
