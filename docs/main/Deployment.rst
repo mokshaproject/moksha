@@ -14,6 +14,11 @@ Setting up mod_wsgi
 
 TODO
 
+Serving ToscaWidgets static resources
+-------------------------------------
+
+`Deploying projects which use ToscaWidgets <http://toscawidgets.org/documentation/ToscaWidgets/deploy.html>`_
+
 Setting up orbited
 ------------------
 
