@@ -18,6 +18,7 @@
 
 import moksha
 
+from tg import config
 from tg import expose, flash, require, tmpl_context, redirect, validate
 from tg.controllers import WSGIAppController
 from repoze.what import predicates
@@ -47,7 +48,7 @@ class RootController(BaseController):
                 WidgetBrowser(
                     template_dirs=[resource_filename('moksha','templates/widget_browser')],
                     full_stack=False,
-                    docs_dir='docs'))
+                    docs_dir=config.get('docs_dir', 'docs')))
 
     @expose()
     def lookup(self, resource, *remainder):
