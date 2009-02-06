@@ -31,6 +31,7 @@ from moksha.lib.base import BaseController
 from moksha.exc import ApplicationNotFound
 from moksha.controllers.error import ErrorController
 from moksha.controllers.apps import AppController
+from moksha.controllers.widgets import WidgetController
 #from moksha.controllers.secc import AdminController
 
 from moksha.widgets.container import MokshaContainer
@@ -40,9 +41,11 @@ container = MokshaContainer('moksha_container')
 import os
 os.environ['TW_BROWSER_PREFIX'] = '/docs'
 
+
 class RootController(BaseController):
 
     appz = AppController()
+    widgets = WidgetController()
     error = ErrorController()
     #admin = AdminController()
 
@@ -59,22 +62,6 @@ class RootController(BaseController):
         tmpl_context.menu_widget = moksha.menus['default_menu']
         tmpl_context.contextual_menu_widget = moksha.menus['contextual_menu']
         return dict(title='Moksha')
-
-    @expose('mako:moksha.templates.widget')
-    def widgets(self, widget, chrome=None, **kw):
-        options = {}
-        options.update(kw)
-        w = moksha._widgets.get(widget)
-        if not w:
-            raise WidgetNotFound(widget)
-        if chrome and getattr(w['widget'], 'visible', True):
-            tmpl_context.widget = container
-            options['content'] = w['widget']
-            options['title'] =  w['name']
-            options['id'] = widget + '_container'
-        else:
-            tmpl_context.widget = w['widget']
-        return dict(options=options)
 
     @expose('moksha.templates.login')
     def login(self, **kw):
