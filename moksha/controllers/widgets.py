@@ -16,8 +16,14 @@
 # Copyright 2008, Red Hat, Inc.
 # Authors: Luke Macken <lmacken@redhat.com>
 
-from tg import expose
+import moksha
+
+from tg import expose, tmpl_context
+
 from moksha.lib.base import Controller
+from moksha.widgets.container import MokshaContainer
+
+container = MokshaContainer('moksha_container')
 
 class WidgetController(Controller):
 

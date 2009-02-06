@@ -34,9 +34,6 @@ from moksha.controllers.apps import AppController
 from moksha.controllers.widgets import WidgetController
 #from moksha.controllers.secc import AdminController
 
-from moksha.widgets.container import MokshaContainer
-container = MokshaContainer('moksha_container')
-
 # So we can mount the WidgetBrowser as /docs
 import os
 os.environ['TW_BROWSER_PREFIX'] = '/docs'
@@ -60,7 +57,7 @@ class RootController(BaseController):
     def index(self):
         tmpl_context.menu_widget = moksha.menus['default_menu']
         tmpl_context.contextual_menu_widget = moksha.menus['contextual_menu']
-        return dict(title='Moksha')
+        return dict(title='[ Moksha ]')
 
     @expose('moksha.templates.login')
     def login(self, **kw):
