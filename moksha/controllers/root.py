@@ -28,9 +28,10 @@ from widgetbrowser import WidgetBrowser
 from moksha import _
 from moksha.model import DBSession
 from moksha.lib.base import BaseController
-#from moksha.controllers.secc import AdminController
 from moksha.exc import ApplicationNotFound
 from moksha.controllers.error import ErrorController
+from moksha.controllers.apps import AppController
+#from moksha.controllers.secc import AdminController
 
 from moksha.widgets.container import MokshaContainer
 container = MokshaContainer('moksha_container')
@@ -40,8 +41,9 @@ container = MokshaContainer('moksha_container')
 
 class RootController(BaseController):
 
-    #admin = AdminController()
+    appz = AppController()
     error = ErrorController()
+    #admin = AdminController()
 
     # ToscaWidgets WidgetBrowser integration
     widget = WSGIAppController(
@@ -49,14 +51,6 @@ class RootController(BaseController):
                     template_dirs=[resource_filename('moksha','templates/widget_browser')],
                     full_stack=False,
                     docs_dir=config.get('docs_dir', 'docs')))
-
-    @expose()
-    def lookup(self, resource, *remainder):
-        if resource == 'appz':
-            app = remainder[0]
-            if app not in moksha.apps:
-                raise AppNotFoundException(app)
-            return moksha.apps[app]['controller'], remainder[1:]
 
     @expose('mako:moksha.templates.index')
     def index(self):
