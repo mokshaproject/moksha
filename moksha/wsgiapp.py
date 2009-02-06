@@ -19,7 +19,6 @@
 from pylons.wsgiapp import PylonsApp
 
 import moksha
-from moksha.controllers.root import RootController
 
 class MokshaAppDispatcher(PylonsApp):
     """ Moksha WSGI Application Dispatcher.
@@ -30,6 +29,7 @@ class MokshaAppDispatcher(PylonsApp):
     """
     def __init__(self, *args, **kw):
         super(MokshaAppDispatcher, self).__init__(*args, **kw)
+        from moksha.controllers.root import RootController
         self.root = RootController()
 
     def resolve(self, environ, start_response): 
