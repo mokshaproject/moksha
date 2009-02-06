@@ -25,7 +25,6 @@ class AppController(Controller):
 
     @expose()
     def lookup(self, app, *remainder):
-        print locals()
         if app not in moksha.apps:
             raise AppNotFoundException(app)
         return moksha.apps[app]['controller'], remainder
