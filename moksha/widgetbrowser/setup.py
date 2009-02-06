@@ -21,6 +21,7 @@ setup(name='WidgetBrowser',
           "ToscaWidgets>=0.9.2dev-20080602",
           "Genshi",
           "WebOb",
+          "docutils",
       ],
       tests_require = ['nose', 'formencode', 'sphinx'],
       extras_require = {
