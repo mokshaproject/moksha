@@ -36,8 +36,9 @@ from moksha.controllers.apps import AppController
 from moksha.widgets.container import MokshaContainer
 container = MokshaContainer('moksha_container')
 
-#import os
-#os.putenv('TW_BROWSER_PREFIX', '/docs')
+# So we can mount the WidgetBrowser as /docs
+import os
+os.environ['TW_BROWSER_PREFIX'] = '/docs'
 
 class RootController(BaseController):
 
@@ -46,11 +47,12 @@ class RootController(BaseController):
     #admin = AdminController()
 
     # ToscaWidgets WidgetBrowser integration
-    widget = WSGIAppController(
+    docs = WSGIAppController(
                 WidgetBrowser(
-                    template_dirs=[resource_filename('moksha','templates/widget_browser')],
-                    full_stack=False,
-                    docs_dir=config.get('docs_dir', 'docs')))
+                    template_dirs=[
+                        resource_filename('moksha','templates/widget_browser')],
+                    docs_dir=config.get('docs_dir', 'docs'),
+                    full_stack=False))
 
     @expose('mako:moksha.templates.index')
     def index(self):
