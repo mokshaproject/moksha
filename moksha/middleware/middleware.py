@@ -23,6 +23,7 @@ import pkg_resources
 import simplejson as json
 import urllib
 
+from tg.controllers import WSGIAppController
 from webob import Request, Response
 from shove import Shove
 from pylons import config
@@ -53,7 +54,7 @@ class MokshaMiddleware(object):
         self.application = application
         self.mokshaapp = MokshaAppDispatcher()
 
-        moksha.apps = {}        # {'app name': tg.TGController}
+        moksha.apps = {}        # {'app name': tg.TGController/tg.WSGIAppController}
         moksha._widgets = {}    # {'widget name': tw.api.Widget}
         moksha.menus = {}       # {'menu name': moksha.api.menus.MokshaMenu}
         self.engines = {}       # {'app name': sqlalchemy.engine.base.Engine}
@@ -63,6 +64,7 @@ class MokshaMiddleware(object):
         self.load_configs()
         self.load_widgets()
         self.load_applications()
+        self.load_wsgi_applications()
         self.load_models()
         self.load_menus()
 
@@ -123,6 +125,26 @@ class MokshaMiddleware(object):
             moksha.apps[app_entry.name] = {
                     'name': getattr(app_class, 'name', app_entry.name),
                     'controller': app_class(),
+                    'path': app_path,
+                    'model': None,
+                    }
+            try:
+                model = __import__('%s.model' % app_entry.name,
+                                   globals(), locals(),
+                                   [app_entry.name])
+                moksha.apps[app_entry.name]['model'] = model
+            except ImportError:
+                pass
+
+    def load_wsgi_applications(self):
+        log.info('Loading moksha WSGI applications')
+        for app_entry in pkg_resources.iter_entry_points('moksha.wsgiapp'):
+            log.info('Loading %s WSGI application' % app_entry.name)
+            app_class = app_entry.load()
+            app_path = app_entry.dist.location
+            moksha.apps[app_entry.name] = {
+                    'name': getattr(app_class, 'name', app_entry.name),
+                    'controller': WSGIAppController(app_class()),
                     'path': app_path,
                     'model': None,
                     }

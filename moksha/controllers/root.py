@@ -41,7 +41,6 @@ container = MokshaContainer('moksha_container')
 import os
 os.environ['TW_BROWSER_PREFIX'] = '/docs'
 
-
 class RootController(BaseController):
 
     appz = AppController()

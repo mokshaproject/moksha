@@ -7,6 +7,9 @@ feed_cache = None
 # All loaded moksha applications
 apps = None
 
+# All WSGI applications
+wsgiapps = None
+
 # All loaded ToscaWidgets
 _widgets = None
 

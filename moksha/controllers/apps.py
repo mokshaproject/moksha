@@ -20,11 +20,12 @@ import moksha
 
 from tg import expose
 from moksha.lib.base import Controller
+from moksha.exc import ApplicationNotFound
 
 class AppController(Controller):
 
     @expose()
     def lookup(self, app, *remainder):
         if app not in moksha.apps:
-            raise AppNotFoundException(app)
+            raise ApplicationNotFound(app)
         return moksha.apps[app]['controller'], remainder

@@ -56,6 +56,10 @@ setup(
     #[moksha.consumer]
     #moksha = moksha.hub.hub:MokshaConsumer
 
+    #[moksha.wsgiapp]
+    # Use this entry point to mount WSGI applications, which can then be accessed
+    # the same as regular apps, through the `/appz/name` url.
+
     [moksha.application]
     menu = moksha.api.menus.controllers:MokshaMenuController
     chat = moksha.api.widgets.chat.controllers:ChatController
