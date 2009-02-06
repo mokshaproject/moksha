@@ -23,6 +23,8 @@ which archives all of the resources used by all ToscaWidgets.
 """
 
 import pkg_resources
+
+from tw.api import Widget
 from inspect import isclass
 
 __all__ = []
@@ -39,3 +41,8 @@ for entry_point in ('moksha.widget', 'moksha.menu', 'moksha.global'):
 # Other stuff that isn't exposed
 from moksha.widgets.container import MokshaContainer
 __all__.append(MokshaContainer)
+
+from widgetbrowser import widgets
+for obj in dir(widgets):
+    if isinstance(getattr(widgets, obj), Widget):
+        __all__.append(obj)
