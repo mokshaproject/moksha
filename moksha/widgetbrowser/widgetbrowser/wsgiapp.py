@@ -218,6 +218,12 @@ class WidgetBrowser(object):
         widget_output = util.display_widget(widget, _disp, self.context)
         if not callable(widget_output):
             widget_output = Markup(widget_output)
+
+        # Inject moksha's global resources so we can get things like
+        # Orbited/Stomp/jQuery/etc.
+        from moksha.api.widgets.global_resources import global_resources
+        global_resources.register_resources()
+
         return self.render('show_widget.html', locals())
 
     def widgets(self, req, resp):
