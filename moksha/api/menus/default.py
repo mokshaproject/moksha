@@ -26,15 +26,14 @@ class MokshaContextMenu(MokshaContextualMenu):
             <a rel="text">
                 <img src="/images/moksha-icon.png" style="position:absolute;margin-top:-20px; margin-left:-25px;margin-bottom:10px"/><br/>
             </a>
-            <a href="http://moksha.fedorahosted.org" target="_blank">Moksha Homepage</a>
             <a href="/widget">Documentation</a>
             <a href="https://fedorahosted.org/moksha/report/3">Tickets</a>
             <a href="https://fedorahosted.org/moksha/">Wiki</a>
         """
 
-
 class MokshaDefaultMenu(MokshaMenu):
-    menus = ['Moksha', 'Applications', 'Widgets', 'Fedora']
+    menus = ['Moksha', 'Widgets', 'Fedora']
+    #menus = ['Moksha', 'Applications', 'Widgets', 'Fedora']
 
     def applications(self, *args, **kw):
         menu = """
@@ -67,8 +66,7 @@ class MokshaDefaultMenu(MokshaMenu):
             <br>Moksha is a platform for creating live collaborative web applications.<br><br>
         </a>
         <a rel="separator"></a>
-        <a href="http://moksha.fedorahosted.org" target="_blank">Moksha Homepage</a>
-        <a href="/widget">Documentation</a>
+        <a href="/docs/">Documentation</a>
         <a href="https://fedorahosted.org/moksha/report/3">Tickets</a>
         <a href="https://fedorahosted.org/moksha/">Wiki</a>
         """
