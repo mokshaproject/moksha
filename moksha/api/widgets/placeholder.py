@@ -2,6 +2,7 @@ from tw.api import Widget
 
 class Placeholder(Widget):
     engine_name = 'mako'
+    hidden = True
     template = """
 <div class='placeholder'>
     Moksha application <strong>${appname}</strong> is not registered yet.  This is a placeholder
