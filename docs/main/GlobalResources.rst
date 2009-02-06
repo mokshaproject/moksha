@@ -4,7 +4,7 @@ Global Resource Injection
 
 Moksha has plugin suport for `Global Resources`, which are just JavaScript or
 CSS widgets that will get automatically injected in every page by the
-:class:`GlobalResourceInjectionWidget`
+:class:`GlobalResourceInjectionWidget`.
 
 Moksha will load all `JSLink
 <http://toscawidgets.org/documentation/ToscaWidgets/modules/api.html#jslink>`_,
@@ -24,10 +24,14 @@ Here is an example of what some global resources look like in Moksha's `setup.py
     [moksha.global]
 
     jquery = tw.jquery:jquery_js
-    jquery_ui_core = moksha.widgets.container:ui_core_js
-    jquery_ui_draggable = moksha.widgets.container:ui_draggable_js
-    jquery_ui_resizable = moksha.widgets.container:ui_resizable_js
+    jquery_ui_core = tw.jquery.ui:ui_core_js
+    jquery_ui_draggable = tw.jquery.ui:ui_draggable_min_js
+    jquery_ui_resizable = tw.jquery.ui:ui_resizable_min_js
+    jquery_ui_dialog = tw.jquery.ui:ui_dialog_min_js
+    jquery_ui_tabs = tw.jquery.ui_tabs:jquery_ui_tabs_js
 
+    # Enable support for the Blueprint CSS framework & Plugins
     blueprint_ie_css = moksha.widgets.blueprint:blueprint_ie_css
     blueprint_screen_css = moksha.widgets.blueprint:blueprint_screen_css
     blueprint_print_css = moksha.widgets.blueprint:blueprint_print_css
+    blueprint_fancytype_css = moksha.widgets.blueprint:blueprint_plugin_fancytype_css
