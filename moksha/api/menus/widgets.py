@@ -113,8 +113,6 @@ class MokshaContextualMenu(MokshaMenuBase):
             menus.append((menu.lower().replace(' ', ''), menu))
         d.menus = menus
 
-        # @@: this yields $("document") on python 2.4... we may need to 
-        #     do this stuff in the template... or can we pass JSSource to add_call?
         self.add_call(jQuery(js_callback('document')).buildContextualMenu({
                 'template': d.callback,
                 'menuWidth': d.menuWidth,
