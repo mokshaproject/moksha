@@ -91,5 +91,5 @@ class MokshaDefaultMenu(MokshaMenu):
             <a rel="separator"></a>
         """
         for title, url in links.items():
-            menu += '<a href="%s">%s</a>' % (url, title)
+            menu += '<a href="%s" target="_blank">%s</a>' % (url, title)
         return menu
