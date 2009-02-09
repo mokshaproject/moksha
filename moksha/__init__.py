@@ -4,6 +4,9 @@ from paste.registry import StackedObjectProxy
 # The central feed cache, used by the Feed widget.
 feed_cache = None
 
+# A dict-like persistent backing store
+feed_storage = None
+
 # All loaded moksha applications
 apps = None
 

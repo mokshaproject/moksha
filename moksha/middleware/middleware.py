@@ -68,8 +68,8 @@ class MokshaMiddleware(object):
         self.load_models()
         self.load_menus()
 
-        self.feed_storage = Shove(config['feed_cache'])
-        moksha.feed_cache = Cache(self.feed_storage)
+        moksha.feed_storage = Shove(config['feed_cache'], compress=True)
+        moksha.feed_cache = Cache(moksha.feed_storage)
 
     def __call__(self, environ, start_response):
         self.register_stomp(environ)
