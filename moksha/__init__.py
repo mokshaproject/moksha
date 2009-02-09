@@ -23,12 +23,9 @@ menus = None
 stomp = StackedObjectProxy()
 
 def get_widget(name):
-    """ Get a widget by name.
-
-    This method returns a dictionary in the following format:
-
-        { 'name': 'widgetname',
-          'widget': <Widget instance>,
-          'path': '/path/to/widget' }
-    """
+    """ Get a widget instance by name """
     return _widgets[name]['widget']
+
+def shutdown():
+    """ Called when Moksha shuts down """
+    feed_storage.close()

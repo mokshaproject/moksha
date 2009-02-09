@@ -40,3 +40,6 @@ base_config.profile = False
 
 # Enable repoze.squeeze resource squeezing middleware
 base_config.squeeze = False
+
+from moksha import shutdown
+base_config.call_on_shutdown.append(shutdown)
