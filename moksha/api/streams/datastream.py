@@ -20,7 +20,7 @@ class DataStream(object):
             log.error('Cannot send message: %s' % e)
 
     def stop(self):
-        self.hub.stop()
+        self.hub.close()
 
 
 class PollingDataStream(DataStream):
