@@ -19,7 +19,8 @@ class MokshaDemoDataStream(PollingDataStream):
     n = 0
 
     # Feed demo specific variables
-    feed_entries = Feed(url='http://doggdot.us/rss').entries()
+    feed = Feed(url='http://doggdot.us/rss')
+    feed_entries = feed.entries()
     i = 0
 
     def poll(self):
@@ -74,3 +75,7 @@ class MokshaDemoDataStream(PollingDataStream):
         }]
 
         self.send_message('flot_demo', flot_data)
+
+    def stop(self):
+        self.feed.close()
+        super(MokshaDemoDataStream, self).stop()

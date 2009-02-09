@@ -29,7 +29,8 @@ log = logging.getLogger(__name__)
 # is unavailable.  By default, it will try and use the centralized
 # moksha.feed_cache, which is setup by the middleware, but will gracefully
 # fallback to this cache.
-cache = None
+feed_storage = None
+feed_cache = None
 
 class Feed(Widget):
     """ A powerful Feed object.
@@ -95,10 +96,11 @@ class Feed(Widget):
         else:
             # MokshaMiddleware not running, so setup our own feed cache.
             # This allows us to use this object outside of WSGI requests.
-            global cache
-            if not cache:
-                cache = Cache(Shove('sqlite:///feeds.db', compress=True))
-            feed = cache.fetch(url)
+            global feed_cache, feed_storage
+            if not feed_cache:
+                feed_storage = Shove('sqlite:///feeds.db', compress=True)
+                feed_cache = Cache(feed_storage)
+            feed = feed_cache.fetch(url)
         if not (200 <= feed.status < 400):
             log.warning('Got %s status from %s: %s' % (
                         feed.status, url, feed.headers.get('status')))
@@ -135,3 +137,7 @@ class Feed(Widget):
         else:
             for entry in self.iterentries(d):
                 d['entries'].append(entry)
+
+    def close(self):
+        global feed_storage
+        feed_storage.close()
