@@ -78,8 +78,8 @@ Widgets
 
        main/MokshaModel
 
-Middleware
-----------
+WSGI Middleware
+---------------
 
 .. toctree::
    :maxdepth: 1

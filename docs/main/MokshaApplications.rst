@@ -1,43 +1,45 @@
-Moksha Applications
-===================
-
-Creating a moksha application is a as easy as creating a new ToscaWidget or
-TurboGears2/Pylons project.
-
-Moksha entry points
--------------------
-
-Moksha loads all applications and widgets from the ``moksha.application`` and
-``moksha.widget`` setuptools entry point.  This allows for dynamic discovery
-of moksha applications just by pointing to your Root Controller, or ToscaWidget
-in your project's `setup.py`.
-
-Here is an example of a bare-bones setup.py, and how to integrate it with
-Moksha.
-
-.. code-block:: python
-
-    from setuptools import setup
-
-    setup(
-        name='myproject',
-        entry_points="""
-
-        [moksha.widget]
-        mywidget = myproject.mywidgets:MyWidget
-
-        [moksha.application]
-        myapp = myproject.controllers.root:RootController
-
-        """
-    )
-
+Moksha Plugins
+==============
 
 When the :class:`moksha.middleware.MokshaMiddleware` is loaded, it will
 automatically load all applications and widgets from those entry points,
 and store them in ``moksha.apps`` and ``moksha._widgets`` dictionaries.
 These can then be accessed at any time by any application or widget during
 any request.
+
+Mounting an existing WSGI application
+-------------------------------------
+
+You can mount an existing WSGI application by pointing to it
+in the ``setup.py`` on the ``[moksha.wsgiapp]`` entry-point.
+
+.. code-block:: python
+
+    [moksha.wsgiapp]
+    mywsgiapp = mywsgiapp.wsgiapp:MyWSGIApplication
+
+Your WSGI application will then be accessable via ``/appz/mywsgiapp`` in Moksha.
+
+Using an existing TurboGears application
+-------------------------------------------
+
+You can easily mount TurboGears Controllers within Moksha by pointing to them in
+your ``setup.py`` under the ``[moksha.application]`` entry-point.
+
+.. code-block:: python
+
+    [moksha.application]
+    myapp = myapplication.controllers.root:RootController
+
+Installing a ToscaWidget
+------------------------
+
+You can plug an existing ToscaWidget into Moksha by adding it to the ``[moksha.widget]`` entry-point.
+
+.. code-block:: python
+
+    [moksha.widget]
+    jquery = tw.jquery:jquery_js
 
 Configuration
 -------------
