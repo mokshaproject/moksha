@@ -97,7 +97,7 @@ class Feed(Widget):
             # This allows us to use this object outside of WSGI requests.
             global cache
             if not cache:
-                cache = Cache(Shove('sqlite:///feeds.db'))
+                cache = Cache(Shove('sqlite:///feeds.db', compress=True))
             feed = cache.fetch(url)
         if not (200 <= feed.status < 400):
             log.warning('Got %s status from %s: %s' % (
