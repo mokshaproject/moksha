@@ -158,10 +158,10 @@ class App(ConfigWrapper):
         if self.params:
             query_str = "?" + urllib.urlencode(self.params)
 
-        id = uuid.uuid4()
+        id = str(uuid.uuid4())
 
         return {'label': self.label, 'url': self.url + query_str, 'id': id,
-                'content_id': self.content_id}
+                'content_id': self.content_id + '-' + id}
 
 class MokshaApp(App):
     """A configuration wrapper class that displays a Moksa application
@@ -251,19 +251,21 @@ class Widget(ConfigWrapper):
         self.widget = widget
         self.params = params or {}
         self.auth = auth or []
-
+        self.id = str(uuid.uuid4())
         self.content_id = content_id
         if self.label and not content_id:
             self.content_id = scrub_filter.sub('_', self.label.lower())
+
+        self.content_id += '-' + self.id
 
     def process(self):
         if not check_predicates(self.auth):
             return None
 
-        id = uuid.uuid4()
+
         url = '#' + self.content_id
         return {'label': self.label, 'url': url,'widget': self.widget ,
-                'params':self.params, 'id': id, 'content_id': self.content_id}
+                'params':self.params, 'id': self.id, 'content_id': self.content_id}
 
 class MokshaWidget(Widget):
     """A configuration wrapper class that displays a ToscaWidget registered
