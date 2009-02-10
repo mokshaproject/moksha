@@ -12,7 +12,7 @@ html, body {
     right: 1px;
     top: 1px;
     padding: 2px;
-    background: #005522;
+    background: #3f9824;
     color: white;
     font-weight: bold;
     cursor: pointer;
@@ -81,9 +81,9 @@ html, body {
 #popupContent {
     font-size: 120%;
     text-align:center;
-    background: #005522;
+    background: #3f9824;
     color: white;
-    border: 5pt solid #50A572;
+    border: 5pt solid #83cb22;
     padding: 8px;
     padding-bottom: 20px;
     width: 100%;
