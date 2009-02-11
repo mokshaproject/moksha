@@ -1,8 +1,11 @@
-from tw.jquery.ui_tabs import JQueryUITabs
-from tw.api import Widget
+from tw.jquery.ui_tabs import JQueryUITabs, jquery_ui_tabs_js
+from tw.api import Widget, JSLink, js_function
+from tw.forms import FormField
 from pylons import config, request
 from repoze.what import predicates
 from moksha.lib.helpers import eval_app_config, ConfigWrapper
+
+moksha_ui_tabs_js = JSLink(modname='moksha', filename='public/javascript/ui/moksha.ui.tabs.js', javascript=[jquery_ui_tabs_js])
 
 import urllib
 
@@ -15,11 +18,13 @@ class TabbedContainerPanes(Widget):
 tabwidget = TabbedContainerTabs('tabs')
 panewidget = TabbedContainerPanes('panes')
 
+jQuery = js_function('jQuery')
+
 """
 :Name: TabbedContainer
 :Type: Container
 """
-class TabbedContainer(JQueryUITabs):
+class TabbedContainer(FormField):
     """
     :tabs: An ordered list of application tabs to display
            Application descriptors come from the config wrappers in
@@ -43,10 +48,21 @@ class TabbedContainer(JQueryUITabs):
     template = 'mako:moksha.api.widgets.containers.templates.tabbedcontainer'
     config_key = None # if set load config
     tabs = ()
-
+    javascript = [moksha_ui_tabs_js
+                 ]
+    params = ["tabdefault"]
+    tabdefault__doc="0-based index of the tab to be selected on page load"
+    tabdefault='#my_profile'
+#    include_dynamic_js_calls = True #????
     def update_params(self, d):
-
         super(TabbedContainer, self).update_params(d)
+        if not getattr(d,"id",None):
+            raise ValueError, "JQueryUITabs is supposed to have id"
+
+        o = {
+             'tabdefault': d.get('tabdefault', 0)
+             }
+        self.add_call(jQuery("#%s" % d.id).mokshatabs(o))
 
         tabs = eval_app_config(config.get(self.config_key, "None"))
         if not tabs:
@@ -62,4 +78,3 @@ class TabbedContainer(JQueryUITabs):
         d['tabwidget'] = tabwidget
         d['panewidget'] = panewidget
         d['root_id'] = d['id']
-

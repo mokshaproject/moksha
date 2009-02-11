@@ -158,7 +158,7 @@ class App(ConfigWrapper):
         if self.params:
             query_str = "?" + urllib.urlencode(self.params)
 
-        id = str(uuid.uuid4())
+        id = 'uuid' + str(uuid.uuid4())
 
         return {'label': self.label, 'url': self.url + query_str, 'id': id,
                 'content_id': self.content_id + '-' + id}
@@ -251,7 +251,7 @@ class Widget(ConfigWrapper):
         self.widget = widget
         self.params = params or {}
         self.auth = auth or []
-        self.id = str(uuid.uuid4())
+        self.id = 'uuid' + str(uuid.uuid4())
         self.content_id = content_id
         if self.label and not content_id:
             self.content_id = scrub_filter.sub('_', self.label.lower())
