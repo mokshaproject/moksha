@@ -4,8 +4,10 @@
 if [ ! $VIRTUAL_ENV ]; then
     if [ ! -d tg2env ]; then
         echo "Initializing a TurboGears2 virtual environment"
-        virtualenv --no-site-packages tg2env
-        #virtualenv tg2env
+        # Enable site packages so we can yum install pysvn and mercurial
+        # in order to build Sphinx docs on the fly.
+        virtualenv tg2env
+        #virtualenv --no-site-packages tg2env
         source tg2env/bin/activate
         easy_install -U WebOb
         easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
