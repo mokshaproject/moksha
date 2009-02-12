@@ -59,6 +59,7 @@ $.widget("ui.mokshatabs", {
 
         var self = this, o = this.options;
 
+        self.path_remainder = '';
         self.options.hash_level = _moksha_hash_consumer_level;
         this.$tabs.each(function(i, a) {
             // inline tab
@@ -464,6 +465,10 @@ $.widget("ui.mokshatabs", {
 
         var id = "#" + hash[level + offset];
 
+        var remainder = level + offset + 1;
+        if (this.options.passPathRemainder && hash.length > remainder)
+            this.path_remainder = '/' + hash.splice(level + offset + 1).join('/');
+
         return this.idToIndex(id);
     },
     idToIndex: function(id) {
@@ -519,6 +524,9 @@ $.widget("ui.mokshatabs", {
             inner(a).wrapInner('<em></em>')
                 .find('em').data('label.tabs', label).html(o.spinner);
         }
+
+        if (o.passPathRemainder)
+            url += self.path_remainder;
 
         var ajaxOptions = $.extend({}, o.ajaxOptions, {
             url: url,
@@ -601,6 +609,7 @@ $.ui.mokshatabs.defaults = {
     cache: false,
     idPrefix: 'ui-tabs-',
     ajaxOptions: {},
+    passPathRemainder:false,
 
     // animations
     fx: null, // e.g. { height: 'toggle', opacity: 'toggle', duration: 200 }

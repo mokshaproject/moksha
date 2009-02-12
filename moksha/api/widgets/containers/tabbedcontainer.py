@@ -50,9 +50,10 @@ class TabbedContainer(FormField):
     tabs = ()
     javascript = [moksha_ui_tabs_js
                  ]
-    params = ["tabdefault"]
+    params = ["tabdefault", "passPathRemainder"]
     tabdefault__doc="0-based index of the tab to be selected on page load"
-    tabdefault='#my_profile'
+    tabdefault=0
+    passPathRemainder=False
 #    include_dynamic_js_calls = True #????
     def update_params(self, d):
         super(TabbedContainer, self).update_params(d)
@@ -60,8 +61,9 @@ class TabbedContainer(FormField):
             raise ValueError, "JQueryUITabs is supposed to have id"
 
         o = {
-             'tabdefault': d.get('tabdefault', 0)
-             }
+             'tabdefault': d.get('tabdefault', 0),
+             'passPathRemainder': d.get('passPathRemainder', False)
+            }
         self.add_call(jQuery("#%s" % d.id).mokshatabs(o))
 
         tabs = eval_app_config(config.get(self.config_key, "None"))
@@ -73,7 +75,7 @@ class TabbedContainer(FormField):
 
         # Filter out any None's in the list which signify apps which are
         # not allowed to run with the current session's authorization level
-        tabs = ConfigWrapper.process_wrappers(tabs)
+        tabs = ConfigWrapper.process_wrappers(tabs, d)
         d['tabs'] = tabs
         d['tabwidget'] = tabwidget
         d['panewidget'] = panewidget

@@ -43,7 +43,7 @@ class DashboardContainer(Widget):
         # Filter out any None's in the layout which signify apps which are
         # not allowed to run with the current session's authorization level
 
-        l = ConfigWrapper.process_wrappers(layout)
+        l = ConfigWrapper.process_wrappers(layout, d)
 
         d['layout'] = l
         d['applist_widget'] = applist_widget
