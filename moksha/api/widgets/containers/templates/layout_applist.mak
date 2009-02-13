@@ -12,7 +12,7 @@
 
                   % if not app.has_key('widget'):
                     <script type="text/javascript">
-                          $("#${app['id']}").load("${app['url']}");
+                          $("#${app['id']}").load("${app['url']}", ${app['params']});
                     </script>
                   % endif
 

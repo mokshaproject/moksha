@@ -7,12 +7,30 @@ from repoze.what.predicates import  (Not, Predicate, All, Any, has_all_permissio
 
 import urllib
 import uuid
+import simplejson as json
 import re
 
 from decorator import decorator
 import moksha
 
 scrub_filter = re.compile('[^_a-zA-Z0-9-]')
+
+def _update_params(params, d):
+    p = {}
+    if params:
+        for k in params.iterkeys():
+
+            if d and (k in d):
+                p[k] = d[k]
+            else:
+                p[k] = params[k]
+
+            if isinstance(p[k], dict) or isinstance(p[k], list):
+                p[k] = json.dumps(p[k])
+
+        return p
+
+    return params
 
 class ConfigWrapper(object):
     """ Base class for container configuration wrappers
@@ -34,7 +52,7 @@ class ConfigWrapper(object):
     """
 
     @staticmethod
-    def process_wrappers(wrappers):
+    def process_wrappers(wrappers, dict):
         """ Helper method for evlauating a list of wrappers
 
         :returns: a list of hashes for each of the application
@@ -43,18 +61,18 @@ class ConfigWrapper(object):
 
         result = []
         if isinstance(wrappers, ConfigWrapper):
-            w = wrappers.process()
+            w = wrappers.process(dict)
             if w:
                 result.append(w)
         else:
             for item in wrappers:
-                w = item.process()
+                w = item.process(dict)
                 if w:
                     result.append(w)
 
         return result
 
-    def process(self):
+    def process(self, dict=None):
         """Override this in derived classes to return a hash representing
         the configuration option
         """
@@ -96,7 +114,7 @@ class Category(ConfigWrapper):
 
         self.css_class = css_class
 
-    def process(self):
+    def process(self, dict=None):
         """Check the predicates and construct the dict
 
         :returns: a dict with all the configuration data for this category
@@ -107,7 +125,7 @@ class Category(ConfigWrapper):
 
         id = uuid.uuid4()
 
-        apps = self.process_wrappers(self.apps)
+        apps = self.process_wrappers(self.apps, dict)
         return {'label': self.label, 'apps': apps, 'id': id, 'css_class': self.css_class}
 
 class App(ConfigWrapper):
@@ -146,7 +164,7 @@ class App(ConfigWrapper):
         if self.label and not self.content_id:
             self.content_id = scrub_filter.sub('_', self.label.lower())
 
-    def process(self):
+    def process(self, dict=None):
         """Check the predicates and construct the dict
 
         :returns: a dict with all the configuration data for this application
@@ -154,14 +172,12 @@ class App(ConfigWrapper):
         if not check_predicates(self.auth):
             return None
 
-        query_str = ""
-        if self.params:
-            query_str = "?" + urllib.urlencode(self.params)
+        id = 'uuid' + str(uuid.uuid4())
 
-        id = uuid.uuid4()
-
-        return {'label': self.label, 'url': self.url + query_str, 'id': id,
-                'content_id': self.content_id}
+        return {'label': self.label, 'url': self.url,
+                'params': _update_params(self.params, dict),
+                'id': id,
+                'content_id': self.content_id + '-' + id}
 
 class MokshaApp(App):
     """A configuration wrapper class that displays a Moksa application
@@ -204,14 +220,14 @@ class MokshaApp(App):
                                         content_id,
                                         params, auth)
 
-    def process(self):
+    def process(self, dict=None):
         # We return a placeholder if the app is not registered
         if not moksha.apps.has_key(self.app):
             return MokshaWidget(self.label, 'placeholder',
                                 self.content_id,
-                                {'appname':self.app}, self.auth).process()
+                                {'appname':self.app}, self.auth).process(dict)
 
-        return super(MokshaApp, self).process()
+        return super(MokshaApp, self).process(dict)
 
 class Widget(ConfigWrapper):
     """A configuration wrapper class that displays a ToscaWidget.  Use this
@@ -251,19 +267,21 @@ class Widget(ConfigWrapper):
         self.widget = widget
         self.params = params or {}
         self.auth = auth or []
-
+        self.id = 'uuid' + str(uuid.uuid4())
         self.content_id = content_id
         if self.label and not content_id:
             self.content_id = scrub_filter.sub('_', self.label.lower())
 
-    def process(self):
+        self.content_id += '-' + self.id
+
+    def process(self, dict):
         if not check_predicates(self.auth):
             return None
 
-        id = uuid.uuid4()
+
         url = '#' + self.content_id
         return {'label': self.label, 'url': url,'widget': self.widget ,
-                'params':self.params, 'id': id, 'content_id': self.content_id}
+                'params':_update_params(self.params, dict), 'id': self.id, 'content_id': self.content_id}
 
 class MokshaWidget(Widget):
     """A configuration wrapper class that displays a ToscaWidget registered
