@@ -532,8 +532,16 @@ $.widget("ui.mokshatabs", {
             url: url,
             success: function(r, s) {
                 var $panel = $(a.hash + ':first', self.element);
-                $panel.html(r);
+                var $temp = $(r);
+                var $stripped = [];
+                $.each($temp, function(i, s) {
+                                               if (!$(s).is('script[src]')){
+                                                   $stripped.push(s);
+                                                }
+                                             });
+                $panel.html($stripped);
                 cleanup();
+
 
                 if (o.cache)
                     $.data(a, 'cache.tabs', true); // if loaded once do not load them again
@@ -542,7 +550,7 @@ $.widget("ui.mokshatabs", {
                 $(self.element).triggerHandler('tabsload',
                     [self.fakeEvent('tabsload'), self.ui(self.$tabs[index], self.$panels[index])], o.load
                 );
-                o.ajaxOptions.success && o.ajaxOptions.success(r, s);
+                o.ajaxOptions.success && o.ajaxOptions.success($temp, s);
 
                 // This callback is required because the switch has to take
                 // place after loading has completed. Call last in order to
