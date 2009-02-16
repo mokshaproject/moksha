@@ -24,7 +24,6 @@ class Globals(object):
         timeout = int(config.get('beaker.cache.timeout', '0'))
         try:
             self.cache = Cache(config['beaker.cache.url'], timeout)
-            #self.cache = Shove('memcache://%s' % config['beaker.cache.url'])
         except CacheBackendException, e:
             log.warning(str(e))
             self.cache = None
