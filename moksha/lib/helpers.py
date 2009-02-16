@@ -5,6 +5,10 @@ from repoze.what.predicates import  (Not, Predicate, All, Any, has_all_permissio
                                     in_all_groups, in_any_group, in_group,
                                     is_user, not_anonymous)
 
+from repoze.what.authorize import check_authorization, NotAuthorizedError
+
+from webob import Request
+
 import urllib
 import uuid
 import simplejson as json
@@ -318,6 +322,33 @@ class MokshaWidget(Widget):
                                            content_id=content_id, params=params,
                                            auth=auth)
 
+class param_has_value(Predicate):
+    """
+    Checks the parameters of the environment and return True if the
+    parameter specified holds a value
+    """
+    message = u'Parameter "%s(param)" is not set'
+
+    def __init__(self, param, empty_str_is_valid = False, **kwargs):
+        super(param_has_value, self).__init__(**kwargs)
+        self.param = param
+        self.empty_str_is_valid = empty_str_is_valid
+
+    def evaluate(self, environ, credentials):
+        req = Request(environ)
+        p = req.params.getall(self.param)
+
+        if not p:
+            return self.unmet(param = self.param)
+
+        p = p[0]
+        if p == None:
+            return self.unmet(param = self.param)
+
+        if not self.empty_str_is_valid and p == '':
+            return self.unmet(param = self.param)
+
+        return
 
 # setup the dictionary of acceptable callables when eval'ing predicates from
 # a configuration file - this makes up the keywords of the predicate
@@ -326,6 +357,7 @@ _safe_predicate_callables = {
                     'Not': Not,
                     'All': All,
                     'Any': Any,
+                    'param_has_value': param_has_value,
                     'has_all_permissions': has_all_permissions,
                     'has_any_permission': has_any_permission,
                     'has_permission': has_permission,
@@ -378,18 +410,16 @@ def check_predicates(predicates):
 
     from pylons import request
 
-    if(isinstance(predicates, list) or isinstance(predicates, tuple)):
-        for p in predicates:
-            if not p.eval_with_environ(request.environ):
-                return False
-        return True
+    if(not(isinstance(predicates, list) or isinstance(predicates, tuple))):
+        predicates = (predicates,)
 
+    for p in predicates:
+        try:
+            check_authorization(p, request.environ)
+        except NotAuthorizedError, e:
+            return False
 
-    if(isinstance(predicates, Predicate)):
-        return predicates.eval_with_environ(request.environ)
-
-    return False
-
+    return True
 
 def eval_and_check_predicates(predicate_str):
     """
