@@ -39,4 +39,9 @@ how it looks in TurboGears2.  If you're using Moksha as a stand-alone platform, 
                             full_stack, **app_conf)
         return app
 
-:Note: It currently requires to be wrapped in the `paste.registry <http://pythonpaste.org/modules/registry.html>`_ WSGI middleware.  TurboGears2 allows us to easily insert middleware directly on top of the raw application, so we then have the ability to use the paste.registry, sessions, and caching.
+.. note::
+   It currently requires to be wrapped in the `paste.registry
+   <http://pythonpaste.org/modules/registry.html>`_ WSGI middleware.
+   TurboGears2 allows us to easily insert middleware directly on top of the raw
+   application, so we then have the ability to use the paste.registry,
+   sessions, and caching.

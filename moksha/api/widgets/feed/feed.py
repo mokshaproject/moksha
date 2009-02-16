@@ -33,38 +33,11 @@ feed_storage = None
 feed_cache = None
 
 class Feed(Widget):
-    """ A powerful Feed object.
+    """
+    The Moksha Feed object.
 
     A Feed is initialized with an id and a url, and automatically handles the
     fetching, parsing, and caching of the data.
-
-    Ways of creating utilizing the Feed widget:
-
-       0) Specifying the URL render-time
-
-         feed = Feed()
-         feed(url='http://foo.com/feed.xml')
-
-       1) Subclassing
-
-          class MyFeed(Feed):
-              url = 'http://foo.com/feed.xml'
-
-          myfeed = MyFeed()
-          myfeed() # renders the widget, usually done in the template
-
-       2) As ToscaWidget children
-
-          class MyWidget(Widget):
-              myfeedurl = 'http://foo.com/feed.xml'
-              children = [Feed('myfeed', url=myfeedurl)]
-              template = "${c.myfeed()}"
-
-        3) As a generator
-
-            feed = Feed(url='http://foo.com/feed.xml')
-            for entry in feed.iterentries():
-                print entry.title
 
     """
     url = None

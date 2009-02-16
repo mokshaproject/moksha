@@ -20,9 +20,11 @@ Creating
         def consume(self, message):
             print message
 
-:Note: The :class:`MokshaHub` currently executes each consumer in their own
-       Thread, so be sure to employ thread-safety precausions when implementing
-       your :class:`Consumer`.
+.. note::
+
+   The :class:`MokshaHub` currently executes each consumer in their own
+   Thread, so be sure to employ thread-safety precausions when implementing
+   your :class:`Consumer`.
 
 Installing
 ----------
