@@ -51,7 +51,7 @@ setup(
     [moksha.stream]
     demo = moksha.streams.demo:MokshaDemoDataStream
     #livegraph = moksha.examples.livegraph:LiveGraphDataStream
-    #feed = moksha.streams.feed:FeedStream
+    feed = moksha.streams.feed:FeedStream
 
     #[moksha.consumer]
     #moksha = moksha.hub.hub:MokshaConsumer

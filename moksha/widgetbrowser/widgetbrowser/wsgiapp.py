@@ -17,6 +17,8 @@ try:
 except ImportError:
     have_formencode = False
 
+from moksha.lib.helpers import cache_rendered
+
 __all__ = ['WidgetBrowser']
 
 log = logging.getLogger(__name__)
@@ -119,6 +121,7 @@ class WidgetBrowser(object):
     def __call__(self, environ, start_response):
         return self.app(environ, start_response)
 
+    @cache_rendered
     def app(self, environ, start_response):
         req = Request(environ)
         resp = Response(request=req, content_type='text/html; charset=utf-8')
@@ -198,6 +201,7 @@ class WidgetBrowser(object):
         widget = req.widget
         return self.render('widget_index.html', locals())
 
+    @cache_rendered
     def show_demo(self, req, resp):
         widget = req.widget
         widget_name = widget.__class__.__name__
@@ -215,7 +219,10 @@ class WidgetBrowser(object):
             _disp = req.GET.get('_disp', '')
         else:
             _disp = ''
+
         widget_output = util.display_widget(widget, _disp, self.context)
+
+        # Wrap non-genshi things, like Mako based widgets, in a Genshi Markup object
         if not callable(widget_output):
             widget_output = Markup(widget_output)
 

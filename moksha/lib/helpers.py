@@ -1,3 +1,9 @@
+import moksha
+import pylons
+import uuid
+import simplejson as json
+import re
+
 from webhelpers import date, feedgenerator, html, number, misc, text
 
 from repoze.what.predicates import  (Not, Predicate, All, Any, has_all_permissions,
@@ -9,13 +15,8 @@ from repoze.what.authorize import check_authorization, NotAuthorizedError
 
 from webob import Request
 
-import urllib
-import uuid
-import simplejson as json
-import re
-
 from decorator import decorator
-import moksha
+
 
 scrub_filter = re.compile('[^_a-zA-Z0-9-]')
 
@@ -485,3 +486,37 @@ except:
         def __repr__(self):
             return 'defaultdict(%s, %s)' % (self.default_factory,
                                             dict.__repr__(self))
+
+
+# TODO: document this
+def cache_rendered_data(data):
+    """ A method to cache ``data`` with the current request path as the key.
+
+    This method can be used within TurboGears2 hooks to cache rendered data
+    from a given method for a specific URL.  For example, to cache the
+    index.html, you could do something like this::
+
+        from tg.decorators import after_render
+
+        @after_render(cache_rendered_data)
+        @expose('mako:moksha.templates.index')
+        def index(self):
+            return dict()
+
+    This is best utilized in conjunction with Nginx and Memcached.
+    """
+    if pylons.g.cache and pylons.request.environ.get('HTTP_X_FORWARDED_PROTO'):
+        pylons.g.cache.set(pylons.request.path_qs, str(data))
+
+@decorator
+def cache_rendered(func, *args, **kwargs):
+    print "cache_rendered"
+    raise Exception
+    content = func(*args, **kwargs)
+    print "wrapper.  content = %r" % content
+    if pylons.g.cache and \
+       pylons.request.environ.get('HTTP_X_FORWARDED_PROTO'):
+        pylons.g.cache.set(pylons.request.path_qs, str(content))
+        print "cache_rendered(%r)" % str(content)
+    else: print "Not caching rendered!"
+    return content

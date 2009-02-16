@@ -1,5 +1,16 @@
 """The application's Globals object"""
 
+import logging
+
+from tg import config
+from shove import Shove
+
+from moksha.exc import CacheBackendException
+from moksha.lib.cache import Cache
+
+
+log = logging.getLogger(__name__)
+
 class Globals(object):
     """Globals acts as a container for objects available throughout the
     life of the application
@@ -10,4 +21,10 @@ class Globals(object):
         initialization and is available during requests via the 'g'
         variable
         """
-        pass
+        timeout = int(config.get('beaker.cache.timeout', '0'))
+        try:
+            self.cache = Cache(config['beaker.cache.url'], timeout)
+            #self.cache = Shove('memcache://%s' % config['beaker.cache.url'])
+        except CacheBackendException, e:
+            log.warning(str(e))
+            self.cache = None

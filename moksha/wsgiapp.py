@@ -18,8 +18,6 @@
 
 from pylons.wsgiapp import PylonsApp
 
-import moksha
-
 class MokshaAppDispatcher(PylonsApp):
     """ Moksha WSGI Application Dispatcher.
 

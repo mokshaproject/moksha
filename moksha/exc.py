@@ -25,3 +25,6 @@ class ApplicationNotFound(MokshaException):
 
 class WidgetNotFound(MokshaException):
     pass
+
+class CacheBackendException(MokshaException):
+    pass

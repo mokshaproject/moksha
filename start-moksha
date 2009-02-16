@@ -23,11 +23,18 @@ python setup.py develop
 
 echo "Starting Moksha..."
 
+echo "Starting the WSGI stack..."
 paster serve development.ini &
 echo $! > paster.pid
 
+echo "Starting Orbited..."
 orbited &
 echo $! > orbited.pid
 
+echo "Starting the Moksha Hub..."
 python moksha/hub/hub.py -v &
 echo $! > hub.pid
+
+#echo "Starting memcached..."
+#memcached &
+#echo $! > memcached.pid

@@ -8,4 +8,7 @@ fi
 if [ -f hub.pid ]; then
     kill $(cat hub.pid)
 fi
+if [ -f memcached.pid ]; then
+    kill $(cat memcached.pid)
+fi
 rm -f *.pid

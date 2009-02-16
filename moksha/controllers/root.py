@@ -17,10 +17,14 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 
 import moksha
+import pylons
+import os
 
 from tg import config
 from tg import expose, flash, require, tmpl_context, redirect, validate
 from tg.controllers import WSGIAppController
+from tg.decorators import after_render
+
 from repoze.what import predicates
 from pkg_resources import resource_filename
 from widgetbrowser import WidgetBrowser
@@ -28,22 +32,21 @@ from widgetbrowser import WidgetBrowser
 from moksha import _
 from moksha.model import DBSession
 from moksha.lib.base import BaseController
+from moksha.lib.helpers import cache_rendered_data
 from moksha.exc import ApplicationNotFound
 from moksha.controllers.error import ErrorController
 from moksha.controllers.apps import AppController
 from moksha.controllers.widgets import WidgetController
-#from moksha.controllers.secc import AdminController
 
 # So we can mount the WidgetBrowser as /docs
-import os
 os.environ['TW_BROWSER_PREFIX'] = '/docs'
+
 
 class RootController(BaseController):
 
     appz = AppController()
     widgets = WidgetController()
     error = ErrorController()
-    #admin = AdminController()
 
     # ToscaWidgets WidgetBrowser integration
     docs = WSGIAppController(
@@ -53,6 +56,7 @@ class RootController(BaseController):
                     docs_dir=config.get('docs_dir', 'docs'),
                     full_stack=False))
 
+    @after_render(cache_rendered_data)
     @expose('mako:moksha.templates.index')
     def index(self):
         tmpl_context.menu_widget = moksha.menus['default_menu']
