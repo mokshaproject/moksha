@@ -65,7 +65,7 @@ today_fmt = '%B %d, %Y'
 
 # If true, sectionauthor and moduleauthor directives will be shown in the
 # output. They are ignored by default.
-#show_authors = False
+show_authors = True
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'default'
@@ -98,17 +98,21 @@ html_last_updated_fmt = '%b %d, %Y'
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
-#html_use_smartypants = True
+html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
-#html_additional_pages = {}
+html_additional_pages = {
+        'index': 'indexcontent.html',
+}
+
+#html_split_index = True
 
 # If false, no module index is generated.
-#html_use_modindex = True
+html_use_modindex = True
 
 # If true, the reST sources are included in the HTML build as _sources/<name>.
 #html_copy_source = True
@@ -155,5 +159,8 @@ code_path = test_path = os.path.dirname(os.path.abspath(__file__)) + os.path.sep
 #
 # Enable the ToscaWidgets WidgetBrowser
 #
-import widgetbrowser
-extensions.append("widgetbrowser.sphinx_ext")
+try:
+    import widgetbrowser
+    extensions.append("widgetbrowser.sphinx_ext")
+except:
+    print "Unable to import the `widgetbrowser`.  Try doing `cd moksha/widgetbrowser; python setup.py develop` to install it."
