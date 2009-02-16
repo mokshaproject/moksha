@@ -1,0 +1,75 @@
+{% extends "defindex.html" %}
+
+{% block tables %}
+  <table class="contentstable" align="center"><tr>
+    <td width="50%">
+      <p class="biglink"><a class="biglink" href="{{ pathto("main/Vision") }}">The Vision</a><br/>
+         <span class="linkdescr">High-level goals and concepts</span></p>
+      <p class="biglink"><a class="biglink" href="{{ pathto("main/Widgets") }}">Widgets</a><br/>
+         <span class="linkdescr">Details on creating Widgets</span></p>
+      <p class="biglink"><a class="biglink" href="{{ pathto("main/GettingStarted") }}">Getting Started</a><br/>
+         <span class="linkdescr">Instructions for diving in</span></p>
+      <p class="biglink"><a class="biglink" href="{{ pathto("main/Messaging") }}">Messaging</a><br/>
+         <span class="linkdescr">Information on Moksha's real-time messaging layer</span></p>
+      <p class="biglink"><a class="biglink" href="{{ pathto("main/Middleware") }}">WSGI Middleware</a><br/>
+         <span class="linkdescr">A description of Moksha's WSGI middleware</span></p>
+    </td><td width="50%">
+      <p class="biglink"><a class="biglink" href="{{ pathto("main/Architecture") }}">The Architecture</a><br/>
+         <span class="linkdescr">Features of and the technology behind them</span></p>
+      <p class="biglink"><a class="biglink" href="{{ pathto("main/MokshaApplications") }}">Applications</a><br/>
+         <span class="linkdescr">Details on creating applications using Moksha</span></p>
+      <p class="biglink"><a class="biglink" href="{{ pathto("main/Development") }}">Development</a><br/>
+         <span class="linkdescr">A handbook for hacking on and with Moksha</span></p>
+      <p class="biglink"><a class="biglink" href="{{ pathto("main/Deployment") }}">Deployment</a><br/>
+         <span class="linkdescr">Recipies for efficiently deploying and scaling Moksha</span></p>
+      <p class="biglink"><a class="biglink" href="http://bit.ly/RICf">Demo Dashboard</a><br/>
+         <span class="linkdescr">A simple demo Moksha dashboard</span></p>
+    </td></tr>
+  </table>
+
+  <p><strong>Indices and tables:</strong></p>
+  <table class="contentstable" align="center"><tr>
+    <td width="50%">
+      <p class="biglink"><a class="biglink" href="{{ pathto("modindex") }}">Global Module Index</a><br/>
+         <span class="linkdescr">quick access to all modules</span></p>
+      <p class="biglink"><a class="biglink" href="{{ pathto("genindex") }}">General Index</a><br/>
+         <span class="linkdescr">all functions, classes, terms</span></p>
+    </td><td width="50%">
+      <p class="biglink"><a class="biglink" href="{{ pathto("search") }}">Search page</a><br/>
+         <span class="linkdescr">search this documentation</span></p>
+      <p class="biglink"><a class="biglink" href="{{ pathto("contents") }}">Complete Table of Contents</a><br/>
+         <span class="linkdescr">lists all sections and subsections</span></p>
+    </td></tr>
+  </table>
+
+  <p><strong>Meta information:</strong></p>
+  <table class="contentstable" align="center"><tr>
+    <td width="50%">
+      <p class="biglink"><a class="biglink" href="https://fedorahosted.org/moksha/newticket">Reporting bugs</a></p>
+    </td>
+    <td width="50%">
+      <p class="biglink"><a class="biglink" href="https://fedorahosted.org/moksha/report/1">Active Tickets</a></p>
+    </td></tr>
+    <tr>
+      <td width="50%">
+        <p class="biglink"><a class="biglink" href="https://fedorahosted.org/moksha/timeline">Timeline</a></p>
+      </td>
+      <td width="50%">
+        <p class="biglink"><a class="biglink" href="https://fedorahosted.org/moksha/roadmap">Roadmap</a></p>
+    </td></tr>
+    <tr>
+      <td width="50%">
+        <p class="biglink"><a class="biglink" href="http://moksha.fedorahosted.org">Wiki</a></p>
+      </td>
+      <td width="50%">
+        <p class="biglink"><a class="biglink" href="https://fedorahosted.org/mailman/listinfo/moksha">Mailing List</a></p>
+    </td></tr>
+    <tr>
+      <td width="50%">
+        <p class="biglink"><a class="biglink" href="{{ pathto("license") }}">License</a></p>
+      </td>
+      <td width="50%">
+        <p class="biglink"><a class="biglink" href="{{ pathto("copyright") }}">Copyright</a></p>
+    </td></tr>
+  </table>
+{% endblock %}
