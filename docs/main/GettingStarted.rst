@@ -48,7 +48,10 @@ Starting Moksha
 
     $ ./start-moksha
 
-:Note: This script takes care of setting up your TurboGears2 virtual environment the first time it is run.  To drop into the virtualenv manually you can run `source tg2env/bin/activate` to enter it, and `deactivate` to leave it.
+.. note::
+   This script takes care of setting up your TurboGears2 virtual environment
+   the first time it is run.  To drop into the virtualenv manually you can run
+   `source tg2env/bin/activate` to enter it, and `deactivate` to leave it.
 
 Stopping Moksha
 ---------------
@@ -64,4 +67,6 @@ Now you can navigate your web browser to the following url:
 
 `http://localhost:8080 <http://localhost:8080>`_
 
-:Note: Going to `127.0.0.1` will not work properly with the current Orbited setup, so you must make sure to go to `localhost`.
+.. note::
+   Going to `127.0.0.1` will not work properly with the current Orbited setup,
+   so you must make sure to go to `localhost`.

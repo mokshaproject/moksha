@@ -3,3 +3,75 @@ Moksha Features
 ===============
 
 .. image:: ../_static/moksha-features.png
+
+WSGI Middleware Stack
+---------------------
+Moksha provides a `WSGI <http://wsgi.org>`_ (`PEP 333 <http://www.python.org/dev/peps/pep-0333/>`_) compliant application and `middleware <http://www.wsgi.org/wsgi/Middleware_and_Utilities>`_ stack
+
+Messaging Hub
+-------------
+
+Moksha provides a message hub that allows for other applications, services, or users to communicate over a low-latency topic-based publish/subscribe message bus.  It's designed in such a way to facilitate a variety of different message flows, allowing for a combination of different message queueing brokers and protocols.
+
+Out of the box, Moksha utilizes `MorbidQ <http://www.morbidq.com/>`_, a lightweight message queue for bundled deployment, for it's message queueing needs.  With a 1-line change to Moksha's configuration file, you can integrate it with an existing `AMQP <http://amqp.org/>`_ broker, such as `Qpid <http://incubator.apache.org/qpid/>`_ or `RabbitMQ <http://rabbitmq.com>`_.
+
+Low-latency Browser Socket
+--------------------------
+
+Moksha integrates with `Orbited <http://orbited.org>`_, a highly-scalable
+server that allows for asynchronous browser <-> server communication.  Moksha
+then makes it simple to create LiveWidgets_ that can publish and subscribe to
+arbitrary message topics in the MokshaHub_.  This allows for the creation of
+very rich live web applications.
+
+Plugin Infrastructure
+---------------------
+
+Moksha offers a highly-scalable plugin infrastructure that transparently
+handles initializing, dispatching, manipulating, and scaling applications and
+widgets -- allowing people to rapidly innovate without worrying about the
+over or under-lying software architecture.
+
+Widget Creation API
+-------------------
+
+`ToscaWidgets <http://toscawidgets.org>`_ provides a powerful API for creating
+reusable "Widgets", which are essentially just bundles of HTML, JavaScript,
+CSS, and render-time logic.  The ToscaWidgets WSGI Middleware is also integrated 
+into Moksha, which handles intelligently injecting Widget resources.
+
+Moksha also provides a variety of other Widgets, including a LiveWidget_ API
+for creating real-time message-driven widgets that can efficiently acquire data
+from a variety of sources.
+
+Resource Connectors
+-------------------
+
+Moksha offers a Resource Layer that trivializes interacting with external
+services in an intelligent and efficient manner.
+
+Highly Scalable Architecture
+----------------------------
+
+Moksha architecture is self-scaling and can adapt to a variety of
+infrastructure environments.
+
+Expert System
+--------------
+
+The MokshaHub_ gives you Expert System-like functionality by providing APIs for
+interacting with a variety of knowledge bases (SQLAlchemy models, Resource
+Connectors, Caches, Message Queues, etc), and can easily monitor and process
+incoming data.  One could then easily build state-machines, inference engines,
+or even forward/backward-chaning rule-driven expert systems.
+
+Moksha also provides a simple yet powerful API for creating DataStreamers_ that
+can do basically anything at anytime.  It allows for the easy scripting of
+periodic tasks such as fetching data, polling resources, warming caches,
+sending notifications, analyzing databases, etc.  For example, Moksha provides
+a FeedStream_, that automatically handles fetching, parsing, caching, and
+sending notifications for all known feeds at a regular interval.
+
+These are loaded by the MokshaHub_, and are executed outside of the WSGI
+application stack, but they are still able to access the Database, Cache,
+MessageHub, etc.
