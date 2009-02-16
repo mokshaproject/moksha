@@ -164,3 +164,9 @@ try:
     extensions.append("widgetbrowser.sphinx_ext")
 except:
     print "Unable to import the `widgetbrowser`.  Try doing `cd moksha/widgetbrowser; python setup.py develop` to install it."
+
+#
+# example configuration for intersphinx: refer to the python standard library.
+#
+#extensions.append('sphinx.ext.intersphinx')
+#intersphinx_mapping = {'http://docs.python.org/dev': none}
