@@ -511,7 +511,5 @@ def cache_rendered_data(data):
 @decorator
 def cache_rendered(func, *args, **kwargs):
     content = func(*args, **kwargs)
-    if pylons.g.cache and \
-       pylons.request.environ.get('HTTP_X_FORWARDED_PROTO'):
-        pylons.g.cache.set(pylons.request.path_qs, str(content))
+    cache_rendered_data(content)
     return content
