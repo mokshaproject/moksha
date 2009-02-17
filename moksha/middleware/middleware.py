@@ -149,13 +149,6 @@ class MokshaMiddleware(object):
                     'path': app_path,
                     'model': None,
                     }
-            try:
-                model = __import__('%s.model' % app_entry.name,
-                                   globals(), locals(),
-                                   [app_entry.name])
-                moksha.apps[app_entry.name]['model'] = model
-            except ImportError:
-                pass
 
     def load_widgets(self):
         log.info('Loading moksha widgets')
