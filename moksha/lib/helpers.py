@@ -510,13 +510,8 @@ def cache_rendered_data(data):
 
 @decorator
 def cache_rendered(func, *args, **kwargs):
-    print "cache_rendered"
-    raise Exception
     content = func(*args, **kwargs)
-    print "wrapper.  content = %r" % content
     if pylons.g.cache and \
        pylons.request.environ.get('HTTP_X_FORWARDED_PROTO'):
         pylons.g.cache.set(pylons.request.path_qs, str(content))
-        print "cache_rendered(%r)" % str(content)
-    else: print "Not caching rendered!"
     return content
