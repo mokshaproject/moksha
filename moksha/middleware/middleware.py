@@ -35,7 +35,8 @@ from sqlalchemy import create_engine
 from feedcache.cache import Cache
 
 from moksha.exc import ApplicationNotFound, MokshaException
-from moksha.lib.helpers import defaultdict
+from moksha.lib.helpers import (defaultdict, get_moksha_config_path,
+                                get_main_app_config_path)
 from moksha.wsgiapp import MokshaAppDispatcher
 
 log = logging.getLogger(__name__)
@@ -270,12 +271,18 @@ class MokshaMiddleware(object):
         where it is being run as WSGI middleware in a different environment.
 
         """
-        moksha_conf = os.path.abspath(__file__ + '/../../../')
-        for app in [{'path': moksha_conf}] + moksha.apps.values():
+        config_paths = set()
+        moksha_config_path = os.path.dirname(get_moksha_config_path())
+        main_app_config_path = os.path.dirname(get_main_app_config_path())
+        for app in [{'path': moksha_config_path}] + moksha.apps.values():
+            if app['path'] != main_app_config_path and \
+               app['path'] not in config_paths:
+                config_paths.add(app['path'])
+        for config_path in config_paths:
             for configfile in ('production.ini', 'development.ini'):
-                confpath = os.path.join(app['path'], configfile)
+                confpath = os.path.join(config_path, configfile)
                 if os.path.exists(confpath):
-                    log.debug('Loading configuration: %s' % confpath)
+                    log.info('Loading configuration: %s' % confpath)
                     conf = appconfig('config:' + confpath)
                     for entry in conf.global_conf:
                         if entry.startswith('_'):
