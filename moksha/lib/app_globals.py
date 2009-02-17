@@ -39,4 +39,4 @@ class Globals(object):
         frame = inspect.currentframe()
         caller = frame.f_back.f_back.f_globals['__name__']
         print "caller = ", caller
-        return object.__getattr__(self, *args, **kw)
+        return object.__getattribute__(self, *args, **kw)
