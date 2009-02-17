@@ -408,15 +408,12 @@ def check_predicates(predicates):
     :return: False is any one is False
     :return: True if they are all True
     """
-
-    from pylons import request
-
     if(not(isinstance(predicates, list) or isinstance(predicates, tuple))):
         predicates = (predicates,)
 
     for p in predicates:
         try:
-            check_authorization(p, request.environ)
+            check_authorization(p, pylons.request.environ)
         except NotAuthorizedError, e:
             return False
 
