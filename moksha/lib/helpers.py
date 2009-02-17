@@ -3,21 +3,21 @@ import pylons
 import uuid
 import simplejson as json
 import re
-
-from webhelpers import date, feedgenerator, html, number, misc, text
-
-from repoze.what.predicates import  (Not, Predicate, All, Any, has_all_permissions,
-                                    has_any_permission, has_permission,
-                                    in_all_groups, in_any_group, in_group,
-                                    is_user, not_anonymous)
-
-from repoze.what.authorize import check_authorization, NotAuthorizedError
+import os
+import logging
 
 from webob import Request
-
 from decorator import decorator
+from webhelpers import date, feedgenerator, html, number, misc, text
+from repoze.what.authorize import check_authorization, NotAuthorizedError
+from repoze.what.predicates import  (Not, Predicate, All, Any,
+                                    has_all_permissions, has_any_permission,
+                                    has_permission, in_all_groups, in_any_group,
+                                    in_group, is_user, not_anonymous)
 
+from moksha.exc import MokshaConfigNotFound
 
+log = logging.getLogger(__name__)
 scrub_filter = re.compile('[^_a-zA-Z0-9-]')
 
 def _update_params(params, d):
@@ -516,13 +516,39 @@ def cache_rendered(func, *args, **kwargs):
 
 
 def in_full_moksha_stack():
-    """ Figure out if we are running Moksha as WSGI middleware, or in our full stack.
-
-    :returns True: If we are currently running in Moksha's full WSGI stack
-    :returns False: If are are only running Moksha as WSGI middleware
+    """
+    Figure out if we are running Moksha as WSGI middleware, or in our full stack.
+    :returns: True if we are currently running in Moksha's full WSGI stack,
+              False if we are running Moksha only as WSGI middleware.
     """
     try:
-        from pylons import config
-        return config.get('app_conf', {}).get('package', 'notmoksha') == 'moksha'
+        return pylons.config['app_conf']['package'] == 'moksha'
     except:
         return False
+
+
+def get_main_app_config_path():
+    """
+    :returns: The path to the main applications configuratoin file
+    """
+    try:
+        return pylons.config['__file__']
+    except:
+        log.error('Cannot find main applications config file in '
+                  'pylons.config["__file__"]')
+
+
+def get_moksha_config_path():
+    """
+    :returns: The path to Moksha's configuration file.
+    """
+    if in_full_moksha_stack():
+        return get_main_app_config_path()
+    else:
+        for config_file in ('production.ini', 'development.ini'):
+            for config_path in ('/etc/moksha/', __file__ + '/../../../'):
+                cfg = os.path.join(os.path.abspath(config_path), config_file)
+                if os.path.isfile(cfg):
+                    return cfg
+
+        raise MokshaConfigNotFound('Cannot find moksha configuration file!')

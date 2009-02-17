@@ -28,3 +28,6 @@ class WidgetNotFound(MokshaException):
 
 class CacheBackendException(MokshaException):
     pass
+
+class MokshaConfigNotFound(MokshaException):
+    pass
