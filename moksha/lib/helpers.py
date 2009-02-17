@@ -513,3 +513,16 @@ def cache_rendered(func, *args, **kwargs):
     content = func(*args, **kwargs)
     cache_rendered_data(content)
     return content
+
+
+def in_full_moksha_stack():
+    """ Figure out if we are running Moksha as WSGI middleware, or in our full stack.
+
+    :returns True: If we are currently running in Moksha's full WSGI stack
+    :returns False: If are are only running Moksha as WSGI middleware
+    """
+    try:
+        from pylons import config
+        return config.get('app_conf', {}).get('package', 'notmoksha') == 'moksha'
+    except:
+        return False
