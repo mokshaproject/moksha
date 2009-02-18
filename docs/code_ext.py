@@ -21,9 +21,7 @@ from docutils.statemachine import ViewList
 
 from sphinx import util
 
-import pysvn
 import nose
-from mercurial import hg, ui
 
  
 beginmarker_re = re.compile(r'##\{(?P<section>.+)}')
@@ -73,6 +71,7 @@ def search(source, section):
 class HgClient:
     """ Class that represents a Mercurial client """
     def __init__(self, path):
+        from mercurial import hg, ui
         self.repo = hg.repository(ui.ui(interactive=False), path=path)
 
     def get_file(self, path, revision='tip'):
@@ -82,6 +81,7 @@ class HgClient:
 class SVNClient:
     """ Class that represents a Subversion client """
     def __init__(self):
+        import pysvn
         self.client = pysvn.Client()
 
     def get_file(self, path, revision='HEAD'):

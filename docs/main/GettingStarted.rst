@@ -24,7 +24,7 @@ You'll need the `virtualenv <http://pypi.python.org/pypi/virtualenv>`_ package.
 
 .. code-block:: bash
 
-    # yum -y install python-virtualenv pysvn mercurial PyOpenSSL python-memcached 
+    # yum -y install python-virtualenv PyOpenSSL python-memcached 
 
 The `start-moksha` script mentioned below should install all of the necessary
 dependencies.  However, it will attempt to compile a few things, such as lxml.  So, you may need to install some additional dependencies like `libxml2` and `libxslt` in order to build it.  If you're using yum, you can easily install all of the build requirements by doing:
