@@ -3,6 +3,8 @@ from tw.forms import FormField
 from tw.jquery.ui_core import jquery_ui_core_js
 from tw.jquery import jQuery, jquery_js
 import simplejson as json
+import uuid
+
 
 jquery_json_js = JSLink(filename='public/javascript/jquery.json.js',
                            modname='moksha', javascript=[jquery_js])
@@ -19,7 +21,7 @@ class Grid(FormField):
     params= ['rows_per_page', 'page_num', 'total_rows',
             'filters', 'unique_key', 'sort_key', 'sort_order',
             'row_template', 'resource', 'resource_path',
-            'loading_throbber']
+            'loading_throbber', 'uid']
 
     rows_per_page = 10
     page_num = 1
@@ -47,7 +49,6 @@ class Grid(FormField):
 
                 grid_d[p] = v
 
-        id = d['id']
-        if d.get('uid'):
-            id += d.uid
-        self.add_call(jQuery("#%s" % id).mokshagrid(grid_d))
+        d['id'] += "-uuid" + str(uuid.uuid4())
+
+        self.add_call(jQuery("#%s" % d['id']).mokshagrid(grid_d))

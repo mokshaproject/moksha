@@ -1,3 +1,8 @@
+from moksha.api.widgets.layout.layout import layout_js, layout_css, ui_core_js, ui_draggable_js, ui_droppable_js, ui_sortable_js
+
+from tw.api import Widget
+from twfrom.jquery import jquery_js
+from moksha.lib.helpers import eval_app_config, ConfigWrapper
 from tg import config
 from tw.api import Widget
 
@@ -22,6 +27,8 @@ applist_widget = AppListWidget('applist');
 
 class DashboardContainer(Widget):
     template = 'mako:moksha.api.widgets.containers.templates.dashboardcontainer'
+    css = []
+    javascript = [jquery_js]
     config_key = None
     layout = []
 

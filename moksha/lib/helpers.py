@@ -1,5 +1,15 @@
-import moksha
-import pylons
+from webhelpers import date, feedgenerator, html, number, misc, text
+
+from repoze.what.predicates import  (Not, Predicate, All, Any, has_all_permissions,
+                                    has_any_permission, has_permission,
+                                    in_all_groups, in_any_group, in_group,
+                                    is_user, not_anonymous)
+
+from repoze.what.authorize import check_authorization, NotAuthorizedError
+
+from webob import Request
+
+import urllib
 import uuid
 import simplejson as json
 import re
@@ -8,14 +18,7 @@ import logging
 
 from webob import Request
 from decorator import decorator
-from webhelpers import date, feedgenerator, html, number, misc, text
-from repoze.what.authorize import check_authorization, NotAuthorizedError
-from repoze.what.predicates import  (Not, Predicate, All, Any,
-                                    has_all_permissions, has_any_permission,
-                                    has_permission, in_all_groups, in_any_group,
-                                    in_group, is_user, not_anonymous)
-
-from moksha.exc import MokshaConfigNotFound
+import moksha
 
 log = logging.getLogger(__name__)
 scrub_filter = re.compile('[^_a-zA-Z0-9-]')
@@ -408,12 +411,14 @@ def check_predicates(predicates):
     :return: False is any one is False
     :return: True if they are all True
     """
+    from pylons import request
+
     if(not(isinstance(predicates, list) or isinstance(predicates, tuple))):
         predicates = (predicates,)
 
     for p in predicates:
         try:
-            check_authorization(p, pylons.request.environ)
+            check_authorization(p, request.environ)
         except NotAuthorizedError, e:
             return False
 

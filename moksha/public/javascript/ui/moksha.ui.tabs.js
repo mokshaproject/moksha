@@ -532,16 +532,10 @@ $.widget("ui.mokshatabs", {
             url: url,
             success: function(r, s) {
                 var $panel = $(a.hash + ':first', self.element);
-                var $temp = $(r);
-                var $stripped = [];
-                $.each($temp, function(i, s) {
-                                               if (!$(s).is('script[src]')){
-                                                   $stripped.push(s);
-                                                }
-                                             });
+                var $stripped = moksha.filter_resources(r);
+
                 $panel.html($stripped);
                 cleanup();
-
 
                 if (o.cache)
                     $.data(a, 'cache.tabs', true); // if loaded once do not load them again
