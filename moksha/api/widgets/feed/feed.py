@@ -64,6 +64,7 @@ class Feed(Widget):
 
     def iterentries(self, d=None, limit=None):
         url = self.url or d.get('url')
+        id = d and d.get('id', self.id) or self.id
         if moksha.feed_cache:
             feed = moksha.feed_cache.fetch(url)
         else:
@@ -88,7 +89,7 @@ class Feed(Widget):
                 d['title'] = 'Unable to parse feed'
                 return
         for i, entry in enumerate(feed.get('entries', [])):
-            entry['uid'] = '%s_%d' % (self.id, i)
+            entry['uid'] = '%s_%d' % (id, i)
             entry['link'] = entry.get('link')
             if i == limit:
                 break
