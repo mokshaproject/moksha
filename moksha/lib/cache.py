@@ -7,9 +7,6 @@ class Cache(object):
     """ A memcached-specific caching interface """
 
     def __init__(self, url, timeout=None, prefix=None):
-        self.create_memcached_cache()
-
-    def create_memcached_cache(self):
         try:
             import memcache
         except ImportError:
