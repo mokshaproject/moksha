@@ -24,9 +24,6 @@ applist_widget = AppListWidget('applist');
 
 class DashboardContainer(Widget):
     template = 'mako:moksha.api.widgets.containers.templates.dashboardcontainer'
-    css = []
-    javascript = [jquery_js, layout_js, ui_core_js, ui_draggable_js,
-                  ui_droppable_js, ui_sortable_js]
     config_key = None
     layout = []
 
