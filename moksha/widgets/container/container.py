@@ -38,7 +38,7 @@ class MokshaContainer(Widget):
     skin = 'skin3' # skin[1-7]
 
     # Pixel tweaking
-    width = 400
+    width = 430
     left = 170
     top = 270
 
