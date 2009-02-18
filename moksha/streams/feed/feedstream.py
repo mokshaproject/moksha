@@ -200,8 +200,8 @@ class FeederProtocol(object):
                 entry_title = entry.get('title', '[No Title]')
                 channel_link = entry.get('channel', {'link': addr})['link']
                 if entry['title'] not in oldtitles:
-                    log.info('New feed entry found: %' % entry['title'])
-                    self.hub.send_message('feed.%s' % channel_link,
+                    log.info('New feed entry found: %s' % entry['title'])
+                    self.hub.send_message(['feed.%s' % channel_link, 'feeds'],
                             {'title': entry_title, 'link': entry.get('link')})
 
     def get_page(self, data, args):
