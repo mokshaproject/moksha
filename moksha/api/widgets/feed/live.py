@@ -25,8 +25,10 @@ class LiveFeedWidget(LiveWidget):
             'url': 'The feed URL',
             'topic': 'A topic or list of topics to subscribe to',
             'feed': 'A moksha Feed object',
+            'd': 'The widget data',
+            'limit': 'The number of entries to display',
     }
-    template = '${feed(id=id, url=url)}'
+    template = '${feed(id=id, url=url, limit=limit)}'
     onmessage = """
         $.each(json, function() {
             $("#${id} ul li:last").remove();
@@ -39,8 +41,10 @@ class LiveFeedWidget(LiveWidget):
     """
     feed = Feed()
     topic = None
+    limit = 10
 
     def update_params(self, d):
+        if not d.get('topic'):
+            d['topic'] = 'feed.%s' % d.get('url', self.url)
         super(LiveFeedWidget, self).update_params(d)
-        if not d.topic:
-            d.topic = 'feed.%s' % d.url
+        d.d = d

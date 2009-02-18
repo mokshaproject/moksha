@@ -62,7 +62,7 @@ class Feed(Widget):
             return super(Feed, cls).__new__(AlternateFeedView, *args, **kw)
         return super(Feed, cls).__new__(cls, *args, **kw)
 
-    def iterentries(self, d=None):
+    def iterentries(self, d=None, limit=None):
         url = self.url or d.get('url')
         if moksha.feed_cache:
             feed = moksha.feed_cache.fetch(url)
@@ -90,6 +90,8 @@ class Feed(Widget):
         for i, entry in enumerate(feed.get('entries', [])):
             entry['uid'] = '%s_%d' % (self.id, i)
             entry['link'] = entry.get('link')
+            if i == limit:
+                break
             yield entry
 
     def entries(self):
@@ -101,15 +103,9 @@ class Feed(Widget):
     def update_params(self, d):
         super(Feed, self).update_params(d)
         d['entries'] = []
-        limit = d.get('show')
-        if limit:
-            for i, entry in enumerate(self.iterentries(d)):
-                if i >= limit:
-                    break
-                d['entries'].append(entry)
-        else:
-            for entry in self.iterentries(d):
-                d['entries'].append(entry)
+        limit = d.get('limit')
+        for entry in self.iterentries(d, limit=limit):
+            d['entries'].append(entry)
 
     def close(self):
         global feed_storage
