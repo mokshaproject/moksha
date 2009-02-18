@@ -20,21 +20,18 @@ import os
 import moksha
 import logging
 import pkg_resources
-import simplejson as json
-import urllib
 
 from tg.controllers import WSGIAppController
-from webob import Request, Response
+from webob import Request
 from shove import Shove
 from pylons import config
 from inspect import isclass
 from pylons.i18n import ugettext
 from paste.deploy import appconfig
-from genshi.filters import Translator
 from sqlalchemy import create_engine
 from feedcache.cache import Cache
 
-from moksha.exc import ApplicationNotFound, MokshaException
+from moksha.exc import MokshaException
 from moksha.lib.helpers import (defaultdict, get_moksha_config_path,
                                 get_main_app_config_path)
 from moksha.wsgiapp import MokshaAppDispatcher
