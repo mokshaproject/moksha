@@ -66,17 +66,22 @@ class MokshaHub(StompHub, AMQPHub):
     def send_message(self, topic, message, jsonify=True):
         """ Send a message to a specific topic.
 
-        :topic: The stop to send the message to
+        :topic: A topic or list of topics to send the message to.
         :message: The message body.  Can be a string, list, or dict.
         :jsonify: To automatically encode non-strings to JSON
 
         """
-        if jsonify and not isinstance(message, basestring):
-            message = json.encode(message)
-        if self.amqp_broker:
-            AMQPHub.send_message(self, topic, message, routing_key=topic)
-        elif self.stomp_broker:
-            StompHub.send_message(self, topic, message)
+        if not isinstance(topic, list):
+            topics = [topic]
+        else:
+            topics = topic
+        for topic in topics:
+            if jsonify and not isinstance(message, basestring):
+                message = json.encode(message)
+            if self.amqp_broker:
+                AMQPHub.send_message(self, topic, message, routing_key=topic)
+            elif self.stomp_broker:
+                StompHub.send_message(self, topic, message)
 
     def close(self):
         if self.amqp_broker:
