@@ -38,7 +38,7 @@ from shove import Shove
 from tg import config
 
 from moksha.hub import MokshaHub
-from moksha.hub.http import conditional_get_page
+#from moksha.hub.http import conditional_get_page
 from moksha.api.streams import PollingDataStream
 
 log = logging.getLogger('moksha.hub')
