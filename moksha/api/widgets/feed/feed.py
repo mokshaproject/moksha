@@ -74,9 +74,9 @@ class Feed(Widget):
                 feed_storage = Shove('sqlite:///feeds.db', compress=True)
                 feed_cache = Cache(feed_storage)
             feed = feed_cache.fetch(url)
-        if not (200 <= feed.status < 400):
+        if not (200 <= feed.get('status', 200) < 400):
             log.warning('Got %s status from %s: %s' % (
-                        feed.status, url, feed.headers.get('status')))
+                        feed['status'], url, feed.headers.get('status')))
             d['title'] = feed.headers.get('status')
             d['link'] = feed.feed.get('link')
             return
@@ -87,7 +87,7 @@ class Feed(Widget):
             except AttributeError:
                 d['title'] = 'Unable to parse feed'
                 return
-        for i, entry in enumerate(feed.entries):
+        for i, entry in enumerate(feed.get('entries', [])):
             entry['uid'] = '%s_%d' % (self.id, i)
             entry['link'] = entry.get('link')
             yield entry
