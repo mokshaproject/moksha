@@ -79,14 +79,14 @@ setup(
     orbited = moksha.api.widgets.orbited:orbited_js
 
     jquery = tw.jquery:jquery_js
-    jquery_ui_core = tw.jquery.ui:ui_core_js
-    jquery_ui_draggable = tw.jquery.ui:ui_draggable_min_js
-    jquery_ui_resizable = tw.jquery.ui:ui_resizable_min_js
+    jquery_ui_core = tw.jquery.ui_core:jquery_ui_core_js
+
+    #jquery_ui_draggable = tw.jquery.ui:ui_draggable_min_js
+    #jquery_ui_resizable = tw.jquery.ui:ui_resizable_min_js
     #jquery_ui_dialog = tw.jquery.ui:ui_dialog_min_js
     #jquery_ui_tabs = tw.jquery.ui_tabs:jquery_ui_tabs_js
     #jquery_json_js = fedoracommunity.widgets:jquery_json_js
     #jquery_template_js = fedoracommunity.widgets:jquery_template_js
-
     #jquery_ui_css = moksha.widgets.jquery_ui_theme:JQueryUITheme
 
     # Enable support for the Blueprint CSS framework
@@ -98,7 +98,7 @@ setup(
     #blueprint_fancytype_css = moksha.widgets.blueprint:blueprint_plugin_fancytype_css
 
     # up up down down left right left right b a
-    konami_js = moksha.widgets.misc.ptd:konami
+    #konami_js = moksha.widgets.misc.ptd:konami
 
     [moksha.menu]
     default_menu = moksha.api.menus:MokshaDefaultMenu
