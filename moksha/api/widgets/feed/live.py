@@ -38,3 +38,9 @@ class LiveFeedWidget(LiveWidget):
         });
     """
     feed = Feed()
+    topic = None
+
+    def update_params(self, d):
+        super(LiveFeedWidget, self).update_params(d)
+        if not d.topic:
+            d.topic = 'feed.%s' % d.url
