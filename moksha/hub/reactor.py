@@ -26,12 +26,12 @@ try:
     if 'linux' in sys.platform:
         from twisted.internet import epollreactor
         epollreactor.install()
-    elif 'win' in sys.platform:
-        from twisted.internet import iocpreactor
-        iocpreactor.install()
     elif 'freebsd' in sys.platform or 'darwin' in sys.platform:
         from twisted.internet import kqreactor
         kqreactor.install()
+    elif 'win' in sys.platform:
+        from twisted.internet import iocpreactor
+        iocpreactor.install()
 except AssertionError: # reactor already installed
     pass
 
