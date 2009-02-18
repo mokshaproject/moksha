@@ -10,3 +10,4 @@ mokshaenv
 *.db
 .build
 tg2env
+*.egg-info
