@@ -162,7 +162,10 @@ class FeederProtocol(object):
         return feed
 
     def get_feed(self, addr):
-        return feed_storage[addr][1]
+        try:
+            return feed_storage[addr][1]
+        except KeyError:
+            return None
 
     def process_feed(self, parsed_feed, addr, olddata):
         """ Process the parsed feed.
