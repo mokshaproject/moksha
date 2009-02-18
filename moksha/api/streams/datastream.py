@@ -31,7 +31,7 @@ class PollingDataStream(DataStream):
     """
     frequency = None # Either a timedelta object, or the number of seconds
 
-    def __init__(self):
+    def __init__(self, now=True):
         super(PollingDataStream, self).__init__()
         self.timer = LoopingCall(self.poll)
         if isinstance(self.frequency, timedelta):
@@ -41,7 +41,7 @@ class PollingDataStream(DataStream):
         else:
             seconds = self.frequency
         log.debug("Setting a %s second timers" % seconds)
-        self.timer.start(seconds, now=False)
+        self.timer.start(seconds, now=now)
 
     def poll(self):
         raise NotImplementedError
