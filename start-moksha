@@ -9,6 +9,7 @@ if [ ! $VIRTUAL_ENV ]; then
         virtualenv tg2env
         #virtualenv --no-site-packages tg2env
         source tg2env/bin/activate
+        easy_install -U setuptools
         easy_install -U WebOb
         easy_install -U SQLAlchemy
         easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
