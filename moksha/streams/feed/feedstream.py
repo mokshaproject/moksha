@@ -16,10 +16,10 @@
 # Copyright 2008, Red Hat, Inc.
 # Authors: Luke Macken <lmacken@redhat.com>
 
-import moksha
 import logging
-import feedparser, time, sys
-import md5, os
+import feedparser
+import time
+import os
 
 try:
     from cStringIO import cStringIO as StringIO
@@ -29,10 +29,8 @@ except ImportError:
 from twisted.web import client
 from twisted.web.client import HTTPPageGetter, HTTPClientFactory
 from twisted.internet import reactor, protocol, defer, ssl
-from twisted.web import error
-from twisted.internet import protocol, defer
 
-from datetime import timedelta, datetime
+from datetime import timedelta
 from feedcache import Cache
 from shove import Shove
 from tg import config
@@ -97,7 +95,7 @@ class ConditionalHTTPClientFactory(HTTPClientFactory):
             log.error("Unable to store parsed_feed: %r" % parsed_feed)
             log.exception(e)
 
-    def notModified():
+    def notModified(self):
         if self.waiting:
             self.waiting = False
 
