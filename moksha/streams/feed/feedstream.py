@@ -30,13 +30,16 @@ from twisted.web import client
 from twisted.web.client import HTTPPageGetter, HTTPClientFactory
 from twisted.internet import reactor, protocol, defer, ssl
 from twisted.web import error
+from twisted.internet import protocol, defer
+
 from datetime import timedelta, datetime
 from feedcache import Cache
 from shove import Shove
 from tg import config
 
+from moksha.hub import MokshaHub
+from moksha.hub.http import conditional_get_page
 from moksha.api.streams import PollingDataStream
-from moksha.lib.helpers import trace
 
 log = logging.getLogger('moksha.hub')
 
@@ -46,12 +49,12 @@ feed_cache = Cache(feed_storage)
 class ConditionalHTTPPageGetter(HTTPPageGetter):
 
     def handleStatus_200(self):
-        """ If we're good, try recording the last-modified header """
+        """ Attempt to save the last-modified header """
         if self.headers.has_key('last-modified'):
             self.factory.lastModified(self.headers['last-modified'])
 
     def handleStatus_304(self):
-        """ Close connection """
+        """ Close the connection """
         self.factory.notModified()
         self.transport.loseConnection()
 
@@ -61,8 +64,7 @@ class ConditionalHTTPClientFactory(HTTPClientFactory):
     protocol = ConditionalHTTPPageGetter
 
     def __init__(self, url, method='GET', postdata=None, headers=None,
-                 agent="Moksha Feed Streamer", timeout=0, cookies=None,
-                 followRedirect=1):
+                 agent=None, timeout=0, cookies=None, followRedirect=1):
 
         self.url = url
 
@@ -91,9 +93,9 @@ class ConditionalHTTPClientFactory(HTTPClientFactory):
 
         try:
             feed_storage[self.url] = (t, parsed_feed)
-        except:
+        except Exception, e:
             log.error("Unable to store parsed_feed: %r" % parsed_feed)
-            raise
+            log.exception(e)
 
     def notModified():
         if self.waiting:
@@ -119,11 +121,10 @@ class FeederProtocol(object):
 
     def __init__(self):
         self.parsed = 1
-        self.with_errors = 0
-        self.error_list = []
+        self.hub = MokshaHub()
 
     def is_cached(self, site):
-        already_got = feed_storage.get(site[0])
+        already_got = feed_storage.get(site)
         if already_got:
             elapsed_time = time.time() - already_got[0]
             if elapsed_time < self.max_age:
@@ -136,8 +137,6 @@ class FeederProtocol(object):
     def on_error(self, traceback, extra_args):
         log.error(extra_args)
         log.exception(traceback)
-        self.with_errors += 1
-        self.error_list.append(extra_args)
 
     def get_feed_from_cache(self, data, key=None):
         """ Return feed data from the cache based on a given ``key`` """
@@ -162,72 +161,70 @@ class FeederProtocol(object):
         feed_storage[addr] = (time.time(), feed)
         return feed
 
-    def process_feed(self, parsed_feed, addr):
+    def get_feed(self, addr):
+        return feed_storage[addr][1]
+
+    def process_feed(self, parsed_feed, addr, olddata):
+        """ Process the parsed feed.
+
+        If `olddata` is provided, this method will look for new feed entries,
+        and send notifications to the `feed.$FEED_URL` MokshaHub Topic.
+
+        :param parsed_feed: A parsed :mod:`feedcache` feed
+        :param addr: The URL of the feed
+        :param olddata: The cached feed data
+        """
         if not parsed_feed:
             log.error("Cannot process %r feed for %s" % (parsed_feed, addr))
             return
+
         chan = parsed_feed.get('channel', None)
         if chan:
             log.debug(chan.get('title', ''))
-        #    print chan.get('link', '')
-        #    #print chan.get('tagline', '')
-        #    print chan.get('description','')
-        #print "-"*20
-        #items = parsed_feed.get('items', None)
-        #if items:
-        #    for item in items:
-        #        print '\tTitle: ', item.get('title','')
-        #        print '\tDate: ', item.get('date', '')
-        #        print '\tLink: ', item.get('link', '')
-        #        print '\tDescription: ', item.get('description', '')
-        #        print '\tSummary: ', item.get('summary','')
-        #        print "-"*20
-        #print "got",addr
-        #print "="*40
-        return parsed_feed
 
-        ## @@ post processing
-        for url in feed_storage:
-            olddata = feed_storage[url][1].copy()
-            newdata = feed_cache.fetch(url) #, force_update=True)
+        # Previous data provided; look for new entries.
+        if olddata:
+            oldtitles = [entry.get('title') for entry in olddata['entries']]
+            new_entries = parsed_feed.get('entries', [{}])
+            if not len(new_entries):
+                log.warning('Feed contains empty entries: %s' % addr)
+                return
+
             # If there are no new entries, move on...
-            if newdata['entries'][0]['title'] == olddata['entries'][0]['title']:
-                log.debug('No feed changes for %s' % url)
-                del(olddata)
-                continue
-            oldtitles = [entry['title'] for entry in olddata['entries']]
-            for entry in newdata['entries'][::-1]:
-                # If we haven't seen this entry yet...
-                if entry['title'] not in oldtitles:
-                    # Send a message to the feed's topic
-                    print "New entry:", entry['title']
-                    self.send_message('feed.%s' % entry.channel.link,
-                            {'title': entry['title'], 'link': entry['link']})
-                else:
-                    print "Dupe entry", entry['title']
+            newtitle = new_entries[0].get('title', None)
+            if newtitle == oldtitles[0]:
+                return
 
+            # Send notifications for each new entry
+            for entry in new_entries[::-1]:
+                entry_title = entry.get('title', '[No Title]')
+                channel_link = entry.get('channel', {'link': addr})['link']
+                if entry['title'] not in oldtitles:
+                    log.info('New feed entry found: %' % entry['title'])
+                    self.hub.send_message('feed.%s' % channel_link,
+                            {'title': entry_title, 'link': entry.get('link')})
 
     def get_page(self, data, args):
         return conditional_get_page(args, timeout=self.timeout)
 
-    def print_status(self, data=None):
-        pass
-
     def start(self, data=None):
         d = defer.succeed(True)
         for feed in data:
+            olddata = None
             if self.is_cached(feed):
-                d.addCallback(self.get_feed_from_cache, feed[0])
-                d.addErrback(self.on_error, (feed[0], 'fetching from cache'))
+                d.addCallback(self.get_feed_from_cache, feed)
+                d.addErrback(self.on_error, (feed, 'fetching from cache'))
             else:
-                d.addCallback(self.get_page, feed[0])
-                d.addErrback(self.on_error, (feed[0], 'fetching'))
-                d.addCallback(self.parse_feed, feed[0])
-                d.addErrback(self.on_error, (feed[0], 'parsing'))
-                d.addCallback(self.store_feed, feed[0])
-                d.addErrback(self.on_error, (feed[0], 'storing'))
-            d.addCallback(self.process_feed, feed[0])
-            d.addErrback(self.on_error, (feed[0], 'processing'))
+                d.addCallback(self.get_page, feed)
+                d.addErrback(self.on_error, (feed, 'fetching'))
+                d.addCallback(self.parse_feed, feed)
+                d.addErrback(self.on_error, (feed, 'parsing'))
+                olddata = self.get_feed(feed)
+                d.addCallback(self.store_feed, feed)
+                d.addErrback(self.on_error, (feed, 'storing'))
+            d.addCallback(self.process_feed, feed, olddata)
+            d.addErrback(self.on_error, (feed, 'processing'))
+            del(olddata)
         return d
 
 
@@ -266,35 +263,24 @@ class FeedStream(PollingDataStream):
     then Moksha will automatically handle polling it.  Upon new entries,
     AMQP messages will be sent to the `feeds.$URL` queue.
     """
-    #frequency = timedelta(minutes=15)
-    frequency = 5 # seconds
-    running = False
+    frequency = timedelta(minutes=5)
 
     def poll(self):
-        """ Poll all known feeds.
-
-        - Iterate over all feeds in our global moksha feed cache..
-            :Warning: the MokshaHub will not use this unless both it and the
-                      Moksha WSGI app are using the same `feed_cache` database.
-
-        - Keep feed caches fresh.
-
-        - Send messages to topics for new entries
-            `feed.$NAME` topic ?
-            `tag.category
-        """
-        # @@ Only run once... for testing purposes
-        if self.running:
-            print "Feed streamer  already running"
-            return
-        self.running = True
-
+        """ Poll all feeds in our feed cache """
         log.debug('FeedStream.poll()')
-        feeds = map(lambda x: x.strip(), file('feeds.txt').readlines())
-        feeds = [(feed, '') for feed in feeds]
+
+        feeds = set()
+        for feed in feed_storage.keys():
+            feeds.add(str(feed))
+
+        # Read in all feeds from the `feeds.txt` file for testing...
+        if os.path.isfile('feeds.txt'):
+            feed_list = file('feeds.txt')
+            for feed in feed_list.readlines():
+                feeds.add(str(feed.strip()))
+
         f = FeederFactory()
         f.start(addresses=feeds)
-        return
 
     def stop(self):
         feed_storage.close()
