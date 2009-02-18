@@ -14,6 +14,7 @@ if [ ! $VIRTUAL_ENV ]; then
         easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
         pushd moksha/widgetbrowser; python setup.py develop; popd
         easy_install "tw.jquery==dev"
+        easy_install SymbolType
     else
         source tg2env/bin/activate
     fi
