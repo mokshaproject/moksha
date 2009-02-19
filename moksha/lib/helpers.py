@@ -9,6 +9,7 @@ from repoze.what.authorize import check_authorization, NotAuthorizedError
 
 from webob import Request
 
+import pylons
 import urllib
 import uuid
 import simplejson as json
@@ -535,7 +536,7 @@ def get_main_app_config_path():
     """
     try:
         return pylons.config['__file__']
-    except:
+    except KeyError:
         log.error('Cannot find main applications config file in '
                   'pylons.config["__file__"]')
 
