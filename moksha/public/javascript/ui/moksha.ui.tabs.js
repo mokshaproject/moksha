@@ -529,7 +529,7 @@ $.widget("ui.mokshatabs", {
             url += self.path_remainder;
 
         var ajaxOptions = $.extend({}, o.ajaxOptions, {
-            url: url,
+            url: moksha.csrf_rewrite_url(url),
             success: function(r, s) {
                 var $panel = $(a.hash + ':first', self.element);
                 var $stripped = moksha.filter_resources(r);

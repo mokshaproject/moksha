@@ -15,7 +15,7 @@
                     <script type="text/javascript">
                           <!-- TODO: make this a JS widget -->
                           var ajaxOptions = {
-                                url: "${app['url']}",
+                                url: moksha.csrf_rewrite_url("${app['url']}"),
                                 success: function(r, s) {
                                     var $panel = $("#${app['id']}");
                                     var $stripped = moksha.filter_resources(r);

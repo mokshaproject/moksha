@@ -79,7 +79,7 @@ setup(
     orbited = moksha.api.widgets.orbited:orbited_js
 
     jquery = tw.jquery:jquery_js
-    moksha = moksha.api.widgets.moksha:moksha_js
+    moksha = moksha.api.widgets.moksha:MokshaGlobals
     jquery_ui_core = tw.jquery.ui:ui_core_js
     jquery_ui_draggable = tw.jquery.ui:ui_draggable_min_js
     jquery_ui_resizable = tw.jquery.ui:ui_resizable_min_js
