@@ -1,5 +1,3 @@
-from moksha.api.widgets.layout.layout import layout_js, layout_css, ui_core_js, ui_draggable_js, ui_droppable_js, ui_sortable_js
-
 from tw.api import Widget
 from tw.jquery import jquery_js
 from moksha.lib.helpers import eval_app_config, ConfigWrapper
@@ -10,7 +8,7 @@ from moksha.lib.helpers import eval_app_config, ConfigWrapper
 
 class AppListWidget(Widget):
     template = 'mako:moksha.api.widgets.containers.templates.layout_applist'
-    properties = ['category']
+    params = ['category']
 
     def update_params(self, d):
         super(AppListWidget, self).update_params(d)
