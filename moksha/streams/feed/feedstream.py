@@ -36,7 +36,6 @@ from shove import Shove
 from tg import config
 
 from moksha.hub import MokshaHub
-#from moksha.hub.http import conditional_get_page
 from moksha.api.streams import PollingDataStream
 
 log = logging.getLogger('moksha.hub')
@@ -264,7 +263,8 @@ class FeedStream(PollingDataStream):
     then Moksha will automatically handle polling it.  Upon new entries,
     AMQP messages will be sent to the `feeds.$URL` queue.
     """
-    frequency = timedelta(minutes=10)
+    frequency = timedelta(minutes=15)
+    #now = False
 
     def poll(self):
         """ Poll all feeds in our feed cache """
