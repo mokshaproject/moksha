@@ -33,7 +33,6 @@ var gatherOptions = function(roomOptions, container) {
 
 var loaded = function() {
     if (!window.WillowChat) {
-        console.log('creating new willowchat?');
         WillowChat = {}
     }
     if (!WillowChat.util) {
