@@ -1,12 +1,7 @@
 Consumers
 =========
 
-Moksha provides a simple API for creating "consumers" of message topics.
-
-This means that your consumer is instantiated when the MokshaHub is initially
-loaded, and receives each message for the specified topic through the
-:meth:`Consumer.consume` method.  The `message` argument will be the body of
-the actual message, decoded from JSON.
+.. automodule:: moksha.api.hub.consumer
 
 Creating
 --------
@@ -17,8 +12,10 @@ Creating
 
     class FeedConsumer(Consumer):
         topic = 'feeds'
+
         def consume(self, message):
-            print message
+            print message['headers']
+            print message['body']
 
 .. note::
 
