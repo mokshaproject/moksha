@@ -28,7 +28,7 @@ class MokshaContainer(Widget):
     css = [container_css]
     options = ['draggable', 'droppable', 'resizable', 'stikynote']
     button_options = ['iconize', 'minimize', 'close']
-    params = ['buttons', 'skin', 'width', 'left', 'top', 'id', 'title'] + \
+    params = ['buttons', 'skin', 'height', 'width', 'left', 'top', 'id', 'title'] + \
              options[:]
     draggable = droppable = resizable = True
     iconize = minimize = close = True
@@ -39,6 +39,7 @@ class MokshaContainer(Widget):
 
     # Pixel tweaking
     width = 430
+    height = 500
     left = 170
     top = 270
 

@@ -1,4 +1,4 @@
-<div id="${id}" class="mokshacontainer ${skin} ${stikynote} ${draggable} ${resizable}" style="width:${width}px; top:${top}px;left:${left}px" buttons="${buttons}">
+<div id="${id}" class="mokshacontainer ${skin} ${stikynote} ${draggable} ${resizable}" style="width:${width}px; height:${height}px; top:${top}px;left:${left}px" buttons="${buttons}">
 <table cellpadding="0" cellspacing="0" class="containerTable">
     <tr class="top">
         <td class="no"> </td>
