@@ -21,7 +21,7 @@ if [ ! $VIRTUAL_ENV ]; then
     fi
 fi
 
-python setup.py develop
+#python setup.py develop
 
 echo "Starting Moksha..."
 
