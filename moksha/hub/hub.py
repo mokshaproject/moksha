@@ -42,8 +42,9 @@ class MokshaHub(StompHub, AMQPHub):
     def __init__(self, topics=None):
         self.amqp_broker = config.get('amqp_broker', None)
         self.stomp_broker = config.get('stomp_broker', None)
+        if not self.topics:
+            self.topics = defaultdict(list)
 
-        self.topics = defaultdict(list)
         if topics:
             for topic, callbacks in topics.iteritems():
                 if not isinstance(callbacks, list):
@@ -135,9 +136,10 @@ class CentralMokshaHub(MokshaHub):
     data_streams = None # [<DataStream>,]
 
     def __init__(self):
+        self.topics = defaultdict(list)
         self.__init_consumers()
 
-        MokshaHub.__init__(self, topics=self.topics)
+        MokshaHub.__init__(self)
 
         if self.amqp_broker:
             self.__init_amqp()
