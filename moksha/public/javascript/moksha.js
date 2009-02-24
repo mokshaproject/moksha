@@ -102,8 +102,17 @@ moksha = {
         if (proto)
              proto += '://';
         var newurl = proto + ourl.authority + ourl.path;
-        newurl += '?' + ourl.query + '&_csrf_token=' + moksha_csrf_token;
-        newurl += '#' + ourl.anchor;
+        var qlist = []
+        ourl.queryKey['_csrf_token'] = moksha_csrf_token;
+        for (q in ourl.queryKey) {
+            qlist.push(q + '=' + ourl.queryKey[q]);
+        }
+
+        var query = qlist.join('&')
+        newurl += '?'+ query + moksha_csrf_token;
+
+        if (ourl.anchor)
+            newurl += '#' + ourl.anchor;
 
         return newurl;
 
