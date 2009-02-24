@@ -14,7 +14,15 @@
 # along with Moksha.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright 2008, Red Hat, Inc.
-# Authors: Luke Macken <lmacken@redhat.com>
+
+"""
+:mod:`moksha.api.menus.default` - The default Moksha Menu
+=========================================================
+The default Moksha menu is an example Menu that lists
+the installed Applications, Widgets, etc.
+
+.. moduleauthor:: Luke Macken <lmacken@redhat.com>
+"""
 
 import moksha
 from moksha.api.menus import MokshaMenu, MokshaContextualMenu
