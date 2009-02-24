@@ -38,11 +38,12 @@ class MokshaConnectorMiddleware(object):
     run that connector as defined in it's egg-info.
 
     """
+
+    _connectors = {}
+
     def __init__(self, application):
         log.info('Creating MokshaConnectorMiddleware')
         self.application = application
-        self.connectors = {} # {'connector name': moksha.IConnector class}
-
         self.load_connectors()
 
     def __call__(self, environ, start_response):
@@ -89,7 +90,7 @@ class MokshaConnectorMiddleware(object):
             path = path[:-1]
 
         path = '/'.join(path)
-        conn = self.connectors.get(conn)
+        conn = self._connectors.get(conn)
 
         if conn:
             conn_obj = conn['connector_class']()
@@ -111,8 +112,14 @@ class MokshaConnectorMiddleware(object):
             # FIXME: Should we pass some resource in?
             conn_class.register()
             conn_path = conn_entry.dist.location
-            self.connectors[conn_entry.name] = {
+            self._connectors[conn_entry.name] = {
                     'name': conn_entry.name,
                     'connector_class': conn_class,
                     'path': conn_path,
                     }
+
+def _get_connector(name):
+    # TODO: having a connection pool might be nice
+    c = MokshaConnectorMiddleware._connectors[name]
+
+    return c['connector_class']()
