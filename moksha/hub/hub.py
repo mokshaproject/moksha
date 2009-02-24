@@ -124,7 +124,7 @@ class MokshaHub(StompHub, AMQPHub):
 
         # feed all of our consumers
         for callback in self.topics.get(topic, []):
-            Thread(target=callback, args=[body]).start()
+            reactor.callInThread(callback, message)
 
 
 class CentralMokshaHub(MokshaHub):
