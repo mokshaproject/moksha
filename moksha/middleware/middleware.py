@@ -121,12 +121,12 @@ class MokshaMiddleware(object):
             log.info('Loading %s application' % app_entry.name)
             app_class = app_entry.load()
             app_path = app_entry.dist.location
-            moksha.apps[app_entry.name] = {
+            moksha.apps[app_entry.name].update({
                     'name': getattr(app_class, 'name', app_entry.name),
                     'controller': app_class(),
                     'path': app_path,
                     'model': None,
-                    }
+                    })
             try:
                 model = __import__('%s.model' % app_entry.name,
                                    globals(), locals(),
