@@ -41,7 +41,6 @@ from moksha.controllers.widgets import WidgetController
 # So we can mount the WidgetBrowser as /docs
 os.environ['TW_BROWSER_PREFIX'] = '/docs'
 
-
 class RootController(BaseController):
 
     appz = AppController()
@@ -63,8 +62,20 @@ class RootController(BaseController):
         tmpl_context.contextual_menu_widget = moksha.menus['contextual_menu']
         return dict(title='[ Moksha ]')
 
+    @expose()
+    def lookup(self, *remainder):
+        """
+        Moksha's default lookup method, called by the
+        :class:`MokshaMiddleware`.  This currently dispatches to our
+        WidgetBrowser when Moksha is being used as WSGI middleware in another
+        application.
+        """
+        if pylons.request.path.startswith('/docs/'):
+            return self.docs, remainder
+
     @expose('moksha.templates.login')
     def login(self, **kw):
         came_from = kw.get('came_from', '/')
         return dict(page='login', header=lambda *arg: None,
                     footer=lambda *arg: None, came_from=came_from)
+

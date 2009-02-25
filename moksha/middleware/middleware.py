@@ -72,7 +72,8 @@ class MokshaMiddleware(object):
     def __call__(self, environ, start_response):
         self.register_stomp(environ)
         request = Request(environ)
-        if request.path.startswith('/appz/') or request.path.startswith('/widget') or \
+        if request.path.startswith('/appz/') or \
+           request.path.startswith('/widget') or \
            request.path.startswith('/docs/'):
             response = request.get_response(self.mokshaapp)
         else:
@@ -121,12 +122,12 @@ class MokshaMiddleware(object):
             log.info('Loading %s application' % app_entry.name)
             app_class = app_entry.load()
             app_path = app_entry.dist.location
-            moksha.apps[app_entry.name] = {
+            moksha.apps[app_entry.name].update({
                     'name': getattr(app_class, 'name', app_entry.name),
                     'controller': app_class(),
                     'path': app_path,
                     'model': None,
-                    }
+                    })
             try:
                 model = __import__('%s.model' % app_entry.name,
                                    globals(), locals(),
@@ -268,19 +269,21 @@ class MokshaMiddleware(object):
         where it is being run as WSGI middleware in a different environment.
 
         """
-        config_paths = set()
         moksha_config_path = os.path.dirname(get_moksha_config_path())
         main_app_config_path = os.path.dirname(get_main_app_config_path())
+        loaded_configs = []
+
         for app in [{'path': moksha_config_path}] + moksha.apps.values():
-            if app['path'] != main_app_config_path and \
-               app['path'] not in config_paths:
-                config_paths.add(app['path'])
-        for config_path in config_paths:
             for configfile in ('production.ini', 'development.ini'):
-                confpath = os.path.join(config_path, configfile)
+                confpath = os.path.join(app['path'], configfile)
                 if os.path.exists(confpath):
-                    log.info('Loading configuration: %s' % confpath)
                     conf = appconfig('config:' + confpath)
+                    if app.get('name'):
+                        moksha.apps[app['name']]['config'] = conf
+                    if app['path'] == main_app_config_path or \
+                            confpath in loaded_configs:
+                        continue
+                    log.info('Loading configuration: %s' % confpath)
                     for entry in conf.global_conf:
                         if entry.startswith('_'):
                             continue
@@ -290,20 +293,36 @@ class MokshaMiddleware(object):
                         else:
                             config[entry] = conf.global_conf[entry]
                             log.debug('Set `%s` in global config' % entry)
+                    loaded_configs.append(confpath)
                     break
 
     def load_models(self):
         """ Setup the SQLAlchemy database models for all moksha applications.
 
-        This method will create a SQLAlchemy engine for each application
-        that has a model module.  It then takes this engine, binds it to
-        the application-specific metadata, and creates all of the tables,
+        This method first looks to see if your application has a
+        ``sqlalchemy.url`` set in it's configuration file, and will create a
+        SQLAlchemy engine with it.  If it does not exist, Moksha will create an
+        engine for your application based on the ``app_db`` configuration,
+        which defaults to ``sqlite:///$APPNAME.db``.
+
+        It will then bind the engine to your model's
+        :class:`sqlalchemy.MetaData`, and initialize all of your tables,
         if they don't already exist.
 
         """
         for name, app in moksha.apps.items():
+            sa_url = app['config'].get('sqlalchemy.url')
+            if sa_url:
+                if app['config']['__file__'] == get_moksha_config_path():
+                    # Moksha's apps don't specify their own SA url
+                    self.engines[name] = create_engine(config['app_db'] % name)
+                else:
+                    # App has specified its own engine url
+                    self.engines[name] = create_engine(sa_url)
+
+            # If a `model` module exists in the application, call it's
+            # `init_model` method,and bind the engine to it's `metadata`.
             if app.get('model'):
                 log.debug('Creating database engine for %s' % app['name'])
-                self.engines[name] = create_engine(config['app_db'] % name)
                 app['model'].init_model(self.engines[name])
                 app['model'].metadata.create_all(bind=self.engines[name])
