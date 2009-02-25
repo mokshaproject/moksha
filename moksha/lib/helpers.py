@@ -529,7 +529,7 @@ def in_full_moksha_stack():
     """
     try:
         return pylons.config['app_conf']['package'] == 'moksha'
-    except:
+    except KeyError:
         return False
 
 
