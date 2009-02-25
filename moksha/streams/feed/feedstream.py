@@ -28,7 +28,7 @@ except ImportError:
 
 from twisted.web import client
 from twisted.web.client import HTTPPageGetter, HTTPClientFactory
-from twisted.internet import reactor, protocol, defer, ssl
+from twisted.internet import reactor, protocol, defer
 
 from datetime import timedelta
 from feedcache import Cache
@@ -103,6 +103,7 @@ def conditional_get_page(url, contextFactory=None, *args, **kwargs):
     scheme, host, port, path = client._parse(url)
     factory = ConditionalHTTPClientFactory(url, *args, **kwargs)
     if scheme == 'https':
+        from twisted.internet import ssl
         if contextFactory is None:
             contextFactory = ssl.ClientContextFactory()
         reactor.connectSSL(host, port, factory, contextFactory)
