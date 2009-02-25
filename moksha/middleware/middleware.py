@@ -72,7 +72,8 @@ class MokshaMiddleware(object):
     def __call__(self, environ, start_response):
         self.register_stomp(environ)
         request = Request(environ)
-        if request.path.startswith('/appz/') or request.path.startswith('/widget') or \
+        if request.path.startswith('/appz/') or \
+           request.path.startswith('/widget') or \
            request.path.startswith('/docs/'):
             response = request.get_response(self.mokshaapp)
         else:
@@ -319,7 +320,7 @@ class MokshaMiddleware(object):
                     # App has specified its own engine url
                     self.engines[name] = create_engine(sa_url)
 
-            # If a `model` module exists in the application, call it's 
+            # If a `model` module exists in the application, call it's
             # `init_model` method,and bind the engine to it's `metadata`.
             if app.get('model'):
                 log.debug('Creating database engine for %s' % app['name'])
