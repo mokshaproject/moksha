@@ -497,7 +497,9 @@ def cache_rendered_data(data):
 
     This method can be used within TurboGears2 hooks to cache rendered data
     from a given method for a specific URL.  For example, to cache the
-    index.html, you could do something like this::
+    index.html, you could do something like this.
+
+    .. code-block:: python
 
         from tg.decorators import after_render
 
