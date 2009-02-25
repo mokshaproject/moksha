@@ -508,7 +508,8 @@ def cache_rendered_data(data):
 
     This is best utilized in conjunction with Nginx and Memcached.
     """
-    if pylons.g.cache and pylons.request.environ.get('HTTP_X_FORWARDED_PROTO'):
+    if hasattr(pylons.g, 'cache') and pylons.g.cache and \
+            pylons.request.environ.get('HTTP_X_FORWARDED_PROTO'):
         pylons.g.cache.set(pylons.request.path_qs, str(data))
 
 @decorator
