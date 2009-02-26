@@ -109,7 +109,7 @@ moksha = {
         }
 
         var query = qlist.join('&')
-        newurl += '?'+ query + moksha_csrf_token;
+        newurl += '?'+ query;
 
         if (ourl.anchor)
             newurl += '#' + ourl.anchor;
