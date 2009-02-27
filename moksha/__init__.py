@@ -28,5 +28,8 @@ def get_widget(name):
 
 def shutdown():
     """ Called when Moksha shuts down """
-    if feed_storage:
-        feed_storage.close()
+    try:
+        if feed_storage:
+            feed_storage.close()
+    except AttributeError:
+        pass
