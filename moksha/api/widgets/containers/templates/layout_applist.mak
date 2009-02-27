@@ -25,7 +25,7 @@
                                 data: ${app['params']}
                           };
 
-                          $.ajax(ajaxOptions);
+                          $(document).ready(function () {$.ajax(ajaxOptions)});
                     </script>
                   % endif
 
