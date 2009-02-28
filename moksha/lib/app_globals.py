@@ -25,7 +25,7 @@ class Globals(object):
         timeout = int(config.get('beaker.cache.timeout', '0'))
         try:
             self.cache = Cache(config['beaker.cache.url'], timeout)
-        except CacheBackendException, e:
+        except (CacheBackendException, KeyError), e:
             log.warning(str(e))
             self.cache = None
 
