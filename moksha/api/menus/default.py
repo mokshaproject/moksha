@@ -37,6 +37,7 @@ class MokshaContextMenu(MokshaContextualMenu):
             <a href="/widget">Documentation</a>
             <a href="https://fedorahosted.org/moksha/report/3">Tickets</a>
             <a href="https://fedorahosted.org/moksha/">Wiki</a>
+            <a menu="moksha">Moksha</a>
         """
 
 class MokshaDefaultMenu(MokshaMenu):
@@ -50,7 +51,9 @@ class MokshaDefaultMenu(MokshaMenu):
         </a>
         """
         for app in moksha.apps:
-            menu += '<a href="#" disabled=true>%s</a>' % moksha.apps[app]['name']
+            menu += """
+              <a href="#" onclick="$('#footer').append($('<div/>').attr('id', '%(app)s_loader')); $.ajax({url: moksha.csrf_rewrite_url('/appz/container/%(app)s'), success: function(r, s) { var $panel = $('#%(app)s_loader'); var $stripped = moksha.filter_resources(r); $panel.html($stripped); } }); return false;">%(name)s</a>
+            """ % {'app': app, 'name': moksha.apps[app]['name']}
         return menu
 
     def widgets(self, *args, **kw):
@@ -63,8 +66,20 @@ class MokshaDefaultMenu(MokshaMenu):
         for id, widget in moksha._widgets.iteritems():
             if not getattr(widget['widget'], 'hidden', False):
                 menu += """
-                    <a href="#" onclick="$('<div/>').appendTo('#footer').load('/widgets/%s?chrome=True'); return false;">%s</a>
-                """ % (id, widget['name'])
+                      <a href="#" onclick="$('#footer')
+                            .append($('<div/>')
+                            .attr('id', '%(name)s_loader')); 
+                            $.ajax({
+                                url: moksha.csrf_rewrite_url('/widgets/%(name)s?chrome=True'),
+                                success: function(r, s) {
+                                    var $panel = $('#%(name)s_loader');
+                                    var $stripped = moksha.filter_resources(r);
+                                    $panel.html($stripped);
+                                }
+                            });
+                            return false;">%(name)s</a>
+
+                """ % {'widget': widget['name'], 'name': id}
         return menu
 
     def moksha(self, *args, **kw):
