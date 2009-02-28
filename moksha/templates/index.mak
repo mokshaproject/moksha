@@ -24,7 +24,7 @@
         <div class="span-4 last">
           ## Right sidebar
         </div>
-        <hr class="space">
+        ##<hr class="space">
         ${footer()}
       </div>
     </a>
