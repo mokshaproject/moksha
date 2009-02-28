@@ -59,8 +59,8 @@ setup(
     #moksha = moksha.hub.hub:MokshaConsumer
 
     #[moksha.wsgiapp]
-    # Use this entry point to mount WSGI applications, which can then be accessed
-    # the same as regular apps, through the `/appz/name` url.
+    # Use this entry point to mount WSGI applications, which can then be
+    # accessed the same as regular apps, through the `/appz/name` url.
 
     [moksha.application]
     menu = moksha.api.menus.controllers:MokshaMenuController
@@ -93,15 +93,13 @@ setup(
 
 
     # Enable support for the Blueprint CSS framework
-    blueprint_ie_css = moksha.widgets.blueprint:blueprint_ie_css
-    blueprint_screen_css = moksha.widgets.blueprint:blueprint_screen_css
-    blueprint_print_css = moksha.widgets.blueprint:blueprint_print_css
-
-    ## Blueprint plugins
+    #blueprint_ie_css = moksha.widgets.blueprint:blueprint_ie_css
+    #blueprint_screen_css = moksha.widgets.blueprint:blueprint_screen_css
+    #blueprint_print_css = moksha.widgets.blueprint:blueprint_print_css
     #blueprint_fancytype_css = moksha.widgets.blueprint:blueprint_plugin_fancytype_css
 
     # up up down down left right left right b a
-    konami_js = moksha.widgets.misc.ptd:konami
+    #konami_js = moksha.widgets.misc.ptd:konami
 
     [moksha.menu]
     default_menu = moksha.api.menus:MokshaDefaultMenu
