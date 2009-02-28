@@ -20,8 +20,10 @@ import moksha
 
 from tg import expose, tmpl_context
 
+from moksha.exc import WidgetNotFound
 from moksha.lib.base import Controller
 from moksha.widgets.container import container
+
 class WidgetController(Controller):
 
     @expose('mako:moksha.templates.widget')
