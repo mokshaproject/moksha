@@ -22,6 +22,7 @@ setup(
         "stomper",
         "Sphinx",
         "Paver",
+        "tw.forms",
         #"WidgetBrowser", # not in PyPi yet
     ],
     packages=find_packages(exclude=['ez_setup']),
