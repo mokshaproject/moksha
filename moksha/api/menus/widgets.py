@@ -1,3 +1,4 @@
+## -*- coding: utf-8 -*-
 # This file is part of Moksha.
 #
 # Moksha is free software: you can redistribute it and/or modify
@@ -46,14 +47,13 @@ jquery_mbmenu_min_js = JSLink(modname=modname,
 class MokshaMenuBase(Widget):
     template = "mako:moksha.api.menus.templates.mbmenu"
     javascript = [jquery_mbmenu_min_js]
-    css = [CSSLink(modname=modname, filename='static/css/menu.css',
-                   media='screen'),
-           CSSLink(modname=modname, filename='static/css/menu1.css',
+    css = [CSSLink(modname=modname, filename='static/css/menu1.css',
                    media='screen')]
     params = ['callback', 'rootMenuSelector', 'menuSelector', 'id', 'menus',
               'additionalData', 'iconPath', 'menuWidth', 'openOnRight',
               'hasImages', 'fadeTime', 'adjustLeft', 'adjustTop', 'opacity',
-              'shadow', 'fadeInTime', 'fadeOutTime', 'overflow', 'effect']
+              'shadow', 'fadeInTime', 'fadeOutTime', 'overflow', 'effect',
+              'minZindex']
 
     rootMenuSelector = 'rootVoices'
     menuSelector = 'menuContainer'
@@ -63,7 +63,7 @@ class MokshaMenuBase(Widget):
     menus = []
     menuWidth = 200
     openOnRight =  False
-    hasImages = False
+    hasImages = True
     fadeTime = 200
     fadeInTime = 100
     fadeOutTime = 100
@@ -73,6 +73,7 @@ class MokshaMenuBase(Widget):
     shadow = True
     overflow = 2
     effect = 'fade'
+    minZindex = 'auto'
 
 
 class MokshaMenu(MokshaMenuBase):
@@ -106,6 +107,7 @@ class MokshaMenu(MokshaMenuBase):
                 'adjustTop': d.adjustTop,
                 'opacity': d.opacity,
                 'shadow': d.shadow,
+                'minZindex': d.minZindex,
                 }))
 
 
@@ -139,4 +141,5 @@ class MokshaContextualMenu(MokshaMenuBase):
                 'opacity': d.opacity,
                 'shadow': d.shadow,
                 'effect': d.effect,
+                'minZindex': d.minZindex
                 }))
