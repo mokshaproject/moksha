@@ -38,6 +38,8 @@ setup(
             ('public/**', 'ignore', None)]},
 
     entry_points="""
+    [console_scripts]
+    moksha-hub = moksha.hub.hub:main
 
     [paste.app_factory]
     main = moksha.config.middleware:make_app
