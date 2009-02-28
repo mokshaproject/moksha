@@ -14,9 +14,20 @@
 # along with Moksha.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright 2008, Red Hat, Inc.
-# Authors: Luke Macken <lmacken@redhat.com>
 
-""" A powerful dynamic Menu """
+"""
+:mod:`moksha.api.menus.widgets` - Moksha Menu Widgets
+=====================================================
+
+This is a powerful component to build easily a multilevel tree menu or a
+contextual menu (right click) in an intuitive way.
+
+This module contains ToscaWidgets for the `mbMenu jQuery Plugin
+<http://plugins.jquery.com/project/mbMenu>`_, which was developed by Matteo
+Bicocchi. © 2002-2008 Open Lab srl, Matteo Bicocchi. GPL licensed.
+
+.. moduleauthor:: Luke Macken <lmacken@redhat.com>
+"""
 
 from tw.api import JSLink, Widget, CSSLink, js_function, js_callback
 from tw.jquery import jquery_js, jQuery
