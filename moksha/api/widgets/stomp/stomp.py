@@ -71,7 +71,7 @@ class StompWidget(Widget):
                 var dest = f.headers.destination;
                 if (moksha_callbacks[dest]) {
                     for (var i = 0; i < moksha_callbacks[dest].length; i++) {
-                        moksha_callbacks[dest][i](json);
+                        moksha_callbacks[dest][i](json, f);
                     }
                 }
             };
@@ -88,7 +88,7 @@ class StompWidget(Widget):
             if (!moksha_callbacks[topic]) {
                 moksha_callbacks[topic] = [];
             }
-            moksha_callbacks[topic].push(function(json){ ${onmessageframe}; });
+            moksha_callbacks[topic].push(function(json, frame){ ${onmessageframe}; });
         %% endfor
 
       </script>
