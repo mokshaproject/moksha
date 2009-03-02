@@ -42,19 +42,6 @@ class MokshaContextMenu(MokshaContextualMenu):
 
 class MokshaDefaultMenu(MokshaMenu):
     menus = ['Moksha', 'Widgets', 'Fedora']
-    #menus = ['Moksha', 'Applications', 'Widgets', 'Fedora']
-
-    def applications(self, *args, **kw):
-        menu = """
-        <a rel="text">
-            <img src="/images/gears.png" style="position:absolute;margin-top:-20px; margin-left:-25px;margin-bottom:10px"/><br>
-        </a>
-        """
-        for app in moksha.apps:
-            menu += """
-              <a href="#" onclick="$('#footer').append($('<div/>').attr('id', '%(app)s_loader')); $.ajax({url: moksha.csrf_rewrite_url('/appz/container/%(app)s'), success: function(r, s) { var $panel = $('#%(app)s_loader'); var $stripped = moksha.filter_resources(r); $panel.html($stripped); } }); return false;">%(name)s</a>
-            """ % {'app': app, 'name': moksha.apps[app]['name']}
-        return menu
 
     def widgets(self, *args, **kw):
         menu = """
