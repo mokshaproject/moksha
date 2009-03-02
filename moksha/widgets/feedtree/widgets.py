@@ -142,24 +142,10 @@ splitter_css = CSSLink(filename='static/main.css',
 
 
 class MokshaFeedReaderWidget(Widget):
+    template = 'mako:moksha.widgets.feedtree.templates.feedreader'
+    children = [feed_tree, feed_entries_tree]
     javascript = [splitter_js]
     css = [splitter_css]
-    children = [feed_tree, feed_entries_tree]
-    template = """
-        <div id="${id}" class="moksha-feedreader">
-          <div id="LeftPane">
-            ${c.feed_tree()}
-          </div>
-          <div id="RightPane">
-            <div id="TopPane">
-              ${c.feed_entries_tree()}
-            </div>
-            <div id="BottomPane">
-            </div>
-          </div>
-        </div>
-    """
-    engine_name = 'mako'
 
     def update_params(self, d):
         super(MokshaFeedReaderWidget, self).update_params(d)
