@@ -160,7 +160,7 @@ class MokshaMiddleware(object):
             else:
                 widget = widget_class
             moksha._widgets[widget_entry.name] = {
-                    'name': getattr(widget_class, '__name__',
+                    'name': getattr(widget_class, 'name',
                                     widget_entry.name),
                     'widget': widget,
                     'path': widget_path,

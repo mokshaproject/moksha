@@ -33,6 +33,7 @@ class MokshaContainer(Widget):
     draggable = droppable = resizable = True
     iconize = minimize = close = True
     stikynote = False
+    hidden = True # hide from the moksha menu
     content = '' # either text, or a Widget
     title = 'Moksha Container'
     skin = 'skin3' # skin[1-7]

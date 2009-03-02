@@ -55,18 +55,18 @@ class MokshaDefaultMenu(MokshaMenu):
                 menu += """
                       <a href="#" onclick="$('#footer')
                             .append($('<div/>')
-                            .attr('id', '%(name)s_loader')); 
+                            .attr('id', '%(id)s_loader')); 
                             $.ajax({
-                                url: moksha.csrf_rewrite_url('/widgets/%(name)s?chrome=True'),
+                                url: moksha.csrf_rewrite_url('/widgets/%(id)s?chrome=True'),
                                 success: function(r, s) {
-                                    var $panel = $('#%(name)s_loader');
+                                    var $panel = $('#%(id)s_loader');
                                     var $stripped = moksha.filter_resources(r);
                                     $panel.html($stripped);
                                 }
                             });
                             return false;">%(name)s</a>
 
-                """ % {'widget': widget['name'], 'name': id}
+                """ % {'name': widget['name'], 'id': id}
         return menu
 
     def moksha(self, *args, **kw):

@@ -142,6 +142,7 @@ splitter_css = CSSLink(filename='static/main.css',
 
 
 class MokshaFeedReaderWidget(Widget):
+    name = 'Moksha Feed Reader'
     template = 'mako:moksha.widgets.feedtree.templates.feedreader'
     children = [feed_tree, feed_entries_tree]
     javascript = [splitter_js]

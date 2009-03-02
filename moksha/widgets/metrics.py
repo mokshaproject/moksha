@@ -42,13 +42,13 @@ from moksha.lib.helpers import defaultdict
 from moksha.widgets.jquery_ui_theme import ui_base_css
 
 class MokshaMemoryUsageWidget(LiveFlotWidget):
+    name = 'Moksha Memory Usage'
     topic = 'moksha_mem_metrics'
-    label = 'Moksha Memory Usage'
 
 
 class MokshaCPUUsageWidget(LiveFlotWidget):
+    name = 'Moksha CPU Usage'
     topic = 'moksha_cpu_metrics'
-    label = 'Moksha CPU Usage'
 
 
 class MokshaMessageMetricsConsumer(Consumer):
@@ -65,8 +65,8 @@ class MokshaMessageMetricsWidget(LiveFlotWidget):
     - make the number of messages configurable..
     - display the latency
     """
+    name = 'Moksha Message Metrics'
     template = """
-        <!-- hack, until we bring the jquery.ui up to speed with 1.6b -->
         Messages sent:<br/>
         <div id="metrics_sent_progress"></div></br>
         Messages received:<br/>
@@ -100,9 +100,9 @@ class MokshaMessageMetricsWidget(LiveFlotWidget):
             }
 
         </script>
-        <a href="#" onclick="run_message_metrics(); return false">Run!</a>
         <div id="metrics_flot" style="width:390px;height:250px;" />
         <div id="metrics_avg"/>
+        <a href="#" onclick="run_message_metrics(); return false">Run!</a>
     """
     onmessage = """
         if (json == 'done') {
