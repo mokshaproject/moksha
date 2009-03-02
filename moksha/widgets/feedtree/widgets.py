@@ -24,10 +24,12 @@ and a `live` version.  The ajax version makes a new request to our WSGI server
 each time, where as the `live` implementation communicates over a persistent
 Stomp-driven Orbited TCPSocket.   The live widget will automatically connect up
 to a unique message topic that it uses to communicate with the Moksha Feed
-Consumer in the Moksha Hub.  It also listens for changes in the 
+Consumer in the Moksha Hub.  It also listens for changes in the feeds that
+it is viewing.
 
-.. widgetdemo:: moksha.widgets.feedtree.moksha_feedreader
-   :tabs: demo, source, template, params
+.. widgetbrowser:: moksha.widgets.feedtree.moksha_feedreader
+   :tabs: demo, source, template
+   :size: x-large
 
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
 """
