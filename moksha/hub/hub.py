@@ -218,6 +218,7 @@ def setup_logger(verbose):
 
 def main():
     """ The main MokshaHub method """
+    setup_logger('-v' in sys.argv or '--verbose' in sys.argv)
     cfgfile = 'development.ini'
     if os.path.isfile('production.ini'):
         cfgfile= 'production.ini'
@@ -241,5 +242,4 @@ def main():
 
 
 if __name__ == '__main__':
-    setup_logger('-v' in sys.argv or '--verbose' in sys.argv)
     main()
