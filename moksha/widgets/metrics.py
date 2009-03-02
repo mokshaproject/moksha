@@ -54,7 +54,7 @@ class MokshaCPUUsageWidget(LiveFlotWidget):
 class MokshaMessageMetricsConsumer(Consumer):
     topic = 'moksha_message_metrics'
     def consume(self, message):
-        print "MokshaMessageMetricsConsumer(%r)" % message['body']
+        #print "MokshaMessageMetricsConsumer(%r)" % message['body']
         topic = message['headers'].get('topic')
         self.send_message(topic, json.encode(message['body']))
 
