@@ -28,17 +28,19 @@ class MokshaContainer(Widget):
     css = [container_css]
     options = ['draggable', 'droppable', 'resizable', 'stikynote']
     button_options = ['iconize', 'minimize', 'close']
-    params = ['buttons', 'skin', 'width', 'left', 'top', 'id', 'title'] + \
+    params = ['buttons', 'skin', 'height', 'width', 'left', 'top', 'id', 'title'] + \
              options[:]
     draggable = droppable = resizable = True
     iconize = minimize = close = True
     stikynote = False
+    hidden = True # hide from the moksha menu
     content = '' # either text, or a Widget
     title = 'Moksha Container'
     skin = 'skin3' # skin[1-7]
 
     # Pixel tweaking
     width = 430
+    height = 500
     left = 170
     top = 270
 
@@ -58,3 +60,6 @@ class MokshaContainer(Widget):
         d.buttons = d.buttons[:-1]
 
         self.add_call(jQuery('#%s' % d.id).buildContainers())
+
+
+container = MokshaContainer('moksha_container')

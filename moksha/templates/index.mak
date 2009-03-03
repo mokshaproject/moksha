@@ -24,7 +24,7 @@
         <div class="span-4 last">
           ## Right sidebar
         </div>
-        <hr class="space">
+        ##<hr class="space">
         ${footer()}
       </div>
     </a>
@@ -33,7 +33,7 @@
     ${tmpl_context.moksha_global_resources()}
 
     ## Setup our right-click contextual menu
-    ${tmpl_context.contextual_menu_widget()}
+    ## ${tmpl_context.contextual_menu_widget()}
 
   </body>
 </html>

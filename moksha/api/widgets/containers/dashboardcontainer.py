@@ -1,5 +1,3 @@
-from moksha.api.widgets.layout.layout import layout_js, layout_css, ui_core_js, ui_draggable_js, ui_droppable_js, ui_sortable_js
-
 from tw.api import Widget
 from tw.jquery import jquery_js
 from moksha.lib.helpers import eval_app_config, ConfigWrapper
@@ -10,7 +8,7 @@ from moksha.lib.helpers import eval_app_config, ConfigWrapper
 
 class AppListWidget(Widget):
     template = 'mako:moksha.api.widgets.containers.templates.layout_applist'
-    properties = ['category']
+    params = ['category']
 
     def update_params(self, d):
         super(AppListWidget, self).update_params(d)
@@ -27,26 +25,26 @@ applist_widget = AppListWidget('applist');
 
 class DashboardContainer(Widget):
     template = 'mako:moksha.api.widgets.containers.templates.dashboardcontainer'
+    params = ['layout', 'applist_widget']
     css = []
-    javascript = [jquery_js]
+    javascript = []
     config_key = None
     layout = []
+    applist_widget = applist_widget
+    engine_name = 'mako'
 
     def update_params(self, d):
         super(DashboardContainer, self).update_params(d)
         layout = eval_app_config(config.get(self.config_key, "None"))
 
         if not layout:
-            if isinstance(self.layout, basestring):
-                layout = eval_app_config(self.layout)
+            if isinstance(d.layout, basestring):
+                layout = eval_app_config(d.layout)
             else:
-                layout = self.layout
+                layout = d.layout
 
         # Filter out any None's in the layout which signify apps which are
         # not allowed to run with the current session's authorization level
+        d.layout = ConfigWrapper.process_wrappers(layout, d)
 
-        l = ConfigWrapper.process_wrappers(layout, d)
-
-        d['layout'] = l
-        d['applist_widget'] = applist_widget
         return d

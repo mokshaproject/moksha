@@ -14,7 +14,15 @@
 # along with Moksha.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright 2008, Red Hat, Inc.
-# Authors: Luke Macken <lmacken@redhat.com>
+
+"""
+:mod:`moksha.api.menus.default` - The default Moksha Menu
+=========================================================
+The default Moksha menu is an example Menu that lists
+the installed Applications, Widgets, etc.
+
+.. moduleauthor:: Luke Macken <lmacken@redhat.com>
+"""
 
 import moksha
 from moksha.api.menus import MokshaMenu, MokshaContextualMenu
@@ -29,21 +37,11 @@ class MokshaContextMenu(MokshaContextualMenu):
             <a href="/widget">Documentation</a>
             <a href="https://fedorahosted.org/moksha/report/3">Tickets</a>
             <a href="https://fedorahosted.org/moksha/">Wiki</a>
+            <a menu="moksha">Moksha</a>
         """
 
 class MokshaDefaultMenu(MokshaMenu):
     menus = ['Moksha', 'Widgets', 'Fedora']
-    #menus = ['Moksha', 'Applications', 'Widgets', 'Fedora']
-
-    def applications(self, *args, **kw):
-        menu = """
-        <a rel="text">
-            <img src="/images/gears.png" style="position:absolute;margin-top:-20px; margin-left:-25px;margin-bottom:10px"/><br>
-        </a>
-        """
-        for app in moksha.apps:
-            menu += '<a href="#" disabled=true>%s</a>' % moksha.apps[app]['name']
-        return menu
 
     def widgets(self, *args, **kw):
         menu = """
@@ -55,8 +53,20 @@ class MokshaDefaultMenu(MokshaMenu):
         for id, widget in moksha._widgets.iteritems():
             if not getattr(widget['widget'], 'hidden', False):
                 menu += """
-                    <a href="#" onclick="$('<div/>').appendTo('#footer').load('/widgets/%s?chrome=True'); return false;">%s</a>
-                """ % (id, widget['name'])
+                      <a href="#" onclick="$('#footer')
+                            .append($('<div/>')
+                            .attr('id', '%(id)s_loader')); 
+                            $.ajax({
+                                url: moksha.csrf_rewrite_url('/widgets/%(id)s?chrome=True'),
+                                success: function(r, s) {
+                                    var $panel = $('#%(id)s_loader');
+                                    var $stripped = moksha.filter_resources(r);
+                                    $panel.html($stripped);
+                                }
+                            });
+                            return false;">%(name)s</a>
+
+                """ % {'name': widget['name'], 'id': id}
         return menu
 
     def moksha(self, *args, **kw):

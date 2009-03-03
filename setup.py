@@ -22,6 +22,7 @@ setup(
         "stomper",
         "Sphinx",
         "Paver",
+        "tw.forms",
         #"WidgetBrowser", # not in PyPi yet
     ],
     packages=find_packages(exclude=['ez_setup']),
@@ -38,6 +39,8 @@ setup(
             ('public/**', 'ignore', None)]},
 
     entry_points="""
+    [console_scripts]
+    moksha-hub = moksha.hub.hub:main
 
     [paste.app_factory]
     main = moksha.config.middleware:make_app
@@ -49,60 +52,67 @@ setup(
     widgets = moksha.widgets.all
 
     [moksha.stream]
-    demo = moksha.streams.demo:MokshaDemoDataStream
+    #demo = moksha.streams.demo:MokshaDemoDataStream
+    feed = moksha.streams.feed:FeedStream
     #livegraph = moksha.examples.livegraph:LiveGraphDataStream
-    #feed = moksha.streams.feed:FeedStream
+    moksha_metrics = moksha.widgets.metrics:MokshaMetricsDataStream
 
-    #[moksha.consumer]
-    #moksha = moksha.hub.hub:MokshaConsumer
+    [moksha.consumer]
+    feeds = moksha.widgets.feedtree.consumer:MokshaFeedConsumer
+    moksha_message_metrics = moksha.widgets.metrics:MokshaMessageMetricsConsumer
 
     #[moksha.wsgiapp]
-    # Use this entry point to mount WSGI applications, which can then be accessed
-    # the same as regular apps, through the `/appz/name` url.
+    # Use this entry point to mount WSGI applications, which can then be
+    # accessed the same as regular apps, through the `/appz/name` url.
 
     [moksha.application]
     menu = moksha.api.menus.controllers:MokshaMenuController
     chat = moksha.api.widgets.chat.controllers:ChatController
+    feeds = moksha.widgets.feedtree.controllers.feed:FeedController
 
     [moksha.widget]
-    livefeed_demo = moksha.widgets.demos:LiveFeedDemo
-    liveflot = moksha.api.widgets.flot:LiveFlotWidget
     chat = moksha.api.widgets.chat:LiveChatWidget
+    #livefeed_demo = moksha.widgets.demos:LiveFeedDemo
+    #liveflot = moksha.api.widgets.flot:LiveFlotWidget
     #livegraph = moksha.examples.livegraph:LiveGraphWidget
-    #grid = moksha.api.widgets:Grid
+    grid = moksha.api.widgets:Grid
     ptd = moksha.widgets.misc.ptd:ProcessedTowerDefense
     placeholder = moksha.api.widgets:Placeholder
+    moksha_container = moksha.widgets.container.container:container
+    feeds = moksha.widgets.feedtree:moksha_feedreader
+    #moksha_feedreader = moksha.controllers.apps:MokshaFeedReader
+    MokshaMemoryUsageWidget = moksha.widgets.metrics:MokshaMemoryUsageWidget
+    MokshaCPUUsageWidget = moksha.widgets.metrics:MokshaCPUUsageWidget
+    MokshaMessageMetricsWidget = moksha.widgets.metrics:MokshaMessageMetricsWidget
 
     [moksha.global]
+    moksha = moksha.api.widgets.moksha:MokshaGlobals
+
     # The pipeline for our live widgets
     stomp_js = moksha.api.widgets.stomp:stomp_js
     orbited = moksha.api.widgets.orbited:orbited_js
 
-    jquery = tw.jquery:jquery_js
-    moksha = moksha.api.widgets.moksha:MokshaGlobals
-    jquery_ui_core = tw.jquery.ui:ui_core_js
+    #jquery = tw.jquery:jquery_js
+    #jquery_ui_core = tw.jquery.ui:ui_core_js
+    #jquery_ui_dialog = tw.jquery.ui:ui_dialog_min_js
     jquery_ui_draggable = tw.jquery.ui:ui_draggable_min_js
     jquery_ui_resizable = tw.jquery.ui:ui_resizable_min_js
-    #jquery_ui_dialog = tw.jquery.ui:ui_dialog_min_js
     #jquery_ui_tabs = tw.jquery.ui_tabs:jquery_ui_tabs_js
     #jquery_json_js = fedoracommunity.widgets:jquery_json_js
     #jquery_template_js = fedoracommunity.widgets:jquery_template_js
     #jquery_ui_css = moksha.widgets.jquery_ui_theme:JQueryUITheme
 
-
     # Enable support for the Blueprint CSS framework
-    blueprint_ie_css = moksha.widgets.blueprint:blueprint_ie_css
-    blueprint_screen_css = moksha.widgets.blueprint:blueprint_screen_css
-    blueprint_print_css = moksha.widgets.blueprint:blueprint_print_css
-
-    ## Blueprint plugins
+    #blueprint_ie_css = moksha.widgets.blueprint:blueprint_ie_css
+    #blueprint_screen_css = moksha.widgets.blueprint:blueprint_screen_css
+    #blueprint_print_css = moksha.widgets.blueprint:blueprint_print_css
     #blueprint_fancytype_css = moksha.widgets.blueprint:blueprint_plugin_fancytype_css
 
     # up up down down left right left right b a
-    konami_js = moksha.widgets.misc.ptd:konami
+    #konami_js = moksha.widgets.misc.ptd:konami
 
     [moksha.menu]
     default_menu = moksha.api.menus:MokshaDefaultMenu
-    contextual_menu = moksha.api.menus:MokshaContextMenu
+    #contextual_menu = moksha.api.menus:MokshaContextMenu
     """,
 )

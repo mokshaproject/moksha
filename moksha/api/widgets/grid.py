@@ -22,6 +22,7 @@ class Grid(FormField):
             'filters', 'unique_key', 'sort_key', 'sort_order',
             'row_template', 'resource', 'resource_path',
             'loading_throbber', 'uid']
+    hidden = True # hide from the moksha main menu
 
     rows_per_page = 10
     page_num = 1

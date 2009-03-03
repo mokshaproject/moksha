@@ -4,18 +4,15 @@
 if [ ! $VIRTUAL_ENV ]; then
     if [ ! -d tg2env ]; then
         echo "Initializing a TurboGears2 virtual environment"
-        # Enable site packages so we can yum install pysvn and mercurial
-        # in order to build Sphinx docs on the fly.
-        virtualenv tg2env
         #virtualenv --no-site-packages tg2env
+        virtualenv tg2env
         source tg2env/bin/activate
-        easy_install -U setuptools
-        easy_install -U WebOb
-        easy_install -U SQLAlchemy
+        easy_install "repoze.who"
+        easy_install WebOb
+        easy_install simplejson
         easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
         pushd moksha/widgetbrowser; python setup.py develop; popd
         easy_install "tw.jquery==dev"
-        easy_install SymbolType
     else
         source tg2env/bin/activate
     fi
@@ -27,15 +24,15 @@ echo "Starting Moksha..."
 
 echo "Starting the WSGI stack..."
 paster serve development.ini &
-echo $! > paster.pid
+echo $! >> paster.pid
 
 echo "Starting Orbited..."
 orbited &
-echo $! > orbited.pid
+echo $! >> orbited.pid
 
 echo "Starting the Moksha Hub..."
-python moksha/hub/hub.py -v &
-echo $! > hub.pid
+moksha-hub -v &
+echo $! >> hub.pid
 
 #echo "Starting memcached..."
 #memcached &

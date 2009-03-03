@@ -11,3 +11,4 @@ mokshaenv
 .build
 tg2env
 *.egg-info
+*.pid

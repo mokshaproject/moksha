@@ -497,7 +497,9 @@ def cache_rendered_data(data):
 
     This method can be used within TurboGears2 hooks to cache rendered data
     from a given method for a specific URL.  For example, to cache the
-    index.html, you could do something like this::
+    index.html, you could do something like this.
+
+    .. code-block:: python
 
         from tg.decorators import after_render
 
@@ -508,7 +510,8 @@ def cache_rendered_data(data):
 
     This is best utilized in conjunction with Nginx and Memcached.
     """
-    if pylons.g.cache and pylons.request.environ.get('HTTP_X_FORWARDED_PROTO'):
+    if hasattr(pylons.g, 'cache') and pylons.g.cache and \
+            pylons.request.environ.get('HTTP_X_FORWARDED_PROTO'):
         pylons.g.cache.set(pylons.request.path_qs, str(data))
 
 @decorator
@@ -526,7 +529,7 @@ def in_full_moksha_stack():
     """
     try:
         return pylons.config['app_conf']['package'] == 'moksha'
-    except:
+    except KeyError:
         return False
 
 

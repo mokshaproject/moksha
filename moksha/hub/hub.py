@@ -42,8 +42,9 @@ class MokshaHub(StompHub, AMQPHub):
     def __init__(self, topics=None):
         self.amqp_broker = config.get('amqp_broker', None)
         self.stomp_broker = config.get('stomp_broker', None)
+        if not self.topics:
+            self.topics = defaultdict(list)
 
-        self.topics = defaultdict(list)
         if topics:
             for topic, callbacks in topics.iteritems():
                 if not isinstance(callbacks, list):
@@ -116,15 +117,18 @@ class MokshaHub(StompHub, AMQPHub):
         topic = message['headers'].get('destination')
         if not topic:
             return
-        try:
-            body = json.decode(message['body'])
-        except Exception, e:
-            log.warning('Cannot decode message from JSON: %s' % e)
-            body = message['body']
+
+        # We can enable this if/when we need it...
+        #try:
+        #    body = json.decode(message['body'])
+        #except Exception, e:
+        #    log.warning('Cannot decode message from JSON: %s' % e)
+        #    body = message['body']
+
 
         # feed all of our consumers
         for callback in self.topics.get(topic, []):
-            Thread(target=callback, args=[body]).start()
+            reactor.callInThread(callback, message)
 
 
 class CentralMokshaHub(MokshaHub):
@@ -135,9 +139,10 @@ class CentralMokshaHub(MokshaHub):
     data_streams = None # [<DataStream>,]
 
     def __init__(self):
+        self.topics = defaultdict(list)
         self.__init_consumers()
 
-        MokshaHub.__init__(self, topics=self.topics)
+        MokshaHub.__init__(self)
 
         if self.amqp_broker:
             self.__init_amqp()
@@ -213,6 +218,7 @@ def setup_logger(verbose):
 
 def main():
     """ The main MokshaHub method """
+    setup_logger('-v' in sys.argv or '--verbose' in sys.argv)
     cfgfile = 'development.ini'
     if os.path.isfile('production.ini'):
         cfgfile= 'production.ini'
@@ -236,5 +242,4 @@ def main():
 
 
 if __name__ == '__main__':
-    setup_logger('-v' in sys.argv or '--verbose' in sys.argv)
     main()

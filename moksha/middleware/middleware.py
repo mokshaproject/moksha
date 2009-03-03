@@ -72,7 +72,8 @@ class MokshaMiddleware(object):
     def __call__(self, environ, start_response):
         self.register_stomp(environ)
         request = Request(environ)
-        if request.path.startswith('/appz/') or request.path.startswith('/widget') or \
+        if request.path.startswith('/appz/') or \
+           request.path.startswith('/widget') or \
            request.path.startswith('/docs/'):
             response = request.get_response(self.mokshaapp)
         else:
@@ -121,12 +122,12 @@ class MokshaMiddleware(object):
             log.info('Loading %s application' % app_entry.name)
             app_class = app_entry.load()
             app_path = app_entry.dist.location
-            moksha.apps[app_entry.name] = {
+            moksha.apps[app_entry.name].update({
                     'name': getattr(app_class, 'name', app_entry.name),
                     'controller': app_class(),
                     'path': app_path,
                     'model': None,
-                    }
+                    })
             try:
                 model = __import__('%s.model' % app_entry.name,
                                    globals(), locals(),
@@ -159,7 +160,7 @@ class MokshaMiddleware(object):
             else:
                 widget = widget_class
             moksha._widgets[widget_entry.name] = {
-                    'name': getattr(widget_class, '__name__',
+                    'name': getattr(widget_class, 'name',
                                     widget_entry.name),
                     'widget': widget,
                     'path': widget_path,
@@ -182,61 +183,56 @@ class MokshaMiddleware(object):
         the default `escape` filter causes our widgets to show up as escaped HTML.
 
          """
-        #template_paths = config['pylons.paths']['templates']
-        #moksha_dir = os.path.abspath(__file__ + '/../../../')
-        #for app in [{'path': moksha_dir}] + moksha.apps.values():
-        #    if app['path'] not in template_paths:
-        #        template_paths.append(app['path'])
-
-        #config['pylons.paths']['templates'] = template_paths
-
         from mako.template import Template
         from mako.lookup import TemplateLookup
-        from tg.util import get_dotted_filename
+        try: # TG2b6 and later
+            from tg.dottednamesupport import DottedTemplateLookup
+        except: # TG2b5 and earlier
+            from tg.util import get_dotted_filename
 
-        class DottedTemplateLookup(object):
-            """this is an emulation of the Mako template lookup
-            that will handle get_template and support dotted names
-            in python path notation to support zipped eggs
-            """
-            def __init__(self, input_encoding, output_encoding,
-                         imports, default_filters):
-                self.input_encoding = input_encoding
-                self.output_encoding = output_encoding
-                self.imports = imports
-                self.default_filters = default_filters
-
-            def adjust_uri(self, uri, relativeto):
-                """this method is used by mako for filesystem based reasons.
-                In dotted lookup land we don't adjust uri so se just return
-                the value we are given without any change
+            class DottedTemplateLookup(object):
+                """this is an emulation of the Mako template lookup
+                that will handle get_template and support dotted names
+                in python path notation to support zipped eggs
                 """
-                if '.' in uri:
-                    """we are in the DottedTemplateLookup system so dots in
-                    names should be treated as a python path.
-                    Since this method is called by template inheritance we must
-                    support dotted names also in the inheritance.
+                def __init__(self, input_encoding, output_encoding,
+                             imports, default_filters):
+                    self.input_encoding = input_encoding
+                    self.output_encoding = output_encoding
+                    self.imports = imports
+                    self.default_filters = default_filters
+
+                def adjust_uri(self, uri, relativeto):
+                    """this method is used by mako for filesystem based reasons.
+                    In dotted lookup land we don't adjust uri so se just return
+                    the value we are given without any change
                     """
-                    result = get_dotted_filename(template_name=uri,
-                                                 template_extension='.mak')
+                    if '.' in uri:
+                        """we are in the DottedTemplateLookup system so dots in
+                        names should be treated as a python path.
+                        Since this method is called by template inheritance we must
+                        support dotted names also in the inheritance.
+                        """
+                        result = get_dotted_filename(template_name=uri,
+                                                     template_extension='.mak')
 
-                else:
-                    """no dot detected, just return plain name
+                    else:
+                        """no dot detected, just return plain name
+                        """
+                        result = uri
+
+                    return result
+
+                def get_template(self, template_name):
+                    """this is the emulated method that must return a template
+                    instance based on a given template name
                     """
-                    result = uri
-
-                return result
-
-            def get_template(self, template_name):
-                """this is the emulated method that must return a template
-                instance based on a given template name
-                """
-                return Template(open(template_name).read(),
-                    input_encoding=self.input_encoding,
-                    output_encoding=self.output_encoding,
-                    default_filters=self.default_filters,
-                    imports=self.imports,
-                    lookup=self)
+                    return Template(open(template_name).read(),
+                        input_encoding=self.input_encoding,
+                        output_encoding=self.output_encoding,
+                        default_filters=self.default_filters,
+                        imports=self.imports,
+                        lookup=self)
 
         if config.get('use_dotted_templatenames', True):
             # support dotted names by injecting a slightly different template
@@ -247,12 +243,34 @@ class MokshaMiddleware(object):
                 imports=[], default_filters=[])
 
         else:
-            # if no dotted names support was required we will just setup
-            # a file system based template lookup mechanism
+            compiled_dir = tg.config.get('templating.mako.compiled_templates_dir', None)
+
+            if not compiled_dir:
+                # no specific compile dir give by conf... we expect that
+                # the server will have access to the first template dir
+                # to write the compiled version...
+                # If this is not the case we are doomed and the user should
+                # provide us the required config...
+                compiled_dir = self.paths['templates'][0]
+
+            # If no dotted names support was required we will just setup
+            # a file system based template lookup mechanism.
+            compiled_dir = tg.config.get('templating.mako.compiled_templates_dir', None)
+
+            if not compiled_dir:
+                # no specific compile dir give by conf... we expect that
+                # the server will have access to the first template dir
+                # to write the compiled version...
+                # If this is not the case we are doomed and the user should
+                # provide us the required config...
+                compiled_dir = self.paths['templates'][0]
+
             config['pylons.app_globals'].mako_lookup = TemplateLookup(
                 directories=self.paths['templates'],
-                module_directory=self.paths['templates'],
+                module_directory=compiled_dir,
                 input_encoding='utf-8', output_encoding='utf-8',
+                #imports=['from webhelpers.html import escape'],
+                #default_filters=['escape'],
                 filesystem_checks=self.auto_reload_templates)
 
     def load_configs(self):
@@ -268,19 +286,21 @@ class MokshaMiddleware(object):
         where it is being run as WSGI middleware in a different environment.
 
         """
-        config_paths = set()
         moksha_config_path = os.path.dirname(get_moksha_config_path())
         main_app_config_path = os.path.dirname(get_main_app_config_path())
+        loaded_configs = []
+
         for app in [{'path': moksha_config_path}] + moksha.apps.values():
-            if app['path'] != main_app_config_path and \
-               app['path'] not in config_paths:
-                config_paths.add(app['path'])
-        for config_path in config_paths:
             for configfile in ('production.ini', 'development.ini'):
-                confpath = os.path.join(config_path, configfile)
+                confpath = os.path.join(app['path'], configfile)
                 if os.path.exists(confpath):
-                    log.info('Loading configuration: %s' % confpath)
                     conf = appconfig('config:' + confpath)
+                    if app.get('name'):
+                        moksha.apps[app['name']]['config'] = conf
+                    if app['path'] == main_app_config_path or \
+                            confpath in loaded_configs:
+                        continue
+                    log.info('Loading configuration: %s' % confpath)
                     for entry in conf.global_conf:
                         if entry.startswith('_'):
                             continue
@@ -290,20 +310,36 @@ class MokshaMiddleware(object):
                         else:
                             config[entry] = conf.global_conf[entry]
                             log.debug('Set `%s` in global config' % entry)
+                    loaded_configs.append(confpath)
                     break
 
     def load_models(self):
         """ Setup the SQLAlchemy database models for all moksha applications.
 
-        This method will create a SQLAlchemy engine for each application
-        that has a model module.  It then takes this engine, binds it to
-        the application-specific metadata, and creates all of the tables,
+        This method first looks to see if your application has a
+        ``sqlalchemy.url`` set in it's configuration file, and will create a
+        SQLAlchemy engine with it.  If it does not exist, Moksha will create an
+        engine for your application based on the ``app_db`` configuration,
+        which defaults to ``sqlite:///$APPNAME.db``.
+
+        It will then bind the engine to your model's
+        :class:`sqlalchemy.MetaData`, and initialize all of your tables,
         if they don't already exist.
 
         """
         for name, app in moksha.apps.items():
+            sa_url = app['config'].get('sqlalchemy.url')
+            if sa_url:
+                if app['config']['__file__'] == get_moksha_config_path():
+                    # Moksha's apps don't specify their own SA url
+                    self.engines[name] = create_engine(config['app_db'] % name)
+                else:
+                    # App has specified its own engine url
+                    self.engines[name] = create_engine(sa_url)
+
+            # If a `model` module exists in the application, call it's
+            # `init_model` method,and bind the engine to it's `metadata`.
             if app.get('model'):
                 log.debug('Creating database engine for %s' % app['name'])
-                self.engines[name] = create_engine(config['app_db'] % name)
                 app['model'].init_model(self.engines[name])
                 app['model'].metadata.create_all(bind=self.engines[name])

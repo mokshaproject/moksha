@@ -28,7 +28,7 @@ except ImportError:
 
 from twisted.web import client
 from twisted.web.client import HTTPPageGetter, HTTPClientFactory
-from twisted.internet import reactor, protocol, defer, ssl
+from twisted.internet import reactor, protocol, defer
 
 from datetime import timedelta
 from feedcache import Cache
@@ -36,7 +36,6 @@ from shove import Shove
 from tg import config
 
 from moksha.hub import MokshaHub
-#from moksha.hub.http import conditional_get_page
 from moksha.api.streams import PollingDataStream
 
 log = logging.getLogger('moksha.hub')
@@ -104,6 +103,7 @@ def conditional_get_page(url, contextFactory=None, *args, **kwargs):
     scheme, host, port, path = client._parse(url)
     factory = ConditionalHTTPClientFactory(url, *args, **kwargs)
     if scheme == 'https':
+        from twisted.internet import ssl
         if contextFactory is None:
             contextFactory = ssl.ClientContextFactory()
         reactor.connectSSL(host, port, factory, contextFactory)
@@ -264,7 +264,8 @@ class FeedStream(PollingDataStream):
     then Moksha will automatically handle polling it.  Upon new entries,
     AMQP messages will be sent to the `feeds.$URL` queue.
     """
-    frequency = timedelta(minutes=10)
+    frequency = timedelta(minutes=15)
+    #now = False
 
     def poll(self):
         """ Poll all feeds in our feed cache """

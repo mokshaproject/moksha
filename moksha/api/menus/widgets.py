@@ -1,3 +1,4 @@
+## -*- coding: utf-8 -*-
 # This file is part of Moksha.
 #
 # Moksha is free software: you can redistribute it and/or modify
@@ -14,9 +15,20 @@
 # along with Moksha.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright 2008, Red Hat, Inc.
-# Authors: Luke Macken <lmacken@redhat.com>
 
-""" A powerful dynamic Menu """
+"""
+:mod:`moksha.api.menus.widgets` - Moksha Menu Widgets
+=====================================================
+
+This is a powerful component to build easily a multilevel tree menu or a
+contextual menu (right click) in an intuitive way.
+
+This module contains ToscaWidgets for the `mbMenu jQuery Plugin
+<http://plugins.jquery.com/project/mbMenu>`_, which was developed by Matteo
+Bicocchi. © 2002-2008 Open Lab srl, Matteo Bicocchi. GPL licensed.
+
+.. moduleauthor:: Luke Macken <lmacken@redhat.com>
+"""
 
 from tw.api import JSLink, Widget, CSSLink, js_function, js_callback
 from tw.jquery import jquery_js, jQuery
@@ -35,14 +47,13 @@ jquery_mbmenu_min_js = JSLink(modname=modname,
 class MokshaMenuBase(Widget):
     template = "mako:moksha.api.menus.templates.mbmenu"
     javascript = [jquery_mbmenu_min_js]
-    css = [CSSLink(modname=modname, filename='static/css/menu.css',
-                   media='screen'),
-           CSSLink(modname=modname, filename='static/css/menu1.css',
+    css = [CSSLink(modname=modname, filename='static/css/menu1.css',
                    media='screen')]
     params = ['callback', 'rootMenuSelector', 'menuSelector', 'id', 'menus',
               'additionalData', 'iconPath', 'menuWidth', 'openOnRight',
               'hasImages', 'fadeTime', 'adjustLeft', 'adjustTop', 'opacity',
-              'shadow', 'fadeInTime', 'fadeOutTime', 'overflow', 'effect']
+              'shadow', 'fadeInTime', 'fadeOutTime', 'overflow', 'effect',
+              'minZindex']
 
     rootMenuSelector = 'rootVoices'
     menuSelector = 'menuContainer'
@@ -52,7 +63,7 @@ class MokshaMenuBase(Widget):
     menus = []
     menuWidth = 200
     openOnRight =  False
-    hasImages = False
+    hasImages = True
     fadeTime = 200
     fadeInTime = 100
     fadeOutTime = 100
@@ -62,6 +73,7 @@ class MokshaMenuBase(Widget):
     shadow = True
     overflow = 2
     effect = 'fade'
+    minZindex = 'auto'
 
 
 class MokshaMenu(MokshaMenuBase):
@@ -95,6 +107,7 @@ class MokshaMenu(MokshaMenuBase):
                 'adjustTop': d.adjustTop,
                 'opacity': d.opacity,
                 'shadow': d.shadow,
+                'minZindex': d.minZindex,
                 }))
 
 
@@ -128,4 +141,5 @@ class MokshaContextualMenu(MokshaMenuBase):
                 'opacity': d.opacity,
                 'shadow': d.shadow,
                 'effect': d.effect,
+                'minZindex': d.minZindex
                 }))

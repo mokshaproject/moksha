@@ -20,10 +20,9 @@ import moksha
 
 from tg import expose, tmpl_context
 
+from moksha.exc import WidgetNotFound
 from moksha.lib.base import Controller
-from moksha.widgets.container import MokshaContainer
-
-container = MokshaContainer('moksha_container')
+from moksha.widgets.container import container
 
 class WidgetController(Controller):
 
