@@ -28,6 +28,8 @@ Moksha's memory and CPU usage.
 """
 
 import subprocess
+import logging
+import os
 
 from uuid import uuid4
 from orbited import json
@@ -37,9 +39,12 @@ from tw.jquery.flot import flot_js, excanvas_js, flot_css
 
 from moksha.api.hub import Consumer
 from moksha.api.widgets.flot import LiveFlotWidget
+from moksha.api.widgets.buttons import buttons_css
 from moksha.api.streams import PollingDataStream
 from moksha.lib.helpers import defaultdict
 from moksha.widgets.jquery_ui_theme import ui_base_css
+
+log = logging.getLogger(__name__)
 
 class MokshaMemoryUsageWidget(LiveFlotWidget):
     name = 'Moksha Memory Usage'
@@ -52,31 +57,43 @@ class MokshaCPUUsageWidget(LiveFlotWidget):
 
 
 class MokshaMessageMetricsConsumer(Consumer):
+    """
+    This consumer listens to all messages on the `moksha_message_metrics`
+    topic, and relays the messgae to the message['headers']['topic']
+    """
     topic = 'moksha_message_metrics'
     def consume(self, message):
-        #print "MokshaMessageMetricsConsumer(%r)" % message['body']
         topic = message['headers'].get('topic')
-        self.send_message(topic, json.encode(message['body']))
+        if topic:
+            self.send_message(topic, json.encode(message['body']))
+        else:
+            log.error('No `topic` specified in moksha_message_metrics message')
 
 
 class MokshaMessageMetricsWidget(LiveFlotWidget):
-    """
+    """ A Moksha Message Benchmarking Widget.
+
+    This widget will fire off a bunch of messages to a unique message topic.
+    The MokshaMessageMetricsConsumer, being run in the Moksha Hub, will
+    echo these messages back to the sender.  This widget will then graph
+    the round-trip results.
+
     TODO:
-    - make the number of messages configurable..
     - display the latency
     """
     name = 'Moksha Message Metrics'
     template = """
-        Messages sent:<br/>
-        <div id="metrics_sent_progress"></div></br>
-        Messages received:<br/>
+        Messages sent: <span id="metrics_msg_sent">0</span><br/>
+        <div id="metrics_sent_progress"></div>
+        Messages received: <span id="metrics_msg_recv">0</span><br/>
         <div id="metrics_recv_progress"></div>
-
+        <br/>
         <script>
             var NUM_MESSAGES = 100;
             var accum = 0.0;
             var flot_data = [];
             var x = 0;
+            var start_time = 0;
 
             $('#metrics_sent_progress').progressbar({value: 0});
             $('#metrics_recv_progress').progressbar({value: 0});
@@ -84,6 +101,8 @@ class MokshaMessageMetricsWidget(LiveFlotWidget):
             function run_message_metrics() {
                 $('#metrics_sent_progress').progressbar('option', 'value', 0);
                 $('#metrics_recv_progress').progressbar('option', 'value', 0);
+                $('#metrics_msg_sent').text("0");
+                $('#metrics_msg_recv').text("0");
 
                 flot_data = [];
                 x = 0;
@@ -91,9 +110,11 @@ class MokshaMessageMetricsWidget(LiveFlotWidget):
 
                 for (var i = 0; i < NUM_MESSAGES; i++) {
                     var start = new Date();
+                    start_time = start.getTime();
                     stomp.send(start.getTime() + '', 'moksha_message_metrics',
                                {topic: '${topic}'});
                     $('#metrics_sent_progress').progressbar('option', 'value', i+1)
+                    $('#metrics_msg_sent').text(i + 1 + '');
                 }
                 stomp.send('done', 'moksha_message_metrics',
                            {topic: '${topic}'});
@@ -101,8 +122,12 @@ class MokshaMessageMetricsWidget(LiveFlotWidget):
 
         </script>
         <div id="metrics_flot" style="width:390px;height:250px;" />
-        <div id="metrics_avg"/>
-        <a href="#" onclick="run_message_metrics(); return false">Run!</a>
+        <div id="metrics_avg"></div>
+        <div id="metrics_msg_sec"></div>
+        <br/>
+        <center>
+          <a href="#" class="opaquebutton" onclick="run_message_metrics(); return false"><span>Send 100 Messages</span></a>
+        </center>
     """
     onmessage = """
         if (json == 'done') {
@@ -110,12 +135,16 @@ class MokshaMessageMetricsWidget(LiveFlotWidget):
             $('#metrics_recv_progress').progressbar('option', 'value', x+1)
             $.plot($('#metrics_flot'), [{data: flot_data, lines: {show: true}}]);
             $('#metrics_avg').text('Average round trip: ' + avg + ' seconds.');
+            var start = new Date();
+            seconds = (start.getTime() - start_time) / 1000.0;
+            $('#metrics_msg_sec').text('Messages per second: ' + NUM_MESSAGES / seconds);
         } else {
             var now = new Date();
             seconds = (now.getTime() - json) / 1000.0;
             accum = accum + seconds;
             flot_data.push([x, seconds]);
             $('#metrics_recv_progress').progressbar('option', 'value', x+1)
+            $('#metrics_msg_recv').text(x + 1 + '');
             x = x + 1;
         }
     """
@@ -125,7 +154,7 @@ class MokshaMessageMetricsWidget(LiveFlotWidget):
             JSLink(link='/javascript/jquery-ui-personalized-1.6rc6.min.js',
                    modname=__name__)
             ]
-    css = [ui_base_css, flot_css]
+    css = [ui_base_css, flot_css, buttons_css]
 
     def update_params(self, d):
         d.topic = str(uuid4())
@@ -230,7 +259,6 @@ class MokshaMetricsDataStream(PollingDataStream):
         Taken from the ps_mem.py script written by Pádraig Brady.
         http://www.pixelbeat.org/scripts/ps_mem.py
         """
-        import os
         our_pid=os.getpid()
         results = []
         global have_pss
