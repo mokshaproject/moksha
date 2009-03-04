@@ -1,15 +1,15 @@
   <div id="${category['id']}" class="ui-sortable ${category['css_class']}">
       % for app in category['apps']:
-              <dl class="sort">
+              <span class="sort">
                 % if app['label']:
-            <dt>${app['label']}</dt>
+            <h3>${app['label']}</h3>
             % endif
 
-            <dd id="${app['id']}">
+            <div id="${app['id']}" class="panel">
                         % if app.has_key('widget'):
                             ${app['widget'](**app['params'])}
                         % endif
-                    </dd>
+                    </div>
 
                   % if not app.has_key('widget'):
                     <script type="text/javascript">
@@ -29,6 +29,6 @@
                     </script>
                   % endif
 
-         </dl>
+         </span>
       % endfor
     </div>
