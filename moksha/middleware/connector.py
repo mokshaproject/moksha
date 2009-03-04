@@ -79,11 +79,16 @@ class MokshaConnectorMiddleware(object):
 
         p = urllib.unquote_plus(path[-1].lstrip())
         if p.startswith('{'):
-            dispatch_params = json.loads(p)
-            f = dispatch_params.get('filters')
+            dp = json.loads(p)
+
+            f = dp.get('filters')
             if isinstance(f, basestring):
-                dispatch_params['filters'] = json.loads(f)
+                dp['filters'] = json.loads(f)
             path = path[:-1]
+
+            # scrub dispatch_params keys of unicode so we can pass as keywords
+            for (k, v) in dp.iteritems():
+                dispatch_params[str(k)] = v
 
         # prevent trailing slash
         if not p:
