@@ -30,6 +30,50 @@ implemented (e.g. sorting in the ITable interface) must
 raise NotImplementedError if the value is set to anything but None
 """
 
+class QueryCol(dict):
+    def __init__(self,
+                 column,
+                 default_visible,
+                 can_sort,
+                 can_filter_wildcards):
+        super(QueryCol, self).__init__(column = column,
+                                       default_visible = default_visible,
+                                       can_sort = can_sort,
+                                       can_filter_wildcards = can_filter_wildcards)
+
+class QueryPath(dict):
+    def __init__(self,
+                 path,
+                 query_func,
+                 primary_key_col,
+                 default_sort_col,
+                 default_sort_order,
+                 can_paginate):
+        super(QueryPath, self).__init__(
+                         path = path,
+                         query_func = query_func,
+                         primary_key_col = primary_key_col,
+                         default_sort_col = default_sort_col,
+                         default_sort_order = default_sort_order,
+                         can_paginate = can_paginate,
+                         columns={})
+
+    def register_column(self,
+                        column,
+                        default_visible = True,
+                        can_sort = False,
+                        can_filter_wildcards = False):
+
+        self["columns"][column] = QueryCol(
+                column = column,
+                default_visible = default_visible,
+                can_sort = can_sort,
+                can_filter_wildcards = can_filter_wildcards
+              )
+
+    def get_query(self):
+        return self['query_func']
+
 class IConnector(object):
     """ Data connector interface
 
@@ -151,6 +195,8 @@ class ICall(object):
 
         raise NotImplementedError
 
+
+
 class IQuery(object):
     """ Query interface for data destined for a table or data grid
 
@@ -166,11 +212,11 @@ class IQuery(object):
     _paths = {}
 
     def query(self, resource_path, params, _cookies,
-              offset = 0,
-              num_rows = 10,
-              sort_col = None,
-              sort_order = -1,
-              filters = {}):
+        offset = 0,
+        num_rows = 10,
+        sort_col = None,
+        sort_order = -1,
+        filters = {}):
 
         """ Implement this method if the resource provides a query interface.
         The URL should be set in register and should never change.
@@ -219,9 +265,39 @@ class IQuery(object):
                 }
         """
 
-        raise NotImplementedError
+        results = None
+        r = {
+              "total_rows": 0,
+              "row_count": 0,
+              "offset": 0,
+              "rows": None
+            }
 
-    def query_model(self, resource_path, noparams, _cookies):
+        if not sort_col:
+            sort_col = self.get_default_sort_col(resource_path)
+
+            if params == None:
+                params = {}
+
+            query_func = self.query_model(resource_path).get_query()
+            (total_rows, rows) = query_func(self,
+                                            offset = offset,
+                                            limit = num_rows,
+                                            order = sort_order,
+                                            sort_col = sort_col,
+                                            filters = filters,
+                                            **params)
+            r['total_rows'] = total_rows
+            r['row_count'] = len(rows)
+            if offset:
+                r['offset'] = offset
+            r['rows'] = rows
+
+            results = r
+
+        return results
+
+    def query_model(self, resource_path, noparams=None, _cookie=None):
         """ Returns the registered model
 
             :Returns:
@@ -232,30 +308,21 @@ class IQuery(object):
     @classmethod
     def register_path(cls,
                       path,
+                      query_func,
                       primary_key_col = None,
                       default_sort_col = None,
                       default_sort_order = None,
                       can_paginate = False):
 
-        cls._paths[path] = {
-                             "primary_key_col": primary_key_col,
-                             "default_sort_col": default_sort_col,
-                             "default_sort_order": default_sort_order,
-                             "can_paginate": can_paginate,
-                             "columns": {}
-                           }
+        qpath = QueryPath(path = path,
+                          query_func = query_func,
+                          primary_key_col = primary_key_col,
+                          default_sort_col = default_sort_col,
+                          default_sort_order = default_sort_order,
+                          can_paginate = can_paginate)
 
-    @classmethod
-    def register_column(cls, path, column,
-                        default_visible = True,
-                        can_sort = False,
-                        can_filter_wildcards = False):
-
-        cls._paths[path]["columns"][column] = {
-                                               "default_visible": default_visible,
-                                               "can_sort": can_sort,
-                                               "can_filter_wildcards": can_filter_wildcards
-                                             }
+        cls._paths[path] = qpath
+        return qpath
 
     def get_capabilities(self):
         return self._paths
@@ -275,3 +342,65 @@ class IFeed(object):
 class INotify(object):
     def register_listener(self, listener_cb):
         pass
+
+class ParamFilter(object):
+    """Helper class for filtering query arguments"""
+
+    def __init__(self):
+        self._translation_table = {}
+        self._param_table = {}
+
+    def add_filter(self, param, args=[], cast=None, allow_none=True, filter_func=None):
+        pf = {}
+        if cast:
+            assert(isinstance(cast, type),
+                   "cast should be of type <type> not cast %s" % str(type(cast)))
+
+            pf['cast'] = cast
+
+        pf['allow_none'] = allow_none
+        pf['filter_func'] = filter_func
+
+        self._param_table[param] = pf
+        args.append(param)
+        for a in args:
+            assert(not(a in self._translation_table),
+                   '''The argument %s has been registered for more than
+                   one parameter translation''' % (a)
+                   )
+
+            self._translation_table[a] = param
+
+    def filter(self, d):
+        results = {}
+        for k, v in d.iteritems():
+            if k in self._translation_table:
+                param = self._translation_table[k]
+                allow_none = True
+                assign = True
+                if param in self._param_table:
+                    pf = self._param_table[param]
+                    cast = pf.get('cast')
+                    if cast == bool:
+                        if isinstance(v, basestring):
+                            lv = v.lower()
+                            if lv in ('t', 'y', 'true', 'yes'):
+                                v = True
+                            else:
+                                v = False
+                        elif not isinstance(v, bool):
+                            v = False
+                    elif cast:
+                        v = cast(v)
+
+                    ff = pf['filter_func']
+                    if ff:
+                        ff(results, k, v, allow_none)
+                        assign = False
+
+                    allow_none = pf['allow_none']
+
+                if (allow_none or (v != None)) and assign:
+                    results[param] = v
+
+        return results

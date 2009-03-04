@@ -1,1 +1,1 @@
-from connector import IConnector, ICall, IQuery, IFeed, INotify
+from connector import IConnector, ICall, IQuery, IFeed, INotify, ParamFilter
