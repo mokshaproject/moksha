@@ -5,7 +5,7 @@
             <h3>${app['label']}</h3>
             % endif
 
-            <div id="${app['id']}" class="panel">
+            <div id="${app['id']}" class="${app['css_class']}">
                         % if app.has_key('widget'):
                             ${app['widget'](**app['params'])}
                         % endif

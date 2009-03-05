@@ -97,7 +97,8 @@ class Category(ConfigWrapper):
                                not_anonymous())
     """
 
-    def __init__(self, label="", apps=None, css_class=None, auth=None):
+    def __init__(self, label="", apps=None, css_class=None, auth=None,
+                default_child_css=None):
         """
         :label: The category heading the container should use when rendering
                 a category.  Labels for categories are not rendered in the
@@ -111,17 +112,31 @@ class Category(ConfigWrapper):
                get sent.
         :css_class: Either a string or list of strings defining the css class
                     for this category
+        :default_child_css: Either a string or list of strings defining the
+                            default css for child apps and widgets
         """
 
         self.label = label
-        self.apps = apps or []
-        self.auth = auth or []
+        self.apps = apps or tuple()
+        if not isinstance(self.apps, tuple):
+            if not getattr(self.apps, '__iter__', False):
+                self.apps = (self.apps,)
+            else:
+                self.apps = tuple(self.apps)
+        self.auth = auth or tuple()
+
         if not css_class:
             css_class = scrub_filter.sub('_', self.label.lower())
         elif isinstance(css_class, list) or isinstance(css_class, tuple):
             css_class = ' '.join(css_class)
 
         self.css_class = css_class
+
+        if isinstance(default_child_css, list) or isinstance(css_class, tuple):
+            default_child_css = ' '.join(default_child_css)
+
+        for a in self.apps:
+            a.set_default_css(default_child_css)
 
     def process(self, dict=None):
         """Check the predicates and construct the dict
@@ -148,7 +163,7 @@ class App(ConfigWrapper):
                         auth=not_anonymous())
     """
     def __init__(self, label="", url="", content_id="",
-                 params=None, auth=None):
+                 params=None, auth=None, css_class=None):
         """
         :label: The title the application should use when rendering
                 in a container.  Leave this blank if you do not wish the
@@ -164,14 +179,27 @@ class App(ConfigWrapper):
         :auth: A list of predicates which are evaluate before the wrapper
                is sent to the container.  If it evaluates to False it does not
                get sent.
+        :css_class: Either a string or list of strings defining the css class
+                    for this wrapper
         """
         self.label = label
         self.url = url
         self.params = params or {}
         self.auth = auth or []
         self.content_id = content_id
+
+        if isinstance(css_class, list) or isinstance(css_class, tuple):
+            css_class = ' '.join(css_class)
+        self.css_class = css_class
+
         if self.label and not self.content_id:
             self.content_id = scrub_filter.sub('_', self.label.lower())
+
+    def set_default_css(self, css):
+        """ If we already have css defined ignore, otherwise set our css_class
+        """
+        if(self.css_class == None):
+            self.css_class = css
 
     def process(self, dict=None):
         """Check the predicates and construct the dict
@@ -183,10 +211,15 @@ class App(ConfigWrapper):
 
         id = 'uuid' + str(uuid.uuid4())
 
+        css_class = self.css_class
+        if css_class == None:
+            css_class = ''
+
         return {'label': self.label, 'url': self.url,
                 'params': _update_params(self.params, dict),
                 'id': id,
-                'content_id': self.content_id + '-' + id}
+                'content_id': self.content_id + '-' + id,
+                'css_class': css_class}
 
 class MokshaApp(App):
     """A configuration wrapper class that displays a Moksa application
@@ -203,7 +236,7 @@ class MokshaApp(App):
 
     """
     def __init__(self, label="", moksha_app="", content_id="",
-                 params=None, auth=None):
+                 params=None, auth=None, css_class=None):
         """
         :label: The title the application should use when rendering
                 in a container.  Leave this blank if you do not wish the
@@ -220,6 +253,8 @@ class MokshaApp(App):
         :auth: A list of predicates which are evaluate before the wrapper
                is sent to the container.  If it evaluates to False it does not
                get sent.
+        :css_class: Either a string or list of strings defining the css class
+                    for this wrapper
         """
         # FIXME figure out how to pull auth info from an app
         app = moksha_app.split('/')[0]
@@ -227,7 +262,7 @@ class MokshaApp(App):
         super(MokshaApp, self).__init__(label,
                                         '/appz/' + moksha_app,
                                         content_id,
-                                        params, auth)
+                                        params, auth, css_class)
 
     def process(self, dict=None):
         # We return a placeholder if the app is not registered
@@ -255,7 +290,7 @@ class Widget(ConfigWrapper):
 
     """
     def __init__(self, label="", widget=None, content_id="",
-                 params=None, auth=None):
+                 params=None, auth=None, css_class=None):
         """
         :label: The title the widget should use when rendering
                 in a container.  Leave this blank if you do not wish the
@@ -271,6 +306,8 @@ class Widget(ConfigWrapper):
         :auth: A list of predicates which are evaluate before the wrapper
                is sent to the container.  If it evaluates to False it does not
                get sent.
+        :css_class: Either a string or list of strings defining the css class
+                    for this wrapper
         """
         self.label = label
         self.widget = widget
@@ -283,14 +320,28 @@ class Widget(ConfigWrapper):
 
         self.content_id += '-' + self.id
 
+        if isinstance(css_class, list) or isinstance(css_class, tuple):
+            css_class = ' '.join(css_class)
+        self.css_class = css_class
+
+    def set_default_css(self, css):
+        """ If we already have css defined ignore, otherwise set our css_class
+        """
+        if(self.css_class == None):
+            self.css_class = css
+
     def process(self, dict):
         if not check_predicates(self.auth):
             return None
 
+        css_class = self.css_class
+        if css_class == None:
+            css_class = ''
 
         url = '#' + self.content_id
         return {'label': self.label, 'url': url,'widget': self.widget ,
-                'params':_update_params(self.params, dict), 'id': self.id, 'content_id': self.content_id}
+                'params':_update_params(self.params, dict), 'id': self.id,
+                'content_id': self.content_id, 'css_class': css_class}
 
 class MokshaWidget(Widget):
     """A configuration wrapper class that displays a ToscaWidget registered
@@ -304,7 +355,7 @@ class MokshaWidget(Widget):
 
     """
     def __init__(self, label="", moksha_widget="", content_id="",
-                 params=None, auth=None):
+                 params=None, auth=None, css_class=None):
         """
         :label: The title the widget should use when rendering
                 in a container.  Leave this blank if you do not wish the
@@ -321,11 +372,14 @@ class MokshaWidget(Widget):
         :auth: A list of predicates which are evaluate before the wrapper
                is sent to the container.  If it evaluates to False it does not
                get sent.
+        :css_class: Either a string or list of strings defining the css class
+                    for this wrapper
         """
         widget = moksha._widgets[moksha_widget]['widget']
         super(MokshaWidget, self).__init__(label=label, widget=widget,
                                            content_id=content_id, params=params,
-                                           auth=auth)
+                                           auth=auth,
+                                           css_class=css_class)
 
 class param_has_value(Predicate):
     """
