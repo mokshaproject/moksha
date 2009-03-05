@@ -1,21 +1,23 @@
-<div id="${id}" class="mokshacontainer ${skin} ${stikynote} ${draggable} ${resizable}" style="width:${width}px; height:${height}px; top:${top}px;left:${left}px" buttons="${buttons}">
-<table cellpadding="0" cellspacing="0" class="containerTable">
-    <tr class="top">
-        <td class="no"> </td>
-        <td class="n"><a href="">${title}</a></td>
-        <td class="ne">&nbsp;</td>
-    </tr>
-    <tr class="middle">
-        <td class="o"> </td>
-        <td class="c" >
-            ${content}
-        </td>
-        <td class="e"> </td>
-    </tr>
-    <tr class="bottom">
-        <td class="so"> </td>
-        <td class="s"></td>
-        <td class="se"> </td>
-    </tr>
-</table>
+<div id="${id}" class="containerPlus ${draggable} ${resizable}" style="top:${top}px;left:${left}px" buttons="${buttons}" skin="${skin}" icon="${icon}" width="${width}">
+    <div class="no">
+        <div class="ne">
+            <div class="n">${title}</div>
+        </div>
+        <div class="o">
+            <div class="e">
+                <div class="c">
+                    <div class="content">
+                      ${content}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="so">
+                <div class="se">
+                    <div class="s"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

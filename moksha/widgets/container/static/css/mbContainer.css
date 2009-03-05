@@ -1,135 +1,95 @@
-/*body{background:url(../../../images/bgnds/screenBgnd.gif)}
- */
-
-
-.ui-resizable-handle { position: absolute; display: block; font-size: 0.1px; }
-
-.ui-resizable-e { cursor: e-resize; width: 10px; right: -10px; top: 0; height: 100%;  }
-.ui-resizable-w { cursor: w-resize; width: 30px; left: 0; top: 0; height: 100%;  }
-.ui-resizable-s { cursor: s-resize; height: 10px; width: 100%; bottom: 0; left: 0}
-.ui-resizable-se { cursor: se-resize; width: 10px; height: 30px; right:0; bottom: 0; background:transparent url(elements/resizable-se.png) no-repeat right bottom} /*resizable-se.png*/
-
-.proxy{border:1px dotted gray;background: url(elements/proxy.png)}
-
-.mokshacontainer {width:100%;}
-.mokshacontainer .containerTable{border:0; width:100%}
-.mokshacontainer .containerTable .c{height:100%; .height:auto;}
-.mokshacontainer {font-family:Arial; font-size:13px}
-.mokshacontainer .n a{ font-size:18px;text-decoration:none; color:black; position:relative;}
-.mokshacontainer .n a:hover{ text-decoration:underline; }
-.mokshacontainer .containerBody{overflow:auto; position:relative; margin-right:-15px; padding-right:15px}
-.mokshacontainer .icon{position:absolute;margin-top:-25px; margin-left:-4px;}
-.mokshacontainer .spacer{padding-top:10px;}
-.mokshacontainer .restoreContainer{width:32px}
-.mokshacontainer .buttonBar{right:10px;top:5px}
-.mokshacontainer .buttonBar img{padding:5px}
-
-/*default interface for containers */
-.mokshacontainer.default .n{ background:url(elements/skindef/n.png) repeat-x top; padding-left:22px; padding-bottom:0px; font-size:18px; vertical-align:middle; height:36px;.height:32px; -moz-user-select: none; -khtml-user-select: none}
-.mokshacontainer.default .ne{ background:url(elements/skindef/ne.png) no-repeat top right; height:36px;width:22px; -khtml-user-select: none}
-.mokshacontainer.default .no{ background:url(elements/skindef/no.png) no-repeat top right; height:36px;width:24px; -khtml-user-select: none}
-.mokshacontainer.default .o{ background: url(elements/skindef/o.png) repeat-y top right; height:25px;width:24px}
-.mokshacontainer.default .e{ background: url(elements/skindef/e.png) repeat-y top right; height:25px;width:22px}
-.mokshacontainer.default .s{ background: url(elements/skindef/s.png) repeat-x bottom; height:22px}
-.mokshacontainer.default .se{ background: url(elements/skindef/se.png) no-repeat bottom right; height:22px;width:22px}
-.mokshacontainer.default .so{ background: url(elements/skindef/so.png) no-repeat bottom right; height:22px;width:24px}
-.mokshacontainer.default .c{ background: url(elements/skindef/c.png); padding-top:0px;}
-
-/* skins */
-.mokshacontainer.skin1 .n{background:url(elements/skin1/n.png) repeat-x top; padding-left:22px; padding-bottom:0px; font-size:18px; vertical-align:middle; height:36px;.height:32px; -moz-user-select: none; -khtml-user-select: none}
-.mokshacontainer.skin1 .ne{background:url(elements/skin1/ne.png) no-repeat top right; height:36px;width:22px; -khtml-user-select: none}
-.mokshacontainer.skin1 .no{background:url(elements/skin1/no.png) no-repeat top right; height:36px;width:24px; -khtml-user-select: none}
-.mokshacontainer.skin1 .o{ background: url(elements/skin1/o.png) repeat-y top right; height:25px;width:24px}
-.mokshacontainer.skin1 .e{background: url(elements/skin1/e.png) repeat-y top right; height:25px;width:22px}
-.mokshacontainer.skin1 .s{background: url(elements/skin1/s.png) repeat-x bottom; height:22px}
-.mokshacontainer.skin1 .se{background: url(elements/skin1/se.png) no-repeat bottom right; height:22px;width:22px}
-.mokshacontainer.skin1 .so{ background: url(elements/skin1/so.png) no-repeat bottom right; height:22px;width:24px}
-.mokshacontainer.skin1 .c{background: url(elements/skin1/c.png); padding-top:0px;}
-
-.mokshacontainer.skinAlert .n{background:url(elements/skinAlert/n.png) repeat-x top; padding-left:25px;padding-top:0px;vertical-align:bottom;color: white;}
-.mokshacontainer.skinAlert .n a{color:white}
-.mokshacontainer.skinAlert .ne{background:url(elements/skinAlert/ne.png) no-repeat top right; height:36px;width:22px; -khtml-user-select: none}
-.mokshacontainer.skinAlert .no{background:url(elements/skinAlert/no.png) no-repeat top right; height:36px;width:24px; -khtml-user-select: none}
-.mokshacontainer.skinAlert .o{ background: url(elements/skinAlert/o.png) repeat-y top right; height:25px;width:24px}
-.mokshacontainer.skinAlert .e{background: url(elements/skinAlert/e.png) repeat-y top right; height:25px;width:22px}
-.mokshacontainer.skinAlert .s{background: url(elements/skinAlert/s.png) repeat-x bottom; height:22px}
-.mokshacontainer.skinAlert .se{background: url(elements/skinAlert/se.png) no-repeat bottom right; height:22px;width:22px}
-.mokshacontainer.skinAlert .so{ background: url(elements/skinAlert/so.png) no-repeat bottom right; height:22px;width:24px}
-.mokshacontainer.skinAlert .c{background: url(elements/skinAlert/c.png); padding-top:0px; color:white;}
-.mokshacontainer.skinAlert .buttonBar{right:15px;top:15px}
-
-.mokshacontainer.skin3 .n{background:url(elements/skin3/n.png) repeat-x top; padding-left:22px; padding-bottom:0px; font-size:18px; vertical-align:middle; height:36px;.height:32px; -moz-user-select: none; -khtml-user-select: none}
-.mokshacontainer.skin3 .ne{background:url(elements/skin3/ne.png) no-repeat top right; height:36px;width:22px; -khtml-user-select: none}
-.mokshacontainer.skin3 .no{background:url(elements/skin3/no.png) no-repeat top right; height:36px;width:24px; -khtml-user-select: none}
-.mokshacontainer.skin3 .o{ background: url(elements/skin3/o.png) repeat-y top right; height:25px;width:24px}
-.mokshacontainer.skin3 .e{background: url(elements/skin3/e.png) repeat-y top right; height:25px;width:22px}
-.mokshacontainer.skin3 .s{background: url(elements/skin3/s.png) repeat-x bottom; height:22px}
-.mokshacontainer.skin3 .se{background: url(elements/skin3/se.png) no-repeat bottom right; height:22px;width:22px}
-.mokshacontainer.skin3 .so{ background: url(elements/skin3/so.png) no-repeat bottom right; height:22px;width:24px}
-.mokshacontainer.skin3 .c{background: url(elements/skin3/c.png); padding-top:0px;}
-
-.mokshacontainer.skin4 .n{background:url(elements/skin4/n.png) repeat-x top; padding-left:22px; padding-bottom:0px; font-size:18px; vertical-align:middle; height:36px;.height:32px; -moz-user-select: none; -khtml-user-select: none}
-.mokshacontainer.skin4 .ne{background:url(elements/skin4/ne.png) no-repeat top right; height:36px;width:22px; -khtml-user-select: none}
-.mokshacontainer.skin4 .no{background:url(elements/skin4/no.png) no-repeat top right; height:36px;width:24px; -khtml-user-select: none}
-.mokshacontainer.skin4 .o{ background: url(elements/skin4/o.png) repeat-y top right; height:25px;width:24px}
-.mokshacontainer.skin4 .e{background: url(elements/skin4/e.png) repeat-y top right; height:25px;width:22px}
-.mokshacontainer.skin4 .s{background: url(elements/skin4/s.png) repeat-x bottom; height:22px}
-.mokshacontainer.skin4 .se{background: url(elements/skin4/se.png) no-repeat bottom right; height:22px;width:22px}
-.mokshacontainer.skin4 .so{ background: url(elements/skin4/so.png) no-repeat bottom right; height:22px;width:24px}
-.mokshacontainer.skin4 .c{background: url(elements/skin4/c.png); padding-top:0px;}
-
-.mokshacontainer.skin5 .n{background:url(elements/skin5/n.png) repeat-x top; padding-left:22px; font-size:18px; vertical-align:middle; height:36px;.height:32px; -moz-user-select: none; -khtml-user-select: none; padding-bottom:7px}
-.mokshacontainer.skin5 .ne{background:url(elements/skin5/ne.png) no-repeat top right; height:36px;width:22px; -khtml-user-select: none}
-.mokshacontainer.skin5 .no{background:url(elements/skin5/no.png) no-repeat top right; height:36px;width:24px; -khtml-user-select: none}
-.mokshacontainer.skin5 .o{ background: url(elements/skin5/o.png) repeat-y top right; height:25px;width:24px}
-.mokshacontainer.skin5 .e{background: url(elements/skin5/e.png) repeat-y top right; height:25px;width:22px}
-.mokshacontainer.skin5 .s{background: url(elements/skin5/s.png) repeat-x bottom; height:22px}
-.mokshacontainer.skin5 .se{background: url(elements/skin5/se.png) no-repeat bottom right; height:22px;width:22px}
-.mokshacontainer.skin5 .so{ background: url(elements/skin5/so.png) no-repeat bottom right; height:22px;width:24px}
-.mokshacontainer.skin5 .c{background: url(elements/skin5/c.png); padding-top:0px;}
-
-.mokshacontainer.skin6 .n{background:url(elements/skin6/n.png) repeat-x top; padding-left:22px; padding-bottom:0px; font-size:18px; vertical-align:middle; height:36px;.height:32px; -moz-user-select: none; -khtml-user-select: none}
-.mokshacontainer.skin6 .ne{background:url(elements/skin6/ne.png) no-repeat top right; height:36px;width:22px; -khtml-user-select: none}
-.mokshacontainer.skin6 .no{background:url(elements/skin6/no.png) no-repeat top right; height:36px;width:24px; -khtml-user-select: none}
-.mokshacontainer.skin6 .o{ background: url(elements/skin6/o.png) repeat-y top right; height:25px;width:24px}
-.mokshacontainer.skin6 .e{background: url(elements/skin6/e.png) repeat-y top right; height:25px;width:22px}
-.mokshacontainer.skin6 .s{background: url(elements/skin6/s.png) repeat-x bottom; height:22px}
-.mokshacontainer.skin6 .se{background: url(elements/skin6/se.png) no-repeat bottom right; height:22px;width:22px}
-.mokshacontainer.skin6 .so{ background: url(elements/skin6/so.png) no-repeat bottom right; height:22px;width:24px}
-.mokshacontainer.skin6 .c{background: url(elements/skin6/c.png); padding-top:0px;}
-
-.mokshacontainer.skin7 .n{background:url(elements/skin7/n.png) repeat-x top; padding-left:22px; padding-bottom:0px; font-size:18px; vertical-align:middle; height:36px;.height:32px; -moz-user-select: none; -khtml-user-select: none}
-.mokshacontainer.skin7 .n a{color:white}
-.mokshacontainer.skin7 .ne{background:url(elements/skin7/ne.png) no-repeat top right; height:36px;width:22px; -khtml-user-select: none}
-.mokshacontainer.skin7 .no{background:url(elements/skin7/no.png) no-repeat top right; height:36px;width:24px; -khtml-user-select: none}
-.mokshacontainer.skin7 .o{ background: url(elements/skin7/o.png) repeat-y top right; height:25px;width:24px}
-.mokshacontainer.skin7 .e{background: url(elements/skin7/e.png) repeat-y top right; height:25px;width:22px}
-.mokshacontainer.skin7 .s{background: url(elements/skin7/s.png) repeat-x bottom; height:22px}
-.mokshacontainer.skin7 .se{background: url(elements/skin7/se.png) no-repeat bottom right; height:22px;width:22px}
-.mokshacontainer.skin7 .so{ background: url(elements/skin7/so.png) no-repeat bottom right; height:22px;width:24px}
-.mokshacontainer.skin7 .c{background: url(elements/skin7/c.png); padding-top:0px;}
-
-.mokshacontainer.stiky .n{background:url(elements/stiky/n.png) repeat-x top; padding-left:22px; padding-bottom:0px; font-size:18px; vertical-align:middle; height:36px;.height:32px; -moz-user-select: none; -khtml-user-select: none}
-.mokshacontainer.stiky .ne{background:url(elements/stiky/ne.png) no-repeat top right; height:36px;width:22px; -khtml-user-select: none}
-.mokshacontainer.stiky .no{background:url(elements/stiky/no.png) no-repeat top right; height:36px;width:24px; -khtml-user-select: none}
-.mokshacontainer.stiky .o{ background: url(elements/stiky/o.png) repeat-y top right; height:25px;width:24px}
-.mokshacontainer.stiky .e{background: url(elements/stiky/e.png) repeat-y top right; height:25px;width:22px}
-.mokshacontainer.stiky .s{background: url(elements/stiky/s.png) repeat-x bottom; height:22px}
-.mokshacontainer.stiky .se{background: url(elements/stiky/se.png) no-repeat bottom right; height:22px;width:22px}
-.mokshacontainer.stiky .so{ background: url(elements/stiky/so.png) no-repeat bottom right; height:22px;width:24px}
-.mokshacontainer.stiky .c{background: url(elements/stiky/c.png); padding-top:0px;}
-
-
-.mokshacontainer.stikynote {background:gainsboro;border:1px solid gray;-webkit-border-radius:10px; -moz-border-radius:10px;border-radius:10px;}/**/
-.mokshacontainer.stikynote .n{ }
-.mokshacontainer.stikynote .n a{font-size:16px;color:black}
-.mokshacontainer.stikynote .ne{height:25px;width:15px; -khtml-user-select: none; }
-.mokshacontainer.stikynote .no{height:25px;width:15px; -khtml-user-select: none; }
-.mokshacontainer.stikynote .s{ height:10px}
-.mokshacontainer.stikynote .c{ }
-.mokshacontainer.stikynote .buttonBar{right:5px;top:0px}
-
-/* Moksha-specific hacks */
-.mokshacontainer .containerTable tr td {
-    padding: 0px 0px 0px 0px;
+.mb-resize{
+background:transparent !important; 
+border:none !important;
 }
+.mb-resize.ui-resizable-se { 
+width: 20px !important; 
+height: 20px !important;
+}
+
+.mbproxy{border:1px dotted gray;background: url(elements/proxy.png)}
+
+.containerPlus {font-family:Verdana; font-size:13px};
+.containerPlus .spacer {margin-top:10px}
+.containerPlus .buttonBar { position:relative;top:0;float:right;margin-top:-23px; margin-right:15px}
+.containerPlus .buttonBar img {margin-left:5px}
+.containerPlus .content {margin-right:-15px; padding-right:10px;overflow:auto;}
+
+/*
+* default
+*/
+.containerPlus{}
+.containerPlus .no	{ background: url('elements/default/no.png') top left no-repeat; }
+.containerPlus .ne	{ background: url('elements/default/ne.png') top right no-repeat; margin-left: 21px;}
+.containerPlus .ne img	{left:-10px; top:-10px}
+.containerPlus .n	{ background: url('elements/default/n.png') top center repeat-x; margin-right: 20px; -moz-user-select: none; -khtml-user-select: none}
+.containerPlus .n	{ padding-top:8px;height:26px; font-size:15px; white-space:nowrap;overflow:hidden;}
+.containerPlus .n	a{ text-decoration:none;color:#000; font-size:15px;}
+
+.containerPlus .o	{ background: url('elements/default/o.png') top left repeat-y;}
+.containerPlus .e	{ background: url('elements/default/e.png') top right repeat-y; margin-left: 21px;}
+.containerPlus .c { background: url('elements/default/c.png'); margin-right: 23px; padding-top: 1px; padding-bottom: 1px; }
+
+.containerPlus .so	{ background: url('elements/default/so.png') bottom left no-repeat;}
+.containerPlus .se	{ background: url('elements/default/se.png') bottom right no-repeat; margin-left: 21px;}
+.containerPlus .s { background: url('elements/default/s.png') bottom repeat-x; padding-top: 20px; margin-right: 23px;}
+
+
+/*
+* black
+*/
+.containerPlus.black .no	{ background: url('elements/black/no.png') top left no-repeat}
+.containerPlus.black .ne	{ background: url('elements/black/ne.png') top right no-repeat; margin-left: 21px;}
+.containerPlus.black .n	{ background: url('elements/black/n.png') top center repeat-x; margin-right: 25px;height:26px;}
+.containerPlus.black .n	{ padding-top:8px;font-size:15px; color:white;-moz-user-select: none; -khtml-user-select: none}
+.containerPlus.black .n	a{ text-decoration:none;color:#fff; font-size:15px; white-space:nowrap;overflow:hidden;}
+
+.containerPlus.black .o	{ background: url('elements/black/o.png') top left repeat-y;}
+.containerPlus.black .e	{ background: url('elements/black/e.png') top right repeat-y; margin-left: 21px;}
+.containerPlus.black .c { background: url('elements/black/c.png'); margin-right: 25px; padding-top: 1px; padding-bottom: 1px; }
+.containerPlus.black .c .content {color:white;}
+.containerPlus.black .c .content a {color:white;}
+
+.containerPlus.black .so	{ background: url('elements/black/so.png') bottom left no-repeat;}
+.containerPlus.black .se	{ background: url('elements/black/se.png') bottom right no-repeat; margin-left: 21px;}
+.containerPlus.black .s { background: url('elements/black/s.png') bottom repeat-x; padding-top: 20px; margin-right: 25px;}
+
+/*
+* white
+*/
+.containerPlus.white .no	{ background: url('elements/white/no.png') top left no-repeat;}
+.containerPlus.white .ne	{ background: url('elements/white/ne.png') top right no-repeat; margin-left: 21px;}
+.containerPlus.white .n	{ background: url('elements/white/n.png') top center repeat-x; margin-right: 25px;height:26px;}
+.containerPlus.white .n	{ padding-top:8px; font-size:16px;-moz-user-select: none; -khtml-user-select: none}
+
+.containerPlus.white .o	{ background: url('elements/white/o.png') top left repeat-y;}
+.containerPlus.white .e	{ background: url('elements/white/e.png') top right repeat-y; margin-left: 21px;}
+.containerPlus.white .c { background: url('elements/white/c.png'); margin-right: 25px; padding-top: 1px; padding-bottom: 1px; }
+.containerPlus.white .c .content {color:#000;}
+.containerPlus.white .n	a{}
+.containerPlus.white .n	a:hover{ text-decoration:underline}
+
+.containerPlus.white .so	{ background: url('elements/white/so.png') bottom left no-repeat;}
+.containerPlus.white .se	{ background: url('elements/white/se.png') bottom right no-repeat; margin-left: 21px;}
+.containerPlus.white .s { background: url('elements/white/s.png') bottom repeat-x; padding-top: 20px; margin-right: 25px;}
+
+
+/*
+* alert
+*/
+.containerPlus.alert .no	{ background: url('elements/alert/no.png') top left no-repeat;}
+.containerPlus.alert .ne	{ background: url('elements/alert/ne.png') top right no-repeat; margin-left: 21px;}
+.containerPlus.alert .n	{ background: url('elements/alert/n.png') top center repeat-x; margin-right: 25px;height:26px;}
+.containerPlus.alert .n	{ padding-top:8px; font-size:16px;-moz-user-select: none; -khtml-user-select: none}
+
+.containerPlus.alert .o	{ background: url('elements/alert/o.png') top left repeat-y;}
+.containerPlus.alert .e	{ background: url('elements/alert/e.png') top right repeat-y; margin-left: 21px;}
+.containerPlus.alert .c { background: url('elements/alert/c.png'); margin-right: 25px; padding-top: 1px; padding-bottom: 1px; }
+.containerPlus.alert .c .content {color:#000;}
+.containerPlus.alert .n	a{}
+.containerPlus.alert .n	a:hover{ text-decoration:underline}
+
+.containerPlus.alert .so	{ background: url('elements/alert/so.png') bottom left no-repeat;}
+.containerPlus.alert .se	{ background: url('elements/alert/se.png') bottom right no-repeat; margin-left: 21px;}
+.containerPlus.alert .s { background: url('elements/alert/s.png') bottom repeat-x; padding-top: 20px; margin-right: 25px;}
+
