@@ -7,6 +7,7 @@ if [ ! $VIRTUAL_ENV ]; then
         #virtualenv --no-site-packages tg2env
         virtualenv tg2env
         source tg2env/bin/activate
+        easy_install -U setuptools
         easy_install "repoze.who"
         easy_install WebOb
         easy_install simplejson
