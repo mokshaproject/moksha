@@ -300,5 +300,19 @@ $.extend( $.template.regx , {
            }
 );
 
+$.extend( $.template.helpers , {
+            index: function(v, i) {
+                       var result;
+
+                       try {
+                           result = v[i];
+                       } catch(err) {
+                           result = '&nbsp;';
+                       }
+                       return result;
+                   }
+          }
+);
+
 
 })(jQuery);
