@@ -49,11 +49,17 @@ log = logging.getLogger(__name__)
 class MokshaMemoryUsageWidget(LiveFlotWidget):
     name = 'Moksha Memory Usage'
     topic = 'moksha_mem_metrics'
+    container_options = {
+            'icon': 'chart.png', 'top': 400, 'left': 80, 'height': 310,
+            }
 
 
 class MokshaCPUUsageWidget(LiveFlotWidget):
     name = 'Moksha CPU Usage'
     topic = 'moksha_cpu_metrics'
+    container_options = {
+            'icon': 'chart.png', 'top': 80, 'left': 80, 'height': 310,
+            }
 
 
 class MokshaMessageMetricsConsumer(Consumer):
@@ -155,6 +161,8 @@ class MokshaMessageMetricsWidget(LiveFlotWidget):
                    modname=__name__)
             ]
     css = [ui_base_css, flot_css, buttons_css]
+    container_options = {'icon': 'chart.png', 'left': 600, 'top': 80,
+                         'height': 500}
 
     def update_params(self, d):
         d.topic = str(uuid4())
