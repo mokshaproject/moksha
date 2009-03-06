@@ -29,6 +29,7 @@ from pylons import cache
 from orbited import json
 
 from moksha.lib.base import Controller
+from moksha.lib.helpers import to_unicode
 from moksha.widgets.feedtree import feed_entries_tree, moksha_feedreader
 
 log = logging.getLogger('moksha.hub')
@@ -127,7 +128,7 @@ class FeedController(Controller):
                 content = """
                     <blockquote><h3><a href="%s">%s</a></h3><br/>%s</blockquote>
                 """ % (entry.get('link', url), entry['title'], content)
-                if entry['title'].replace(' ', '') == title:
+                if entry['title'].replace(' ', '') == to_unicode(title):
                     return content
             raise Exception("Cannot find entry by title: %s" % title)
         else:
