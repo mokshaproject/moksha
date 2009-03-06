@@ -33,18 +33,17 @@ class MokshaContainer(Widget):
              options[:]
     draggable = droppable = resizable = True
     iconize = minimize = close = True
-    stikynote = False
     hidden = True # hide from the moksha menu
-    content = '' # either text, or a Widget
+    content = '' # either text, or a Widget instance
     title = 'Moksha Container'
     skin = 'default' # default, black, white, stiky, alert
     #icon = 'chart.png'
 
     # Pixel tweaking
-    width = 430
-    #height = 500
-    #left = 170
-    #top = 270
+    width = 450
+    height = 500
+    left = 170
+    top = 270
 
     def update_params(self, d):
         super(MokshaContainer, self).update_params(d)
@@ -61,9 +60,9 @@ class MokshaContainer(Widget):
                 d.buttons += '%s,' % button[:1]
         d.buttons = d.buttons[:-1]
 
-        self.add_call(jQuery('#%s' % d.id).buildContainers(
-            {'elementsPath': '/toscawidgets/resources/moksha.widgets.container.container/static/css/elements/'}
-            ))
+        self.add_call(jQuery('#%s' % d.id).buildContainers({
+            'elementsPath': '/toscawidgets/resources/moksha.widgets.container.container/static/css/elements/'
+            }))
 
 
 container = MokshaContainer('moksha_container')
