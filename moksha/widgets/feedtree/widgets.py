@@ -147,6 +147,13 @@ class MokshaFeedReaderWidget(Widget):
     children = [feed_tree, feed_entries_tree]
     javascript = [splitter_js]
     css = [splitter_css]
+    container_options = {
+            'top': 80,
+            'left': 80,
+            'height': 600,
+            'width': 900,
+            'icon': 'browser.png',
+            }
 
     def update_params(self, d):
         super(MokshaFeedReaderWidget, self).update_params(d)

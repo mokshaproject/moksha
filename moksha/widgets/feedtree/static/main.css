@@ -63,9 +63,9 @@ html, body
 
 .moksha-feedreader {
 	border: 3px solid #669;
-	min-width: 800px;	/* Splitter can't be too thin ... */
-	min-height: 600px;	/* ... or too flat */
-    max-height: 600px;
+	min-width: 250px;	/* Splitter can't be too thin ... */
+	min-height: 525px;	/* ... or too flat */
+    max-height: 525px;
 	height: 100%;
     width: 100%;
 }
@@ -73,7 +73,7 @@ html, body
 	background: #ddf;
 	width: 150px;
 	min-width: 250px;
-	max-width: 300px;
+	max-width: 250px;
 	overflow: auto;		/* Scroll bars appear as needed */
 }
 #TopPane {				/* Top nested in right pane */
