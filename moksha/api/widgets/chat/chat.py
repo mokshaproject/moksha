@@ -37,7 +37,7 @@ willowchat_css = CSSLink(filename='static/style.css', modname=__name__)
 
 
 class LiveChatWidget(Widget):
-    name = 'Moksha Chat'
+    name = 'Chat'
     params = ['bootstrap']
     bootstrap = JSLink(link='/appz/chat/bootstrap')
     template = '<div id="willowchat" reposition="true">${bootstrap}</div>'

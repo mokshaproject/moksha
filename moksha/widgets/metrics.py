@@ -47,7 +47,7 @@ from moksha.widgets.jquery_ui_theme import ui_base_css
 log = logging.getLogger(__name__)
 
 class MokshaMemoryUsageWidget(LiveFlotWidget):
-    name = 'Moksha Memory Usage'
+    name = 'Memory Usage'
     topic = 'moksha_mem_metrics'
     container_options = {
             'icon': 'chart.png', 'top': 400, 'left': 80, 'height': 310,
@@ -55,7 +55,7 @@ class MokshaMemoryUsageWidget(LiveFlotWidget):
 
 
 class MokshaCPUUsageWidget(LiveFlotWidget):
-    name = 'Moksha CPU Usage'
+    name = 'CPU Usage'
     topic = 'moksha_cpu_metrics'
     container_options = {
             'icon': 'chart.png', 'top': 80, 'left': 80, 'height': 310,
@@ -87,7 +87,7 @@ class MokshaMessageMetricsWidget(LiveFlotWidget):
     TODO:
     - display the latency
     """
-    name = 'Moksha Message Metrics'
+    name = 'Message Benchmarking'
     template = """
         Messages sent: <span id="metrics_msg_sent">0</span><br/>
         <div id="metrics_sent_progress"></div>
