@@ -154,12 +154,7 @@ class MokshaMessageMetricsWidget(LiveFlotWidget):
             x = x + 1;
         }
     """
-    javascript = [
-            excanvas_js, flot_js,
-            # Provide our own jQuery ui until tw.jquery gets 1.6
-            JSLink(link='/javascript/jquery-ui-personalized-1.6rc6.min.js',
-                   modname=__name__)
-            ]
+    javascript = [excanvas_js, flot_js, ui_progressbar_js]
     css = [ui_base_css, flot_css, buttons_css]
     container_options = {'icon': 'chart.png', 'left': 600, 'top': 80,
                          'height': 500}
@@ -247,7 +242,6 @@ class MokshaMetricsDataStream(PollingDataStream):
             cpu_data['data'].append({
                 'data': history,
                 'lines': {'show': 'true', 'fill': 'true'},
-                #'points': {'show': 'true'},
                 'label': pids[pid],
                 })
 
