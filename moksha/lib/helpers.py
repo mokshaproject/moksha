@@ -612,3 +612,10 @@ def get_moksha_config_path():
                     return cfg
 
         raise MokshaConfigNotFound('Cannot find moksha configuration file!')
+
+
+def to_unicode(self, obj, encoding='utf-8'):
+    if isinstance(obj, basestring):
+        if not isinstance(obj, unicode):
+            obj = unicode(obj, encoding, 'replace')
+    return obj
