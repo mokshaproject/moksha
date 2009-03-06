@@ -34,6 +34,7 @@ from shove import Shove
 from orbited import json
 
 from moksha.api.hub import Consumer
+from moksha.lib.helpers import to_unicode
 
 log = logging.getLogger('moksha.hub')
 
@@ -83,10 +84,11 @@ class MokshaFeedConsumer(Consumer):
                 content = """
                     <blockquote><h3><a href="%s">%s</a></h3><br/>%s</blockquote>
                 """ % (entry.get('link', url), entry['title'], content)
-                if entry['title'].replace(' ', '') == title:
+                if entry['title'].replace(' ', '') == to_unicode(title):
                     self.send_message(message['headers']['topic'],
                             json.encode({'content': content,
                                          'action': 'get_entry'}))
+                    return
             raise Exception("Cannot find entry by title: %s" % title)
         else:
             raise Exception("Invalid entry key: %r" % key)
