@@ -11,6 +11,7 @@ if [ ! $VIRTUAL_ENV ]; then
         easy_install "repoze.who"
         easy_install WebOb
         easy_install simplejson
+        easy_install Twisted
         easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
         pushd moksha/widgetbrowser; python setup.py develop; popd
         easy_install "tw.jquery==dev"
