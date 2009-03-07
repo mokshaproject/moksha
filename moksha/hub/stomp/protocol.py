@@ -36,7 +36,7 @@ class StompProtocol(Protocol, stomper.Engine):
         self.password = password
         self.counter = 1
         self.client = client
-        self.remainder = None
+        self.buffer = StompBuffer()
 
     def connected(self, msg):
         """Once connected, subscribe to message queues """
@@ -70,23 +70,14 @@ class StompProtocol(Protocol, stomper.Engine):
 
     def dataReceived(self, data):
         """Data received, react to it and respond if needed """
-        if self.remainder:
-            buf = self.remainder
-            self.remainder = None
-            log.debug('Using existing StompBuffer')
-        else:
-            buf = StompBuffer()
-        buf.appendData(data)
-        msg = buf.getOneMessage()
-        while msg:
-            self.react(msg)
-            returned = self.react(msg)
-            if returned:
-                self.transport.write(returned)
-            self.client.consume_stomp_message(msg)
-            msg = buf.getOneMessage()
-        if not buf.bufferIsEmpty():
-            log.debug('StompBuffer not empty; saving remainder for next time')
-            if self.remainder:
-                log.error('Overwriting remaining stomp buffer!')
-            self.remainder = buf
+        self.buffer.appendData(data)
+        while True:
+           msg = self.buffer.getOneMessage()
+           if msg is None:
+               break
+
+           returned = self.react(msg)
+           if returned:
+               self.transport.write(returned)
+
+           self.client.consume_stomp_message(msg)
