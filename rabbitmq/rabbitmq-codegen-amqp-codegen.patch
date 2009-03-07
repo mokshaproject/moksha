@@ -1,0 +1,16 @@
+--- rabbitmq-codegen/amqp_codegen.py.orig	2009-03-06 19:33:25.000000000 -0500
++++ rabbitmq-codegen/amqp_codegen.py	2009-03-06 19:33:39.000000000 -0500
+@@ -183,10 +183,11 @@
+             fn(amqp_spec)
+         except:
+             remove(out_file)
+-            raise
+-        finally:
+             sys.stdout = stdout
+             f.close()
++            raise
++        sys.stdout = stdout
++        f.close()
+ 
+     if not len(sys.argv) == 4:
+         usage()
