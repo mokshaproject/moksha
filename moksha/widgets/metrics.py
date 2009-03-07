@@ -44,7 +44,7 @@ from moksha.api.streams import PollingDataStream
 from moksha.lib.helpers import defaultdict
 from moksha.widgets.jquery_ui_theme import ui_base_css
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('moksha.hub')
 
 class MokshaMemoryUsageWidget(LiveFlotWidget):
     name = 'Memory Usage'
@@ -70,6 +70,7 @@ class MokshaMessageMetricsConsumer(Consumer):
     topic, and relays the messgae to the message['headers']['topic']
     """
     topic = 'moksha_message_metrics'
+
     def consume(self, message):
         topic = message['headers'].get('topic')
         if topic:
