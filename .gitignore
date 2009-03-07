@@ -12,3 +12,7 @@ mokshaenv
 tg2env
 *.egg-info
 *.pid
+rabbitmq-codegen
+rabbitmq-server
+rabbitmq-stomp
+
