@@ -14,7 +14,7 @@ setup(
         "Shove",
         "feedcache",
         "feedparser",
-        "tw.jquery>=0.9.4",
+        "tw.jquery>=0.9.4.1",
         "repoze.squeeze",
         "repoze.profile",
         "orbited",
