@@ -90,7 +90,7 @@ class MokshaMessageMetricsWidget(LiveFlotWidget):
     TODO:
     - display the latency
     """
-    name = 'Message Benchmarking'
+    name = 'Message Metrics'
     template = """
         Messages sent: <span id="metrics_msg_sent">0</span><br/>
         <div id="metrics_sent_progress"></div>
