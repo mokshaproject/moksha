@@ -159,7 +159,7 @@ class MokshaMessageMetricsWidget(LiveFlotWidget):
     """
     javascript = [excanvas_js, flot_js, ui_progressbar_js]
     css = [ui_base_css, flot_css, buttons_css]
-    container_options = {'icon': 'chart.png', 'left': 600, 'top': 80,
+    container_options = {'icon': 'chart.png', 'left': 550, 'top': 80,
                          'height': 500}
 
     def update_params(self, d):
