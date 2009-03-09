@@ -37,9 +37,7 @@ def _update_params(params, d):
             if isinstance(p[k], dict) or isinstance(p[k], list):
                 p[k] = json.dumps(p[k])
 
-        return p
-
-    return params
+    return p
 
 class ConfigWrapper(object):
     """ Base class for container configuration wrappers
@@ -59,6 +57,14 @@ class ConfigWrapper(object):
     Derive from this class to create new configuration syntax
 
     """
+    @staticmethod
+    def _validate_predicates(predicates):
+        if not isinstance(predicates, (list, tuple)):
+            predicates = (predicates,)
+
+        for p in predicates:
+            if not isinstance(p, Predicate):
+                raise AttributeError('"%r" is not a subclass of repoze.who.predicates.Predicate' % p)
 
     @staticmethod
     def process_wrappers(wrappers, dict):
@@ -125,6 +131,8 @@ class Category(ConfigWrapper):
                 self.apps = tuple(self.apps)
         self.auth = auth or tuple()
 
+        self._validate_predicates(self.auth)
+
         if not css_class:
             css_class = scrub_filter.sub('_', self.label.lower())
         elif isinstance(css_class, list) or isinstance(css_class, tuple):
@@ -188,6 +196,9 @@ class App(ConfigWrapper):
         self.auth = auth or []
         self.content_id = content_id
 
+        self._validate_predicates(self.auth)
+
+
         if isinstance(css_class, list) or isinstance(css_class, tuple):
             css_class = ' '.join(css_class)
         self.css_class = css_class
@@ -200,6 +211,17 @@ class App(ConfigWrapper):
         """
         if(self.css_class == None):
             self.css_class = css
+
+    def _create_query_string(self, params):
+        qlist = []
+        for k, i in params.iteritems():
+            qlist.append("%s=%s" % (k, str(i)))
+
+        result = ""
+        if qlist:
+            result = '?' + '&'.join(qlist)
+
+        return result
 
     def process(self, dict=None):
         """Check the predicates and construct the dict
@@ -215,8 +237,11 @@ class App(ConfigWrapper):
         if css_class == None:
             css_class = ''
 
+        p = _update_params(self.params, dict)
+        qs = self._create_query_string(p)
         return {'label': self.label, 'url': self.url,
-                'params': _update_params(self.params, dict),
+                'params': p,
+                'query_string': qs,
                 'id': id,
                 'content_id': self.content_id + '-' + id,
                 'css_class': css_class}
@@ -313,6 +338,8 @@ class Widget(ConfigWrapper):
         self.widget = widget
         self.params = params or {}
         self.auth = auth or []
+        self._validate_predicates(self.auth)
+
         self.id = 'uuid' + str(uuid.uuid4())
         self.content_id = content_id
         if self.label and not content_id:
