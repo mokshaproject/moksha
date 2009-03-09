@@ -2,7 +2,7 @@
   $.widget("ui.mokshagrid",{
     /* methods */
 
-    init: function() {
+    _init: function() {
       var self = this;
       var o = self.options;
 
@@ -22,7 +22,7 @@
       }
     },
 
-    destroy: function() {
+    _destroy: function() {
         this.$headers.unbind('.mokshagrid');
         this.element.unbind('.mokshagrid');
     },
