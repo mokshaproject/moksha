@@ -310,7 +310,11 @@ $.extend( $.template.helpers , {
                            result = '&nbsp;';
                        }
                        return result;
-                   }
+                   },
+
+            filter: function(v, filter_cb) {
+                        return window[filter_cb](v);
+                    }
           }
 );
 
