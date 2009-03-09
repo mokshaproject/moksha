@@ -14,7 +14,7 @@ setup(
         "Shove",
         "feedcache",
         "feedparser",
-        "tw.jquery",
+        "tw.jquery>=0.9.4.1",
         "repoze.squeeze",
         "repoze.profile",
         "orbited",
@@ -109,7 +109,7 @@ setup(
     #blueprint_fancytype_css = moksha.widgets.blueprint:blueprint_plugin_fancytype_css
 
     # up up down down left right left right b a
-    #konami_js = moksha.widgets.misc.ptd:konami
+    konami_js = moksha.widgets.misc.ptd:konami
 
     [moksha.menu]
     default_menu = moksha.api.menus:MokshaDefaultMenu

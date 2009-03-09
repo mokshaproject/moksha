@@ -44,16 +44,24 @@ from moksha.api.streams import PollingDataStream
 from moksha.lib.helpers import defaultdict
 from moksha.widgets.jquery_ui_theme import ui_base_css
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('moksha.hub')
 
 class MokshaMemoryUsageWidget(LiveFlotWidget):
-    name = 'Moksha Memory Usage'
+    name = 'Memory Usage'
     topic = 'moksha_mem_metrics'
+    container_options = {
+            'icon': 'chart.png', 'top': 400, 'left': 80, 'height': 310,
+            'iconize': False, 'minimize': False,
+            }
 
 
 class MokshaCPUUsageWidget(LiveFlotWidget):
-    name = 'Moksha CPU Usage'
+    name = 'CPU Usage'
     topic = 'moksha_cpu_metrics'
+    container_options = {
+            'icon': 'chart.png', 'top': 80, 'left': 80, 'height': 310,
+            'iconize': False, 'minimize': False,
+            }
 
 
 class MokshaMessageMetricsConsumer(Consumer):
@@ -62,6 +70,7 @@ class MokshaMessageMetricsConsumer(Consumer):
     topic, and relays the messgae to the message['headers']['topic']
     """
     topic = 'moksha_message_metrics'
+
     def consume(self, message):
         topic = message['headers'].get('topic')
         if topic:
@@ -81,7 +90,7 @@ class MokshaMessageMetricsWidget(LiveFlotWidget):
     TODO:
     - display the latency
     """
-    name = 'Moksha Message Metrics'
+    name = 'Message Metrics'
     template = """
         Messages sent: <span id="metrics_msg_sent">0</span><br/>
         <div id="metrics_sent_progress"></div>
@@ -148,13 +157,10 @@ class MokshaMessageMetricsWidget(LiveFlotWidget):
             x = x + 1;
         }
     """
-    javascript = [
-            excanvas_js, flot_js,
-            # Provide our own jQuery ui until tw.jquery gets 1.6
-            JSLink(link='/javascript/jquery-ui-personalized-1.6rc6.min.js',
-                   modname=__name__)
-            ]
+    javascript = [excanvas_js, flot_js, ui_progressbar_js]
     css = [ui_base_css, flot_css, buttons_css]
+    container_options = {'icon': 'chart.png', 'left': 550, 'top': 80,
+                         'height': 500}
 
     def update_params(self, d):
         d.topic = str(uuid4())
@@ -239,7 +245,6 @@ class MokshaMetricsDataStream(PollingDataStream):
             cpu_data['data'].append({
                 'data': history,
                 'lines': {'show': 'true', 'fill': 'true'},
-                #'points': {'show': 'true'},
                 'label': pids[pid],
                 })
 

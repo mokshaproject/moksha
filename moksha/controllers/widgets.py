@@ -38,6 +38,11 @@ class WidgetController(Controller):
             options['content'] = w['widget']
             options['title'] =  w['name']
             options['id'] = widget + '_container'
+
+            # Allow widgets to specify container options
+            container_options = getattr(w['widget'], 'container_options', None)
+            if container_options:
+                options.update(container_options)
         else:
             tmpl_context.widget = w['widget']
         return dict(options=options)

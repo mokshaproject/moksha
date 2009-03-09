@@ -19,27 +19,28 @@
 from tw.api import Widget, JSLink, CSSLink
 from tw.jquery import jquery_js, jQuery
 
-container_js = JSLink(filename='static/js/mbContainer.js', modname=__name__)
+container_js = JSLink(filename='static/js/mbContainer.min.js', modname=__name__)
 container_css = CSSLink(filename='static/css/mbContainer.css', modname=__name__)
 
 class MokshaContainer(Widget):
     template = 'mako:moksha.widgets.container.templates.container'
     javascript = [container_js]
     css = [container_css]
-    options = ['draggable', 'droppable', 'resizable', 'stikynote']
+    options = ['draggable', 'resizable']
     button_options = ['iconize', 'minimize', 'close']
-    params = ['buttons', 'skin', 'height', 'width', 'left', 'top', 'id', 'title'] + \
+    params = ['buttons', 'skin', 'height', 'width', 'left', 'top', 'id',
+              'title', 'icon'] + \
              options[:]
     draggable = droppable = resizable = True
     iconize = minimize = close = True
-    stikynote = False
     hidden = True # hide from the moksha menu
-    content = '' # either text, or a Widget
+    content = '' # either text, or a Widget instance
     title = 'Moksha Container'
-    skin = 'skin3' # skin[1-7]
+    skin = 'default' # default, black, white, stiky, alert
+    #icon = 'chart.png'
 
     # Pixel tweaking
-    width = 430
+    width = 450
     height = 500
     left = 170
     top = 270
@@ -59,7 +60,9 @@ class MokshaContainer(Widget):
                 d.buttons += '%s,' % button[:1]
         d.buttons = d.buttons[:-1]
 
-        self.add_call(jQuery('#%s' % d.id).buildContainers())
+        self.add_call(jQuery('#%s' % d.id).buildContainers({
+            'elementsPath': '/toscawidgets/resources/moksha.widgets.container.container/static/css/elements/'
+            }))
 
 
 container = MokshaContainer('moksha_container')

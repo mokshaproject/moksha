@@ -233,13 +233,13 @@ class FeederFactory(protocol.ClientFactory):
 
     protocol = FeederProtocol()
 
-    def __init__(self, deferred_groups=60):
+    def __init__(self):
         """Initialize the Feeder Factory.
 
         :param deferred_groups: The number of simultaneous connections
         """
         self.protocol.factory = self
-        self.deferred_groups = deferred_groups
+        self.deferred_groups = int(config.get('feed.deferred_groups', 50))
 
     def start(self, addresses):
         """Divide into groups all the feeds to download.

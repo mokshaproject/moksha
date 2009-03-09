@@ -49,6 +49,9 @@ Starting Moksha
     $ ./start-moksha
 
 .. note::
+   Do not run this command as root.
+
+.. note::
    This script takes care of setting up your TurboGears2 virtual environment
    the first time it is run.  To drop into the virtualenv manually you can run
    `source tg2env/bin/activate` to enter it, and `deactivate` to leave it.
