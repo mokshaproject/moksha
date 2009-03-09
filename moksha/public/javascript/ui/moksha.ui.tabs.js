@@ -22,7 +22,7 @@
 
 $.widget("ui.mokshatabs", {
 
-    init: function() {
+    _init: function() {
         this.options.event += '.tabs'; // namespace event
 
         // create tabs
