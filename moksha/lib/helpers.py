@@ -572,7 +572,6 @@ except:
                                             dict.__repr__(self))
 
 
-# TODO: document this
 def cache_rendered_data(data):
     """ A method to cache ``data`` with the current request path as the key.
 
@@ -589,7 +588,10 @@ def cache_rendered_data(data):
         def index(self):
             return dict()
 
-    This is best utilized in conjunction with Nginx and Memcached.
+    :Warning: In this example usage, the method caches the data before it makes
+              its way out of the WSGI middleware stack.  Therefore, widget 
+              resources are not injected, and stored in the cache.
+
     """
     if hasattr(pylons.g, 'cache') and pylons.g.cache and \
             pylons.request.environ.get('HTTP_X_FORWARDED_PROTO'):
