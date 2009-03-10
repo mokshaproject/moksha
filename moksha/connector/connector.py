@@ -80,6 +80,11 @@ class IConnector(object):
     All connectors must derive from this interface
     """
 
+    def __init__(self, environ=None, request=None):
+        super(IConnector, self).__init__()
+        self._environ = environ
+        self._request = request
+
     @classmethod
     def register(self):
         """ This method is called when the connector middleware loads the

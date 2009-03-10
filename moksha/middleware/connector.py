@@ -66,13 +66,17 @@ class MokshaConnectorMiddleware(object):
                 if k not in params:
                     params[k] = p.getall(k)
 
-            response = self._run_connector(s[0], s[1], *s[2:], **params)
+            response = self._run_connector(environ, request,
+                                           s[0], s[1], *s[2:],
+                                           **params)
         else:
             response = request.get_response(self.application)
 
         return response(environ, start_response)
 
-    def _run_connector(self, conn, op, *path, **remote_params):
+    def _run_connector(self, environ, request,
+                       conn, op, *path,
+                       **remote_params):
         response = None
         # check last part of path to see if it is json data
         dispatch_params = {};
@@ -98,7 +102,7 @@ class MokshaConnectorMiddleware(object):
         conn = self._connectors.get(conn)
 
         if conn:
-            conn_obj = conn['connector_class']()
+            conn_obj = conn['connector_class'](environ, request)
             r = conn_obj._dispatch(op, path, remote_params, **dispatch_params)
             if not isinstance(r, str):
                 r = json.dumps(r, separators=(',',':'))
