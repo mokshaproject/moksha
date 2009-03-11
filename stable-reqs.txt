@@ -1,42 +1,29 @@
 AddOns==0.6
 Beaker==1.2.3
-BytecodeAssembler==0.5
-Cheetah==2.0.1
+BytecodeAssembler==0.3
 DecoratorTools==1.7
-Elixir==0.6.1
 Extremes==1.1
 FormEncode==1.2.1
 Genshi==0.5.1
 Jinja==1.2
 Mako==0.2.4
-MySQL-python==1.2.2
-Numeric==24.2
 ## FIXME: could not find svn URL in dependency_links for this package:
-PEAK-Rules==0.5a1.dev-r2581
+PEAK-Rules==0.5a1.dev-r2582
 Paste==1.7.2
 PasteDeploy==1.3.3
 PasteScript==1.7.3
 Paver==1.0a4
-## FIXME: could not find svn URL in dependency_links for this package:
-PyProtocols==1.0a0dev-r2302
 Pygments==1.0
 Pylons==0.9.7
 Routes==1.10.3
-## FIXME: could not find svn URL in dependency_links for this package:
-RuleDispatch==0.5a0.dev-r2306
 SQLAlchemy==0.5.2
-SQLObject==0.10.2
 Sphinx==0.5.1
 SymbolType==1.0
-TGFastData==0.9a6
 Tempita==0.2
 ## FIXME: could not find svn URL in dependency_links for this package:
 ToscaWidgets==0.9.5dev-20081026
-TurboCheetah==1.0
-TurboGears==1.0.8
 TurboGears2==2.0b7
-TurboJson==1.2.1
-TurboKid==1.0.4
+TurboJson==1.2
 Twisted==8.2.0
 WebError==0.10.1
 WebFlash==0.1a8dev1
@@ -44,41 +31,21 @@ WebHelpers==0.6.4
 WebOb==0.9.6.1
 WebTest==1.1
 ## FIXME: could not find svn URL in dependency_links for this package:
-WidgetBrowser==0.1dev-20090310
+WidgetBrowser==0.1dev-20090311
 boto==1.6b
-bzr==1.11
-configobj==4.5.3
-cups==1.0
-cupshelpers==1.0
 decorator==3.0.0
 demjson==1.4
 docutils==0.5
-egenix-mx-base==3.1.1
 feedcache==1.3
 feedparser==4.1
-firstboot==1.102
-iniparse==0.2.4
-kid==0.9.6
 lxml==2.2beta4
 meld3==0.6.5
-mercurial==1.1.2
--e git+git+ssh://git.fedorahosted.org/git/moksha@2fafc95fcb0205a5a8f3f20a933eeafe2030cecd#egg=moksha-0.1dev-py2.5-2fafc95fcb0205a5a8f3f20a933eeafe2030cecd
+-e git+git+ssh://git.fedorahosted.org/git/moksha@f5d83500420707d31bb8575de5cca8e39429d17b#egg=moksha-0.1dev-py2.5-dev
 morbid==0.8.4
 nose==0.10.4
-orbited==0.7.6
-paramiko==1.7.4
-prioritized-methods==0.2.1
-psycopg2==2.0.8
-pyOpenSSL==0.7
-pycrypto==2.0.1
-pycurl==7.18.2
-pygpgme==0.1
-pykickstart==1.47
+orbited==0.7.7
+psycopg2==2.0.9
 pyprof2calltree==1.1.0
-pysqlite==2.3.3
-python-bugzilla==0.4-rc4
-python-fedora==0.3.9
-python-memcached==1.43
 repoze.profile==0.8
 repoze.squeeze==0.3
 repoze.tm2==1.0a3
@@ -90,15 +57,8 @@ repoze.who==1.0.10
 repoze.who-friendlyform==1.0b3
 repoze.who-testutil==1.0b2
 repoze.who.plugins.sa==1.0rc1
-scservices==0.99.28
-scservices.dbus==0.99.28
 shove==0.1.5
 simplejson==2.0.8
-slip==0.1.15
-slip.dbus==0.1.15
-slip.gtk==0.1.15
-smbc==1.0
-sos==1.8
 ## FIXME: could not find svn URL in dependency_links for this package:
 sqlalchemy-migrate==0.5.1.dev-r479
 stomper==0.2.2
@@ -106,10 +66,6 @@ tg.devtools==2.0b7
 transaction==1.0a1
 tw.forms==0.9.2
 tw.jquery==0.9.4.2
-urlgrabber==3.0.0
 uuid==1.30
-virtinst==0.400.0
-virtualenv==1.3.2
-yum-metadata-parser==1.1.2
 zope.interface==3.5.0
 zope.sqlalchemy==0.4
