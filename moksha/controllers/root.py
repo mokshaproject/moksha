@@ -55,7 +55,7 @@ class RootController(BaseController):
                     docs_dir=config.get('docs_dir', 'docs'),
                     full_stack=False))
 
-    @after_render(cache_rendered_data)
+    #@after_render(cache_rendered_data)
     @expose('mako:moksha.templates.index')
     def index(self):
         tmpl_context.menu_widget = moksha.menus['default_menu']
