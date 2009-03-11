@@ -31,7 +31,7 @@ WebHelpers==0.6.4
 WebOb==0.9.6.1
 WebTest==1.1
 ## FIXME: could not find svn URL in dependency_links for this package:
-WidgetBrowser==0.1dev-20090311
+#WidgetBrowser==0.1dev-20090311
 boto==1.6b
 decorator==3.0.0
 demjson==1.4
@@ -40,7 +40,7 @@ feedcache==1.3
 feedparser==4.1
 lxml==2.2beta4
 meld3==0.6.5
--e git+git+ssh://git.fedorahosted.org/git/moksha@f5d83500420707d31bb8575de5cca8e39429d17b#egg=moksha-0.1dev-py2.5-dev
+-e git+git+ssh://git.fedorahosted.org/git/moksha@f97231a017e5736005e50e94eea2c2b55a4d891a#egg=moksha-0.1dev-py2.5-f97231a017e5736005e50e94eea2c2b55a4d891a
 morbid==0.8.4
 nose==0.10.4
 orbited==0.7.7
