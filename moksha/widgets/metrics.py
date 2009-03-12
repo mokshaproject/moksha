@@ -167,24 +167,48 @@ class MokshaMessageMetricsWidget(LiveFlotWidget):
         super(MokshaMessageMetricsWidget, self).update_params(d)
 
 
+PID = 0
+NAME = -1
+MEM_TOTAL = -2
+
 class MokshaMetricsDataStream(PollingDataStream):
-    frequency = 2
-    procs = ('orbited', 'paster', 'moksha')
+    frequency = 3
+    procs = ('orbited', 'paster', 'moksha', 'httpd')
     cpu_usage = defaultdict(list)
     programs = None
+    pids = {}
+    count = 0
+
+    # Unless we are monitoring apache, only poll for pids once
+    poll_for_new_pids = False
 
     def __init__(self):
-        self.programs = []
+        self.programs = self._find_programs()
+        self.processors = self._find_processors()
+        super(MokshaMetricsDataStream, self).__init__()
+
+    def _find_programs(self):
+        programs = []
         for program in self.mem():
             for proc in self.procs:
-                if program[-1].startswith(proc) or proc in program[-1]:
-                    self.programs.append(program)
+                if program[NAME].startswith(proc) or proc in program[NAME]:
+                    programs.append(program)
+                    for pid in program[PID].split(','):
+                        self.pids[int(pid)] = program[NAME]
+                    if proc == 'httpd':
+                        self.poll_for_new_pids = True
+        return programs
 
-        super(MokshaMetricsDataStream, self).__init__()
+    def _find_processors(self):
+        """ Find the number of processors """
+        processors = 0
+        for line in file('/proc/cpuinfo').readlines():
+            if line.startswith('processor'):
+                processors = int(line.split(':')[1])
+        return processors + 1
 
     def poll(self):
         i = 0
-        pids = {}
         mem_data = {
             'data': [],
             'options': {
@@ -196,7 +220,7 @@ class MokshaMetricsDataStream(PollingDataStream):
             'data': [],
             'options': {
                 'xaxis': {'min': 0, 'max': 50},
-                'yaxis': {'min': 0, 'max': 100},
+                'yaxis': {'min': 0, 'max': 100 * self.processors},
                 'legend': {
                     'position': 'nw',
                     'backgroundColor': 'null'
@@ -204,48 +228,68 @@ class MokshaMetricsDataStream(PollingDataStream):
             }
         }
 
+        self.count += 1
+        if self.poll_for_new_pids and self.count % 10 == 0:
+            self.programs = self._find_programs()
+            self.count = 0
+
         for program in self.programs:
             for proc in self.procs:
-                if program[-1].startswith(proc) or proc in program[-1]:
-                    pids[program[0]] = program[-1]
-                    y = float(program[-2].split()[0])
+                if program[NAME].startswith(proc) or proc in program[NAME]:
+                    total_mem_usage = float(program[MEM_TOTAL].split()[0])
                     mem_data['data'].append({
-                            'data': [[i, y]],
+                            'data': [[i, total_mem_usage]],
                             'bars': {'show': 'true'},
-                            'label': program[-1],
+                            'label': program[NAME],
                             })
                     mem_data['options']['xaxis']['ticks'].append(
-                            [i + 0.5, program[-1]])
+                            [i + 0.5, program[NAME]])
                     i += 1
 
         self.send_message('moksha_mem_metrics', [mem_data])
 
-        cmd = ['/usr/bin/top', '-b', '-n 1']
-        for pid in pids:
-            cmd += ['-p %s' % pid]
+        # top only allows 20 pids to be specified at a time
+        # so make multiple calls if we have to
+        out = []
+        _pids = []
+        _pids.extend(self.pids.keys())
+        while _pids:
+            cmd = ['/usr/bin/top', '-b', '-n 1']
+            for pid in _pids[:20]:
+                cmd += ['-p %s' % pid]
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+            stdout, stderr = p.communicate()
+            stdout = stdout.strip().split('\n')
+            for i, line in enumerate(stdout):
+                if line.lstrip().startswith('PID'):
+                    out += stdout[i+1:]
+                    break
+            _pids = _pids[20:]
 
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        out, err = p.communicate()
-        out = out.strip().split('\n')
-        for i, line in enumerate(out):
-            if line.lstrip().startswith('PID'):
-                out = out[i+1:]
-                break
-
+        # Determine the % CPU usage for each pid
+        pid_cpu = defaultdict(float)
         for line in out:
             splitline = line.split()
-            pid = splitline[0]
+            if not splitline: continue
+            pid = int(splitline[0])
             cpu_usage = float(splitline[-4])
-            for history in self.cpu_usage[pid]:
-                history[0] -= 1
-            self.cpu_usage[pid].append([50, cpu_usage])
-            self.cpu_usage[pid] = self.cpu_usage[pid][-51:]
+            pid_cpu[self.pids[pid]] += cpu_usage
 
-        for pid, history in self.cpu_usage.items():
+        # Move everything to the left, and append the latest CPU usage.
+        for program, cpu_usage in pid_cpu.items():
+            for history in self.cpu_usage[program]:
+                history[0] -= 1
+
+            self.cpu_usage[program].append([50, cpu_usage])
+
+            # Only store 50 ticks worth of data
+            self.cpu_usage[program] = self.cpu_usage[program][-51:]
+
+        for program, history in self.cpu_usage.items():
             cpu_data['data'].append({
                 'data': history,
                 'lines': {'show': 'true', 'fill': 'true'},
-                'label': pids[pid],
+                'label': program.split()[0],
                 })
 
         self.send_message('moksha_cpu_metrics', [cpu_data])
@@ -354,9 +398,10 @@ class MokshaMetricsDataStream(PollingDataStream):
             cmds[cmd]=cmds.setdefault(cmd,0)+private
             if count.has_key(cmd):
                count[cmd] += 1
+               pids[cmd] += ',%d' % pid
             else:
                count[cmd] = 1
-            pids[cmd] = pid
+               pids[cmd] = str(pid)
 
         #Add shared mem for each program
         total=0
@@ -384,7 +429,7 @@ class MokshaMetricsDataStream(PollingDataStream):
 
         for cmd in sort_list:
             results.append([
-                "%d" % pids[cmd[0]],
+                "%s" % pids[cmd[0]],
                 "%sB" % human(cmd[1]-shareds[cmd[0]]),
                 "%sB" % human(shareds[cmd[0]]),
                 "%sB" % human(cmd[1]),
