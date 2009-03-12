@@ -57,6 +57,9 @@ class ConfigWrapper(object):
     Derive from this class to create new configuration syntax
 
     """
+    def __init__(self):
+        super(ConfigWrapper, self).__init__()
+
     @staticmethod
     def _validate_predicates(predicates):
         if not isinstance(predicates, (list, tuple)):
@@ -67,7 +70,7 @@ class ConfigWrapper(object):
                 raise AttributeError('"%r" is not a subclass of repoze.who.predicates.Predicate' % p)
 
     @staticmethod
-    def process_wrappers(wrappers, dict):
+    def process_wrappers(wrappers, d):
         """ Helper method for evlauating a list of wrappers
 
         :returns: a list of hashes for each of the application
@@ -76,22 +79,27 @@ class ConfigWrapper(object):
 
         result = []
         if isinstance(wrappers, ConfigWrapper):
-            w = wrappers.process(dict)
+            w = wrappers.process(d)
             if w:
                 result.append(w)
         else:
             for item in wrappers:
-                w = item.process(dict)
+                w = item.process(d)
                 if w:
                     result.append(w)
 
         return result
 
-    def process(self, dict=None):
-        """Override this in derived classes to return a hash representing
+    def process(self, d=None):
+        """Override this in derived classes to update the hash representing
         the configuration option
         """
-        return None
+
+        id = 'uuid' + str(uuid.uuid4())
+        default_values = dict(query_string='',
+                              id = id)
+
+        return default_values
 
 class Category(ConfigWrapper):
     """A configuration wrapper class that displays a list of application
@@ -121,6 +129,7 @@ class Category(ConfigWrapper):
         :default_child_css: Either a string or list of strings defining the
                             default css for child apps and widgets
         """
+        super(Category, self).__init__()
 
         self.label = label
         self.apps = apps or tuple()
@@ -146,19 +155,22 @@ class Category(ConfigWrapper):
         for a in self.apps:
             a.set_default_css(default_child_css)
 
-    def process(self, dict=None):
+    def process(self, d=None):
         """Check the predicates and construct the dict
 
         :returns: a dict with all the configuration data for this category
         """
+        results = super(Category, self).process(d)
 
         if not check_predicates(self.auth):
             return None
 
-        id = uuid.uuid4()
+        apps = self.process_wrappers(self.apps, d)
+        results.update({'label': self.label,
+                  'apps': apps,
+                  'css_class': self.css_class})
 
-        apps = self.process_wrappers(self.apps, dict)
-        return {'label': self.label, 'apps': apps, 'id': id, 'css_class': self.css_class}
+        return results
 
 class App(ConfigWrapper):
     """A configuration wrapper class that displays an application pointed to
@@ -190,6 +202,8 @@ class App(ConfigWrapper):
         :css_class: Either a string or list of strings defining the css class
                     for this wrapper
         """
+        super(App, self).__init__()
+
         self.label = label
         self.url = url
         self.params = params or {}
@@ -223,7 +237,7 @@ class App(ConfigWrapper):
 
         return result
 
-    def process(self, dict=None):
+    def process(self, d=None):
         """Check the predicates and construct the dict
 
         :returns: a dict with all the configuration data for this application
@@ -231,20 +245,21 @@ class App(ConfigWrapper):
         if not check_predicates(self.auth):
             return None
 
-        id = 'uuid' + str(uuid.uuid4())
+        results = super(App, self).process(d)
 
         css_class = self.css_class
         if css_class == None:
             css_class = ''
 
-        p = _update_params(self.params, dict)
+        p = _update_params(self.params, d)
         qs = self._create_query_string(p)
-        return {'label': self.label, 'url': self.url,
+        results.update({'label': self.label, 'url': self.url,
                 'params': p,
                 'query_string': qs,
-                'id': id,
-                'content_id': self.content_id + '-' + id,
-                'css_class': css_class}
+                'content_id': self.content_id + '-' + results['id'],
+                'css_class': css_class})
+
+        return results
 
 class MokshaApp(App):
     """A configuration wrapper class that displays a Moksa application
@@ -289,14 +304,15 @@ class MokshaApp(App):
                                         content_id,
                                         params, auth, css_class)
 
-    def process(self, dict=None):
+    def process(self, d=None):
         # We return a placeholder if the app is not registered
         if not moksha.apps.has_key(self.app):
             return MokshaWidget(self.label, 'placeholder',
                                 self.content_id,
-                                {'appname':self.app}, self.auth).process(dict)
-
-        return super(MokshaApp, self).process(dict)
+                                {'appname':self.app}, self.auth).process(d)
+        else:
+            results = super(MokshaApp, self).process(d)
+            return results
 
 class Widget(ConfigWrapper):
     """A configuration wrapper class that displays a ToscaWidget.  Use this
@@ -334,22 +350,21 @@ class Widget(ConfigWrapper):
         :css_class: Either a string or list of strings defining the css class
                     for this wrapper
         """
+        super(Widget, self).__init__()
         self.label = label
         self.widget = widget
         self.params = params or {}
         self.auth = auth or []
         self._validate_predicates(self.auth)
 
-        self.id = 'uuid' + str(uuid.uuid4())
         self.content_id = content_id
-        if self.label and not content_id:
-            self.content_id = scrub_filter.sub('_', self.label.lower())
-
-        self.content_id += '-' + self.id
 
         if isinstance(css_class, list) or isinstance(css_class, tuple):
             css_class = ' '.join(css_class)
         self.css_class = css_class
+
+        if self.label and not content_id:
+            self.content_id = scrub_filter.sub('_', self.label.lower())
 
     def set_default_css(self, css):
         """ If we already have css defined ignore, otherwise set our css_class
@@ -357,18 +372,19 @@ class Widget(ConfigWrapper):
         if(self.css_class == None):
             self.css_class = css
 
-    def process(self, dict):
+    def process(self, d=None):
         if not check_predicates(self.auth):
             return None
 
-        css_class = self.css_class
-        if css_class == None:
-            css_class = ''
+        results = super(Widget, self).process(d)
 
-        url = '#' + self.content_id
-        return {'label': self.label, 'url': url,'widget': self.widget ,
-                'params':_update_params(self.params, dict), 'id': self.id,
-                'content_id': self.content_id, 'css_class': css_class}
+        content_id = self.content_id + '-' + results['id']
+        url = '#' + content_id
+        results.update({'label': self.label, 'url': url,'widget': self.widget ,
+                'params':_update_params(self.params, d), 'id': results['id'],
+                'content_id': content_id, 'css_class': self.css_class})
+
+        return results
 
 class MokshaWidget(Widget):
     """A configuration wrapper class that displays a ToscaWidget registered
@@ -403,7 +419,7 @@ class MokshaWidget(Widget):
                     for this wrapper
         """
         widget = moksha._widgets[moksha_widget]['widget']
-        super(MokshaWidget, self).__init__(label=label, widget=widget,
+        return super(MokshaWidget, self).__init__(label=label, widget=widget,
                                            content_id=content_id, params=params,
                                            auth=auth,
                                            css_class=css_class)
@@ -589,7 +605,7 @@ def cache_rendered_data(data):
             return dict()
 
     :Warning: In this example usage, the method caches the data before it makes
-              its way out of the WSGI middleware stack.  Therefore, widget 
+              its way out of the WSGI middleware stack.  Therefore, widget
               resources are not injected, and stored in the cache.
 
     """
