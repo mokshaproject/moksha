@@ -22,7 +22,7 @@ import simplejson as json
 import urllib
 
 from webob import Request, Response
-from pylons import config
+from pylons import config, request
 from pylons.i18n import ugettext
 
 from moksha.exc import ApplicationNotFound, MokshaException
@@ -131,4 +131,4 @@ def _get_connector(name):
     # TODO: having a connection pool might be nice
     c = MokshaConnectorMiddleware._connectors[name]
 
-    return c['connector_class']()
+    return c['connector_class'](request.environ, request)
