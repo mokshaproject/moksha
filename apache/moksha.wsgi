@@ -6,4 +6,4 @@ os.environ['PYTHON_EGG_CACHE'] = '/srv/moksha/.python-eggs'
 
 from paste.deploy import loadapp
 
-application = loadapp('config:/srv/moksha/development.ini')
+application = loadapp('config:/srv/moksha/production.ini')
