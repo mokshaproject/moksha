@@ -2,7 +2,7 @@ AddOns==0.6
 Beaker==1.2.3
 BytecodeAssembler==0.3
 DecoratorTools==1.7
-Extremes==1.1
+Extremes==1.1.1
 FormEncode==1.2.1
 Genshi==0.5.1
 Jinja==1.2
@@ -31,7 +31,7 @@ WebHelpers==0.6.4
 WebOb==0.9.6.1
 WebTest==1.1
 ## FIXME: could not find svn URL in dependency_links for this package:
-#WidgetBrowser==0.1dev-20090311
+##WidgetBrowser==0.1dev-20090311
 boto==1.6b
 decorator==3.0.0
 demjson==1.4
