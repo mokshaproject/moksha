@@ -2765,6 +2765,18 @@ class Git(VersionControl):
                 return url, rev
         return None, None
 
+    def parse_checkout_text(self, text):
+        url = None
+        rev = None
+        for line in text.splitlines():
+            if not line.strip() or line.strip().startswith('#'):
+                continue
+            if line.startswith('git remote'):
+                url = line.split()[-2]
+            elif line.startswith('git checkout'):
+                rev = line.split()[-1]
+        return url, rev
+
     def unpack(self, location):
         """Clone the Git repository at the url to the destination location"""
         url, rev = self.get_url_rev()
