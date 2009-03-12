@@ -310,8 +310,9 @@ class MokshaApp(App):
             return MokshaWidget(self.label, 'placeholder',
                                 self.content_id,
                                 {'appname':self.app}, self.auth).process(d)
-
-        return super(MokshaApp, self).process(d)
+        else:
+            results = super(MokshaApp, self).process(d)
+            return results
 
 class Widget(ConfigWrapper):
     """A configuration wrapper class that displays a ToscaWidget.  Use this
@@ -381,7 +382,7 @@ class Widget(ConfigWrapper):
         url = '#' + content_id
         results.update({'label': self.label, 'url': url,'widget': self.widget ,
                 'params':_update_params(self.params, d), 'id': results['id'],
-                'content_id': self.content_id, 'css_class': self.css_class})
+                'content_id': content_id, 'css_class': self.css_class})
 
         return results
 
@@ -418,7 +419,7 @@ class MokshaWidget(Widget):
                     for this wrapper
         """
         widget = moksha._widgets[moksha_widget]['widget']
-        super(MokshaWidget, self).__init__(label=label, widget=widget,
+        return super(MokshaWidget, self).__init__(label=label, widget=widget,
                                            content_id=content_id, params=params,
                                            auth=auth,
                                            css_class=css_class)
