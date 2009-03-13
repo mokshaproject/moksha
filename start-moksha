@@ -4,16 +4,9 @@
 if [ ! $VIRTUAL_ENV ]; then
     if [ ! -d tg2env ]; then
         echo "Initializing a TurboGears2 virtual environment"
-        #virtualenv --no-site-packages tg2env
-        virtualenv tg2env
+        virtualenv --no-site-packages tg2env
         source tg2env/bin/activate
-        easy_install -U setuptools
-        easy_install Paste
-        easy_install "repoze.who"
-        easy_install WebOb
-        easy_install simplejson
-        easy_install Twisted
-        easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
+        ./pip.py install -E tg2env -r stable-reqs.txt --extra-index-url=http://www.turbogears.org/2.0/downloads/current/index
         pushd moksha/widgetbrowser; python setup.py develop; popd
     else
         source tg2env/bin/activate
