@@ -39,7 +39,7 @@ feedcache==1.3
 feedparser==4.1
 lxml==2.2beta4
 meld3==0.6.5
--e git+git+ssh://git.fedorahosted.org/git/moksha@03438a82c9b26b700834e9e17d31ab8c6ace8d1a#egg=moksha-0.1dev-py2.5-dev
+#-e git+git+ssh://git.fedorahosted.org/git/moksha@03438a82c9b26b700834e9e17d31ab8c6ace8d1a#egg=moksha-0.1dev-py2.5-dev
 morbid==0.8.4
 nose==0.10.4
 orbited==0.7.7
