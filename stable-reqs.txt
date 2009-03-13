@@ -67,3 +67,4 @@ tw.jquery==0.9.4.2
 uuid==1.30
 zope.interface==3.5.0
 zope.sqlalchemy==0.4
+pysqlite==2.4.1
