@@ -68,3 +68,5 @@ uuid==1.30
 zope.interface==3.5.0
 zope.sqlalchemy==0.4
 pysqlite==2.4.1
+pyOpenSSL==0.8
+
