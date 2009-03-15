@@ -328,7 +328,7 @@ class MokshaMiddleware(object):
 
         """
         for name, app in moksha.apps.items():
-            sa_url = app['config'].get('sqlalchemy.url')
+            sa_url = app.get('config', {}).get('sqlalchemy.url', None)
             if sa_url:
                 if app['config']['__file__'] == get_moksha_config_path():
                     # Moksha's apps don't specify their own SA url
