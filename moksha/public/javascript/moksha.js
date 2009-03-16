@@ -9,8 +9,11 @@
  *      jquery.js
  */
 
+
 (function(){
 
+True = true
+False = false
 // prevent double loading
 if (!(typeof(moksha) === 'undefined'))
     return;
