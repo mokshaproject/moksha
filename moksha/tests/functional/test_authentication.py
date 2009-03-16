@@ -35,7 +35,7 @@ class TestAuthentication(TestController):
 
         """
         # Requesting a protected area
-        resp = self.app.get('/secc/', status=302)
+        resp = self.app.get('/moksha_admin/', status=302)
         assert resp.location.startswith('http://localhost/login')
         # Getting the login form:
         resp = resp.follow(status=200)
@@ -49,7 +49,7 @@ class TestAuthentication(TestController):
         initial_page = post_login.follow(status=302)
         assert 'authtkt' in initial_page.request.cookies, \
                "Session cookie wasn't defined: %s" % initial_page.request.cookies
-        assert initial_page.location.startswith('http://localhost/secc/'), \
+        assert initial_page.location.startswith('http://localhost/moksha_admin/'), \
                initial_page.location
 
     def test_voluntary_login(self):
@@ -62,7 +62,7 @@ class TestAuthentication(TestController):
         form['password'] = 'managepass'
         post_login = form.submit(status=302)
         # Being redirected to the home page:
-        assert post_login.location.startswith('http://localhost/post_login')
+        assert post_login.location.startswith('http://localhost/post_login'), post_login.location
         home_page = post_login.follow(status=302)
         assert 'authtkt' in home_page.request.cookies, \
                'Session cookie was not defined: %s' % home_page.request.cookies
