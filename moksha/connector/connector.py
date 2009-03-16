@@ -281,24 +281,24 @@ class IQuery(object):
         if not sort_col:
             sort_col = self.get_default_sort_col(resource_path)
 
-            if params == None:
-                params = {}
+        if params == None:
+            params = {}
 
-            query_func = self.query_model(resource_path).get_query()
-            (total_rows, rows) = query_func(self,
-                                            offset = offset,
-                                            limit = num_rows,
-                                            order = sort_order,
-                                            sort_col = sort_col,
-                                            filters = filters,
-                                            **params)
-            r['total_rows'] = total_rows
-            r['row_count'] = len(rows)
-            if offset:
-                r['offset'] = offset
-            r['rows'] = rows
+        query_func = self.query_model(resource_path).get_query()
+        (total_rows, rows) = query_func(self,
+                                        offset = offset,
+                                        limit = num_rows,
+                                        order = sort_order,
+                                        sort_col = sort_col,
+                                        filters = filters,
+                                        **params)
+        r['total_rows'] = total_rows
+        r['row_count'] = len(rows)
+        if offset:
+            r['offset'] = offset
+        r['rows'] = rows
 
-            results = r
+        results = r
 
         return results
 

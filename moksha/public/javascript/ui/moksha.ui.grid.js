@@ -132,6 +132,29 @@
         self.refresh_data(event, search_criteria);
     },
 
+    request_update: function(search_criteria) {
+        var self = this;
+
+        var sc = search_criteria;
+
+        if (typeof(sc.rows_requested) != 'undefined')
+            self.options.rows_per_page =sc.rows_requested;
+
+        if (typeof(sc.page_num) != 'undefined')
+            self.options.page_num = sc.page_num;
+
+        if (typeof(sc.filters) != 'undefined')
+            self.options.filters = sc.filters;
+
+        if (typeof(sc.sort_key) != 'undefined')
+            self.options.sort_key = sc.sort_key;
+
+        if (typeof(sc.sort_order) != 'undefined')
+            self.options.sort_order = sc.sort_order;
+
+        self.request_data_refresh();
+    },
+
     refresh_data: function(event, search_criteria) {
         var self = this;
         var o = self.options;
@@ -146,12 +169,19 @@
             }
         }
 
-        var filters = search_criteria.filters
+        var dispatch_data = {}
 
-        var dispatch_data = {offset: search_criteria.start_row,
-                             num_rows: search_criteria.rows_requested,
-                             filters: filters
-                             }
+        var filters = search_criteria.filters
+        if (typeof(filters) != 'undefined')
+            dispatch_data['filters'] = filters
+
+        var numrows = search_criteria.numrows
+        if (typeof(numrows) != 'undefined')
+            dispatch_data['filters'] = filters
+
+        var offset = search_criteria.start_row
+        if (typeof(offset) != 'undefined')
+            dispatch_data['offset'] = offset
 
         if (search_criteria.sort_key) {
             dispatch_data["sort_col"] = search_criteria.sort_key;

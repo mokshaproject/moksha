@@ -1,11 +1,11 @@
   <div id="${category['id']}" class="ui-sortable ${category['css_class']}">
       % for app in category['apps']:
-              <span class="sort">
+              <span class="sort ${app['css_class']}">
                 % if app['label']:
             <h3>${app['label']}</h3>
             % endif
 
-            <div id="${app['id']}" class="${app['css_class']}">
+            <div id="${app['id']}">
                         % if app.has_key('widget'):
                             ${app['widget'](**app['params'])}
                         % endif
