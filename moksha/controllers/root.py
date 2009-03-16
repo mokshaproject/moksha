@@ -37,6 +37,7 @@ from moksha.exc import ApplicationNotFound
 from moksha.controllers.error import ErrorController
 from moksha.controllers.apps import AppController
 from moksha.controllers.widgets import WidgetController
+from moksha.controllers.secure import SecureController
 
 # So we can mount the WidgetBrowser as /docs
 os.environ['TW_BROWSER_PREFIX'] = '/docs'
@@ -46,6 +47,7 @@ class RootController(BaseController):
     appz = AppController()
     widgets = WidgetController()
     error = ErrorController()
+    ssec = SecureController()
 
     # ToscaWidgets WidgetBrowser integration
     docs = WSGIAppController(
