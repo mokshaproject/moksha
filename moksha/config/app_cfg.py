@@ -34,6 +34,14 @@ base_config.sa_auth.password_encryption_method = "salted_sha1"
 # managing login and logout of your application
 base_config.sa_auth.form_plugin = None
 
+# You may optionally define a page where you want users to be redirected to
+# on login:
+base_config.sa_auth.post_login_url = '/post_login'
+
+# You may optionally define a page where you want users to be redirected to
+# on logout:
+base_config.sa_auth.post_logout_url = '/post_logout'
+
 # To enable the repoze.profile middleware.
 # After surfing around, navigate to /__profile__ to view results.
 base_config.profile = False
