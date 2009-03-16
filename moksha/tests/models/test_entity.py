@@ -11,7 +11,7 @@ class TestEntity(ModelTest):
     """Test case for the Entity model."""
 
     klass = Entity
-    attrs = dict(name='lmacken')
+    attrs = dict(name=u'lmacken')
 
     def setup(self):
         super(TestEntity, self).setup()

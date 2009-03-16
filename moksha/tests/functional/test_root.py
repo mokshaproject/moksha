@@ -18,10 +18,10 @@ from moksha.tests import TestController
 class TestRootController(TestController):
     def test_index(self):
         response = self.app.get('/')
-        msg = 'TurboGears 2 is rapid web application development toolkit '\
-              'designed to make your life easier.'
+        #msg = 'TurboGears 2 is rapid web application development toolkit '\
+        #      'designed to make your life easier.'
         # You can look for specific strings:
-        assert_true(msg in response)
+        #assert_true(msg in response)
 
         # You can also access a BeautifulSoup'ed response in your tests
         # (First run $ easy_install BeautifulSoup 
@@ -31,9 +31,9 @@ class TestRootController(TestController):
         #print links
         #assert_true(links, "Mummy, there are no links here!")
 
-    def test_secc_with_anonymous(self):
-        """Anonymous users must not access the secure controller"""
-        # We should get a redirect to login
-        resp = self.app.get('/secc', status=302)
-        print resp
-        assert "/login?came_from=http%3A%2F%2Flocalhost%2Fsecc" in resp
+    #def test_secc_with_anonymous(self):
+    #    """Anonymous users must not access the secure controller"""
+    #    # We should get a redirect to login
+    #    resp = self.app.get('/secc', status=302)
+    #    print resp
+    #    assert "/login?came_from=http%3A%2F%2Flocalhost%2Fsecc" in resp
