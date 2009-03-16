@@ -56,7 +56,8 @@ class RootController(BaseController):
                     template_dirs=[
                         resource_filename('moksha','templates/widget_browser')],
                     docs_dir=config.get('docs_dir', 'docs'),
-                    full_stack=False))
+                    full_stack=False,
+                    interactive=False))
 
     #@after_render(cache_rendered_data)
     @expose('mako:moksha.templates.index')
