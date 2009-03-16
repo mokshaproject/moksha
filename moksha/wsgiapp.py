@@ -25,10 +25,7 @@ class MokshaAppDispatcher(PylonsApp):
     It is instantiated and utilized by the 
     :class:`moksha.middleware.MokshaMiddleware`.
     """
-    def __init__(self, *args, **kw):
-        super(MokshaAppDispatcher, self).__init__(*args, **kw)
-        from moksha.controllers.root import RootController
-        self.root = RootController()
+    root = None
 
     def resolve(self, environ, start_response): 
         """ Uses dispatching information found in
@@ -38,4 +35,7 @@ class MokshaAppDispatcher(PylonsApp):
 
         """
         environ['pylons.routes_dict'] = environ['wsgiorg.routing_args'][1]
+        if not self.root:
+            from moksha.controllers.root import RootController
+            self.root = RootController()
         return self.root
