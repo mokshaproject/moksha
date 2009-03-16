@@ -29,7 +29,7 @@ class MokshaContainer(Widget):
     options = ['draggable', 'resizable']
     button_options = ['iconize', 'minimize', 'close']
     params = ['buttons', 'skin', 'height', 'width', 'left', 'top', 'id',
-              'title', 'icon'] + \
+              'title', 'icon', 'content'] + \
              options[:]
     draggable = droppable = resizable = True
     iconize = minimize = close = True

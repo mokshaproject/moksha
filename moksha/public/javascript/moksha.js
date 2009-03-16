@@ -86,7 +86,6 @@ moksha = {
         if (!fragment.jquery)
             fragment = $(fragment);
 
-        var $div = $('<div />');
         var $f = moksha.filter_scripts(fragment);
 
         return $f;

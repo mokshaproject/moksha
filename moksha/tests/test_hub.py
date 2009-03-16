@@ -1,7 +1,7 @@
 """Test Moksha's Hub """
 
+import moksha
 from nose.tools import eq_, assert_true
-from moksha import hub
 
 class TestHub:
 

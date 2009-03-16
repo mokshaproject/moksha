@@ -60,7 +60,10 @@ class WidgetBrowser(object):
             from paste.cascade import Cascade
             dest_dir = os.path.abspath(os.path.join(docs_dir, '.build'))
             log.info('Building docs...')
-            util.build_docs(docs_dir, dest_dir)
+            try:
+                util.build_docs(docs_dir, dest_dir)
+            except Exception, e:
+                log.warning('Skipping building docs: %s' % str(e))
             self.built_docs = dest_dir
             self.app = Cascade([self.docs_app, self.app])
         if asbool(full_stack):

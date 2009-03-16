@@ -1,19 +1,39 @@
 # -*- coding: utf-8 -*-
+"""
+Functional test suite for the root controller.
 
-from moksha.tests import TestController
+This is an example of how functional tests can be written for controllers.
+
+As opposed to a unit-test, which test a small unit of functionality,
+functional tests exercise the whole application and its WSGI stack.
+
+Please read http://pythonpaste.org/webtest/ for more information.
+
+"""
 from nose.tools import assert_true
 
-# This is an example of how you can write functional tests for your controller.
-# As opposed to a pure unit-test which test a small unit of functionallity,
-# these functional tests exercise the whole app and it's WSGI stack.
-# Please read http://pythonpaste.org/webtest/ for more information
+from moksha.tests import TestController
+
 
 class TestRootController(TestController):
     def test_index(self):
         response = self.app.get('/')
-        msg = 'content'
-        assert_true(msg in response)
-        # You can also access a BeautifulSoup'ed version
-        # first run $ easy_install BeautifulSoup and then run this test 
+        #msg = 'TurboGears 2 is rapid web application development toolkit '\
+        #      'designed to make your life easier.'
+        # You can look for specific strings:
+        #assert_true(msg in response)
+
+        # You can also access a BeautifulSoup'ed response in your tests
+        # (First run $ easy_install BeautifulSoup 
+        # and then uncomment the next two lines)  
+
         #links = response.html.findAll('a')
+        #print links
         #assert_true(links, "Mummy, there are no links here!")
+
+    #def test_secc_with_anonymous(self):
+    #    """Anonymous users must not access the secure controller"""
+    #    # We should get a redirect to login
+    #    resp = self.app.get('/secc', status=302)
+    #    print resp
+    #    assert "/login?came_from=http%3A%2F%2Flocalhost%2Fsecc" in resp

@@ -20,7 +20,7 @@ import moksha
 import pylons
 import os
 
-from tg import config
+from tg import config, url
 from tg import expose, flash, require, tmpl_context, redirect, validate
 from tg.controllers import WSGIAppController
 from tg.decorators import after_render
@@ -28,6 +28,7 @@ from tg.decorators import after_render
 from repoze.what import predicates
 from pkg_resources import resource_filename
 from widgetbrowser import WidgetBrowser
+from pylons.i18n import ugettext as _, lazy_ugettext as l_
 
 from moksha import _
 from moksha.model import DBSession
@@ -37,6 +38,7 @@ from moksha.exc import ApplicationNotFound
 from moksha.controllers.error import ErrorController
 from moksha.controllers.apps import AppController
 from moksha.controllers.widgets import WidgetController
+from moksha.controllers.secure import SecureController
 
 # So we can mount the WidgetBrowser as /docs
 os.environ['TW_BROWSER_PREFIX'] = '/docs'
@@ -46,6 +48,7 @@ class RootController(BaseController):
     appz = AppController()
     widgets = WidgetController()
     error = ErrorController()
+    moksha_admin = SecureController()
 
     # ToscaWidgets WidgetBrowser integration
     docs = WSGIAppController(
@@ -53,7 +56,8 @@ class RootController(BaseController):
                     template_dirs=[
                         resource_filename('moksha','templates/widget_browser')],
                     docs_dir=config.get('docs_dir', 'docs'),
-                    full_stack=False))
+                    full_stack=False,
+                    interactive=False))
 
     #@after_render(cache_rendered_data)
     @expose('mako:moksha.templates.index')
@@ -73,9 +77,35 @@ class RootController(BaseController):
         if pylons.request.path.startswith('/docs/'):
             return self.docs, remainder
 
-    @expose('moksha.templates.login')
-    def login(self, **kw):
-        came_from = kw.get('came_from', '/')
-        return dict(page='login', header=lambda *arg: None,
-                    footer=lambda *arg: None, came_from=came_from)
+    @expose('mako:moksha.templates.login')
+    def login(self, came_from=url('/')):
+        """Start the user login."""
+        login_counter = pylons.request.environ['repoze.who.logins']
+        if login_counter > 0:
+            flash(_('Wrong credentials'), 'warning')
+        return dict(page='login', login_counter=str(login_counter),
+                    came_from=came_from)
 
+    @expose()
+    def post_login(self, came_from=url('/')):
+        """
+        Redirect the user to the initially requested page on successful
+        authentication or redirect her back to the login page if login failed.
+
+        """
+        if not pylons.request.identity:
+            login_counter = pylons.request.environ['repoze.who.logins'] + 1
+            redirect(url('/login', came_from=came_from, __logins=login_counter))
+        userid = pylons.request.identity['repoze.who.userid']
+        flash(_('Welcome back, %s!') % userid)
+        redirect(came_from)
+
+    @expose()
+    def post_logout(self, came_from=url('/')):
+        """
+        Redirect the user to the initially requested page on logout and say
+        goodbye as well.
+
+        """
+        flash(_('We hope to see you soon!'))
+        redirect(came_from)
