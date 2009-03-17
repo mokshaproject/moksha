@@ -132,8 +132,6 @@ class CSRFProtectionMiddleware(object):
             log.debug("%s in POST" % self.csrf_token_id)
             csrf_token = request.POST[self.csrf_token_id]
             del(request.POST[self.csrf_token_id])
-            from pprint import pprint
-            pprint(environ)
 
         token = environ.get('repoze.who.identity', {}).get(self.csrf_token_id)
 
