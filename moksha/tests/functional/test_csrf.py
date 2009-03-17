@@ -11,7 +11,6 @@ from moksha.tests import TestController
 class TestCSRFProtection(TestController):
 
     application_under_test = 'main'
-    token = None # csrf token
 
     def test_csrf_protection(self):
         # Test for anonymous requests
