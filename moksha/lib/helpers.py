@@ -59,6 +59,7 @@ class ConfigWrapper(object):
     """
     def __init__(self):
         super(ConfigWrapper, self).__init__()
+        self.uuid = 'uuid' + str(uuid.uuid4())
 
     @staticmethod
     def _validate_predicates(predicates):
@@ -94,10 +95,8 @@ class ConfigWrapper(object):
         """Override this in derived classes to update the hash representing
         the configuration option
         """
-
-        id = 'uuid' + str(uuid.uuid4())
         default_values = dict(query_string='',
-                              id = id)
+                              id = self.uuid)
 
         return default_values
 

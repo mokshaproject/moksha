@@ -88,7 +88,7 @@ class DateTimeDisplay(object):
 
             if el['days'] < 7:
                 when = "%d %s ago" % plural(el['days'], 'day', 'days')
-            elif el.days < 365:
+            elif el['days'] < 365:
                 when = "%d %s ago" % plural(int(el['days'] / 7), 'week', 'weeks')
             else:
                 when = "%d %s ago" % plural(int(el['days'] / 365), 'year', 'years')
