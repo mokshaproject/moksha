@@ -66,7 +66,7 @@ class TestAuthentication(TestController):
         home_page = post_login.follow(status=302)
         assert 'authtkt' in home_page.request.cookies, \
                'Session cookie was not defined: %s' % home_page.request.cookies
-        assert home_page.location == 'http://localhost/'
+        assert home_page.location.startswith('http://localhost/')
 
     def test_logout(self):
         """Logouts must work correctly"""
