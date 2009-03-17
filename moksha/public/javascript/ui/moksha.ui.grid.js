@@ -89,6 +89,8 @@
         var self = this;
 
         self.element.find('tbody').fadeOut('slow');
+        if (moksha_csrf_token)
+            args['_csrf_token'] = moksha_csrf_token;
         var xmlrequest = jQuery.getJSON(path, args, function (json) {
             callback(json);
             self.element.find('tbody').fadeIn('slow');
@@ -138,7 +140,7 @@
         var sc = search_criteria;
 
         if (typeof(sc.rows_requested) != 'undefined')
-            self.options.rows_per_page =sc.rows_requested;
+            self.options.rows_per_page = sc.rows_requested;
 
         if (typeof(sc.page_num) != 'undefined')
             self.options.page_num = sc.page_num;
@@ -177,7 +179,7 @@
 
         var numrows = search_criteria.numrows
         if (typeof(numrows) != 'undefined')
-            dispatch_data['filters'] = filters
+            dispatch_data['numrows'] = numrows
 
         var offset = search_criteria.start_row
         if (typeof(offset) != 'undefined')

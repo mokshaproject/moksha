@@ -376,7 +376,7 @@ class ParamFilter(object):
 
             self._translation_table[a] = param
 
-    def filter(self, d):
+    def filter(self, d, conn=None):
         results = {}
         for k, v in d.iteritems():
             if k in self._translation_table:
@@ -398,14 +398,14 @@ class ParamFilter(object):
                     elif cast:
                         v = cast(v)
 
-                    ff = pf['filter_func']
-                    if ff:
-                        ff(results, k, v, allow_none)
-                        assign = False
-
                     allow_none = pf['allow_none']
 
-                if (allow_none or (v != None)) and assign:
-                    results[param] = v
+                    ff = pf['filter_func']
+                    if ff:
+                        ff(conn, results, k, v, allow_none)
+                        assign = False
+
+                    if (allow_none or (v != None)) and assign:
+                        results[param] = v
 
         return results
