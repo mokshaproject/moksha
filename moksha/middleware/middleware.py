@@ -28,6 +28,7 @@ from pylons import config
 from inspect import isclass
 from pylons.i18n import ugettext
 from paste.deploy import appconfig
+from paste.deploy.converters import asbool
 from sqlalchemy import create_engine
 from feedcache.cache import Cache
 
@@ -344,3 +345,26 @@ class MokshaMiddleware(object):
                 log.debug('Creating database engine for %s' % app['name'])
                 app['model'].init_model(self.engines[name])
                 app['model'].metadata.create_all(bind=self.engines[name])
+
+
+def make_moksha_middleware(app):
+
+    if asbool(config.get('moksha.connectors', True)):
+        from moksha.middleware import MokshaConnectorMiddleware
+        app = MokshaConnectorMiddleware(app)
+    if asbool(config.get('moksha.extensionpoints', True)):
+        from moksha.middleware import MokshaExtensionPointMiddleware
+        app = MokshaExtensionPointMiddleware(app)
+
+    app = MokshaMiddleware(app)
+
+    if asbool(config.get('moksha.csrf_protection', True)):
+        from moksha.middleware.csrf import CSRFProtectionMiddleware
+        app = CSRFProtectionMiddleware(
+                app,
+                csrf_token_id=config.get('moksha.csrf.token_id', '_csrf_token'),
+                clear_env=config.get('moksha.csrf.clear_env',
+                    'repoze.who.identity repoze.what.credentials'),
+                )
+
+    return app
