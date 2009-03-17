@@ -233,6 +233,7 @@ class CSRFMetadataProvider(object):
 
             app = environ.get('repoze.who.application')
             if app:
+                # This occurs during login in some application configurations
                 if isinstance(app, HTTPFound) and environ.get(self.auth_state):
                     log.debug('Got HTTPFound(302) from repoze.who.application')
                     path = []
