@@ -164,6 +164,7 @@ class CSRFProtectionMiddleware(object):
             location[4] += self.csrf_token_id + '=' + token
             response.location = urlunparse(location)
             log.debug("response.location = %s" % response.location)
+            environ['CSRF_AUTH_STATE'] = None
 
         return response(environ, start_response)
 
