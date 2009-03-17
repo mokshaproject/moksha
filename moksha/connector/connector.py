@@ -217,8 +217,8 @@ class IQuery(object):
     _paths = {}
 
     def query(self, resource_path, params, _cookies,
-        offset = 0,
-        num_rows = 10,
+        start_row = 0,
+        rows_per_page = 10,
         sort_col = None,
         sort_order = -1,
         filters = {}):
@@ -239,8 +239,8 @@ class IQuery(object):
                   with the request.  If your resource does not use
                   cookies you may use these values how inline with what the
                   resource expects or ignore them completely.
-        :offset: if pagination is supported this sets the row to start at
-        :num_rows: if pagination is supported this sets how many rows to
+        :start_row: if pagination is supported this sets the row to start at
+        :rows_per_page: if pagination is supported this sets how many rows to
                    return
         :sort_col: Which column we should sort by. None = default
         :sort_order: 1 = ascending, -1 = descending
@@ -262,9 +262,10 @@ class IQuery(object):
             A hash with format:
                 {
                   "total_rows": total_rows, # number of rows matched by query
-                  "row_count": row_count,   # number of rows actually returned
+                  "rows_per_page": rows_per_page,   # number of rows requested
                                             # due to pagination
-                  "offset": offset,   # number of first row returned due
+                  "visible_rows": len(rows) # num of rows actually returned
+                  "start_row": start_row,   # number of first row returned due
                                             # to pagination
                   "rows": rows              # list of rows which were returned
                 }
@@ -273,8 +274,8 @@ class IQuery(object):
         results = None
         r = {
               "total_rows": 0,
-              "row_count": 0,
-              "offset": 0,
+              "rows_per_page": 0,
+              "start_row": 0,
               "rows": None
             }
 
@@ -286,16 +287,17 @@ class IQuery(object):
 
         query_func = self.query_model(resource_path).get_query()
         (total_rows, rows) = query_func(self,
-                                        offset = offset,
-                                        limit = num_rows,
+                                        start_row = start_row,
+                                        rows_per_page = rows_per_page,
                                         order = sort_order,
                                         sort_col = sort_col,
                                         filters = filters,
                                         **params)
         r['total_rows'] = total_rows
-        r['row_count'] = len(rows)
-        if offset:
-            r['offset'] = offset
+        r['rows_per_page'] = rows_per_page
+        r['visible_rows'] = len(rows)
+        if start_row:
+            r['start_row'] = start_row
         r['rows'] = rows
 
         results = r
@@ -376,7 +378,7 @@ class ParamFilter(object):
 
             self._translation_table[a] = param
 
-    def filter(self, d):
+    def filter(self, d, conn=None):
         results = {}
         for k, v in d.iteritems():
             if k in self._translation_table:
@@ -398,14 +400,14 @@ class ParamFilter(object):
                     elif cast:
                         v = cast(v)
 
-                    ff = pf['filter_func']
-                    if ff:
-                        ff(results, k, v, allow_none)
-                        assign = False
-
                     allow_none = pf['allow_none']
 
-                if (allow_none or (v != None)) and assign:
-                    results[param] = v
+                    ff = pf['filter_func']
+                    if ff:
+                        ff(conn, results, k, v, allow_none)
+                        assign = False
+
+                    if (allow_none or (v != None)) and assign:
+                        results[param] = v
 
         return results
