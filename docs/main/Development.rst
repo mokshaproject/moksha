@@ -38,6 +38,13 @@ Running the test suite
 
     $ nosetests
 
+Freezing requirements
+---------------------
+
+.. code-block:: bash
+
+    $ ./pip.py -E tg2env freeze production/stable-reqs.txt
+
 Profiling the WSGI stack
 ------------------------
 
