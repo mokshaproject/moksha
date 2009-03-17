@@ -76,12 +76,12 @@ except pkg_resources.DistributionNotFound:
     version=None
 
 def rmtree_errorhandler(func, path, exc_info):
-  typ, val, tb = exc_info
-  if issubclass(typ, OSError) and val.errno == errno.EACCES:
-    os.chmod(path, stat.S_IWRITE)
-    func(path)
-  else:
-    raise typ, val, tb
+    typ, val, tb = exc_info
+    if issubclass(typ, OSError) and val.errno == errno.EACCES:
+        os.chmod(path, stat.S_IWRITE)
+        func(path)
+    else:
+        raise typ, val, tb
 
 class VcsSupport(object):
     _registry = {}
@@ -1012,9 +1012,9 @@ class PackageFinder(object):
             url_name = self._find_url_name(Link(self.index_urls[0]), url_name, req) or req.url_name
         def mkurl_pypi_url(url):
             loc =  posixpath.join(url, url_name)
-            # For maximum compatibility with easy_install, ensure the path 
-            # ends in a trailing slash.  Although this isn't in the spec 
-            # (and PyPI can handle it without the slash) some other index 
+            # For maximum compatibility with easy_install, ensure the path
+            # ends in a trailing slash.  Although this isn't in the spec
+            # (and PyPI can handle it without the slash) some other index
             # implementations might break if they relied on easy_install's behavior.
             if not loc.endswith('/'):
                 loc = loc + '/'
@@ -1262,9 +1262,6 @@ class InstallRequirement(object):
             s = self.url
         if self.satisfied_by is not None:
             s += ' in %s' % display_path(self.satisfied_by.location)
-        if self.editable:
-            if self.req:
-                s += ' checkout from %s' % self.url
         if self.comes_from:
             if isinstance(self.comes_from, basestring):
                 comes_from = self.comes_from
@@ -1641,7 +1638,7 @@ execfile(__file__)
                         fp = open(vcs_bundle_file)
                         content = fp.read()
                         fp.close()
-                        url, rev = vcs_backend().parse_checkout_text(content)
+                        url, rev = vcs_backend().parse_vcs_bundle_file(content)
                         break
                 if url:
                     url = '%s+%s@%s' % (vc_type, url, rev)
@@ -1749,7 +1746,7 @@ class RequirementSet(object):
             if req_to_install.satisfied_by is not None and not self.upgrade:
                 logger.notify('Requirement already satisfied: %s' % req_to_install)
             elif req_to_install.editable:
-                logger.notify('Checking out %s' % req_to_install)
+                logger.notify('Obtaining %s' % req_to_install)
             else:
                 if req_to_install.url and req_to_install.url.lower().startswith('file:'):
                     logger.notify('Unpacking %s' % display_path(url_to_filename(req_to_install.url)))
@@ -2464,14 +2461,25 @@ class VersionControl(object):
         """
         url = self.url.split('+', 1)[1]
         scheme, netloc, path, query, frag = urlparse.urlsplit(url)
+        rev = None
         if '@' in path:
-            path, rev = path.split('@', 1)
-        else:
-            rev = None
+            path, rev = path.rsplit('@', 1)
         url = urlparse.urlunsplit((scheme, netloc, path, query, ''))
         return url, rev
 
+    def parse_vcs_bundle_file(self, content):
+        """
+        Takes the contents of the bundled text file that explains how to revert
+        the stripped off version control data of the given package and returns
+        the URL and revision of it.
+        """
+        raise NotImplementedError
+
     def obtain(self, dest):
+        """
+        Called when installing or updating an editable package, takes the
+        source path of the checkout.
+        """
         raise NotImplementedError
 
     def unpack(self, location):
@@ -2511,8 +2519,8 @@ class Subversion(VersionControl):
             return url, 'unknown'
         return url, match.group(1)
 
-    def parse_checkout_text(self, text):
-        for line in text.splitlines():
+    def parse_vcs_bundle_file(self, content):
+        for line in content.splitlines():
             if not line.strip() or line.strip().startswith('#'):
                 continue
             match = re.search(r'^-r\s*([^ ])?', line)
@@ -2750,9 +2758,9 @@ class Git(VersionControl):
         assert not location.rstrip('/').endswith('.git'), 'Bad directory: %s' % location
         return self.get_url(location), self.get_revision(location)
 
-    def parse_clone_text(self, text):
+    def parse_vcs_bundle_file(self, content):
         url = rev = None
-        for line in text.splitlines():
+        for line in content.splitlines():
             if not line.strip() or line.strip().startswith('#'):
                 continue
             url_match = re.search(r'git\s*remote\s*add\s*origin(.*)\s*-f', line)
@@ -2764,18 +2772,6 @@ class Git(VersionControl):
             if url and rev:
                 return url, rev
         return None, None
-
-    def parse_checkout_text(self, text):
-        url = None
-        rev = None
-        for line in text.splitlines():
-            if not line.strip() or line.strip().startswith('#'):
-                continue
-            if line.startswith('git remote'):
-                url = line.split()[-2]
-            elif line.startswith('git checkout'):
-                rev = line.split()[-1]
-        return url, rev
 
     def unpack(self, location):
         """Clone the Git repository at the url to the destination location"""
@@ -2838,8 +2834,6 @@ class Git(VersionControl):
                     clone = True
         if clone:
             logger.notify('Cloning %s%s to %s' % (url, rev_display, display_path(dest)))
-            print "url = %r" % url
-            print "rev_display %r" % rev_display
             call_subprocess(
                 [GIT_CMD, 'clone', '-q', url, dest])
             call_subprocess(
@@ -2916,24 +2910,22 @@ class Git(VersionControl):
             # Don't know what it is
             logger.warn('Git URL does not fit normal structure: %s' % repo)
             return '%s@%s#egg=%s-dev' % (repo, current_rev, egg_project_name)
+
     def get_url_rev(self):
         """
-        Returns the correct repository URL and revision by parsing the given
-        repository URL
+        Prefixes stub URLs like 'user@hostname:user/repo.git' with 'ssh://'.
+        That's required because although they use SSH they sometimes doesn't
+        work with a ssh:// scheme (e.g. Github). But we need a scheme for
+        parsing. Hence we remove it again afterwards and return it as a stub.
         """
-        print "get_url_rev()"
-        print "self.url = %r" % self.url
-        url = self.url.split('+', 1)[1]
-        rev = url.split('@')[1].split('#')[0]
-        url = url.split('@')[0]
-        scheme, netloc, path, query, frag = urlparse.urlsplit(url)
-        url = urlparse.urlunsplit((scheme, netloc, path, query, ''))
-        print "returning (%r, %r)" % (url, rev)
-        return url, rev
-
+        if not '://' in self.url:
+            self.url = self.url.replace('git+', 'git+ssh://')
+            url, rev = super(Git, self).get_url_rev()
+            url = url.replace('ssh://', '')
+            return url, rev
+        return super(Git, self).get_url_rev()
 
 vcs.register(Git)
-
 
 class Mercurial(VersionControl):
     name = 'hg'
@@ -2948,9 +2940,9 @@ class Mercurial(VersionControl):
         assert not location.rstrip('/').endswith('.hg'), 'Bad directory: %s' % location
         return self.get_url(location), self.get_revision(location)
 
-    def parse_clone_text(self, text):
+    def parse_vcs_bundle_file(self, content):
         url = rev = None
-        for line in text.splitlines():
+        for line in content.splitlines():
             if not line.strip() or line.strip().startswith('#'):
                 continue
             url_match = re.search(r'hg\s*pull\s*(.*)\s*', line)
@@ -3131,9 +3123,9 @@ class Bazaar(VersionControl):
         assert not location.rstrip('/').endswith('.bzr'), 'Bad directory: %s' % location
         return self.get_url(location), self.get_revision(location)
 
-    def parse_clone_text(self, text):
+    def parse_vcs_bundle_file(self, content):
         url = rev = None
-        for line in text.splitlines():
+        for line in content.splitlines():
             if not line.strip() or line.strip().startswith('#'):
                 continue
             match = re.search(r'^bzr\s*branch\s*-r\s*(\d*)', line)
@@ -3287,7 +3279,7 @@ def get_src_requirement(dist, location, find_tags):
 ## Requirement files
 
 _scheme_re = re.compile(r'^(http|https|file):', re.I)
-_drive_re = re.compile(r'/*([a-z])\|', re.I)
+_url_slash_drive_re = re.compile(r'/*([a-z])\|', re.I)
 def get_file_content(url, comes_from=None):
     """Gets the content of a file; it may be a filename, file: URL, or
     http: URL.  Returns (location, content)"""
@@ -3302,7 +3294,7 @@ def get_file_content(url, comes_from=None):
         if scheme == 'file':
             path = url.split(':', 1)[1]
             path = path.replace('\\', '/')
-            match = _drive_re.match(path)
+            match = _url_slash_drive_re.match(path)
             if match:
                 path = match.group(1) + ':' + path.split('|', 1)[1]
             path = urllib.unquote(path)
@@ -3796,9 +3788,9 @@ def filename_to_url(filename):
     Convert a path to a file: URL.  The path will be made absolute.
     """
     filename = os.path.normcase(os.path.abspath(filename))
+    if _drive_re.match(filename):
+        filename = filename[0] + '|' + filename[2:]
     url = urllib.quote(filename)
-    if _drive_re.match(url):
-        url = url[0] + '|' + url[2:]
     url = url.replace(os.path.sep, '/')
     url = url.lstrip('/')
     return 'file:///' + url
