@@ -43,7 +43,7 @@ Freezing requirements
 
 .. code-block:: bash
 
-    $ ./pip.py -E tg2env freeze production/stable-reqs.txt
+    $ ./pip.py freeze -E tg2env -r normal-reqs.txt production/stable-reqs.txt
 
 Profiling the WSGI stack
 ------------------------
