@@ -89,7 +89,7 @@
         var self = this;
 
         self.element.find('tbody').fadeOut('slow');
-        if (moksha_csrf_token)
+        if (typeof(moksha_csrf_token)!='undefined' && moksha_csrf_token)
             args['_csrf_token'] = moksha_csrf_token;
         var xmlrequest = jQuery.getJSON(path, args, function (json) {
             callback(json);
@@ -125,7 +125,7 @@
         var search_criteria = {
             filters: o.filters,
             start_row: start_row,
-            rows_requested: rpp,
+            rows_per_page: rpp,
             sort_key: o.sort_key,
             sort_order: o.sort_order,
         }
@@ -139,8 +139,8 @@
 
         var sc = search_criteria;
 
-        if (typeof(sc.rows_requested) != 'undefined')
-            self.options.rows_per_page = sc.rows_requested;
+        if (typeof(sc.rows_per_page) != 'undefined')
+            self.options.rows_per_page = sc.rows_per_page;
 
         if (typeof(sc.page_num) != 'undefined')
             self.options.page_num = sc.page_num;
@@ -177,13 +177,13 @@
         if (typeof(filters) != 'undefined')
             dispatch_data['filters'] = filters
 
-        var numrows = search_criteria.numrows
-        if (typeof(numrows) != 'undefined')
-            dispatch_data['numrows'] = numrows
+        var rows_per_page = search_criteria.rows_per_page
+        if (typeof(rows_per_page) != 'undefined')
+            dispatch_data['rows_per_page'] = rows_per_page
 
-        var offset = search_criteria.start_row
-        if (typeof(offset) != 'undefined')
-            dispatch_data['offset'] = offset
+        var start_row = search_criteria.start_row
+        if (typeof(start_row) != 'undefined')
+            dispatch_data['start_row'] = start_row
 
         if (search_criteria.sort_key) {
             dispatch_data["sort_col"] = search_criteria.sort_key;
