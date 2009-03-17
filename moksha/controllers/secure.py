@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 """Sample controller with all its actions protected."""
-from tg import expose, flash, redirect, validate
+from tg import expose, flash, redirect, validate, tmpl_context
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from repoze.what.predicates import has_permission
-#from dbsprockets.dbmechanic.frameworks.tg2 import DBMechanic
-#from dbsprockets.saprovider import SAProvider
 
+import moksha
 from moksha.lib.base import BaseController
 #from moksha.model import DBSession, metadata
 
@@ -23,7 +22,8 @@ class SecureController(BaseController):
     def index(self):
         """Let the user know that's visiting a protected controller."""
         flash(_("Secure Controller here"))
-        return dict(page='index')
+        tmpl_context.menu_widget = moksha.menus['default_menu']
+        return dict(title='Moksha Administrator Controller')
 
     @expose('moksha.templates.index')
     def some_where(self):

@@ -42,6 +42,10 @@ base_config.sa_auth.post_login_url = '/post_login'
 # on logout:
 base_config.sa_auth.post_logout_url = '/post_logout'
 
+# Add Moksha's CSRF protection middleware by default
+from moksha.middleware.csrf import CSRFMetadataProvider
+base_config.sa_auth.mdproviders = [('csrfmd', CSRFMetadataProvider())]
+
 # To enable the repoze.profile middleware.
 # After surfing around, navigate to /__profile__ to view results.
 base_config.profile = False

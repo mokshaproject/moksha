@@ -15,6 +15,7 @@
 #
 # Copyright 2008, Red Hat, Inc.
 # Authors: John (J5) Palmieri <johnp@redhat.com>
+
 from tw.jquery import jquery_js
 from tw.api import JSLink
 from tw.api import Widget
@@ -39,12 +40,15 @@ moksha_userid = "${user_id}";
     csrf_token = ''
     user_id = ''
 
+    def __init__(self, *args, **kw):
+        super(MokshaGlobals, self).__init__(*args, **kw)
+        self.csrf_token_id = tg.config.get('moksha.csrf.token_id', '_csrf_token')
+
     def update_params(self, d):
         super(MokshaGlobals, self).update_params(d)
         d['base_url'] = tg.url('/')
         identity = pylons.request.environ.get('repoze.who.identity')
 
         if identity:
-            d['csrf_token'] = identity.get('_csrf_token','')
+            d['csrf_token'] = identity.get(self.csrf_token_id, '')
             d['user_id'] = identity.get('user_id', '')
-
