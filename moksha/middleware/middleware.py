@@ -365,6 +365,9 @@ def make_moksha_middleware(app):
                 csrf_token_id=config.get('moksha.csrf.token_id', '_csrf_token'),
                 clear_env=config.get('moksha.csrf.clear_env',
                     'repoze.who.identity repoze.what.credentials'),
+                token_env=config.get('moksha.csrf.token_env', 'CSRF_TOKEN'),
+                auth_state=config.get('moksha.csrf.auth_state',
+                                      'CSRF_AUTH_STATE'),
                 )
 
     return app

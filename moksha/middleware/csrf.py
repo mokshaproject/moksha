@@ -96,17 +96,22 @@ class CSRFProtectionMiddleware(object):
     """
 
     def __init__(self, application, csrf_token_id='_csrf_token',
-                 clear_env='repoze.who.identity repoze.what.credentials'):
+                 clear_env='repoze.who.identity repoze.what.credentials',
+                 token_env='CSRF_TOKEN', auth_state='CSRF_AUTH_STATE'):
         """
         Initialize the CSRF Protection WSGI Middleware.
 
         :csrf_token_id: The name of the CSRF token variable
         :clear_env: Variables to clear out of the `environ` on invalid token
+        :token_env: The name of the token variable in the environ
+        :auth_state: The environ key that will be set when we are logging in
         """
         log.info('Creating CSRFProtectionMiddleware')
         self.application = application
         self.csrf_token_id = csrf_token_id
-        self.clear_env = clear_env.split()
+        self.clear_env = clear_env
+        self.token_env = token_env
+        self.auth_state = auth_state
 
     def __call__(self, environ, start_response):
         """
@@ -194,7 +199,10 @@ class CSRFMetadataProvider(object):
     implements(IMetadataProvider)
 
     def __init__(self, csrf_token_id='_csrf_token', session_cookie='authtkt',
-                 login_handler='/post_login'):
+                 clear_env='repoze.who.identity repoze.what.credentials',
+                 login_handler='/post_login', token_env='CSRF_TOKEN',
+                 auth_session_id='CSRF_AUTH_SESSION_ID',
+                 auth_state='CSRF_AUTH_STATE'):
         """
         Create the CSRF Metadata Provider Plugin.
 
