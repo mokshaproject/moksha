@@ -11,19 +11,25 @@
  *  ui.core.js
  */
 
- // This is a hack for now since each
- // level may consume more than just one element
- if (typeof(_moksha_hash_consumer_level) == "undefined")
-   _moksha_hash_consumer_level = 0;
- else
-   _moksha_hash_consumer_level++;
-
 (function($) {
 
 $.widget("ui.mokshatabs", {
 
     _init: function() {
         this.options.event += '.tabs'; // namespace event
+
+        var parent = this.element.parent();
+        var container_level = 0;
+        var nav_class = this.options.navContainerClass;
+
+        while (parent.length && !container_level) {
+            if (parent.hasClass(nav_class))
+                container_level = parent.data('moksha_container_level') + 1;
+            else
+                parent = parent.parent()
+        }
+
+        this.options.container_level = container_level;
 
         // create tabs
         this.tabify(true);
@@ -59,8 +65,9 @@ $.widget("ui.mokshatabs", {
 
         var self = this, o = this.options;
 
+
         self.path_remainder = '';
-        self.options.hash_level = _moksha_hash_consumer_level;
+
         this.$tabs.each(function(i, a) {
             // inline tab
             if (a.hash && a.hash.replace('#', '')) // Safari 2 reports '#' for an empty hash
@@ -76,7 +83,11 @@ $.widget("ui.mokshatabs", {
                     $panel = $(o.panelTemplate).attr('id', id).addClass(o.panelClass)
                         .insertAfter( self.$panels[i - 1] || self.element );
                     $panel.data('destroy.tabs', true);
+
                 }
+                $panel.data('moksha_container_level', o.container_level);
+                $panel.addClass(o.navContainerClass);
+
                 self.$panels = self.$panels.add( $panel );
             }
             // invalid tab href
@@ -103,7 +114,7 @@ $.widget("ui.mokshatabs", {
             // 3. from selected class attribute on <li>
             if (o.selected === undefined) {
                 if (location.hash) {
-                    var index = this.hashToIndex(location.hash, o.hash_level);
+                    var index = this.hashToIndex(location.hash, o.container_level);
 
                     if (index >= 0) {
                         o.selected = index;
@@ -258,12 +269,12 @@ $.widget("ui.mokshatabs", {
             href = href.split("-uuid")[0];
 
             //only update the hash level we care about
-            if (o.hash_level != 0) {
+            if (o.container_level != 0) {
               var hash = location.hash.substr(1);
               hash = hash.split('/');
-              hash[o.hash_level] = href.substr(1);
+              hash[o.container_level] = href.substr(1);
 
-              hash = '#' + hash.splice(0, o.hash_level + 1).join('/');
+              hash = '#' + hash.splice(0, o.container_level + 1).join('/');
               location.hash = hash;
             } else {
               location.hash = href;
@@ -444,6 +455,7 @@ $.widget("ui.mokshatabs", {
             );
         }
     },
+
     // get the selected tab index give a location hash
     hashToIndex: function(hash, level) {
         var hash = location.hash;
@@ -628,7 +640,8 @@ $.ui.mokshatabs.defaults = {
     disabledClass: 'ui-tabs-disabled',
     panelClass: 'ui-tabs-panel',
     hideClass: 'ui-tabs-hide',
-    loadingClass: 'ui-tabs-loading'
+    loadingClass: 'ui-tabs-loading',
+    navContainerClass: 'moksha-ui-navcontainer'
 };
 
 $.ui.mokshatabs.getter = "length";
