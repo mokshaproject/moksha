@@ -120,6 +120,17 @@ moksha = {
 
     },
 
+    /********************************************************************
+     * Take a url and target, attach the csrf hash if available and load
+     *
+     * FIXME: target is ignored for now
+     *
+     * TODO: Fast loading where we just switch tabs
+     ********************************************************************/
+    goto: function(url, target) {
+        window.location.href = moksha.csrf_rewrite_url(url);
+    },
+
     /*
      * modified from parseUri 1.2.1 Steven Levithan <stevenlevithan.com>
      */
