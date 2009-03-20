@@ -30,12 +30,22 @@ def _update_params(params, d):
         for k in params.iterkeys():
 
             if d and (k in d):
-                p[k] = d[k]
+                value = d[k]
             else:
-                p[k] = params[k]
+                value = params[k]
 
-            if isinstance(p[k], dict) or isinstance(p[k], list):
-                p[k] = json.dumps(p[k])
+            # recursive dicts also get updated
+            # by the passed params
+            if isinstance(value, unicode):
+                value = str(value)
+            if isinstance(value, dict):
+                value = _update_params(value, d)
+                value = json.dumps(value)
+            elif isinstance(value, list):
+                # FIXME: This should be recursive
+                value = json.dumps(value)
+
+            p[k] = value
 
     return p
 
