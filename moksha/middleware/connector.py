@@ -104,8 +104,10 @@ class MokshaConnectorMiddleware(object):
         if conn:
             conn_obj = conn['connector_class'](environ, request)
             r = conn_obj._dispatch(op, path, remote_params, **dispatch_params)
-            if not isinstance(r, str):
+            if not isinstance(r, basestring):
                 r = json.dumps(r, separators=(',',':'))
+            if isinstance(r, unicode):
+                r = r.encode('utf-8', 'replace')
             response = Response(r)
         else:
             response = Response(status='404 Not Found')
