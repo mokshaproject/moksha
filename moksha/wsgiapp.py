@@ -27,6 +27,11 @@ class MokshaAppDispatcher(PylonsApp):
     """
     root = None
 
+    def __init__(self):
+        super(MokshaAppDispatcher, self).__init__()
+        from moksha.controllers.root import RootController
+        self.root = RootController()
+
     def resolve(self, environ, start_response): 
         """ Uses dispatching information found in
         ``environ['wsgiorg.routing_args']`` to retrieve the application
@@ -35,7 +40,4 @@ class MokshaAppDispatcher(PylonsApp):
 
         """
         environ['pylons.routes_dict'] = environ['wsgiorg.routing_args'][1]
-        if not self.root:
-            from moksha.controllers.root import RootController
-            self.root = RootController()
         return self.root
