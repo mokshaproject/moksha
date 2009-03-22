@@ -37,7 +37,7 @@ def _update_params(params, d):
             # recursive dicts also get updated
             # by the passed params
             if isinstance(value, unicode):
-                value = str(value)
+                value = value.encode('utf8', 'replace')
             if isinstance(value, dict):
                 value = _update_params(value, d)
                 value = json.dumps(value)
