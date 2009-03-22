@@ -78,8 +78,10 @@ class RootController(BaseController):
             return self.docs, remainder
 
     @expose('mako:moksha.templates.login')
-    def login(self, came_from=url('/')):
+    def login(self, came_from=None):
         """Start the user login."""
+        if not came_from:
+            came_from = url('/')
         login_counter = pylons.request.environ['repoze.who.logins']
         if login_counter > 0:
             flash(_('Wrong credentials'), 'warning')
@@ -87,12 +89,14 @@ class RootController(BaseController):
                     came_from=came_from)
 
     @expose()
-    def post_login(self, came_from=url('/')):
+    def post_login(self, came_from=None):
         """
         Redirect the user to the initially requested page on successful
         authentication or redirect her back to the login page if login failed.
 
         """
+        if not came_from:
+            came_from = url('/')
         if not pylons.request.identity:
             login_counter = pylons.request.environ['repoze.who.logins'] + 1
             redirect(url('/login', came_from=came_from, __logins=login_counter))
@@ -101,11 +105,13 @@ class RootController(BaseController):
         redirect(came_from)
 
     @expose()
-    def post_logout(self, came_from=url('/')):
+    def post_logout(self, came_from=None):
         """
         Redirect the user to the initially requested page on logout and say
         goodbye as well.
 
         """
         flash(_('We hope to see you soon!'))
+        if not came_from:
+            came_from = url('/')
         redirect(came_from)
