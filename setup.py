@@ -48,6 +48,7 @@ setup(
     [paste.app_install]
     main = pylons.util:PylonsInstaller
 
+    # Pulls in all widgets.  Used by the `archive_tw_resources` command.
     [toscawidgets.widgets]
     widgets = moksha.widgets.all
 
