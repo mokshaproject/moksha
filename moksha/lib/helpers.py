@@ -187,7 +187,7 @@ class App(ConfigWrapper):
 
     :Example:
         hello_app = App('Hello World App',
-                        '/appz/moksha.helloworld',
+                        '/apps/moksha.helloworld',
                         params={'greeter_name': 'J5'},
                         auth=not_anonymous())
     """
@@ -309,7 +309,7 @@ class MokshaApp(App):
         app = moksha_app.split('/')[0]
         self.app = app
         super(MokshaApp, self).__init__(label,
-                                        '/appz/' + moksha_app,
+                                        '/apps/' + moksha_app,
                                         content_id,
                                         params, auth, css_class)
 

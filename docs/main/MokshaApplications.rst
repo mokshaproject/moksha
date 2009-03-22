@@ -18,7 +18,7 @@ in the ``setup.py`` on the ``[moksha.wsgiapp]`` entry-point.
     [moksha.wsgiapp]
     mywsgiapp = mywsgiapp.wsgiapp:MyWSGIApplication
 
-Your WSGI application will then be accessable via ``/appz/mywsgiapp`` in Moksha.
+Your WSGI application will then be accessable via ``/apps/mywsgiapp`` in Moksha.
 
 Using an existing TurboGears application
 -------------------------------------------

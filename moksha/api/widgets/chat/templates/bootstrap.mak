@@ -49,7 +49,7 @@ var loaded = function() {
     var roomClass= roomClass ? roomClass : 'default'
     s = document.createElement('script')
     var baseurl = 'http://' + WillowChat.hostHeader
-    s.src = baseurl + '/appz/chat/rooms?jsonp=WillowChat.util.optionsCallback&op=info&roomClass=' + roomClass
+    s.src = baseurl + '/apps/chat/rooms?jsonp=WillowChat.util.optionsCallback&op=info&roomClass=' + roomClass
 
     WillowChat.util.optionsCallback = function(result) {
         success = result[0]
@@ -60,7 +60,7 @@ var loaded = function() {
         var opts = gatherOptions(room, container);
         ifr = document.createElement('iframe')
         var staticurl = baseurl + '/toscawidgets/resources/moksha.api.widgets.chat.chat/static'
-        ifr.src = '/appz/chat/index?json=1&opts=' +  escape(JSON.stringify(opts))
+        ifr.src = '/apps/chat/index?json=1&opts=' +  escape(JSON.stringify(opts))
         ifr.style.border = "0px";
         ifr.style.width = "100%";
         ifr.style.height = "100%";

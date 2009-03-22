@@ -28,7 +28,7 @@ Here is an example of what a configuration line could look like:
                               'moksha.helloworld',
                               {'name':'J5'}),
                     App('Hello World 2',
-                              '/appz/moksha.helloworld',
+                              '/apps/moksha.helloworld',
                               {'name':'Luke'}),
                     MokshaWidget('Hello World 3',
                               'moksha.helloworldwidget',

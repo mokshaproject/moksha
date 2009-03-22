@@ -45,7 +45,7 @@ os.environ['TW_BROWSER_PREFIX'] = '/docs'
 
 class RootController(BaseController):
 
-    appz = AppController()
+    apps = AppController()
     widgets = WidgetController()
     error = ErrorController()
     moksha_admin = SecureController()
