@@ -44,7 +44,7 @@ meld3
 morbid
 nose
 orbited
-psycopg2
+#psycopg2
 PyOpenSSL
 pyprof2calltree
 repoze.profile
