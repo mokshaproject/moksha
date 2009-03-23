@@ -65,6 +65,8 @@ class MokshaConnectorMiddleware(object):
 
                 if k not in params:
                     params[k] = p.getall(k)
+                    if params[k] and len(params[k]) == 1:
+                        params[k] = params[k][0]
 
             response = self._run_connector(environ, request,
                                            s[0], s[1], *s[2:],

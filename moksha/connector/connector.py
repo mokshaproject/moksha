@@ -16,6 +16,9 @@
 # Copyright 2008, Red Hat, Inc.
 # Authors: John (J5) Palmieri <johnp@redhat.com>
 
+from utils import QueryPath, QueryCol, ParamFilter, WeightedSearch
+from beaker.cache import Cache
+
 """ Data Connector Interfaces
 
 A Data Connector is an object which translate Moksha data requests to the native
@@ -29,50 +32,6 @@ other interfaces are optional.  Any feature of an interface which is not
 implemented (e.g. sorting in the ITable interface) must
 raise NotImplementedError if the value is set to anything but None
 """
-
-class QueryCol(dict):
-    def __init__(self,
-                 column,
-                 default_visible,
-                 can_sort,
-                 can_filter_wildcards):
-        super(QueryCol, self).__init__(column = column,
-                                       default_visible = default_visible,
-                                       can_sort = can_sort,
-                                       can_filter_wildcards = can_filter_wildcards)
-
-class QueryPath(dict):
-    def __init__(self,
-                 path,
-                 query_func,
-                 primary_key_col,
-                 default_sort_col,
-                 default_sort_order,
-                 can_paginate):
-        super(QueryPath, self).__init__(
-                         path = path,
-                         query_func = query_func,
-                         primary_key_col = primary_key_col,
-                         default_sort_col = default_sort_col,
-                         default_sort_order = default_sort_order,
-                         can_paginate = can_paginate,
-                         columns={})
-
-    def register_column(self,
-                        column,
-                        default_visible = True,
-                        can_sort = False,
-                        can_filter_wildcards = False):
-
-        self["columns"][column] = QueryCol(
-                column = column,
-                default_visible = default_visible,
-                can_sort = can_sort,
-                can_filter_wildcards = can_filter_wildcards
-              )
-
-    def get_query(self):
-        return self['query_func']
 
 class IConnector(object):
     """ Data connector interface
@@ -350,64 +309,43 @@ class INotify(object):
     def register_listener(self, listener_cb):
         pass
 
-class ParamFilter(object):
-    """Helper class for filtering query arguments"""
+class ISearch(IQuery):
+    filters = ParamFilter()
+    filters.add_filter('search', ['s'])
 
-    def __init__(self):
-        self._translation_table = {}
-        self._param_table = {}
+    @classmethod
+    def register_search_path(cls,
+                             path,
+                             search_func,
+                             primary_key_col = None,
+                             default_sort_col = None,
+                             default_sort_order = None,
+                             can_paginate = True):
 
-    def add_filter(self, param, args=[], cast=None, allow_none=True, filter_func=None):
-        pf = {}
-        if cast:
-            assert(isinstance(cast, type),
-                   "cast should be of type <type> not cast %s" % str(type(cast)))
+        cls._search_cache = fas_cache = Cache('moksha_search_cache_ ' + path)
 
-            pf['cast'] = cast
+        def query_func(conn=None,
+                       start_row=0,
+                       rows_per_page=10,
+                       order=-1,
+                       sort_col=None,
+                       filters={},
+                       **params):
 
-        pf['allow_none'] = allow_none
-        pf['filter_func'] = filter_func
+            s = WeightedSearch(lambda search_term: search_func(conn, search_term),
+                               cls._paths[path]['columns'],
+                               cls._search_cache)
+            search_string = cls.filters.filter(filters).get('search')
+            results = s.search(search_string)
 
-        self._param_table[param] = pf
-        args.append(param)
-        for a in args:
-            assert(not(a in self._translation_table),
-                   '''The argument %s has been registered for more than
-                   one parameter translation''' % (a)
-                   )
 
-            self._translation_table[a] = param
+            return (len(results), results[start_row:start_row + rows_per_page])
 
-    def filter(self, d, conn=None):
-        results = {}
-        for k, v in d.iteritems():
-            if k in self._translation_table:
-                param = self._translation_table[k]
-                allow_none = True
-                assign = True
-                if param in self._param_table:
-                    pf = self._param_table[param]
-                    cast = pf.get('cast')
-                    if cast == bool:
-                        if isinstance(v, basestring):
-                            lv = v.lower()
-                            if lv in ('t', 'y', 'true', 'yes'):
-                                v = True
-                            else:
-                                v = False
-                        elif not isinstance(v, bool):
-                            v = False
-                    elif cast:
-                        v = cast(v)
+        qpath = cls.register_path(path = path,
+                          query_func = query_func,
+                          primary_key_col = primary_key_col,
+                          default_sort_col = default_sort_col,
+                          default_sort_order = default_sort_order,
+                          can_paginate = can_paginate)
 
-                    allow_none = pf['allow_none']
-
-                    ff = pf['filter_func']
-                    if ff:
-                        ff(conn, results, k, v, allow_none)
-                        assign = False
-
-                    if (allow_none or (v != None)) and assign:
-                        results[param] = v
-
-        return results
+        return qpath
