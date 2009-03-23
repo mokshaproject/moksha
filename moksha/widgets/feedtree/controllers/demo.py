@@ -25,6 +25,6 @@ from moksha.controllers.apps import AppController
 
 app_controller = WSGIAppController(AppController())
 
-@WidgetBrowser.register_controller(moksha_feedreader, '/appz/feeds/init_tree')
+@WidgetBrowser.register_controller(moksha_feedreader, '/apps/feeds/init_tree')
 def init_tree(self, key, fresh=False, **kw):
     return app_controller

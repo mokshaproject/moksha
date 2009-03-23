@@ -39,7 +39,7 @@ willowchat_css = CSSLink(filename='static/style.css', modname=__name__)
 class LiveChatWidget(Widget):
     name = 'Chat'
     params = ['bootstrap']
-    bootstrap = JSLink(link='/appz/chat/bootstrap')
+    bootstrap = JSLink(link='/apps/chat/bootstrap')
     template = '<div id="willowchat" reposition="true">${bootstrap}</div>'
     visible = False
 

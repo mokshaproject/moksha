@@ -47,12 +47,12 @@ class MokshaAjaxFeedTree(Dynatree):
     rootVisible = True
     persist = True
     initAjax = {
-            'url': '/appz/feeds/init_tree',
+            'url': '/apps/feeds/init_tree',
             'data': {'key': 'root'}
     }
     onActivate = js_callback("""
         function(dtnode) {
-          $('#TopPane').load('/appz/feeds/get_entries?key=' + dtnode.data.key.replace(/ /, ''));
+          $('#TopPane').load('/apps/feeds/get_entries?key=' + dtnode.data.key.replace(/ /, ''));
         }
     """.replace('\n', ''))
 
@@ -60,7 +60,7 @@ class MokshaAjaxFeedTree(Dynatree):
 class MokshaAjaxFeedEntriesTree(Dynatree):
     rootVisible = False
     persist = True
-    onActivate = js_callback("""function(dtnode) { $('#BottomPane').load('/appz/feeds/get_entry?key=' + dtnode.data.key); }""")
+    onActivate = js_callback("""function(dtnode) { $('#BottomPane').load('/apps/feeds/get_entry?key=' + dtnode.data.key); }""")
 
 
 class MokshaLiveFeedTree(Dynatree, LiveWidget):
@@ -69,7 +69,7 @@ class MokshaLiveFeedTree(Dynatree, LiveWidget):
     persist = True
     fx = {'height': 'toggle', 'duration': 200}
     initAjax = {
-            'url': '/appz/feeds/init_tree',
+            'url': '/apps/feeds/init_tree',
             'data': {'key': 'root'}
     }
     onActivate = js_callback("function(dtnode) { stomp.send(dtnode.data.key, 'feeds', {topic: moksha_feed_topic, action: 'get_feed'}); }")
@@ -103,7 +103,7 @@ class MokshaLiveFeedTree(Dynatree, LiveWidget):
         #LiveWidget.update_params(self, d)
 
     #onLazyRead = js_callback("""function(dtnode) {
-    #    dtnode.appendAjax({url: '/appz/feeds/get_feed',
+    #    dtnode.appendAjax({url: '/apps/feeds/get_feed',
     #                       data: {key: dtnode.data.key, mode: 'all'},
     #                       cache: false
     #                      });

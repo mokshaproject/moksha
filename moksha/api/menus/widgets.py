@@ -57,7 +57,7 @@ class MokshaMenuBase(Widget):
 
     rootMenuSelector = 'rootVoices'
     menuSelector = 'menuContainer'
-    callback = '/appz/menu'
+    callback = '/apps/menu'
     iconPath = '/toscawidgets/resources/moksha.api.menus.widgets/static/images/'
     additionalData = ""
     menus = []

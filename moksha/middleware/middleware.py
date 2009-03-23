@@ -73,7 +73,7 @@ class MokshaMiddleware(object):
     def __call__(self, environ, start_response):
         self.register_stomp(environ)
         request = Request(environ)
-        if request.path.startswith('/appz/') or \
+        if request.path.startswith('/apps/') or \
            request.path.startswith('/widget') or \
            request.path.startswith('/docs/') or \
            request.path.startswith('/moksha_admin/'):
