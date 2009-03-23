@@ -274,7 +274,12 @@ class WeightedSearch(object):
             x = l - i
             weight_factor = x * factor
 
-            l_result_field = r[result_field].lower()
+            l_result_field = r.get(result_field, '')
+            if not isinstance(l_result_field, basestring):
+                l_result_field = ''
+            else:
+                l_result_field.lower()
+
             index = l_result_field.find(search_term)
 
             while(index != -1):
