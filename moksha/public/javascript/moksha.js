@@ -120,6 +120,32 @@ moksha = {
 
     },
 
+    /*********************************************************************
+     * Take a form element and add or update a hidden field for the
+     * csrf token
+     *
+     * Example:
+     *   <form action="/process_form/"
+     *         onSubmit="moksha.csrf_add_form_field(this)">
+     *********************************************************************/
+    csrf_add_form_field: function(form_element) {
+        // do nothing if we don't actually have a token
+        if (typeof(moksha_csrf_token) === 'undefined' || !moksha_csrf_token)
+            return;
+
+        var $fe = $(form_element);
+        var $csrf_field = $("input[name=_csrf_token]", form_element);
+
+        // create a field if it doens't already exist
+        if ($csrf_field.length < 1) {
+            $csrf_field = $("<input type='hidden'></input>").attr("name", "_csrf_token");
+
+            $fe.append($csrf_field);
+        }
+
+        $csrf_field.attr("value", moksha_csrf_token);
+    },
+
     /********************************************************************
      * Take a url and target, attach the csrf hash if available and load
      *
