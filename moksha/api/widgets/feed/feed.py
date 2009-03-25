@@ -110,4 +110,7 @@ class Feed(Widget):
 
     def close(self):
         global feed_storage
-        feed_storage.close()
+        try:
+            feed_storage.close()
+        except:
+            pass
