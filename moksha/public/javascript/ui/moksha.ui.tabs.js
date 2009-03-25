@@ -59,7 +59,7 @@ $.widget("ui.mokshatabs", {
     },
     tabify: function(init) {
 
-        this.$lis = $('ul:first>li:has(a[href])', this.element);
+        this.$lis = $('ul li:has(a[href])', this.element);
         this.$tabs = this.$lis.map(function() { return $('a', this)[0]; });
         this.$panels = $([]);
 

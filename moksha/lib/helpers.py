@@ -106,7 +106,8 @@ class ConfigWrapper(object):
         the configuration option
         """
         default_values = dict(query_string='',
-                              id = self.uuid)
+                              id = self.uuid,
+                              type = self.__class__.__name__)
 
         return default_values
 

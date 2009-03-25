@@ -12,7 +12,6 @@
       self.$rowplaceholder = jQuery('<span />').addClass('moksha_rowplaceholder');
       self.$rowplaceholder.hide();
 
-
       if (!self.element.is('table')) {
           var t = self._generate_table();
 
@@ -20,6 +19,8 @@
       } else {
           self._setup_template();
       }
+
+      self.clear();
     },
 
     _destroy: function() {
@@ -29,17 +30,24 @@
 
     clear: function() {
        var self = this;
-       var rows = self.$visible_rows;
-       for (i in rows)
-           rows[i].replaceWith('');
+       var o = self.options;
+       var $ph = self.$rowplaceholder;
+       var $rows = $('.' + o.rowClass, $ph.parent());
 
-       self.$visible_rows = [];
+       for (j=0; j < $rows.length; j++) {
+           var $blank = $(self._blank_row).addClass(o.rowClass + '_' + j.toString());
+           $($rows[j]).replaceWith($blank);
+       }
+
+       for (i=j; i<o.rows_per_page; i++) {
+           var $blank = $(self._blank_row).addClass(o.rowClass + '_' + i.toString());
+           $ph.before($blank);
+       }
     },
 
     insert_row: function(i, row_data) {
         var self = this;
         var o = self.options
-        var rows = self.$visible_rows;
         var row_count = self.visible_row_count();
 
         // store the widget for this element
@@ -50,24 +58,41 @@
         if (i >= o.rows_per_page || (i == -1  && row_count >= o.rows_per_page))
             return;
 
-        var new_row = jQuery(o.row_template.apply(row_data));
-
+        var $new_row = jQuery(o.row_template.apply(row_data));
+        var $ph = self.$rowplaceholder;
         if (i == -1 || row_count == i) {
-            // append to the end of the tracking array and the table dom
-            rows.push(new_row);
-            self.$rowplaceholder.before(new_row);
+            var row_class = o.rowClass + '_' + row_count.toString();
+            var $row = $('.' + row_class, $ph.parent());
+            $new_row.addClass(row_class).addClass(o.rowClass);
+            $row.replaceWith($new_row);
         } else {
+            // insert before i element and update all row numbers
+            // if it is a blank row, replace the row
+            var row_class = o.rowClass + '_' + i.toString();
+            var $row = $('.' + row_class, $ph.parent());
+            $new_row.addClass(row_class).add_class(o.rowClass);
 
-            // insert before i element in the tracking array and table dom
-            rows[i].before(new_row);
-            rows.splice(i, 0, new_row);
+            if($row.hasClass(o.blankRowClass)) {
+              $row.replaceWith(new_row);
+            } else {
+              var $current_rows = $(o.rowClass, $ph.parent());
+              for (j = i; j < $current_rows.length; j++) {
+                  var k = j + 1;
+                  var old_class = '.' + o.rowClass + '_' + j.toString();
+                  var new_class = '.' + o.rowClass + '_' + k.toString();
+                  $current_rows[j].removeClass(old_class);
+                  $current_rows[j].addClass(new_class);
 
-            // if there is one too many rows remove the last one
-            if (row_count == o.rows_per_page)
-                self.remove_row(o.rows_per_page);
+              }
+
+              $row.before($new_row);
+
+              if (row_count == o.rows_per_page)
+                  self.remove_row(o.rows_per_page);
+            }
         }
 
-        new_row.show();
+        $new_row.show();
     },
 
     append_row: function(row_data) {
@@ -77,9 +102,14 @@
 
     remove_row: function(i) {
         var self = this;
-        var rows = self.$visible_rows;
-        rows[i].replaceWith('');
-        rows.splice(i,1);
+        var o = self.options;
+        var $ph = self.$rowplaceholder;
+        var $rows = $(row_class, $ph.parent());
+        $rows[i].replaceWith('');
+
+        //FIXME: We need to relabel rows if this is not the
+        //       end of the rows and if it is we need to add a
+        //       blank row
     },
 
     get_json:  function(path, args, callback) {
@@ -206,7 +236,16 @@
 
     visible_row_count: function() {
         var self = this;
-        return self.$visible_rows.length;
+        var o = self.options;
+        var $ph = self.$rowplaceholder;
+        var $rows = $('.' + o.rowClass, $ph.parent());
+
+        for (i=$rows.length; i > 0; i--) {
+            if (!$($rows[i-1]).hasClass(o.blankRowClass))
+                return i;
+        }
+
+        return 0;
     },
 
     /* Private */
@@ -224,7 +263,14 @@
       var container_div = jQuery('<div />');
       var html = unescape(container_div.append(rowtemplate).html());
 
-      o.row_template = jQuery.template(html, {regx:'moksha'}).compile();
+      o.row_template = jQuery.template(html, {regx:'moksha'});
+
+      // create a blank row by taking the template HTML and replacing
+      // the data inside the td's with a non breaking space
+      $_blank_row = $(html).addClass(o.blankRowClass).addClass(o.rowClass);
+      var $clear_td = $('td', $_blank_row)
+      $clear_td.html('&nbsp;');
+      self._blank_row = $('<div />').append($_blank_row).html();
 
       self.$headers =  $('th:has(a[href])', this.element);
       //self.$headers = this.$ths.map(function() { return $('a', this)[0]; });
@@ -320,6 +366,8 @@
                  row_template: null,
                  resource: null,
                  resource_path: null,
+                 blankRowClass: 'moksha-grid-blank-row',
+                 rowClass: 'moksha-grid-row',
                  loading_throbber: ["Loading",    // list of img urls or text
                                     "Loading.",
                                     "Loading..",
