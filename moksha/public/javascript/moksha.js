@@ -97,6 +97,9 @@ moksha = {
     csrf_rewrite_url: function(url, params) {
         var ourl = moksha.parseUri(url);
 
+        if (typeof(params) == 'undefined')
+            params = {};
+
         if (typeof(moksha_csrf_token) != 'undefined' && moksha_csrf_token)
             params['_csrf_token'] = moksha_csrf_token;
 
