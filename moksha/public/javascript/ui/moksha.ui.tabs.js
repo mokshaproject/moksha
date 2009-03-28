@@ -537,8 +537,8 @@ $.widget("ui.mokshatabs", {
                 .find('em').data('label.tabs', label).html(o.spinner);
         }
 
-        if (o.passPathRemainder)
-            url += self.path_remainder;
+        //if (o.passPathRemainder)
+        //    url += self.path_remainder;
 
         var ajaxOptions = $.extend({}, o.ajaxOptions, {
             url: moksha.csrf_rewrite_url(url),

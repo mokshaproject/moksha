@@ -16,10 +16,15 @@ class AppListWidget(Widget):
         # we want to error out if there is no category
         c = d['category']
         if isinstance(c, basestring):
+            found = False
             for cat in d['layout']:
                 if cat['label'] == c:
                     d['category'] = cat
+                    found = True
                     break
+
+            if not found:
+                raise IndexError('Category "%s" not found in layout' % c)
 
 applist_widget = AppListWidget('applist');
 
