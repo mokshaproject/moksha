@@ -21,7 +21,7 @@ Sphinx
 SymbolType
 Tempita
 ## FIXME: could not find svn URL in dependency_links for this package:
-ToscaWidgets
+ToscaWidgets==0.9.4
 TurboGears2
 TurboJson
 Twisted
