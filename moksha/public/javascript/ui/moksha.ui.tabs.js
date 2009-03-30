@@ -68,6 +68,29 @@ $.widget("ui.mokshatabs", {
 
         self.path_remainder = '';
 
+        var $overlay = $('.overlay', self.element)
+        if ($overlay.length == 0) {
+            $overlay = $('<div />').addClass('overlay')
+            $overlay.css({'opacity': .75,
+                        'z-index': 99,
+                        'background-color': 'white',
+                        'position': 'absolute',
+                       }
+                      )
+
+            $overlay.append($('<div />').addClass('message'));
+            $overlay.hide();
+
+            if (typeof(self.$panels[0]) != 'undefined')
+                $overlay.insertBefore(self.$panels[0]);
+            else
+                $overlay.insertAfter(self.element);
+
+        }
+
+
+        self.$overlay_div = $overlay;
+
         this.$tabs.each(function(i, a) {
             // inline tab
             if (a.hash && a.hash.replace('#', '')) // Safari 2 reports '#' for an empty hash
@@ -540,9 +563,7 @@ $.widget("ui.mokshatabs", {
         //if (o.passPathRemainder)
         //    url += self.path_remainder;
 
-        var ajaxOptions = $.extend({}, o.ajaxOptions, {
-            url: moksha.csrf_rewrite_url(url),
-            success: function(r, s) {
+        var success_cb = function(r, s) {
                 var $panel = $(a.hash + ':first', self.element);
                 var $stripped = moksha.filter_resources(r);
 
@@ -556,14 +577,13 @@ $.widget("ui.mokshatabs", {
                 $(self.element).triggerHandler('tabsload',
                     [self.fakeEvent('tabsload'), self.ui(self.$tabs[index], self.$panels[index])], o.load
                 );
-                o.ajaxOptions.success && o.ajaxOptions.success($temp, s);
 
                 // This callback is required because the switch has to take
                 // place after loading has completed. Call last in order to
                 // fire load before show callback...
                 callback();
             }
-        });
+
         if (this.xhr) {
             // terminate pending requests from other tabs and restore tab label
             this.xhr.abort();
@@ -571,7 +591,7 @@ $.widget("ui.mokshatabs", {
         }
         $a.addClass(o.loadingClass);
         setTimeout(function() { // timeout is again required in IE, "wait" for id being restored
-            self.xhr = $.ajax(ajaxOptions);
+            self.xhr = moksha.html_load(moksha.csrf_rewrite_url(url), {}, success_cb, this.$overlay_div)
         }, 0);
 
     },
