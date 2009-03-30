@@ -6,8 +6,6 @@
       var self = this;
       var o = self.options;
 
-      self.$visible_rows = [];
-
       // add placeholder for row appends
       self.$rowplaceholder = jQuery('<span />').addClass('moksha_rowplaceholder');
       self.$rowplaceholder.hide();
@@ -32,6 +30,8 @@
        var self = this;
        var o = self.options;
        var $ph = self.$rowplaceholder;
+
+       /*
        var $rows = $('.' + o.rowClass, $ph.parent());
 
        for (j=0; j < $rows.length; j++) {
@@ -42,7 +42,9 @@
        for (i=j; i<o.rows_per_page; i++) {
            var $blank = $(self._blank_row).addClass(o.rowClass + '_' + i.toString());
            $ph.before($blank);
-       }
+       }*/
+
+       $('.' + o.rowClass, self.element).replaceWith('');
     },
 
     insert_row: function(i, row_data) {
@@ -62,9 +64,8 @@
         var $ph = self.$rowplaceholder;
         if (i == -1 || row_count == i) {
             var row_class = o.rowClass + '_' + row_count.toString();
-            var $row = $('.' + row_class, $ph.parent());
+            $ph.parent().append($new_row);
             $new_row.addClass(row_class).addClass(o.rowClass);
-            $row.replaceWith($new_row);
         } else {
             // insert before i element and update all row numbers
             // if it is a blank row, replace the row
@@ -118,14 +119,12 @@
         //      throbber
         var self = this;
 
-        self.element.find('tbody').fadeOut('slow');
         if (typeof(moksha_csrf_token)!='undefined' && moksha_csrf_token)
             args['_csrf_token'] = moksha_csrf_token;
-        var xmlrequest = jQuery.getJSON(path, args, function (json) {
+        moksha.json_load(path, args, function (json) {
             callback(json);
-            self.element.find('tbody').fadeIn('slow');
 
-        });
+        }, this.$overlay_div);
 
     },
 
@@ -296,6 +295,24 @@
 
         return false;
       })
+
+      var $overlay = $('.overlay', self.element)
+      if ($overlay.length == 0) {
+          $overlay = $('<div />').addClass('overlay')
+          $overlay.css({'opacity': .75,
+                        'z-index': 99,
+                        'background-color': 'white',
+                        'position': 'absolute',
+                       }
+                      )
+
+          $overlay.append($('<div />').addClass('message'));
+          $overlay.hide();
+
+      }
+
+      self.element.parent().prepend($overlay);
+      self.$overlay_div = $overlay;
 
       self.request_data_refresh();
     },

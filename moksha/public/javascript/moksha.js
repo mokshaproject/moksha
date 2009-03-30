@@ -210,8 +210,58 @@ moksha = {
         return uri;
     },
 
+    json_load: function(path, params, callback, $overlay_div) {
+        moksha.ajax_load(path, params, callback, $overlay_div, 'json')
+    },
 
+    xml_load: function(path, params, callback, $overlay_div) {
+        moksha.ajax_load(path, params, callback, $overlay_div, 'xml')
+    },
 
+    html_load: function(path, params, callback, $overlay_div) {
+        moksha.ajax_load(path, params, callback, $overlay_div, 'html')
+    },
+
+    ajax_load: function(path, params, callback, $overlay_div, data_type) {
+       self = this;
+
+       var success = function(data, status) {
+         if (typeof($overlay_div) == 'object')
+             $overlay_div.hide();
+
+         callback(data);
+       }
+
+       var error = function(XMLHttpRequest, status, err) {
+         // TODO: provide a reload link in the overlay
+         if (typeof($overlay_div) == 'object') {
+             var $msg = $('.message', $overlay_div);
+             $msg.html(status);
+         }
+       }
+
+       // show loading
+       if (typeof($overlay_div) == 'object') {
+           var $msg = $('.message', $overlay_div);
+           // FIXME: make this globally configurable
+           $msg.html('<img src="/images/spinner.gif"></img>');
+
+           var $parent = $overlay_div.parent();
+           $overlay_div.css({'height': $parent.height(),
+                             'width': $parent.width()})
+           $overlay_div.show();
+       }
+
+       o = {
+            'url': path,
+            'data': params,
+            'success': success,
+            'error': error,
+            'dataType': data_type
+           }
+
+       $.ajax(o);
+    }
 }
 
 })();
