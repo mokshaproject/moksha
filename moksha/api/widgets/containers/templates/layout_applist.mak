@@ -4,7 +4,7 @@
                 % if app['label']:
             <h3>${app['label']}</h3>
             % endif
-
+            <div id="${app['id']}_overlay"><div class="message"></div></div>
             <div id="${app['id']}">
                         % if app.has_key('widget'):
                             ${app['widget'](**app['params'])}
@@ -14,18 +14,20 @@
                   % if not app.has_key('widget'):
                     <script type="text/javascript">
                           <!-- TODO: make this a JS widget -->
-                          var ajaxOptions = {
-                                url: moksha.csrf_rewrite_url("${app['url']}"),
-                                success: function(r, s) {
-                                    var $panel = $("#${app['id']}");
-                                    var $stripped = moksha.filter_resources(r);
-                                    $panel.html($stripped);
 
-                                },
-                                data: ${app['params']}
-                          };
+                          var success = function(r) {
+                              var $panel = $("#${app['id']}");
+                              var $stripped = moksha.filter_resources(r);
+                              $panel.html($stripped);
+                          }
 
-                          $(document).ready(function () {$.ajax(ajaxOptions)});
+                          $(document).ready(function () {
+                                                 moksha.html_load(moksha.csrf_rewrite_url("${app['url']}"),
+                                                                 ${app['params']},
+                                                                 success,
+                                                                 $('#${app["id"]}_overlay')
+                                                                 )
+                                            });
                     </script>
                   % endif
 

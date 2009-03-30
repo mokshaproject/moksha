@@ -211,15 +211,15 @@ moksha = {
     },
 
     json_load: function(path, params, callback, $overlay_div) {
-        moksha.ajax_load(path, params, callback, $overlay_div, 'json')
+       return moksha.ajax_load(path, params, callback, $overlay_div, 'json')
     },
 
     xml_load: function(path, params, callback, $overlay_div) {
-        moksha.ajax_load(path, params, callback, $overlay_div, 'xml')
+       return moksha.ajax_load(path, params, callback, $overlay_div, 'xml')
     },
 
     html_load: function(path, params, callback, $overlay_div) {
-        moksha.ajax_load(path, params, callback, $overlay_div, 'html')
+       return moksha.ajax_load(path, params, callback, $overlay_div, 'html')
     },
 
     ajax_load: function(path, params, callback, $overlay_div, data_type) {
@@ -260,7 +260,7 @@ moksha = {
             'dataType': data_type
            }
 
-       $.ajax(o);
+       return $.ajax(o);
     }
 }
 
