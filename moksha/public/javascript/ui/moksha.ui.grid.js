@@ -163,6 +163,11 @@
         self.refresh_data(event, search_criteria);
     },
 
+    goto_page: function(page) {
+        this.options.page_num = page;
+        this.request_data_refresh();
+    },
+
     request_update: function(search_criteria) {
         var self = this;
 
@@ -195,9 +200,28 @@
 
         var results = function(json) {
             self.clear();
+
             for (var i in json.rows) {
                 self.append_row(json.rows[i]);
             }
+
+            var tr = json.total_rows;
+            var vr = self.visible_row_count();
+            var sr = json.start_row;
+            var rpp = json.rows_per_page;
+
+            console.log(json);
+            var msg = '';
+            var pager = '';
+            if (vr < tr) {
+               msg = 'Viewing ' + vr.toString() + ' of ' + tr.toString();
+               msg += ' rows.';
+
+            }
+
+            $('.message', self.$pager_bottom_placeholder).html(msg);
+            var pager = self._generate_numerical_pager(tr, sr, rpp);
+            $('.pager', self.$pager_bottom_placeholder).html(pager);
         }
 
         var dispatch_data = {}
@@ -314,7 +338,77 @@
       self.element.parent().prepend($overlay);
       self.$overlay_div = $overlay;
 
+      var $pager_bottom_placeholder = $('<div></div>').addClass(o.pagerBottomClass);
+      $pager_bottom_placeholder.append($("<span />").addClass('message'));
+      $pager_bottom_placeholder.append($("<span></span>").addClass('pager'));
+      $pager_bottom_placeholder.insertAfter(self.element);
+      self.$pager_bottom_placeholder = $pager_bottom_placeholder;
+
       self.request_data_refresh();
+    },
+
+    _generate_numerical_pager: function (total_rows, start_row, rows_per_page) {
+        var self = this;
+        var o = self.options;
+        var total_pages = parseInt(total_rows / rows_per_page);
+        if (total_rows != total_pages * rows_per_page)
+            total_pages += 1;
+
+        var curr_page = parseInt((start_row + 0.5) / rows_per_page) + 1;
+
+        var next_page = curr_page + 1;
+
+        var pager = $('<span />');
+        var goto_page = function() {
+                    var page_jump = $(this).data('page.moksha_grid');
+                    self.goto_page(page_jump);
+                }
+
+        var show_prev = parseInt((o.pagerPageLimit + 0.5) / 2) + 1;
+        var show_next = o.pagerPageLimit - show_prev;
+        var num_next_left = total_pages - curr_page;
+        if (num_next_left < show_next)
+            show_prev += (show_next - num_next_left)
+
+        var page_list = [];
+        var i, j;
+        for (i = curr_page, j = 0; i > 0 && j < show_prev ; i--, j++) {
+            page_list.push(i);
+        }
+
+        page_list.reverse();
+        if (page_list.length < show_prev)
+            show_next += (show_prev - page_list.length)
+
+        for (i = curr_page + 1, j = 0; i <= total_pages && j < show_next ; i++, j++) {
+            page_list.push(i);
+        }
+
+        for (i in page_list) {
+            var page_num = page_list[i];
+            var page = page_num;
+            if (page != curr_page) {
+                page = $('<a href="javascript:void(0)"></a>').html(page_num);
+
+                page.data('page.moksha_grid', page_num);
+                page.click(goto_page);
+            }
+
+            pager.append(" ");
+            pager.append(page);
+            pager.append(" ");
+        }
+
+        if (curr_page < total_pages) {
+             var page = $('<a href="javascript:void(0)"></a>').html('Next');
+
+             page.data('page.moksha_grid', next_page);
+             page.click(goto_page);
+             pager.append(page);
+
+        }
+
+        return(pager);
     },
 
     _generate_table: function() {
@@ -385,6 +479,10 @@
                  resource_path: null,
                  blankRowClass: 'moksha-grid-blank-row',
                  rowClass: 'moksha-grid-row',
+                 moreClass: 'moksha-grid-more',
+                 pagerTopClass: 'moksha-grid-pager-top',
+                 pagerBottomClass: 'moksha-grid-pager-bottom',
+                 pagerPageLimit: 10,
                  loading_throbber: ["Loading",    // list of img urls or text
                                     "Loading.",
                                     "Loading..",
