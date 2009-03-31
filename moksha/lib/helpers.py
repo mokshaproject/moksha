@@ -674,3 +674,67 @@ def to_unicode(obj, encoding='utf-8'):
         if not isinstance(obj, unicode):
             obj = unicode(obj, encoding, 'replace')
     return obj
+
+class EnumDataObj(dict):
+    def __init__(self, code, data):
+        super(EnumDataObj, self).__init__(code=code, data=data)
+
+    def __getattribute__(self, name):
+        try:
+            return super(EnumDataObj, self).__getattribute__(name)
+        except AttributeError, e:
+            if name in self:
+                return self[name]
+
+            raise e
+
+    def replace_app_header(self, app, header_name):
+        from paste.response import replace_header
+        if app.headers:
+            headers = list(app.headers)
+        else:
+            headers = []
+
+        replace_header(headers, header_name, self.code)
+        app.headers = headers
+
+    def __repr__(self):
+        # act as if the user requested the code
+        return str(self['code'])
+
+class CategoryEnum(object):
+    def __init__(self, prefix, *data):
+        self._prefix = prefix
+        self._code_map = {}
+
+        for number, d in enumerate(data):
+            # we prefix the code so we can validate
+            code = '%s_%d' % (prefix, number)
+            dob = EnumDataObj(code, d[1])
+            setattr(self, d[0], dob)
+            setattr(self, code, dob)
+            self._code_map[code] = d[0]
+
+    def is_valid_class(self, code):
+        if code.beginswith(self._prefix + '_'):
+            return True
+
+        return False
+
+    def code_to_attr(self, code):
+        return self._code_map[code]
+
+    def attr_to_code(self, attr):
+        return self.__getattribute__(attr).code
+
+    def attr_to_data(self, attr):
+        return self.__getattribute__(attr).data
+
+    def get_code(self, attr):
+        return self.attr_to_code(attr)
+
+    def get_data(self, attr):
+        return self.attr_to_data(attr)
+
+    def __call__(self, code):
+        return self.get_data(code)
