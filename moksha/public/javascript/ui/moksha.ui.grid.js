@@ -220,7 +220,14 @@
             }
 
             $('.message', self.$pager_bottom_placeholder).html(msg);
-            var pager = self._generate_numerical_pager(tr, sr, rpp);
+
+            var pager;
+            if (o.more_link)
+                pager = self._generate_more_link(o.more_link,
+                                                 search_criteria.filters);
+            else
+                pager = self._generate_numerical_pager(tr, sr, rpp);
+
             $('.pager', self.$pager_bottom_placeholder).html(pager);
         }
 
@@ -345,6 +352,14 @@
       self.$pager_bottom_placeholder = $pager_bottom_placeholder;
 
       self.request_data_refresh();
+    },
+
+    _generate_more_link: function (more_link, filters) {
+        var go = moksha.csrf_rewrite_url(more_link);
+        var pager = $('<a>View more ></a>').attr('href',
+                                     'javascript:moksha.goto("' + go + '")');
+
+        return pager;
     },
 
     _generate_numerical_pager: function (total_rows, start_row, rows_per_page) {
@@ -483,6 +498,7 @@
                  pagerTopClass: 'moksha-grid-pager-top',
                  pagerBottomClass: 'moksha-grid-pager-bottom',
                  pagerPageLimit: 10,
+                 more_link: null,
                  loading_throbber: ["Loading",    // list of img urls or text
                                     "Loading.",
                                     "Loading..",
