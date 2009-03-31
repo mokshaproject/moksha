@@ -31,14 +31,16 @@ class MokshaGlobals(Widget):
 moksha_base_url = "${base_url}";
 moksha_csrf_token = "${csrf_token}";
 moksha_userid = "${user_id}";
+moksha_debug = ${debug};
 </script>
 """
-    params = ['base_url', 'csrf_token', 'user_id']
+    params = ['base_url', 'csrf_token', 'user_id', 'debug']
     engine_name = 'mako'
 
     base_url = '/'
     csrf_token = ''
     user_id = ''
+    debug = 'false'
 
     def __init__(self, *args, **kw):
         super(MokshaGlobals, self).__init__(*args, **kw)
@@ -46,6 +48,10 @@ moksha_userid = "${user_id}";
 
     def update_params(self, d):
         super(MokshaGlobals, self).update_params(d)
+
+        if pylons.config.get('debug'):
+            d['debug'] = 'true'
+
         d['base_url'] = tg.url('/')
         identity = pylons.request.environ.get('repoze.who.identity')
 

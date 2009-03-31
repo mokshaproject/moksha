@@ -236,7 +236,10 @@ moksha = {
          // TODO: provide a reload link in the overlay
          if (typeof($overlay_div) == 'object') {
              var $msg = $('.message', $overlay_div);
-             $msg.html(status);
+             if (moksha_debug)
+               console.log(err);
+
+             $msg.html(error);
          }
        }
 
