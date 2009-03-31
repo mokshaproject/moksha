@@ -213,11 +213,15 @@
             console.log(json);
             var msg = '';
             var pager = '';
-            if (vr < tr) {
-               msg = 'Viewing ' + vr.toString() + ' of ' + tr.toString();
-               msg += ' rows.';
 
-            }
+            var show_range = vr.toString();
+            // show an actual range if we are not starting from 0
+            if (sr > 0)
+                show_range = sr.toString() + '-' + (sr + vr).toString();
+
+
+            msg = 'Viewing ' + show_range + ' of ' + tr.toString();
+            msg += ' items.';
 
             $('.message', self.$pager_bottom_placeholder).html(msg);
 
