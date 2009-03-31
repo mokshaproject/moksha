@@ -45,7 +45,8 @@ def _update_params(params, d):
                 # FIXME: This should be recursive
                 value = json.dumps(value)
 
-            p[k] = value
+            if value != None:
+                p[k] = value
 
     return p
 
