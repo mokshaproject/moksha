@@ -6,6 +6,10 @@
       var self = this;
       var o = self.options;
 
+      if (typeof(o.filters != 'object')) {
+          self.options.filters = $.secureEvalJSON(o.filters);
+      }
+
       // add placeholder for row appends
       self.$rowplaceholder = jQuery('<span />').addClass('moksha_rowplaceholder');
       self.$rowplaceholder.hide();
@@ -168,6 +172,19 @@
         this.request_data_refresh();
     },
 
+    goto_alpha_page: function(prefix) {
+        if (typeof(prefix) == 'undefined')
+            prefix = '';
+
+        if (typeof(this.options.filters) != 'object')
+            this.options.filters = {}
+
+        this.options.filters.prefix = prefix;
+        this.options.page_num = 1;
+
+        this.request_data_refresh();
+    },
+
     request_update: function(search_criteria) {
         var self = this;
 
@@ -233,6 +250,11 @@
                 pager = self._generate_numerical_pager(tr, sr, rpp);
 
             $('.pager', self.$pager_bottom_placeholder).html(pager);
+
+            if (o.alphaPager) {
+                pager = self._generate_alpha_pager();
+                $('.pager', self.$pager_top_placeholder).html(pager);
+            }
         }
 
         var dispatch_data = {}
@@ -349,6 +371,11 @@
       self.element.parent().prepend($overlay);
       self.$overlay_div = $overlay;
 
+      var $pager_top_placeholder = $('<div></div>').addClass(o.pagerTopClass);
+      $pager_top_placeholder.append($("<span></span>").addClass('pager'));
+      $pager_top_placeholder.insertBefore(self.element);
+      self.$pager_top_placeholder = $pager_top_placeholder;
+
       var $pager_bottom_placeholder = $('<div></div>').addClass(o.pagerBottomClass);
       $pager_bottom_placeholder.append($("<span />").addClass('message'));
       $pager_bottom_placeholder.append($("<span></span>").addClass('pager'));
@@ -362,6 +389,49 @@
         var go = moksha.csrf_rewrite_url(more_link);
         var pager = $('<a>View more ></a>').attr('href',
                                      'javascript:moksha.goto("' + go + '")');
+
+        return pager;
+    },
+
+    _generate_alpha_pager: function () {
+        var self = this;
+        var o = self.options;
+        var curr_alpha = o.filters.prefix;
+        if (typeof(curr_alpha) == 'undefined')
+            current_alpha = '';
+
+        var pager = $('<span />');
+        var goto_page = function() {
+                    var page_jump = $(this).data('alpha_page.moksha_grid');
+                    self.goto_alpha_page(page_jump);
+                }
+
+        var alph = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        for (i in alph) {
+            var a = alph[i];
+
+            var page = a;
+            if (a!=curr_alpha) {
+                page = $('<a href="javascript:void(0)"></a>').html(a);
+
+                page.data('alpha_page.moksha_grid', a);
+                page.click(goto_page);
+            }
+
+            pager.append(" ");
+            pager.append(page);
+            pager.append(" ");
+        }
+
+        var page = 'All'
+        if (curr_alpha != '') {
+           page = $('<a href="javascript:void(0)"></a>').html('All');
+
+           page.data('alpha_page.moksha_grid', '');
+           page.click(goto_page);
+        }
+
+        pager.append(page);
 
         return pager;
     },
@@ -502,6 +572,7 @@
                  pagerTopClass: 'moksha-grid-pager-top',
                  pagerBottomClass: 'moksha-grid-pager-bottom',
                  pagerPageLimit: 10,
+                 alphaPager: false,
                  more_link: null,
                  loading_throbber: ["Loading",    // list of img urls or text
                                     "Loading.",

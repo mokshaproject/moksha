@@ -21,7 +21,7 @@ class Grid(FormField):
     params= ['rows_per_page', 'page_num', 'total_rows',
             'filters', 'unique_key', 'sort_key', 'sort_order',
             'row_template', 'resource', 'resource_path',
-            'loading_throbber', 'uid', 'more_link']
+            'loading_throbber', 'uid', 'more_link', 'alphaPager']
     hidden = True # hide from the moksha main menu
 
     rows_per_page = 10
@@ -36,6 +36,7 @@ class Grid(FormField):
     resource_path = None
     loading_throbber = None
     more_link = None
+    alphaPager = False
 
     def update_params(self, d):
         super(Grid, self).update_params(d)
