@@ -406,7 +406,7 @@
         if (typeof(curr_alpha) == 'undefined')
             current_alpha = '';
 
-        var pager = $('<span />');
+        var pager = $('<ul />');
         var goto_page = function() {
                     var page_jump = $(this).data('alpha_page.moksha_grid');
                     self.goto_alpha_page(page_jump);
@@ -416,25 +416,28 @@
         for (i in alph) {
             var a = alph[i];
 
-            var page = a;
+            var page = $('<li />').html(a).addClass('page-button').addClass('current-button');
             if (a!=curr_alpha) {
-                page = $('<a href="javascript:void(0)"></a>').html(a);
+                page.removeClass('current-button');
 
-                page.data('alpha_page.moksha_grid', a);
-                page.click(goto_page);
+                var page_link = $('<a href="javascript:void(0)"></a>').html(a);
+                page_link.data('alpha_page.moksha_grid', a);
+                page_link.click(goto_page);
+
+                page.html(page_link);
             }
 
-            pager.append(" ");
             pager.append(page);
-            pager.append(" ");
         }
 
-        var page = 'All'
+        var page = $('<li>All</li>').addClass('page-button').addClass('current-button');
         if (curr_alpha != '') {
-           page = $('<a href="javascript:void(0)"></a>').html('All');
+           var page_link = $('<a href="javascript:void(0)"></a>').html('All');
 
-           page.data('alpha_page.moksha_grid', '');
-           page.click(goto_page);
+           page_link.data('alpha_page.moksha_grid', '');
+           page_link.click(goto_page);
+
+           page.html(page_link);
         }
 
         pager.append(page);
