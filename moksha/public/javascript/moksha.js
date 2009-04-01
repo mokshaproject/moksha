@@ -239,7 +239,7 @@ moksha = {
              if (moksha_debug)
                console.log(err);
 
-             $msg.html(error);
+             $msg.html('Error loading the data for this page element');
          }
        }
 
