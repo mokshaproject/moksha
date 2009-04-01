@@ -7,7 +7,13 @@
       var o = self.options;
 
       if (typeof(o.filters != 'object')) {
-          self.options.filters = $.secureEvalJSON(o.filters);
+          try {
+            self.options.filters = $.secureEvalJSON(o.filters);
+          } catch(e) {
+            self.options.filters = {};
+            if (moksha_debug)
+                console.log(e);
+          }
       }
 
       // add placeholder for row appends
@@ -372,13 +378,13 @@
       self.$overlay_div = $overlay;
 
       var $pager_top_placeholder = $('<div></div>').addClass(o.pagerTopClass);
-      $pager_top_placeholder.append($("<span></span>").addClass('pager'));
+      $pager_top_placeholder.append($("<div></div>").addClass('pager'));
       $pager_top_placeholder.insertBefore(self.element);
       self.$pager_top_placeholder = $pager_top_placeholder;
 
       var $pager_bottom_placeholder = $('<div></div>').addClass(o.pagerBottomClass);
-      $pager_bottom_placeholder.append($("<span />").addClass('message'));
-      $pager_bottom_placeholder.append($("<span></span>").addClass('pager'));
+      $pager_bottom_placeholder.append($("<div />").addClass('message'));
+      $pager_bottom_placeholder.append($("<div></div>").addClass('pager'));
       $pager_bottom_placeholder.insertAfter(self.element);
       self.$pager_bottom_placeholder = $pager_bottom_placeholder;
 
@@ -447,7 +453,7 @@
 
         var next_page = curr_page + 1;
 
-        var pager = $('<span />');
+        var pager = $('<ul />');
         var goto_page = function() {
                     var page_jump = $(this).data('page.moksha_grid');
                     self.goto_page(page_jump);
@@ -475,27 +481,31 @@
 
         for (i in page_list) {
             var page_num = page_list[i];
-            var page = page_num;
-            if (page != curr_page) {
-                page = $('<a href="javascript:void(0)"></a>').html(page_num);
+            var page = $('<li></li>').html(page_num).addClass('page-button').addClass('current-page');
+            if (page_num != curr_page) {
+                page.removeClass('current-page');
+                var page_link = $('<a href="javascript:void(0)"></a>').html(page_num);
 
-                page.data('page.moksha_grid', page_num);
-                page.click(goto_page);
+                page_link.data('page.moksha_grid', page_num);
+                page_link.click(goto_page);
+
+                page.html(page_link);
             }
 
-            pager.append(" ");
             pager.append(page);
-            pager.append(" ");
         }
+
+        var page = $("<li>Next</li>").addClass('page-button').addClass('next-page');
 
         if (curr_page < total_pages) {
-             var page = $('<a href="javascript:void(0)"></a>').html('Next');
+             var page_link = $('<a href="javascript:void(0)"></a>').html('Next');
 
-             page.data('page.moksha_grid', next_page);
-             page.click(goto_page);
-             pager.append(page);
-
+             page_link.data('page.moksha_grid', next_page);
+             page_link.click(goto_page);
+             page.html(page_link);
         }
+
+        pager.append(page);
 
         return(pager);
     },
