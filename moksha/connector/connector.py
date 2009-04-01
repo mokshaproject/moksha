@@ -179,7 +179,7 @@ class IQuery(object):
         start_row = 0,
         rows_per_page = 10,
         sort_col = None,
-        sort_order = -1,
+        sort_order = None,
         filters = {}):
 
         """ Implement this method if the resource provides a query interface.
@@ -241,6 +241,9 @@ class IQuery(object):
         if not sort_col:
             sort_col = self.get_default_sort_col(resource_path)
 
+        if not sort_order:
+            sort_order = self.get_default_sort_order(resource_path)
+
         if params == None:
             params = {}
 
@@ -292,6 +295,13 @@ class IQuery(object):
 
     def get_capabilities(self):
         return self._paths
+
+    def get_default_sort_order(self, path):
+        p = self._paths.get(path)
+        if p:
+            return p['default_sort_order']
+
+        return None
 
     def get_default_sort_col(self, path):
         p = self._paths.get(path)
