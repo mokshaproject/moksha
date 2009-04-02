@@ -22,10 +22,12 @@ import simplejson as json
 import urllib
 
 from webob import Request, Response
-from pylons import config, request
+from pylons import config
 from pylons.i18n import ugettext
 
 from moksha.exc import ApplicationNotFound, MokshaException
+from pprint import pformat
+
 
 log = logging.getLogger(__name__)
 
@@ -103,13 +105,25 @@ class MokshaConnectorMiddleware(object):
         path = '/'.join(path)
         conn = self._connectors.get(conn)
 
+        # pretty print output
+        pretty_print = False
+
+        if '_pp' in remote_params:
+            del remote_params['_pp']
+            pretty_print = True
+
         if conn:
             conn_obj = conn['connector_class'](environ, request)
             r = conn_obj._dispatch(op, path, remote_params, **dispatch_params)
-            if not isinstance(r, basestring):
+
+            if pretty_print:
+                r = '<pre>' + pformat(r) + '</pre>'
+            elif not isinstance(r, basestring):
                 r = json.dumps(r, separators=(',',':'))
+
             if isinstance(r, unicode):
                 r = r.encode('utf-8', 'replace')
+
             response = Response(r)
         else:
             response = Response(status='404 Not Found')
@@ -131,8 +145,11 @@ class MokshaConnectorMiddleware(object):
                     'path': conn_path,
                     }
 
-def _get_connector(name):
+def _get_connector(name, request=None):
     # TODO: having a connection pool might be nice
     c = MokshaConnectorMiddleware._connectors[name]
+
+    if not request:
+        from pylons import request
 
     return c['connector_class'](request.environ, request)

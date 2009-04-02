@@ -11,8 +11,7 @@
             self.options.filters = $.secureEvalJSON(o.filters);
           } catch(e) {
             self.options.filters = {};
-            if (moksha_debug)
-                console.log(e);
+            moksha.error(e);
           }
       }
 

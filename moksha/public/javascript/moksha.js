@@ -264,6 +264,21 @@ moksha = {
            }
 
        return $.ajax(o);
+    },
+
+    debug: function(msg) {
+      if (typeof(moksha_debug) != 'undefined' && moksha_debug) {
+          // TODO: make this configurable (or perhaps just overriding this
+          //       method is enough
+
+          console.log(msg);
+      }
+    },
+
+    error: function(msg) {
+         // TODO: Make this do something to indicate it is different from a
+         //       warning or info message
+         moksha.debug(msg);
     }
 }
 
