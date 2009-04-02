@@ -320,7 +320,9 @@ class MokshaApp(App):
         if not moksha.apps.has_key(self.app):
             return MokshaWidget(self.label, 'placeholder',
                                 self.content_id,
-                                {'appname':self.app}, self.auth).process(d)
+                                {'appname':self.app},
+                                self.auth,
+                                self.css_class).process(d)
         else:
             results = super(MokshaApp, self).process(d)
             return results
