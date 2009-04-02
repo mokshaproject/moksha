@@ -4,9 +4,9 @@ class Placeholder(Widget):
     engine_name = 'mako'
     hidden = True
     template = """
-<div class='placeholder'>
+<p class='placeholder'>
     Moksha application <strong>${appname}</strong> is not registered yet.  This is a placeholder
     for testing purposes.  When the app is registered it will appear in the
     layout once the server is restarted.
-</div>
+</p>
 """
