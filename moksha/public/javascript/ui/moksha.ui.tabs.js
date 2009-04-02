@@ -59,7 +59,7 @@ $.widget("ui.mokshatabs", {
     },
     tabify: function(init) {
 
-        this.$lis = $('ul li:has(a[href])', this.element);
+        this.$lis = $('ul li:has(>a[href])', this.element);
         this.$tabs = this.$lis.map(function() { return $('a', this)[0]; });
         this.$panels = $([]);
 
@@ -179,7 +179,8 @@ $.widget("ui.mokshatabs", {
             this.$lis.removeClass(o.selectedClass);
             if (o.selected !== null) {
 
-                this.$panels.eq(o.selected).show().removeClass(o.hideClass); // use show and remove class to show in any case no matter how it has been hidden before
+
+                var p = this.$panels.eq(o.selected).show().removeClass(o.hideClass); // use show and remove class to show in any case no matter how it has been hidden before
                 this.$lis.eq(o.selected).addClass(o.selectedClass);
 
                 // seems to be expected behavior that the show callback is fired
@@ -504,6 +505,7 @@ $.widget("ui.mokshatabs", {
         if (this.options.passPathRemainder && hash.length > remainder)
             this.path_remainder = '/' + hash.splice(level + offset + 1).join('/');
 
+        moksha.info('moksha.ui.tabs.js (hashToIndex): Selecting element ' + level + '(' + id + ') from hash "' + hash + '"');
         return this.idToIndex(id);
     },
     idToIndex: function(id) {

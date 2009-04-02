@@ -279,6 +279,12 @@ moksha = {
          // TODO: Make this do something to indicate it is different from a
          //       warning or info message
          moksha.debug(msg);
+    },
+
+    info: function(msg) {
+         // TODO: Make this do something to indicate it is different from a
+         //       warning or error message
+         moksha.debug(msg);
     }
 }
 
