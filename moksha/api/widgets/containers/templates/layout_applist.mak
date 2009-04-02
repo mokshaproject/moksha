@@ -1,6 +1,6 @@
   <div id="${category['id']}" class="ui-sortable ${category['css_class']}">
       % for app in category['apps']:
-              <span class="sort ${app['css_class']}">
+              <div class="app ${app['css_class']}">
                 % if app['label']:
             <h3>${app['label']}</h3>
             % endif
@@ -31,6 +31,6 @@
                     </script>
                   % endif
 
-         </span>
+         </div>
       % endfor
     </div>
