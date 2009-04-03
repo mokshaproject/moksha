@@ -118,14 +118,10 @@
         $rows[i].replaceWith('');
 
         //FIXME: We need to relabel rows if this is not the
-        //       end of the rows and if it is we need to add a
-        //       blank row
+        //       end of the rows
     },
 
     get_json:  function(path, args, callback) {
-        //TODO: implement a json loading method
-        //      which starts and stops a loading
-        //      throbber
         var self = this;
 
         if (typeof(moksha_csrf_token)!='undefined' && moksha_csrf_token)

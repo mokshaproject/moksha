@@ -72,6 +72,16 @@ class ConfigWrapper(object):
         super(ConfigWrapper, self).__init__()
         self.uuid = 'uuid' + str(uuid.uuid4())
 
+    def _update_nested_dicts(self, dest, source):
+        """Recursive helper which updates nested dicts"""
+
+        for key, value in source.iteritems():
+             if key in dest:
+                if isinstance(dest[key], dict):
+                    self._update_nested_dicts(dest[key], value)
+                else:
+                    dest[key] = value
+
     @staticmethod
     def _validate_predicates(predicates):
         if not isinstance(predicates, (list, tuple)):
@@ -223,13 +233,31 @@ class App(ConfigWrapper):
 
         self._validate_predicates(self.auth)
 
-
         if isinstance(css_class, list) or isinstance(css_class, tuple):
             css_class = ' '.join(css_class)
         self.css_class = css_class
 
         if self.label and not self.content_id:
             self.content_id = scrub_filter.sub('_', self.label.lower())
+
+    def clone(self, update_params={}, auth=None, content_id=None):
+        params = {}
+        params.update(self.params)
+
+        self._update_nested_dicts(params, update_params)
+
+        if auth == None:
+            auth = self.auth;
+
+        if content_id == None:
+            content_id == self.content_id
+
+        return App(label=self.label,
+                   url=self.url,
+                   params=params,
+                   auth=auth,
+                   content_id=content_id,
+                   css_class=self.css_class)
 
     def set_default_css(self, css):
         """ If we already have css defined ignore, otherwise set our css_class
@@ -240,12 +268,14 @@ class App(ConfigWrapper):
     def _create_query_string(self, params):
         qlist = []
         for k, i in params.iteritems():
-            qlist.append("%s=%s" % (k, str(i)))
+            s = str(i)
+            s = urllib.quote_plus(s)
+
+            qlist.append("%s=%s" % (k, s))
 
         result = ""
         if qlist:
             result = '?' + '&'.join(qlist)
-
         return result
 
     def process(self, d=None):
@@ -378,6 +408,24 @@ class Widget(ConfigWrapper):
 
         if self.label and not content_id:
             self.content_id = scrub_filter.sub('_', self.label.lower())
+
+    def clone(self, update_params={}, auth=None, content_id=None):
+        params = {}
+        params.update(self.params)
+        self._update_nested_dicts(params, update_params)
+
+        if auth == None:
+            auth = self.auth;
+
+        if content_id == None:
+            content_id = self.content_id
+
+        return Widget(label=self.label,
+                   widget=self.widget,
+                   params=params,
+                   auth=auth,
+                   content_id=content_id,
+                   css_class=self.css_class)
 
     def set_default_css(self, css):
         """ If we already have css defined ignore, otherwise set our css_class

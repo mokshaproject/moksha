@@ -513,8 +513,8 @@ $.widget("ui.mokshatabs", {
         var l = id.length;
         for(var i=0; i < this.$tabs.length; i++) {
             var h = $(this.$tabs[i]).attr('href');
-            // FIXME: you can't have two tabs where one is a substring of another
-            if (h.substr(0, l) == id) {
+            h = h.split('-uuid')[0]
+            if (h == id) {
                 index = i;
                 break;
             }

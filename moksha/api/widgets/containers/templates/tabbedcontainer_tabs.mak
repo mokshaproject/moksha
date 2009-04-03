@@ -5,7 +5,7 @@
   % for t in tabgroup:
     <li>
     % if t['type'] == 'Category':
-        <H3>${t['label']}</H3>
+        <H4>${t['label']}</H4>
         ${display_tabs(t['apps'])}
     % else:
         <a href="${t['url']}${t['query_string']}" title="${t['content_id']}">

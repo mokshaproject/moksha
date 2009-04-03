@@ -76,6 +76,7 @@ class TabbedContainer(FormField):
         # Filter out any None's in the list which signify apps which are
         # not allowed to run with the current session's authorization level
         tabs = ConfigWrapper.process_wrappers(tabs, d)
+
         d['tabs'] = tabs
         d['tabwidget'] = tabwidget
         d['panewidget'] = panewidget
