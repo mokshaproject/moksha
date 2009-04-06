@@ -387,7 +387,7 @@
     },
 
     _generate_more_link: function (more_link, filters) {
-        var go = moksha.csrf_rewrite_url(more_link);
+        var go = moksha.csrf_rewrite_url(more_link, filters);
         var pager = $('<a>View more ></a>').attr('href',
                                      'javascript:moksha.goto("' + go + '")');
 
