@@ -19,6 +19,7 @@ if (!(typeof(moksha) === 'undefined'))
     return;
 
 var _moksha_page_scripts_cache = {};
+var _moksha_page_links_cache = {};
 
 var _moksha_init = false;
 // preload cache
@@ -26,6 +27,7 @@ var _moksha_init = false;
 $(document).ready(function(){
   _moksha_init = true;
   var $s = $('script[src]');
+  var $l = $('link[href]');
 
   $.each($s, function(i, a) {
                 var $a = $(a);
@@ -38,6 +40,16 @@ $(document).ready(function(){
              }
          );
 
+  $.each($l, function(i, a) {
+                var $a = $(a);
+                var href = $a.attr('href');
+                // for right now just compare exact source values
+                // later we will want to be a bit smarter
+                if(!_moksha_page_links_cache[href]) {
+                    _moksha_page_links_cache[href] = true;
+                }
+             }
+         );
 });
 
 moksha = {
@@ -75,6 +87,37 @@ moksha = {
     },
 
     /******************************************************************
+     * Filter the link tags in a fragment of HTML or jQuery DOM
+     * so that they aren't double loaded.
+     ******************************************************************/
+    filter_links: function(fragment) {
+        // don't append to a tag, doing so will cause scripts to load
+        if (!fragment.jquery)
+            fragment = $(fragment);
+
+        var $stripped = [];
+        $.each(fragment, function(i, s) {
+            var $s = $(s)
+            if ($s.is('link[href]')){
+                var href = $s.attr('href');
+                //strip query string
+                href = href.split('?')[0];
+
+                if(!_moksha_page_links_cache[href]) {
+                    // we can add more attributes later
+                    // right now just set to true
+                    _moksha_page_links_cache[href] = true;
+                    $stripped.push(s);
+                }
+            } else {
+                $stripped.push(s);
+            }
+        });
+
+        return $stripped;
+    },
+
+    /******************************************************************
      * Filter resources in a fragment of HTML or jQuery DOM
      * so that they aren't double loaded.  Right now this is only
      * scripts but could be expanded to css and other loaded
@@ -87,7 +130,7 @@ moksha = {
             fragment = $(fragment);
 
         var $f = moksha.filter_scripts(fragment);
-
+        $f = moksha.filter_links($f);
         return $f;
     },
 
