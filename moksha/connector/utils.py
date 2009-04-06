@@ -16,9 +16,10 @@
 # Copyright 2009, Red Hat, Inc.
 # Authors: John (J5) Palmieri <johnp@redhat.com>
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from UserDict import DictMixin
 
+import time
 import bisect
 
 class DateTimeDisplay(object):
@@ -34,9 +35,8 @@ class DateTimeDisplay(object):
             if isinstance(dt, datetime):
                 insert_dt = dt
             elif isinstance(dt, basestring):
-
-                insert_dt = datetime.strptime(dt.rsplit('.', 1)[0],
-                                              '%Y-%m-%d %H:%M:%S')
+                insert_dt = datetime(*time.strptime(dt.rsplit('.', 1)[0],
+                                                    '%Y-%m-%d %H:%M:%S')[:-2])
 
             bisect.insort(self._datetime_ordered_list, insert_dt)
 
