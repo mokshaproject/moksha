@@ -228,7 +228,6 @@
             var sr = json.start_row;
             var rpp = json.rows_per_page;
 
-            console.log(json);
             var msg = '';
             var pager = '';
 

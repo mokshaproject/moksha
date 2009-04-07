@@ -279,8 +279,7 @@ moksha = {
          // TODO: provide a reload link in the overlay
          if (typeof($overlay_div) == 'object') {
              var $msg = $('.message', $overlay_div);
-             if (moksha_debug)
-               console.log(err);
+             moksha.error(err);
 
              $msg.html('Error loading the data for this page element');
          }
