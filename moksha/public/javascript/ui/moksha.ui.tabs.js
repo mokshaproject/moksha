@@ -298,10 +298,17 @@ $.widget("ui.mokshatabs", {
               hash = hash.split('/');
               hash[o.container_level] = href.substr(1);
 
-              hash = '#' + hash.splice(0, o.container_level + 1).join('/');
-              location.hash = hash;
+              hash = hash.splice(0, o.container_level + 1).join('/');
+
+              if (o.staticLoadOnClick)
+                  moksha.goto(hash);
+              else
+                  location.hash = '#' + hash;
             } else {
-              location.hash = href;
+              if (o.staticLoadOnClick)
+                  moksha.goto(href.substr(1));
+              else
+                  location.hash = href;
             }
 
             // if tab may be closed
@@ -638,6 +645,8 @@ $.ui.mokshatabs.defaults = {
     event: 'click',
     disabled: [],
     cookie: null, // e.g. { expires: 7, path: '/', domain: 'jquery.com', secure: true }
+    staticLoadOnClick: false,
+
     // TODO history: false,
 
     // Ajax
@@ -649,6 +658,8 @@ $.ui.mokshatabs.defaults = {
 
     // animations
     fx: null, // e.g. { height: 'toggle', opacity: 'toggle', duration: 200 }
+
+
 
     // templates
     tabTemplate: '<li><a href="#{href}"><span>#{label}</span></a></li>',

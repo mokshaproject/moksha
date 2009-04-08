@@ -50,10 +50,10 @@ class TabbedContainer(FormField):
     tabs = ()
     javascript = [moksha_ui_tabs_js
                  ]
-    params = ["tabdefault", "passPathRemainder"]
+    params = ["tabdefault", "staticLoadOnClick"]
     tabdefault__doc="0-based index of the tab to be selected on page load"
     tabdefault=0
-    passPathRemainder=False
+    staticLoadOnClick=False
 #    include_dynamic_js_calls = True #????
     def update_params(self, d):
         super(TabbedContainer, self).update_params(d)
@@ -62,7 +62,7 @@ class TabbedContainer(FormField):
 
         o = {
              'tabdefault': d.get('tabdefault', 0),
-             'passPathRemainder': d.get('passPathRemainder', False)
+             'staticLoadOnClick': d.get('staticLoadOnClick', False)
             }
         self.add_call(jQuery("#%s" % d.id).mokshatabs(o))
 
