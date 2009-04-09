@@ -250,10 +250,12 @@
                 pager = self._generate_numerical_pager(tr, sr, rpp);
 
             $('.pager', self.$pager_bottom_placeholder).html(pager);
+            self.$pager_bottom_placeholder.show();
 
             if (o.alphaPager) {
                 pager = self._generate_alpha_pager();
                 $('.pager', self.$pager_top_placeholder).html(pager);
+                $pager_top_placeholder.show();
             }
         }
 
@@ -371,12 +373,12 @@
       self.element.parent().prepend($overlay);
       self.$overlay_div = $overlay;
 
-      var $pager_top_placeholder = $('<div></div>').addClass(o.pagerTopClass);
+      var $pager_top_placeholder = $('<div></div>').addClass(o.pagerTopClass).hide();
       $pager_top_placeholder.append($("<div></div>").addClass('pager'));
       $pager_top_placeholder.insertBefore(self.element);
       self.$pager_top_placeholder = $pager_top_placeholder;
 
-      var $pager_bottom_placeholder = $('<div></div>').addClass(o.pagerBottomClass);
+      var $pager_bottom_placeholder = $('<div></div>').addClass(o.pagerBottomClass).hide();
       $pager_bottom_placeholder.append($("<div />").addClass('message'));
       $pager_bottom_placeholder.append($("<div></div>").addClass('pager'));
       $pager_bottom_placeholder.insertAfter(self.element);
