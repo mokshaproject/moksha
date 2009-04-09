@@ -103,6 +103,9 @@
         }
 
         $new_row.show();
+
+        // run any included extension points
+        moksha.extensions.grep_extensions($new_row);
     },
 
     append_row: function(row_data) {

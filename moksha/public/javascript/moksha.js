@@ -268,11 +268,33 @@ moksha = {
     ajax_load: function(path, params, callback, $overlay_div, data_type) {
        self = this;
 
+       var profile_start_time = 0;
+       if (typeof(moksha_profile)!='undefined' && moksha_profile) {
+           var date = new Date()
+           profile_start_time = date.getTime();
+       }
        var success = function(data, status) {
+         var profile_callback_start_time = 0;
+
+         if (profile_start_time) {
+            var date = new Date();
+            profile_callback_start_time = date.getTime();
+         }
+
          if (typeof($overlay_div) == 'object')
              $overlay_div.hide();
 
          callback(data);
+
+         if (profile_start_time) {
+            var date = new Date();
+            var profile_end_time = date.getTime();
+            var time_for_load = profile_callback_start_time - profile_start_time;
+            var time_for_callback = profile_end_time - profile_callback_start_time;
+            var total_time = profile_end_time - profile_start_time;
+
+            moksha.info('loading "' + path + '" took ' + total_time + 'ms. (Load time: ' + time_for_load + 'ms, Processing time: ' + time_for_callback + 'ms)');
+         }
        }
 
        var error = function(XMLHttpRequest, status, err) {
@@ -327,6 +349,22 @@ moksha = {
          // TODO: Make this do something to indicate it is different from a
          //       warning or error message
          moksha.debug(msg);
+    },
+
+    shallow_clone: function(obj) {
+        var i;
+        for (i in obj) {
+            this[i] = obj[i];
+        }
+    },
+
+    get_base_url: function(obj) {
+        var burl = '/';
+
+        if (typeof(moksha_base_url != 'undefined'))
+            burl = moksha_base_url;
+
+        return burl;
     }
 }
 

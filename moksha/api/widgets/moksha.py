@@ -24,23 +24,27 @@ import pylons
 
 moksha_js = JSLink(modname="moksha", filename='public/javascript/moksha.js',
                    javascript=[jquery_js])
+moksha_extension_points_js = JSLink(modname="moksha", filename='public/javascript/moksha.extensions.js',
+                   javascript=[moksha_js])
 
 class MokshaGlobals(Widget):
-    javascript = [moksha_js]
+    javascript = [moksha_js, moksha_extension_points_js]
     template = """<script type="text/javascript">
 moksha_base_url = "${base_url}";
 moksha_csrf_token = "${csrf_token}";
 moksha_userid = "${user_id}";
 moksha_debug = ${debug};
+moksha_profile = ${profile};
 </script>
 """
-    params = ['base_url', 'csrf_token', 'user_id', 'debug']
+    params = ['base_url', 'csrf_token', 'user_id', 'debug', 'profile']
     engine_name = 'mako'
 
     base_url = '/'
     csrf_token = ''
     user_id = ''
     debug = 'false'
+    profile = 'false'
 
     def __init__(self, *args, **kw):
         super(MokshaGlobals, self).__init__(*args, **kw)
@@ -51,6 +55,9 @@ moksha_debug = ${debug};
 
         if pylons.config.get('debug'):
             d['debug'] = 'true'
+
+        if pylons.config['global_conf'].get('profile'):
+            d['profile'] = 'true'
 
         d['base_url'] = tg.url('/')
         identity = pylons.request.environ.get('repoze.who.identity')

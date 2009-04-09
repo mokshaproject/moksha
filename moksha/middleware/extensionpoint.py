@@ -199,17 +199,17 @@ class MokshaExtensionPointMiddleware(object):
                 extensions_data = self.__extension_cache.get(exttype, "")
                 extensions_str = ','.join(extensions_data)
 
-                script = 'var mf_loaded_extensions ='
+                script = 'var moksha_loaded_extensions ='
                 script += extensions_data
                 script += ';'
                 # now run the deferred extensions queued up while the scripts
                 # were being downloaded
 
-                script += 'myfedora.extensions._extension_cache["' + exttype +'"] = mf_loaded_extensions;'
-                script += 'var deferred=myfedora.extensions._extension_deferred["' + exttype +'"];'
+                script += 'moksha.extensions._extension_cache["' + exttype +'"] = moksha_loaded_extensions;'
+                script += 'var deferred=moksha.extensions._extension_deferred["' + exttype +'"];'
                 script += 'var d=deferred.shift();'
                 script += 'while(d){'
-                script +=   'myfedora.extensions.run_extensions(mf_loaded_extensions, d);'
+                script +=   'moksha.extensions.run_extensions(moksha_loaded_extensions, d);'
                 script +=   'd = deferred.shift();'
                 script += '}'
 
