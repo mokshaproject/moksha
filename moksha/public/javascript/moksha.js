@@ -345,6 +345,10 @@ moksha = {
          moksha.debug(msg);
     },
 
+    log: function(msg) {
+         moksha.debug(msg);
+    },
+
     info: function(msg) {
          // TODO: Make this do something to indicate it is different from a
          //       warning or error message
