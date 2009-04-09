@@ -255,7 +255,7 @@
             if (o.alphaPager) {
                 pager = self._generate_alpha_pager();
                 $('.pager', self.$pager_top_placeholder).html(pager);
-                $pager_top_placeholder.show();
+                self.$pager_top_placeholder.show();
             }
         }
 
