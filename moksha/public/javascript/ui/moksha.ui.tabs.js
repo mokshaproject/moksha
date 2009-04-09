@@ -299,15 +299,19 @@ $.widget("ui.mokshatabs", {
 
               hash = hash.splice(0, o.container_level + 1).join('/');
 
-              if (o.staticLoadOnClick)
+              if (o.staticLoadOnClick) {
                   moksha.goto(hash);
-              else
+                  return;
+              } else {
                   location.hash = '#' + hash;
+              }
             } else {
-              if (o.staticLoadOnClick)
+              if (o.staticLoadOnClick) {
                   moksha.goto(href.substr(1));
-              else
+                  return;
+              } else {
                   location.hash = href;
+              }
             }
 
             // if tab may be closed
