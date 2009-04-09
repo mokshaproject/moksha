@@ -68,29 +68,6 @@ $.widget("ui.mokshatabs", {
 
         self.path_remainder = '';
 
-        var $overlay = $('.overlay', self.element)
-        if ($overlay.length == 0) {
-            $overlay = $('<div />').addClass('overlay')
-            $overlay.css({'opacity': .75,
-                        'z-index': 99,
-                        'background-color': 'white',
-                        'position': 'absolute',
-                       }
-                      )
-
-            $overlay.append($('<div />').addClass('message'));
-            $overlay.hide();
-
-            if (typeof(self.$panels[0]) != 'undefined')
-                $overlay.insertBefore(self.$panels[0]);
-            else
-                $overlay.insertAfter(self.element);
-
-        }
-
-
-        self.$overlay_div = $overlay;
-
         this.$tabs.each(function(i, a) {
             // inline tab
             if (a.hash && a.hash.replace('#', '')) // Safari 2 reports '#' for an empty hash
@@ -117,6 +94,29 @@ $.widget("ui.mokshatabs", {
             else
                 o.disabled.push(i + 1);
         });
+
+        var $overlay = $('.overlay', self.element)
+        if ($overlay.length == 0) {
+            $overlay = $('<div />')
+            $overlay.css({'opacity': .75,
+                        'z-index': 99,
+                        'background-color': 'white',
+                        'position': 'absolute',
+                       }
+                      )
+
+            $overlay.addClass('overlay')
+
+            $overlay.append($('<div />').addClass('message'));
+            if (typeof(self.$panels[0]) != 'undefined')
+                $overlay.insertBefore(self.$panels[0]);
+            else
+                $overlay.insertAfter(self.element);
+
+        }
+
+        $overlay.hide();
+        self.$overlay_div = $overlay;
 
         if (init) {
 
@@ -603,7 +603,7 @@ $.widget("ui.mokshatabs", {
         }
         $a.addClass(o.loadingClass);
         setTimeout(function() { // timeout is again required in IE, "wait" for id being restored
-            self.xhr = moksha.html_load(moksha.csrf_rewrite_url(url), {}, success_cb, this.$overlay_div)
+            self.xhr = moksha.html_load(moksha.csrf_rewrite_url(url), {}, success_cb, self.$overlay_div)
         }, 0);
 
     },
