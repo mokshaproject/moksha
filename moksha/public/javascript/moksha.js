@@ -276,16 +276,22 @@ moksha = {
         return uri;
     },
 
+    connector_load: function(resource, method, params, callback, $overlay_div, loading_icon) {
+        var path = moksha.url('/moksha_connector/' + resource + '/' + method);
+
+        return moksha.json_load(path, params, callback, $overlay_div, loading_icon);
+    },
+
     json_load: function(path, params, callback, $overlay_div, loading_icon) {
-       return moksha.ajax_load(path, params, callback, $overlay_div, 'json', loading_icon)
+       return moksha.ajax_load(path, params, callback, $overlay_div, 'json', loading_icon);
     },
 
     xml_load: function(path, params, callback, $overlay_div, loading_icon) {
-       return moksha.ajax_load(path, params, callback, $overlay_div, 'xml', loading_icon)
+       return moksha.ajax_load(path, params, callback, $overlay_div, 'xml', loading_icon);
     },
 
     html_load: function(path, params, callback, $overlay_div, loading_icon) {
-       return moksha.ajax_load(path, params, callback, $overlay_div, 'html', loading_icon)
+       return moksha.ajax_load(path, params, callback, $overlay_div, 'html', loading_icon);
     },
 
     ajax_load: function(path, params, callback, $overlay_div, data_type, loading_icon) {
