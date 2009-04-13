@@ -9,6 +9,7 @@ from repoze.what.authorize import check_authorization, NotAuthorizedError
 
 from webob import Request
 
+import copy
 import pylons
 import urllib
 import uuid
@@ -240,14 +241,16 @@ class App(ConfigWrapper):
         if self.label and not self.content_id:
             self.content_id = scrub_filter.sub('_', self.label.lower())
 
-    def clone(self, update_params={}, auth=None, content_id=None):
-        params = {}
-        params.update(self.params)
+    def clone(self, update_params=None, auth=None, content_id=None):
+        if not update_params:
+            update_params = {}
+
+        params = copy.deepcopy(self.params)
 
         self._update_nested_dicts(params, update_params)
 
         if auth == None:
-            auth = self.auth;
+            auth = self.auth
 
         if content_id == None:
             content_id == self.content_id
@@ -409,9 +412,10 @@ class Widget(ConfigWrapper):
         if self.label and not content_id:
             self.content_id = scrub_filter.sub('_', self.label.lower())
 
-    def clone(self, update_params={}, auth=None, content_id=None):
-        params = {}
-        params.update(self.params)
+    def clone(self, update_params=None, auth=None, content_id=None):
+        if not update_params:
+            update_params = {}
+        params = copy.deepcopy(self.params)
         self._update_nested_dicts(params, update_params)
 
         if auth == None:
