@@ -363,7 +363,7 @@ moksha = {
     },
 
     debug: function(msg) {
-      if (typeof(moksha_debug) != 'undefined' && moksha_debug) {
+      if (typeof(console) != 'undefined' && typeof(console.log) != 'undefined' && typeof(moksha_debug) != 'undefined' && moksha_debug) {
           // TODO: make this configurable (or perhaps just overriding this
           //       method is enough
 

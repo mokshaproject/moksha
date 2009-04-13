@@ -27,7 +27,7 @@ _extensions.prototype = {
                 data = data.replace(/'/g, "\"");
                 data = data.replace(/\n/g, "");
                 data = $.secureEvalJSON(data);
-                console.log(data);
+
                 moksha.extensions.load_extensions(data);
               }
           );
@@ -73,6 +73,9 @@ _extensions.prototype = {
           var div = block_element.attr("id", d.uid);
 
           append_div.append(div);
+          var overlay = jQuery('<div><span class="message"></span></div>');
+          div.append(overlay);
+          d.overlay = overlay;
 
           //run the script and parse in the results
           var result = obj_list[i].run(d);
