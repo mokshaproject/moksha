@@ -55,7 +55,7 @@ class IConnector(object):
         raise NotImplementedError
 
     @classmethod
-    def register_method(self, method_path, method):
+    def register_method(cls, method_path, method):
         cls._method_paths[method_path] = method
 
     def _dispatch(self, op, resource_path, params, _cookies = None, **kwds):
