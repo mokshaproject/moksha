@@ -85,24 +85,28 @@ class MokshaConnectorMiddleware(object):
         # check last part of path to see if it is json data
         dispatch_params = {};
 
-        p = urllib.unquote_plus(path[-1].lstrip())
-        if p.startswith('{'):
-            dp = json.loads(p)
+        if len(path) > 0:
+            p = urllib.unquote_plus(path[-1].lstrip())
+            if p.startswith('{'):
+                dp = json.loads(p)
 
-            f = dp.get('filters')
-            if isinstance(f, basestring):
-                dp['filters'] = json.loads(f)
-            path = path[:-1]
+                f = dp.get('filters')
+                if isinstance(f, basestring):
+                    dp['filters'] = json.loads(f)
+                path = path[:-1]
 
-            # scrub dispatch_params keys of unicode so we can pass as keywords
-            for (k, v) in dp.iteritems():
-                dispatch_params[str(k)] = v
+                # scrub dispatch_params keys of unicode so we can pass as keywords
+                for (k, v) in dp.iteritems():
+                    dispatch_params[str(k)] = v
 
-        # prevent trailing slash
-        if not p:
-            path = path[:-1]
+            # prevent trailing slash
+            if not p:
+                path = path[:-1]
 
-        path = '/'.join(path)
+            path = '/'.join(path)
+        else:
+            path = ''
+
         conn = self._connectors.get(conn)
 
         # pretty print output
