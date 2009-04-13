@@ -77,11 +77,13 @@ class ConfigWrapper(object):
         """Recursive helper which updates nested dicts"""
 
         for key, value in source.iteritems():
-             if key in dest:
+            if key in dest:
                 if isinstance(dest[key], dict):
                     self._update_nested_dicts(dest[key], value)
                 else:
                     dest[key] = value
+            else:
+                dest[key] = value
 
     @staticmethod
     def _validate_predicates(predicates):
