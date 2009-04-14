@@ -1,5 +1,5 @@
 /*
- * Moksha UI Popup - Popup a block on user interactions such as mouse hover and click.  
+ * Moksha UI Popup - Popup a block on user interactions such as mouse hover and click.
  *                   Can be used to create popup menus
  *
  * Copyright (c) 2009 Red Hat, Inc.
@@ -12,7 +12,7 @@
  */
 (function ($) {
 $.widget("ui.moksha_popup", {
-	
+
 	_init: function() {
 		// create popup
 		this._createpopup();
@@ -32,13 +32,14 @@ $.widget("ui.moksha_popup", {
 		var $e = this.element;
 		var o = this.options;
 		this.timer = null;
+
 		$e.children(':first').addClass(o.selectedClass);
-                if (this.showFx) {
+        if (this.showFx) {
 			this.$panel.animate(this.showFx, this.showFx.duration || this.baseFx.duration);
 		} else {
 			this.$panel.show();
 		}
-		
+
 	},
 
 	hidePopup: function() {
@@ -55,6 +56,7 @@ $.widget("ui.moksha_popup", {
 	_startHover: function() {
 		var self = this;
 		var o = this.options;
+		moksha.debug('Hover Started');
 		this.timer = setTimeout(function () {self.showPopup.apply(self)}, o.hoverTimeout);
 	},
 
@@ -83,13 +85,14 @@ $.widget("ui.moksha_popup", {
 		}
 
 		this.$panel = $panel.addClass(o.panelClass);
-		
+		this.$panel.hide()
+
 		// set up animations
 		var hideFx, showFx, baseFx = { 'min-height': 0, duration: 1 }, baseDuration = 'normal';
 		if (o.fx && o.fx.constructor == Array)
 			hideFx = o.fx[0] || baseFx, showFx = o.fx[1] || baseFx;
 		else
-			hideFx = showFx = o.fx || baseFx;
+			hideFx = showFx = o.fx
 
 		this.hideFx = hideFx;
 		this.showFx = showFx;
@@ -101,7 +104,7 @@ $.widget("ui.moksha_popup", {
 		        var self = this;
 			$e.hover(function () {self._startHover.apply(self)}, function () {self._endHover.apply(self)});
 		}
-		
+
 	}
 });
 

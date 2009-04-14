@@ -16,8 +16,12 @@ moksha_ui_grid_js = JSLink(filename='public/javascript/ui/moksha.ui.grid.js',
                                        jquery_template_js,
                                        jquery_json_js])
 
+moksha_ui_popup_js = JSLink(filename='public/javascript/ui/moksha.ui.popup.js',
+                           modname='moksha',
+                           javascript=[jquery_ui_core_js])
+
 class Grid(FormField):
-    javascript=[jquery_ui_core_js, moksha_ui_grid_js]
+    javascript=[jquery_ui_core_js, moksha_ui_grid_js, moksha_ui_popup_js]
     params= ['rows_per_page', 'page_num', 'total_rows',
             'filters', 'unique_key', 'sort_key', 'sort_order',
             'row_template', 'resource', 'resource_path',

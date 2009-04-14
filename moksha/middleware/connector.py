@@ -48,12 +48,27 @@ class MokshaConnectorMiddleware(object):
         self.application = application
         self.load_connectors()
 
+    def strip_script(self, environ, path):
+        # Strips the script portion of a url path so the middleware works even
+        # when mounted under a path other than root
+        if path.startswith('/') and 'SCRIPT_NAME' in environ:
+            prefix = environ.get('SCRIPT_NAME')
+            if prefix.endswith('/'):
+                prefix = prefix[:-1]
+
+            if path.startswith(prefix):
+                path = path[len(prefix):]
+
+        return path
+
     def __call__(self, environ, start_response):
 
         request = Request(environ)
 
-        if request.path.startswith('/moksha_connector'):
+        path = self.strip_script(environ, request.path)
+        if path.startswith('/moksha_connector'):
             s = request.path.split('/')[2:]
+
 
             # since keys are not unique we need to condense them
             # into an actual dictionary with multiple entries becoming lists
