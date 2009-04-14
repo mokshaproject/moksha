@@ -67,7 +67,7 @@ class MokshaConnectorMiddleware(object):
 
         path = self.strip_script(environ, request.path)
         if path.startswith('/moksha_connector'):
-            s = request.path.split('/')[2:]
+            s = path.split('/')[2:]
 
 
             # since keys are not unique we need to condense them
