@@ -70,13 +70,28 @@ class MokshaMiddleware(object):
         moksha.feed_storage = Shove(config['feed_cache'], compress=True)
         moksha.feed_cache = Cache(moksha.feed_storage)
 
+    def strip_script(self, environ, path):
+        # Strips the script portion of a url path so the middleware works even
+        # when mounted under a path other than root
+        if path.startswith('/') and 'SCRIPT_NAME' in environ:
+            prefix = environ.get('SCRIPT_NAME')
+            if prefix.endswith('/'):
+                prefix = prefix[:-1]
+
+            if path.startswith(prefix):
+                path = path[len(prefix):]
+
+        return path
+
     def __call__(self, environ, start_response):
         self.register_stomp(environ)
         request = Request(environ)
-        if request.path.startswith('/apps/') or \
-           request.path.startswith('/widget') or \
-           request.path.startswith('/docs/') or \
-           request.path.startswith('/moksha_admin/'):
+
+        path = self.strip_script(environ, request.path)
+        if path.startswith('/apps/') or \
+           path.startswith('/widget') or \
+           path.startswith('/docs/') or \
+           path.startswith('/moksha_admin/'):
             response = request.get_response(self.mokshaapp)
         else:
             response = request.get_response(self.application)
