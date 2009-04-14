@@ -194,7 +194,7 @@ moksha = {
         if (typeof(params) != 'object')
             params = {}
 
-        window.location.href = moksha.csrf_rewrite_url(url, params);
+        window.location.href = moksha.url(url, params);
     },
 
     /*
@@ -403,8 +403,12 @@ moksha = {
         return burl;
     },
 
-    url: function(url) {
+    url: function(url, params) {
+       if (typeof(params) == 'undefined')
+            params = {};
+
        var purl = moksha.parseUri(url);
+       purl.update_query_string(params);
 
        if (!purl.protocol) {
            var burl = moksha.get_base_url();
