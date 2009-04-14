@@ -22,7 +22,7 @@
                           }
 
                           $(document).ready(function () {
-                                                 moksha.html_load(moksha.csrf_rewrite_url("${app['url']}"),
+                                                 moksha.html_load(moksha.url("${app['url']}"),
                                                                  ${app['params']},
                                                                  success,
                                                                  $('#${app["id"]}_overlay')
