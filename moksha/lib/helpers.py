@@ -732,6 +732,16 @@ def to_unicode(obj, encoding='utf-8'):
             obj = unicode(obj, encoding, 'replace')
     return obj
 
+def replace_app_header(app, header_name, value):
+        from paste.response import replace_header
+        if app.headers:
+            headers = list(app.headers)
+        else:
+            headers = []
+
+        replace_header(headers, header_name, value)
+        app.headers = headers
+
 class EnumDataObj(dict):
     def __init__(self, code, data):
         super(EnumDataObj, self).__init__(code=code, data=data)
@@ -746,14 +756,8 @@ class EnumDataObj(dict):
             raise e
 
     def replace_app_header(self, app, header_name):
-        from paste.response import replace_header
-        if app.headers:
-            headers = list(app.headers)
-        else:
-            headers = []
+        replace_app_header(app, header_name, self.code)
 
-        replace_header(headers, header_name, self.code)
-        app.headers = headers
 
     def __repr__(self):
         # act as if the user requested the code
