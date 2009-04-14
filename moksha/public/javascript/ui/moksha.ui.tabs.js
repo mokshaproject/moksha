@@ -74,8 +74,9 @@ $.widget("ui.mokshatabs", {
                 self.$panels = self.$panels.add(a.hash);
             // remote tab
             else if ($(a).attr('href') != '#') { // prevent loading the page itself if href is just "#"
-                $.data(a, 'href.tabs', a.attr('href')); // required for restore on destroy
-                $.data(a, 'load.tabs', a.attr('href')); // mutable
+                var href = $(a).attr('href')
+                $.data(a, 'href.tabs', href); // required for restore on destroy
+                $.data(a, 'load.tabs', href); // mutable
                 var id = self.tabId(a);
                 a.href = '#' + id;
                 var $panel = $('#' + id + ':first', self.element);
