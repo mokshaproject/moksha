@@ -138,18 +138,23 @@ moksha = {
      * Take a url and attach the csrf hash if available
      ********************************************************************/
     csrf_rewrite_url: function(url, params) {
-        var ourl = moksha.parseUri(url);
+        var purl = moksha.parseUri(url);
 
+        moksha.csrf_rewrite_uri(purl, params);
+
+        return purl.toString();
+    },
+
+    csrf_rewrite_uri: function(uri, params) {
         if (typeof(params) == 'undefined')
             params = {};
 
         if (typeof(moksha_csrf_token) != 'undefined' && moksha_csrf_token)
             params['_csrf_token'] = moksha_csrf_token;
 
-        ourl.update_query_string(params);
+        uri.update_query_string(params);
 
-        return ourl.toString();
-
+        return uri;
     },
 
     /*********************************************************************
@@ -211,9 +216,27 @@ moksha = {
 
         var uriClass = function(){};
         uriClass.prototype = {
-            update_query_string :function(params) {
-               for (p in params)
-                   this.queryKey[p] = params[p];
+            type: 'uri',
+
+            _normalize_path: function(path) {
+                // make sure we don't have multiple slashes
+                var slashes = /\/+/g;
+                path = path.replace(slashes, '/');
+
+                return path;
+            },
+
+            prepend_base_url: function(base_url) {
+                this.directory = base_url + this.directory;
+                this.directory = this._normalize_path(this.directory);
+
+                this.relative = this.directory + this.file;
+                this.path = this.relative;
+            },
+
+            update_query_string: function(params) {
+                for (p in params)
+                    this.queryKey[p] = params[p];
             },
 
             toString: function() {
@@ -253,19 +276,25 @@ moksha = {
         return uri;
     },
 
-    json_load: function(path, params, callback, $overlay_div) {
-       return moksha.ajax_load(path, params, callback, $overlay_div, 'json')
+    connector_load: function(resource, method, params, callback, $overlay_div, loading_icon) {
+        var path = moksha.url('/moksha_connector/' + resource + '/' + method);
+
+        return moksha.json_load(path, params, callback, $overlay_div, loading_icon);
     },
 
-    xml_load: function(path, params, callback, $overlay_div) {
-       return moksha.ajax_load(path, params, callback, $overlay_div, 'xml')
+    json_load: function(path, params, callback, $overlay_div, loading_icon) {
+       return moksha.ajax_load(path, params, callback, $overlay_div, 'json', loading_icon);
     },
 
-    html_load: function(path, params, callback, $overlay_div) {
-       return moksha.ajax_load(path, params, callback, $overlay_div, 'html')
+    xml_load: function(path, params, callback, $overlay_div, loading_icon) {
+       return moksha.ajax_load(path, params, callback, $overlay_div, 'xml', loading_icon);
     },
 
-    ajax_load: function(path, params, callback, $overlay_div, data_type) {
+    html_load: function(path, params, callback, $overlay_div, loading_icon) {
+       return moksha.ajax_load(path, params, callback, $overlay_div, 'html', loading_icon);
+    },
+
+    ajax_load: function(path, params, callback, $overlay_div, data_type, loading_icon) {
        self = this;
 
        var profile_start_time = 0;
@@ -309,9 +338,12 @@ moksha = {
 
        // show loading
        if (typeof($overlay_div) == 'object') {
+           if (typeof(loading_icon) == 'undefined')
+               loading_icon = '/images/spinner.gif';
+
            var $msg = $('.message', $overlay_div);
            // FIXME: make this globally configurable
-           $msg.html('<img src="/images/spinner.gif"></img>');
+           $msg.html('<img src="'+ loading_icon + '"></img>');
 
            var $parent = $overlay_div.parent();
            $overlay_div.css({'height': $parent.height(),
@@ -331,7 +363,7 @@ moksha = {
     },
 
     debug: function(msg) {
-      if (typeof(moksha_debug) != 'undefined' && moksha_debug) {
+      if (typeof(console) != 'undefined' && typeof(console.log) != 'undefined' && typeof(moksha_debug) != 'undefined' && moksha_debug) {
           // TODO: make this configurable (or perhaps just overriding this
           //       method is enough
 
@@ -369,6 +401,19 @@ moksha = {
             burl = moksha_base_url;
 
         return burl;
+    },
+
+    url: function(url) {
+       var purl = moksha.parseUri(url);
+
+       if (!purl.protocol) {
+           var burl = moksha.get_base_url();
+           purl.prepend_base_url(burl);
+
+           moksha.csrf_rewrite_uri(purl);
+       }
+
+       return purl.toString();
     }
 }
 

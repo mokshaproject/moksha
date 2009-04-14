@@ -38,6 +38,7 @@ class IConnector(object):
 
     All connectors must derive from this interface
     """
+    _method_paths = {}
 
     def __init__(self, environ=None, request=None):
         super(IConnector, self).__init__()
@@ -52,6 +53,10 @@ class IConnector(object):
         is thread safe.
         """
         raise NotImplementedError
+
+    @classmethod
+    def register_method(cls, method_path, method):
+        cls._method_paths[method_path] = method
 
     def _dispatch(self, op, resource_path, params, _cookies = None, **kwds):
         """ This method is for dispatching to the correct interface which
@@ -73,9 +78,10 @@ class IConnector(object):
 
             the results of the operation requested
         """
-        # TODO: devise a way to mark off methods which can be dispatched to
         if op in ('request_data', 'call', 'query', 'query_model'):
             return getattr(self, op)(resource_path, params, _cookies, **kwds)
+        elif op in self._method_paths:
+            return self._method_paths[op](self, resource_path, params, _cookies, **kwds)
 
         return None
 
@@ -173,7 +179,7 @@ class IQuery(object):
     methods for more information.
     """
 
-    _paths = {}
+    _query_paths = {}
 
     def query(self, resource_path, params, _cookies,
         start_row = 0,
@@ -272,10 +278,10 @@ class IQuery(object):
             :Returns:
                 The path's model
         """
-        return self._paths[resource_path];
+        return self._query_paths[resource_path];
 
     @classmethod
-    def register_path(cls,
+    def register_query(cls,
                       path,
                       query_func,
                       primary_key_col = None,
@@ -290,21 +296,21 @@ class IQuery(object):
                           default_sort_order = default_sort_order,
                           can_paginate = can_paginate)
 
-        cls._paths[path] = qpath
+        cls._query_paths[path] = qpath
         return qpath
 
     def get_capabilities(self):
-        return self._paths
+        return self._query_paths
 
     def get_default_sort_order(self, path):
-        p = self._paths.get(path)
+        p = self._query_paths.get(path)
         if p:
             return p['default_sort_order']
 
         return None
 
     def get_default_sort_col(self, path):
-        p = self._paths.get(path)
+        p = self._query_paths.get(path)
         if p:
             return p['default_sort_col']
 
@@ -343,7 +349,7 @@ class ISearch(IQuery):
                        **params):
 
             s = WeightedSearch(lambda search_term: search_func(conn, search_term),
-                               cls._paths[path]['columns'],
+                               cls._query_paths[path]['columns'],
                                cls._search_cache)
             search_string = cls.filters.filter(filters).get('search')
             results = s.search(search_string)
@@ -351,7 +357,7 @@ class ISearch(IQuery):
 
             return (len(results), results[start_row:start_row + rows_per_page])
 
-        qpath = cls.register_path(path = path,
+        qpath = cls.register_query(path = path,
                           query_func = query_func,
                           primary_key_col = primary_key_col,
                           default_sort_col = default_sort_col,
