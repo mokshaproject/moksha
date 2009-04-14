@@ -603,7 +603,7 @@ $.widget("ui.mokshatabs", {
         }
         $a.addClass(o.loadingClass);
         setTimeout(function() { // timeout is again required in IE, "wait" for id being restored
-            self.xhr = moksha.html_load(moksha.csrf_rewrite_url(url), {}, success_cb, self.$overlay_div)
+            self.xhr = moksha.html_load(moksha.url(url), {}, success_cb, self.$overlay_div)
         }, 0);
 
     },
