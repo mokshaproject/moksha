@@ -27,7 +27,6 @@ import logging
 
 from tg import config
 from webob import Request, Response
-from hashlib import sha1
 from paste.request import construct_url
 from paste.httpexceptions import HTTPFound
 from paste.request import parse_formvars, parse_dict_querystring
@@ -35,6 +34,11 @@ from paste.response import replace_header
 from urlparse import urlparse, urlunparse
 from repoze.who.interfaces import IMetadataProvider
 from zope.interface import implements
+
+try:
+    from hashlib import sha1
+except ImportError:
+    from sha import sha as sha1
 
 log = logging.getLogger(__name__)
 
