@@ -170,17 +170,45 @@ moksha = {
         if (typeof(moksha_csrf_token) === 'undefined' || !moksha_csrf_token)
             return;
 
+        moksha.add_hidden_form_field(form_element,
+                                     '_csrf_token',
+                                     moksha_csrf_token);
+    },
+
+    /*********************************************************************
+     * Take a form element and add or update a hidden field
+     *
+     * Example:
+     *   <form action="/process_form/"
+     *         onSubmit="moksha.add_hidden_form_field(this)">
+     *
+     * Params:
+     *   form_element - the form being updated
+     *   key - the name of the field we are adding
+     *   value - the value to set it to
+     *   override_existing - defaults to true, if set to false we only
+     *                       add the field if it does not exist or is
+     *                       set to an empty string
+     *********************************************************************/
+     add_hidden_form_field: function(form_element, key, value, override_existing) {
+        if (typeof(override_existing) === 'undefined')
+            override_existing = true;
+
         var $fe = $(form_element);
-        var $csrf_field = $("input[name=_csrf_token]", form_element);
+        var $field = $("input[name=" + key + "]", form_element);
 
         // create a field if it doens't already exist
-        if ($csrf_field.length < 1) {
-            $csrf_field = $("<input type='hidden'></input>").attr("name", "_csrf_token");
+        if ($field.length < 1) {
+            $field = $("<input type='hidden'></input>").attr("name", key);
 
-            $fe.append($csrf_field);
+            $fe.append($field);
         }
 
-        $csrf_field.attr("value", moksha_csrf_token);
+        var v = $field.attr("value");
+        if (!override_existing && v)
+            return;
+
+        $field.attr("value", value);
     },
 
     /********************************************************************
@@ -194,7 +222,7 @@ moksha = {
         if (typeof(params) != 'object')
             params = {}
 
-        window.location.href = moksha.csrf_rewrite_url(url, params);
+        window.location.href = moksha.url(url, params);
     },
 
     /*
@@ -403,8 +431,12 @@ moksha = {
         return burl;
     },
 
-    url: function(url) {
+    url: function(url, params) {
+       if (typeof(params) == 'undefined')
+            params = {};
+
        var purl = moksha.parseUri(url);
+       purl.update_query_string(params);
 
        if (!purl.protocol) {
            var burl = moksha.get_base_url();

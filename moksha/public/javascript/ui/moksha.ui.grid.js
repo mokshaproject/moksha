@@ -124,29 +124,17 @@
         //       end of the rows
     },
 
-    get_json:  function(path, args, callback) {
-        var self = this;
-
-        if (typeof(moksha_csrf_token)!='undefined' && moksha_csrf_token)
-            args['_csrf_token'] = moksha_csrf_token;
-        moksha.json_load(path, args, function (json) {
-            callback(json);
-
-        }, this.$overlay_div);
-
-    },
-
     connector_query_model: function(connector, path, callback) {
-        path = '/moksha_connector/' + connector + '/query_model/' + path;
-        this.get_json(path, {}, callback);
+        path = '/query_model/' + path;
+        moksha.connector_load(connector, path, {}, callback, this.$overlay_div);
     },
 
     connector_query: function(connector, path, dispatch_data, callback) {
-        path = '/moksha_connector/' + connector + '/query/' + path;
+        path = '/query/' + path;
         if (dispatch_data)
             path = path + '/' + $.toJSON(dispatch_data);
 
-        this.get_json(path, {}, callback);
+        moksha.connector_load(connector, path, {}, callback, this.$overlay_div);
     },
 
     request_data_refresh: function(event) {

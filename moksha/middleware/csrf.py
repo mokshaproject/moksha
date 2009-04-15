@@ -27,7 +27,6 @@ import logging
 
 from tg import config
 from webob import Request, Response
-from hashlib import sha1
 from paste.request import construct_url
 from paste.httpexceptions import HTTPFound
 from paste.request import parse_formvars, parse_dict_querystring
@@ -35,6 +34,11 @@ from paste.response import replace_header
 from urlparse import urlparse, urlunparse
 from repoze.who.interfaces import IMetadataProvider
 from zope.interface import implements
+
+try:
+    from hashlib import sha1
+except ImportError:
+    from sha import sha as sha1
 
 log = logging.getLogger(__name__)
 
@@ -80,7 +84,7 @@ class CSRFProtectionMiddleware(object):
     URLs can then be re-written using the ``moksha.csrf_rewrite_url`` function
     that is in the ``moksha.js`` library, which is automatically pulled in by
     the MokshaGlobals widget.  Here is an example of adding the CSRF token to
-    an ajax.  This example also utilizes the ``moksha.filter_resources`` 
+    an ajax.  This example also utilizes the ``moksha.filter_resources``
     function to strip out any duplicate javascript files.
 
     .. code-block:: javascript
@@ -211,6 +215,19 @@ class CSRFMetadataProvider(object):
         self.auth_session_id = auth_session_id
         self.auth_state = auth_state
 
+    def strip_script(self, environ, path):
+        # Strips the script portion of a url path so the middleware works even
+        # when mounted under a path other than root
+        if path.startswith('/') and 'SCRIPT_NAME' in environ:
+            prefix = environ.get('SCRIPT_NAME')
+            if prefix.endswith('/'):
+                prefix = prefix[:-1]
+
+            if path.startswith(prefix):
+                path = path[len(prefix):]
+
+        return path
+
     def add_metadata(self, environ, identity):
         request = Request(environ)
         log.debug("CSRFMetadataProvider.add_metadata(%s)" % request.path)
@@ -224,7 +241,8 @@ class CSRFMetadataProvider(object):
             token = sha1(session_id).hexdigest()
             identity.update({self.csrf_token_id: token})
             log.debug("Identity updated with CSRF token")
-            if request.path == self.login_handler:
+            path = self.strip_script(environ, request.path)
+            if path == self.login_handler:
                 log.debug('Setting CSRF_AUTH_STATE')
                 environ[self.auth_state] = True
                 environ[self.token_env] = token
