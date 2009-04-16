@@ -17,7 +17,7 @@
     % if tab['type'] == 'Category':
         ${display_category(tab)}
     % else:
-        <a href="${tab['url']}${tab['query_string']}" title="${tab['content_id']}">
+        <a href="${tab['url']}${tab['query_string']}" title="${tab['label']}" panel="${tab['content_id']}">
           ${tab['label']}
         </a>
     % endif
