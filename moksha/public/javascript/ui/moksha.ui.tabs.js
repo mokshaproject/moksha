@@ -46,7 +46,9 @@ $.widget("ui.mokshatabs", {
         return this.$tabs.length;
     },
     tabId: function(a) {
-        return a.title && a.title.replace(/\s/g, '_').replace(/[^A-Za-z0-9\-_:\.]/g, '')
+        var panel = $(a).attr('panel');
+
+        return panel && panel.replace(/\s/g, '_').replace(/[^A-Za-z0-9\-_:\.]/g, '')
             || this.options.idPrefix + $.data(a);
     },
     ui: function(tab, panel) {
