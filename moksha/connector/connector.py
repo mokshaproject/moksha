@@ -81,7 +81,7 @@ class IConnector(object):
         if op in ('request_data', 'call', 'query', 'query_model'):
             return getattr(self, op)(resource_path, params, _cookies, **kwds)
         elif op in self._method_paths:
-            return self._method_paths[op](self, resource_path, params, _cookies, **kwds)
+            return self._method_paths[op](self, resource_path, _cookies, **params)
 
         return None
 

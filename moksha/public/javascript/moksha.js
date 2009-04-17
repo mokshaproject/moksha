@@ -325,6 +325,10 @@ moksha = {
     ajax_load: function(path, params, callback, $overlay_div, data_type, loading_icon) {
        self = this;
 
+       if (typeof(params) == 'string') {
+         params = $.secureEvalJSON(params);
+       }
+
        var profile_start_time = 0;
        if (typeof(moksha_profile)!='undefined' && moksha_profile) {
            var date = new Date()
