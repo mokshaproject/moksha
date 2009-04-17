@@ -403,9 +403,9 @@
         for (i in alph) {
             var a = alph[i];
 
-            var page = $('<li />').html(a).addClass('page-button').addClass('current-button');
+            var page = $('<li />').html(a).addClass('page-button').addClass('current-page');
             if (a!=curr_alpha) {
-                page.removeClass('current-button');
+                page.removeClass('current-page');
 
                 var page_link = $('<a href="javascript:void(0)"></a>').html(a);
                 page_link.data('alpha_page.moksha_grid', a);
