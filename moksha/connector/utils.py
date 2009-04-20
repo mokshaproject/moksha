@@ -260,41 +260,41 @@ class WeightedSearch(object):
             self.cache = cache
             self.cols = cols
 
-    def weigh(self, search_term, weighted_hash):
+    def weigh(self, search_term, weighted_item):
         search_term_len = len(search_term)
-        l = len(self.cols)
+        col_count = len(self.cols)
 
         # each field gets a decelerating percentage of it's calculated weight
         # e.g. each consecutive field is an order of magnatude less important
         # than the previous field
-        factor = 1/sum(xrange(l))
+        factor = 1.0/float(sum(xrange(1, col_count+1)))
 
-        r = weighted_hash[0]
-        for i, result_field in enumerate(self.cols):
-            x = l - i
-            weight_factor = x * factor
+        item = weighted_item[0]
+        for i, col_label in enumerate(self.cols):
+            x = col_count - i
+            weight_factor = float(x) * factor
 
-            l_result_field = r.get(result_field, '')
-            if not isinstance(l_result_field, basestring):
-                l_result_field = ''
+            col_value = item.get(col_label, '')
+            if not isinstance(col_value, basestring):
+                col_value = ''
             else:
-                l_result_field.lower()
+                col_value = col_value.lower()
 
-            index = l_result_field.find(search_term)
+            index = col_value.find(search_term)
 
             while(index != -1):
-                weighted_hash[1] += self.LIGHT_WEIGHT * weight_factor
+                weighted_item[1] += self.LIGHT_WEIGHT * weight_factor
                 if index == 0:
                     # in front
-                    weighted_hash[1] += self.MEDIUM_WEIGHT * weight_factor
-                    if search_term_len == len(l_result_field):
-                        weighted_hash[1] += self.HEAVY_WEIGHT
+                    weighted_item[1] += self.MEDIUM_WEIGHT * weight_factor
+                    if search_term_len == len(col_value):
+                        weighted_item[1] += self.HEAVY_WEIGHT
 
-                if index + search_term_len == l:
+                if index + search_term_len == len(col_value):
                     # in back
-                    weighted_hash[1] += self.MEDIUM_WEIGHT * weight_factor
+                    weighted_item[1] += self.MEDIUM_WEIGHT * weight_factor
 
-                index = l_result_field.find(search_term, index + 1)
+                index = col_value.find(search_term, index + 1)
 
     def weighted_sort(self, a, b):
         result = 0
@@ -306,41 +306,47 @@ class WeightedSearch(object):
             result = cmp(a_val[self.cols.key_index(0)], b_val[self.cols.key_index(0)])
         return result
 
-    def search(self, search_string):
+    def search(self, search_string, primary_key_col, start_row, rows_per_page):
         if not search_string:
             return []
 
         search = search_string.lower().replace(',', ' ').split()
 
+        if not primary_key_col:
+            primary_key_col = self.cols.key_index(0)
+
         weighted_results = {}
+        raw_search = []
         for s in search:
             results = self.cache.get_value(key = s,
                                createfunc=lambda : self.search_func(s),
                                type="memory",
                                expiretime=self.CACHE_EXPIRE_TIME)
+            if results:
+                raw_search.extend(results)
 
-            for r in results:
-                rkey = r[self.cols.key_index(0)]
-
+        for s in search:
+            for r in raw_search:
+                id = r[primary_key_col]
                 # if we have already weighted this result get the
                 # weighted hash to add weight to
                 # else we create a new weighted hash
-                if rkey in weighted_results:
-                    weighted_hash = weighted_results[rkey]
+                if id in weighted_results:
+                    weighted_item = weighted_results[id]
                 else:
-                    weighted_hash = [r, 0]
+                    weighted_item = [r, 0]
 
-
-                self.weigh(s, weighted_hash)
-                weighted_results[rkey] = weighted_hash
+                self.weigh(s, weighted_item)
+                weighted_results[id] = weighted_item
 
         sorted_list = weighted_results.values()
         sorted_list.sort(self.weighted_sort)
 
         for i, v in enumerate(sorted_list):
-            sorted_list[i] = v[0]
+            if v[0] > 0:
+                sorted_list[i] = v[0]
 
-        return sorted_list
+        return (len(sorted_list), sorted_list[start_row:start_row + rows_per_page])
 
 
 

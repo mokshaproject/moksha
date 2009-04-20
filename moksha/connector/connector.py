@@ -352,10 +352,10 @@ class ISearch(IQuery):
                                cls._query_paths[path]['columns'],
                                cls._search_cache)
             search_string = cls.filters.filter(filters).get('search')
-            results = s.search(search_string)
+            results = s.search(search_string, primary_key_col, start_row, rows_per_page)
 
 
-            return (len(results), results[start_row:start_row + rows_per_page])
+            return results
 
         qpath = cls.register_query(path = path,
                           query_func = query_func,
