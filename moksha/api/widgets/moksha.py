@@ -58,15 +58,14 @@ moksha_profile = ${profile};
     def update_params(self, d):
         super(MokshaGlobals, self).update_params(d)
 
-        if pylons.config.get('debug'):
-            d['debug'] = 'true'
+        d['base_url'] = tg.url('/')
 
-        if pylons.config['global_conf'].get('profile'):
+        if asbool(pylons.config.get('debug')):
+            d['debug'] = 'true'
+        if asbool(pylons.config['global_conf'].get('profile')):
             d['profile'] = 'true'
 
-        d['base_url'] = tg.url('/')
         identity = pylons.request.environ.get('repoze.who.identity')
-
         if identity:
             d['csrf_token'] = identity.get(self.csrf_token_id, '')
             d['user_id'] = identity.get('user_id', '')
