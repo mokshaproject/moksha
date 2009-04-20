@@ -7,7 +7,11 @@ Moksha provides many ways to acquire data in an efficient manner.
 Messaging layer
 ---------------
 
-Moksha can communicate with various message brokers, using the `AMQP <http://amqp.org>`_ and/or `STOMP <http://stomp.codehaus.org/Protocol>`_ protocols.  It also provides a simple API for sending and consuming messages, as well as allowing widgets to subscribe to live messages streams within the users web browser.
+Moksha can communicate with various message brokers, using the `AMQP
+<http://amqp.org>`_ and/or `STOMP <http://stomp.codehaus.org/Protocol>`_
+protocols.  It also provides a simple API for producing and consuming messages,
+as well as allowing widgets to subscribe to live messages streams within the
+users web browser.
 
 Caching layer
 -------------
@@ -15,6 +19,8 @@ Caching layer
 A flexible caching layer is available to all Moksha widgets and applications.
 This middleware is setup by TurboGears2, and trivializes the act of caching
 expensive operations.
+
+Moksha also provides recipies for integrating with nginx & memcached.
 
 Resource layer
 --------------
