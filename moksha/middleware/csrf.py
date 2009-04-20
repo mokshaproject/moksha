@@ -32,8 +32,14 @@ from paste.httpexceptions import HTTPFound
 from paste.request import parse_formvars, parse_dict_querystring
 from paste.response import replace_header
 from urlparse import urlparse, urlunparse
+from urllib import urlencode
 from repoze.who.interfaces import IMetadataProvider
 from zope.interface import implements
+
+try:
+    from urlparse import parse_qs
+except:
+    from cgi import parse_qs
 
 try:
     from hashlib import sha1
@@ -41,6 +47,29 @@ except ImportError:
     from sha import sha as sha1
 
 log = logging.getLogger(__name__)
+
+def update_qs(uri, d):
+    """
+    Helper function for updating query string values.  Similar to calling
+    update on a dictionary except we modify the query string of the uri
+    instead of another dictionary.
+    """
+    loc = list(urlparse(uri))
+    query_dict = parse_qs(loc[4])
+    query_dict.update(d)
+
+    # seems that we have to sanitize a bit here
+    query_list = []
+    for k, v in query_dict.items():
+        if isinstance(v, list):
+            for item in v:
+                query_list.append((k, item))
+        else:
+            query_list.append((k, v))
+
+    loc[4] = urlencode(query_list)
+
+    return urlunparse(loc)
 
 class CSRFProtectionMiddleware(object):
     """
@@ -153,14 +182,9 @@ class CSRFProtectionMiddleware(object):
         if environ.get(self.auth_state):
             log.debug("CSRF_AUTH_STATE; rewriting headers")
             token = environ.get('repoze.who.identity', {}).get(self.csrf_token_id)
-            path = []
-            for part in urlparse(response.location):
-                if part.startswith(self.csrf_token_id):
-                    path.append('')
-                else:
-                    path.append(part)
-            path[4] += self.csrf_token_id + '=' + token
-            response.location = urlunparse(path)
+
+            loc = update_qs(response.location, {self.csrf_token_id: str(token)})
+            response.location = loc
             log.debug("response.location = %s" % response.location)
             environ[self.auth_state] = None
 
@@ -254,14 +278,9 @@ class CSRFMetadataProvider(object):
                 # This occurs during login in some application configurations
                 if isinstance(app, HTTPFound) and environ.get(self.auth_state):
                     log.debug('Got HTTPFound(302) from repoze.who.application')
-                    path = []
-                    for part in urlparse(app.location()):
-                        if part.startswith(self.csrf_token_id):
-                            path.append('')
-                        else:
-                            path.append(part)
-                    path[4] += self.csrf_token_id + '=' + str(token)
-                    replace_header(app.headers, 'location', urlunparse(path))
+                    loc = update_qs(app.location(), {self.csrf_token_id: str(token)})
+
+                    replace_header(app.headers, 'location', loc)
                     log.debug('Altered headers: %s' % str(app.headers))
         else:
             log.warning("Invalid session cookie %r, not setting CSRF token!" %session_id)
