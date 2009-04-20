@@ -16,19 +16,22 @@
 # Copyright 2008, Red Hat, Inc.
 # Authors: John (J5) Palmieri <johnp@redhat.com>
 
-from tw.jquery import jquery_js
-from tw.api import JSLink
-from tw.api import Widget
 import tg
 import pylons
 
+from tw.api import JSLink
+from tw.api import Widget
+from tw.jquery import jquery_js
+from paste.deploy.converters import asbool
+
 moksha_js = JSLink(modname="moksha", filename='public/javascript/moksha.js',
                    javascript=[jquery_js])
-moksha_extension_points_js = JSLink(modname="moksha", filename='public/javascript/moksha.extensions.js',
-                   javascript=[moksha_js])
+moksha_extension_points_js = JSLink(modname="moksha",
+                                    filename='public/javascript/moksha.extensions.js',
+                                    javascript=[moksha_js])
 
 class MokshaGlobals(Widget):
-    javascript = [moksha_js, moksha_extension_points_js]
+    javascript = [moksha_js]
     template = """<script type="text/javascript">
 moksha_base_url = "${base_url}";
 moksha_csrf_token = "${csrf_token}";
@@ -49,6 +52,8 @@ moksha_profile = ${profile};
     def __init__(self, *args, **kw):
         super(MokshaGlobals, self).__init__(*args, **kw)
         self.csrf_token_id = tg.config.get('moksha.csrf.token_id', '_csrf_token')
+        if asbool(tg.config.get('moksha.extensionpoints', False)):
+            self.javascript.append(moksha_extension_points_js)
 
     def update_params(self, d):
         super(MokshaGlobals, self).update_params(d)
