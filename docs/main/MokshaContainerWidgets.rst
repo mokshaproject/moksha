@@ -22,20 +22,21 @@ Here is an example of what a configuration line could look like:
 
 .. code-block:: python
 
-    dashboard_layout =
-        [Category('Test Applications', [
-                    MokshaApp('Hello World 1',
-                              'moksha.helloworld',
-                              {'name':'J5'}),
-                    App('Hello World 2',
-                              '/apps/moksha.helloworld',
-                              {'name':'Luke'}),
-                    MokshaWidget('Hello World 3',
+    dashboard_layout = [
+        Category('Test Applications', [
+                 MokshaApp('Hello World 1',
+                           'moksha.helloworld',
+                           {'name': 'J5'}),
+                 App('Hello World 2',
+                     '/apps/moksha.helloworld',
+                     {'name': 'Luke'}),
+                 MokshaWidget('Hello World 3',
                               'moksha.helloworldwidget',
-                              {'name':'Anonymous'}, auth=Not(not_anonymous()))
-                                        ]
-                  )
-         ]
+                              {'name': 'Anonymous'},
+                              auth=Not(not_anonymous())),
+                ]
+        )
+    ]
 
 This would be a configuration for the dashboard container discussed bellow.
 It defines one category, two applications and a widget.  How this is laid out
