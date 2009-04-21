@@ -11,4 +11,4 @@ potentially be represented by a a STOMP destination, or even an AMQP message
 queue.  These messaging backends can be swapped out and configured without
 having to alter the applications that care about those `topics`.
 
-For details on how to interact with topics, see the documentation on `Consumers`, `DataStreams`, and the `MokshaHub`.
+For details on how to interact with topics, see the documentation on :doc:`Consumers`, :doc:`DataStreams`, and :doc:`MokshaHub`.
