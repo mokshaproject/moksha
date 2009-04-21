@@ -156,22 +156,22 @@ homepage.py
     from moksha.api.widgets.containers import DashboardContainer
 
     class HomePageContainer(DashboardContainer):
-    template = 'mako:myapp.templates.homepagecontainer'
-    layout = [Category('left-content-column',
-                       [App('Banner', '/static-html/sitebanner.html'),
-                        MokshaApp('Stable Updates','myapp.updates/table',
-                                  {"some_json":'{"status":"stable"}'}
-                                 ),
-                        MokshaApp('Testing Updates','myapp.updates/table',
-                                  {"some_json":'{"status":"testing"}'}
-                                 ),
-                        ]),
-              Category('right-content-column',
-                       MokshaWidget(None, 'myapp.loginwidget',
-                                    auth=Not(not_anonymous())
-                                   )
-                      )
-             ]
+        template = 'mako:myapp.templates.homepagecontainer'
+        layout = [Category('left-content-column',
+                           [App('Banner', '/static-html/sitebanner.html'),
+                            MokshaApp('Stable Updates','myapp.updates/table',
+                                      {"some_json":'{"status":"stable"}'}
+                                     ),
+                            MokshaApp('Testing Updates','myapp.updates/table',
+                                      {"some_json":'{"status":"testing"}'}
+                                     ),
+                            ]),
+                  Category('right-content-column',
+                           MokshaWidget(None, 'myapp.loginwidget',
+                                        auth=Not(not_anonymous())
+                                       )
+                          )
+                 ]
 
 homepagecontainer.mak
 
