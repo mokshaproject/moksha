@@ -32,6 +32,9 @@ your ``setup.py`` under the ``[moksha.application]`` entry-point.
     myapp = myapplication.controllers.root:RootController
 
 Your TG application will then be accessable via ``/apps/myapp`` in Moksha.
+Moksha will also look for a ``model`` module in your application, and will call
+the ``init_model`` method within it, if it exists.  This is a convention used to
+initialize TurboGears2 models.
 
 Installing a ToscaWidget
 ------------------------
