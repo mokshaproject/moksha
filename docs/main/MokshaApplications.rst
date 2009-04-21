@@ -7,8 +7,8 @@ and store them in ``moksha.apps`` and ``moksha._widgets`` dictionaries.
 These can then be accessed at any time by any application or widget during
 any request.
 
-Mounting an existing WSGI application
--------------------------------------
+Mounting a WSGI application
+---------------------------
 
 You can mount an existing WSGI application by pointing to it
 in the ``setup.py`` on the ``[moksha.wsgiapp]`` entry-point.
@@ -20,8 +20,8 @@ in the ``setup.py`` on the ``[moksha.wsgiapp]`` entry-point.
 
 Your WSGI application will then be accessable via ``/apps/mywsgiapp`` in Moksha.
 
-Using an existing TurboGears application
--------------------------------------------
+Mounting a TurboGears application
+----------------------------------
 
 You can easily mount TurboGears Controllers within Moksha by pointing to them in
 your ``setup.py`` under the ``[moksha.application]`` entry-point.
@@ -30,6 +30,8 @@ your ``setup.py`` under the ``[moksha.application]`` entry-point.
 
     [moksha.application]
     myapp = myapplication.controllers.root:RootController
+
+Your TG application will then be accessable via ``/apps/myapp`` in Moksha.
 
 Installing a ToscaWidget
 ------------------------
@@ -40,6 +42,8 @@ You can plug an existing ToscaWidget into Moksha by adding it to the ``[moksha.w
 
     [moksha.widget]
     jquery = tw.jquery:jquery_js
+
+Your Widget will then be accessable via ``/widgets/mywidget`` in Moksha.
 
 Configuration
 -------------
