@@ -5,7 +5,6 @@ The Vision
    :maxdepth: 2
 
    Introduction
-   MokshaPlatform
    DataAggregation
    DataInterpretation
    DataPersistence

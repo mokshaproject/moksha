@@ -45,3 +45,31 @@ how it looks in TurboGears2.  If you're using Moksha as a stand-alone platform, 
    TurboGears2 allows us to easily insert middleware directly on top of the raw
    application, so we then have the ability to use the paste.registry,
    sessions, and caching.
+
+Moksha's Full Platform WSGI Stack
+---------------------------------
+
+Not only can Moksha be inserted into any existing `WSGI <http://wsgi.org>`_-compliant application,
+but on it's own offers a comprehensive top-to-bottom middleware stack that
+provides a vast plethora of additional functionality.
+
+===============================     ===============
+Middleware Function                 Module
+===============================     ===============
+Profiling                           repoze.profile
+Resource compression                repoze.squeeze
+                 **TG2 Middleware**
+---------------------------------------------------
+Application routing/dispatching     Routes
+Session management                  Beaker
+Caching layer                       Beaker
+Widget resource injection           ToscaWidgets
+Authentication                      repoze.who
+Authorization                       repoze.what
+Transaction management              repoze.tm2
+Error handling & Debugging          WebError
+Registry manager                    Paste
+                 **Moksha Middleware**
+---------------------------------------------------
+Your application
+===============================     ===============

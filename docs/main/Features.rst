@@ -40,9 +40,7 @@ reusable "Widgets", which are essentially just bundles of HTML, JavaScript,
 CSS, and render-time logic.  The ToscaWidgets WSGI Middleware is also integrated 
 into Moksha, which handles intelligently injecting Widget resources.
 
-Moksha also provides a variety of other Widgets, including a LiveWidget_ API
-for creating real-time message-driven widgets that can efficiently acquire data
-from a variety of sources.
+Moksha also provides a variety of other Widgets, including a :doc:`LiveWidget` API for creating real-time message-driven widgets that can publish and subscribe to message :doc:`Topics`.
 
 Resource Connectors
 -------------------
@@ -59,19 +57,20 @@ infrastructure environments.
 Expert System
 --------------
 
-The MokshaHub_ gives you Expert System-like functionality by providing APIs for
-interacting with a variety of knowledge bases (SQLAlchemy models, Resource
-Connectors, Caches, Message Queues, etc), and can easily monitor and process
-incoming data.  One could then easily build state-machines, inference engines,
-or even forward/backward-chaning rule-driven expert systems.
+:doc:`MokshaHub` gives you Expert System-like functionality by providing
+APIs for interacting with a variety of knowledge bases (SQLAlchemy models,
+Resource Connectors, Caches, Message Queues, etc), and can easily monitor and
+process incoming data.  One could then easily build state-machines, inference
+engines, or even forward/backward-chaning rule-driven expert systems.
 
-Moksha also provides a simple yet powerful API for creating DataStreamers_ that
-can do basically anything at anytime.  It allows for the easy scripting of
-periodic tasks such as fetching data, polling resources, warming caches,
-sending notifications, analyzing databases, etc.  For example, Moksha provides
-a FeedStream_, that automatically handles fetching, parsing, caching, and
-sending notifications for all known feeds at a regular interval.
+Moksha also provides a simple yet powerful API for creating
+:doc:`DataStreamers` that can do basically anything at anytime.  It allows for
+the easy scripting of periodic tasks such as fetching data, polling resources,
+warming caches, sending notifications, analyzing databases, etc.  For example,
+Moksha provides a :doc:`FeedStream`, that automatically handles fetching,
+parsing, caching, and sending notifications for all known feeds at a regular
+interval.
 
-These are loaded by the MokshaHub_, and are executed outside of the WSGI
+These are loaded by :doc:`MokshaHub`, and are executed outside of the WSGI
 application stack, but they are still able to access the Database, Cache,
 MessageHub, etc.

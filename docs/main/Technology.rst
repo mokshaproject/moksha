@@ -75,3 +75,8 @@ receives, stores, and routes messages using the AMQP protocol.  `RHM
 <http://rhm.et.redhat.com/>`_ is a persistence extension to the Qpid AMQP
 broker that allows message storage using either a libaio-based asynchronous
 journal or synchronously with Berkely DB.  -
+
+`Twisted <http://twistedmatrix.com>`_
+-------------------------------------
+
+Twisted is an event-driven networking engine written in Python.  It is the core engine for the :doc:`MokshaHub`, which reacts to incoming messages, as well as runs our :doc:`DataStreams`.
