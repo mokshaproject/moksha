@@ -1,5 +1,5 @@
 
-<div id="${root_id}">
+<div id="${root_id}_tabs">
 <%def name="display_category(cat)">
     % if cat.get('label'):
       <H4>${cat['label']}</H4>

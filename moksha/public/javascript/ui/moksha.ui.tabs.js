@@ -61,7 +61,10 @@ $.widget("ui.mokshatabs", {
     },
     tabify: function(init) {
 
-        this.$lis = $('ul li:has(>a[href])', this.element);
+        var tab_id = this.element.attr('id') + '_tabs';
+        this.$lis = $('#' + tab_id + ' ul li:has(>a[href])', this.element);
+        console.log(this.$lis)
+        console.log(this.element);
         this.$tabs = this.$lis.map(function() { return $('a', this)[0]; });
         this.$panels = $([]);
 
@@ -263,8 +266,9 @@ $.widget("ui.mokshatabs", {
             /*if (o.bookmarkable && trueClick) { // add to history only if true click occured, not a triggered click
                 $.ajaxHistory.update(clicked.hash);
             }*/
-            $li.addClass(o.selectedClass)
-                .siblings().removeClass(o.selectedClass);
+
+            self.$lis.removeClass(o.selectedClass);
+            $li.addClass(o.selectedClass);
             hideTab(clicked, $hide, $show);
         }
 
