@@ -43,8 +43,7 @@ def _update_params(params, d):
                 value = _update_params(value, d)
                 value = json.dumps(value)
             elif isinstance(value, list):
-                # FIXME: This should be recursive
-                value = json.dumps(value)
+                value = value
 
             if value != None:
                 p[k] = value
@@ -273,14 +272,23 @@ class App(ConfigWrapper):
     def _create_query_string(self, params):
         qlist = []
         for k, i in params.iteritems():
-            s = str(i)
-            s = urllib.quote_plus(s)
+            if isinstance(i, (list, tuple)):
+                # break out lists into multiple entries of the same key
+                for j in i:
+                    s = str(j)
+                    s = urllib.quote_plus(s)
+                    qlist.append("%s=%s" % (k, s))
 
-            qlist.append("%s=%s" % (k, s))
+            else:
+                s = str(i)
+                s = urllib.quote_plus(s)
+
+                qlist.append("%s=%s" % (k, s))
 
         result = ""
         if qlist:
             result = '?' + '&'.join(qlist)
+
         return result
 
     def process(self, d=None):
@@ -491,12 +499,43 @@ class MokshaWidget(Widget):
                                            auth=auth,
                                            css_class=css_class)
 
+class param_contains(Predicate):
+    """
+    Checks the parameters of the environment and return True if the
+    parameter contains the value specified.  If the parameter is a list
+    (more than one value) then check each item in the list.
+    Note this is the environment params (query string and post file) not the TG
+    or ToscaWidget param dicts
+    """
+    message = u'Parameter "%(param)s" is does not contain value "%(value)s"'
+
+    def __init__(self, param, value, **kwargs):
+        super(param_contains, self).__init__(**kwargs)
+        self.param = param
+        self.value = value
+
+    def evaluate(self, environ, credentials):
+        req = Request(environ)
+        p = req.params.getall(self.param)
+
+        if not p:
+            return self.unmet(param = self.param, value = self.value)
+
+        print p
+        for v in p:
+            print v, '==', self.value
+            if v == self.value:
+                return
+
+        return self.unmet(param = self.param, value = self.value)
+
 class param_has_value(Predicate):
     """
     Checks the parameters of the environment and return True if the
-    parameter specified holds a value
+    parameter specified holds a value.  Note this is the environment params
+    (query string and post file) not the TG or ToscaWidget param dicts
     """
-    message = u'Parameter "%s(param)" is not set'
+    message = u'Parameter "%(param)s" is not set'
 
     def __init__(self, param, empty_str_is_valid = False, **kwargs):
         super(param_has_value, self).__init__(**kwargs)
