@@ -448,7 +448,7 @@ moksha = {
     get_base_url: function(obj) {
         var burl = '/';
 
-        if (typeof(moksha_base_url != 'undefined'))
+        if (typeof(moksha_base_url) != 'undefined')
             burl = moksha_base_url;
 
         return burl;
