@@ -66,14 +66,6 @@ $.widget("ui.mokshatabs", {
 
         this.$tabs = this.$lis.map(function() { return $('a', this)[0]; });
 
-        // filter out static link list items after we have extracted their
-        // actual links.  We still want to control the linking but $lis is
-        // used for mapping dynamic tabs to panels
-        this.$lis = this.$lis.map(function() {
-                                               if (!$('a', this).hasClass('static_link'))
-                                                   return this;
-                                             }
-                                 );
         this.$panels = $([]);
 
         var self = this, o = this.options;
@@ -203,9 +195,10 @@ $.widget("ui.mokshatabs", {
             this.$lis.removeClass(o.selectedClass);
             if (o.selected !== null) {
 
-
-                var p = this.$panels.eq(o.selected).show().removeClass(o.hideClass); // use show and remove class to show in any case no matter how it has been hidden before
-                this.$lis.eq(o.selected).addClass(o.selectedClass);
+                var l = this.$lis.eq(o.selected).addClass(o.selectedClass);
+                var a = $('a', l)[0];
+                var $show = $(a.hash + ':first', self.element)
+                $show.show().removeClass(o.hideClass); // use show and remove class to show in any case no matter how it has been hidden before
 
                 // seems to be expected behavior that the show callback is fired
                 var onShow = function() {
