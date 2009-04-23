@@ -16,8 +16,17 @@
 <%def name="display_tab(tab)">
     % if tab['type'] == 'Category':
         ${display_category(tab)}
+    % elif tab['type'] == 'StaticLink':
+        <a href="${tab['url']}${tab['query_string']}"
+           title="${tab['label']}"
+           class="static_link"
+           >
+           ${tab['label']}
+        </a>
     % else:
-        <a href="${tab['url']}${tab['query_string']}" title="${tab['label']}" panel="${tab['content_id']}">
+        <a href="${tab['url']}${tab['query_string']}"
+           title="${tab['label']}"
+           panel="${tab['content_id']}">
           ${tab['label']}
         </a>
     % endif

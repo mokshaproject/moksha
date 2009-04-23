@@ -315,6 +315,10 @@ class App(ConfigWrapper):
 
         return results
 
+class StaticLink(App):
+    """A configuration wrapper class that shows up as a static link in nav
+    elements"""
+
 class MokshaApp(App):
     """A configuration wrapper class that displays a Moksa application
     selected by name. This differes from App in that you don't have to
