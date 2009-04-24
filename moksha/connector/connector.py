@@ -38,8 +38,6 @@ class IConnector(object):
 
     All connectors must derive from this interface
     """
-    _method_paths = {}
-
     def __init__(self, environ=None, request=None):
         super(IConnector, self).__init__()
         self._environ = environ
@@ -338,7 +336,7 @@ class ISearch(IQuery):
                              default_sort_order = None,
                              can_paginate = True):
 
-        cls._search_cache = fas_cache = Cache('moksha_search_cache_ ' + path)
+        cls._search_cache = Cache('moksha_search_cache_%s_%s ' %( cls.__name__, path))
 
         def query_func(conn=None,
                        start_row=0,
