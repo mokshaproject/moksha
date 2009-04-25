@@ -276,7 +276,15 @@ moksha = {
                 var qlist = []
 
                 for (q in this.queryKey) {
-                    qlist.push(q + '=' + this.queryKey[q]);
+                    var value = this.queryKey[q]
+                    if (typeof(value) == 'string') {
+                        qlist.push(q + '=' + value);
+                    } else {
+                        // must be a list, break up into seperate query elements
+                        for (i in value) {
+                            qlist.push(q + '=' + value[i]);
+                        }
+                    }
                 }
 
                 var query = qlist.join('&')
@@ -298,7 +306,18 @@ moksha = {
 
         uri[o.q.name] = {};
         uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
-            if ($1) uri[o.q.name][$1] = $2;
+            if ($1) {
+                var value = uri[o.q.name][$1];
+                if (value) {
+                    if (typeof(value) === 'string')
+                        value = [value];
+
+                    value.push($2);
+                    uri[o.q.name][$1] = value;
+                } else {
+                    uri[o.q.name][$1] = $2;
+                }
+            }
         });
 
         return uri;
@@ -429,7 +448,7 @@ moksha = {
     get_base_url: function(obj) {
         var burl = '/';
 
-        if (typeof(moksha_base_url != 'undefined'))
+        if (typeof(moksha_base_url) != 'undefined')
             burl = moksha_base_url;
 
         return burl;

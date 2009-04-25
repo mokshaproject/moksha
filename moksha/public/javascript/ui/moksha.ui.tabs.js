@@ -61,8 +61,11 @@ $.widget("ui.mokshatabs", {
     },
     tabify: function(init) {
 
-        this.$lis = $('ul li:has(>a[href])', this.element);
+        var tab_id = this.element.attr('id') + '_tabs';
+        this.$lis = $('#' + tab_id + ' ul li:has(>a[href])', this.element);
+
         this.$tabs = this.$lis.map(function() { return $('a', this)[0]; });
+
         this.$panels = $([]);
 
         var self = this, o = this.options;
@@ -70,12 +73,22 @@ $.widget("ui.mokshatabs", {
 
         self.path_remainder = '';
 
+        var first_non_static_tab = -1;
         this.$tabs.each(function(i, a) {
             // inline tab
-            if (a.hash && a.hash.replace('#', '')) // Safari 2 reports '#' for an empty hash
+            if (a.hash && a.hash.replace('#', '')) { // Safari 2 reports '#' for an empty hash
                 self.$panels = self.$panels.add(a.hash);
+                if (first_non_static_tab == -1)
+                    first_non_static_tab = i;
+            // static link
+            } else if ($(a).hasClass('static_link')) {
+                $.data(a, 'href.tabs', href);
+                $.data(a, 'load.tabs', href);
             // remote tab
-            else if ($(a).attr('href') != '#') { // prevent loading the page itself if href is just "#"
+            } else if ($(a).attr('href') != '#') { // prevent loading the page itself if href is just "#"
+                if (first_non_static_tab == -1)
+                    first_non_static_tab = i;
+
                 var href = $(a).attr('href')
                 $.data(a, 'href.tabs', href); // required for restore on destroy
                 $.data(a, 'load.tabs', href); // mutable
@@ -165,7 +178,7 @@ $.widget("ui.mokshatabs", {
                 else if (self.$lis.filter('.' + o.selectedClass).length)
                     o.selected = self.$lis.index( self.$lis.filter('.' + o.selectedClass)[0] );
             }
-            o.selected = o.selected === null || o.selected !== undefined ? o.selected : 0; // first tab selected by default
+            o.selected = o.selected === null || o.selected !== undefined ? o.selected : first_non_static_tab; // first non-static tab selected by default
 
             // Take disabling tabs via class attribute from HTML
             // into account and update option properly.
@@ -182,9 +195,10 @@ $.widget("ui.mokshatabs", {
             this.$lis.removeClass(o.selectedClass);
             if (o.selected !== null) {
 
-
-                var p = this.$panels.eq(o.selected).show().removeClass(o.hideClass); // use show and remove class to show in any case no matter how it has been hidden before
-                this.$lis.eq(o.selected).addClass(o.selectedClass);
+                var l = this.$lis.eq(o.selected).addClass(o.selectedClass);
+                var a = $('a', l)[0];
+                var $show = $(a.hash + ':first', self.element)
+                $show.show().removeClass(o.hideClass); // use show and remove class to show in any case no matter how it has been hidden before
 
                 // seems to be expected behavior that the show callback is fired
                 var onShow = function() {
@@ -263,8 +277,9 @@ $.widget("ui.mokshatabs", {
             /*if (o.bookmarkable && trueClick) { // add to history only if true click occured, not a triggered click
                 $.ajaxHistory.update(clicked.hash);
             }*/
-            $li.addClass(o.selectedClass)
-                .siblings().removeClass(o.selectedClass);
+
+            self.$lis.removeClass(o.selectedClass);
+            $li.addClass(o.selectedClass);
             hideTab(clicked, $hide, $show);
         }
 
@@ -274,7 +289,8 @@ $.widget("ui.mokshatabs", {
             //var trueClick = e.clientX; // add to history only if true click occured, not a triggered click
             var $li = $(this).parents('li:eq(0)'),
                 $hide = self.$panels.filter(':visible'),
-                $show = $(this.hash + ':first', self.element);
+                $show = $(this.hash + ':first', self.element),
+                isStaticLink = $(this).hasClass('static_link');
 
             // If tab disabled or
             // or is already loading or click callback returns false stop here.
@@ -293,6 +309,11 @@ $.widget("ui.mokshatabs", {
             var $el = $(this)
             var href = $el.attr('href');
             href = href.split("-uuid")[0];
+
+             if (isStaticLink) {
+                  moksha.goto(href);
+                  return false;
+             }
 
             //only update the hash level we care about
             if (o.container_level != 0) {
