@@ -118,7 +118,7 @@ $.widget("ui.mokshatabs", {
                 var id = self.tabId(a);
 
                 $(a).data('dynamic_href.tabs', '#' + id);
-                a.href = self._generateTabLink(self._stripUUID(id), true);
+                a.href = moksha.url(self._generateTabLink(self._stripUUID(id), true));
 
                 var $panel = $('#' + id + ':first', self.element);
                 if (!$panel.length) {
