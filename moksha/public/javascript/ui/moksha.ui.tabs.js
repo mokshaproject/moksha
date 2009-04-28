@@ -105,8 +105,17 @@ $.widget("ui.mokshatabs", {
                     first_non_static_tab = i;
             // static link
             } else if ($(a).hasClass('static_link') || o.staticLinkOnClick) {
+                var href = $(a).attr('href');
+
+                // static link on click assumes you have already validated
                 $.data(a, 'href.tabs', href);
                 $.data(a, 'load.tabs', href);
+
+                if (!o.staticLinkOnClick) {
+                    var id = self.tabId(a);
+                    a.href = moksha.url(a.href);
+                }
+
             // remote tab
             } else if ($(a).attr('href') != '#') { // prevent loading the page itself if href is just "#"
                 if (first_non_static_tab == -1)
