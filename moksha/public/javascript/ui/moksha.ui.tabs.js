@@ -112,8 +112,7 @@ $.widget("ui.mokshatabs", {
                 $.data(a, 'load.tabs', href);
 
                 if (!o.staticLinkOnClick) {
-                    var id = self.tabId(a);
-                    a.href = moksha.url(a.href);
+                    a.href = moksha.url(href);
                 }
 
             // remote tab
