@@ -811,9 +811,15 @@ class CategoryEnum(object):
         self._prefix = prefix
         self._code_map = {}
 
-        for number, d in enumerate(data):
-            # we prefix the code so we can validate
-            code = '%s_%d' % (prefix, number)
+        for d in data:
+            # data should be a tuple of (id, url)
+            # id can not have any dots in them
+            id = d[0]
+            if id.find('.') != -1:
+                raise ValueError('The enumeration id %s can not contain dots', id)
+
+            # code is prefix.id
+            code = '%s.%s' % (prefix, d[0])
             dob = EnumDataObj(code, d[1])
             setattr(self, d[0], dob)
             setattr(self, code, dob)
@@ -840,5 +846,20 @@ class CategoryEnum(object):
     def get_data(self, attr):
         return self.attr_to_data(attr)
 
+    def get_category(self):
+        return self._prefix
+
     def __call__(self, code):
         return self.get_data(code)
+
+class EnumGroup(object):
+    def __init__(self):
+        self._enums = {}
+
+    def add(self, enum):
+        self._enums[enum.get_category()] = enum
+
+    def __getitem__(self, key):
+        (category, enum_id) = key.rsplit('.', 1)
+        enum = self._enums[category]
+        return enum.get_data(key)
