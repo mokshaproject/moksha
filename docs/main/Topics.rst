@@ -7,7 +7,7 @@ A `"Topic"` in Moksha is basically just a message queue.
 By abstracting out the low-level messaging protocols and brokers, Moksha
 applications can interact with `"topics"` without having to worry about the
 underlying protocols that are involved.  For example, a `topic` could
-potentially be represented by a a STOMP destination, or even an AMQP message
+potentially be represented by a STOMP destination, or even an AMQP message
 queue.  These messaging backends can be swapped out and configured without
 having to alter the applications that care about those `topics`.
 
