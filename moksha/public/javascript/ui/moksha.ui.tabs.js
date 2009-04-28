@@ -18,6 +18,13 @@ $.widget("ui.mokshatabs", {
     _init: function() {
         this.options.event += '.tabs'; // namespace event
 
+        this._findParentNav();
+
+        // create tabs
+        this.tabify(true);
+    },
+
+    _findParentNav: function() {
         var parent = this.element.parent();
         var container_level = 0;
         var nav_class = this.options.navContainerClass;
@@ -30,10 +37,25 @@ $.widget("ui.mokshatabs", {
         }
 
         this.options.container_level = container_level;
-
-        // create tabs
-        this.tabify(true);
     },
+
+    _stripUUID: function(id) {
+        return id.split("-uuid")[0];
+    },
+
+    _generateTabLink: function(tab_path, attach_query_string) {
+      o = this.options;
+      var container_path = location.hash.substr(1);
+      var tab_link = container_path.split('/');
+      tab_link[o.container_level] = tab_path;
+
+      tab_link = tab_link.splice(0, o.container_level + 1).join('/');
+      if (attach_query_string  && location.search)
+        tab_link += location.search;
+
+      return tab_link;
+    },
+
     setData: function(key, value) {
         if ((/^selected/).test(key))
             this.select(value);
@@ -42,15 +64,18 @@ $.widget("ui.mokshatabs", {
             this.tabify();
         }
     },
+
     length: function() {
         return this.$tabs.length;
     },
+
     tabId: function(a) {
         var panel = $(a).attr('panel');
 
         return panel && panel.replace(/\s/g, '_').replace(/[^A-Za-z0-9\-_:\.]/g, '')
             || this.options.idPrefix + $.data(a);
     },
+
     ui: function(tab, panel) {
         return {
             options: this.options,
@@ -59,6 +84,7 @@ $.widget("ui.mokshatabs", {
             index: this.$tabs.index(tab)
         };
     },
+
     tabify: function(init) {
 
         var tab_id = this.element.attr('id') + '_tabs';
@@ -70,9 +96,6 @@ $.widget("ui.mokshatabs", {
 
         var self = this, o = this.options;
 
-
-        self.path_remainder = '';
-
         var first_non_static_tab = -1;
         this.$tabs.each(function(i, a) {
             // inline tab
@@ -81,7 +104,7 @@ $.widget("ui.mokshatabs", {
                 if (first_non_static_tab == -1)
                     first_non_static_tab = i;
             // static link
-            } else if ($(a).hasClass('static_link')) {
+            } else if ($(a).hasClass('static_link') || o.staticLinkOnClick) {
                 $.data(a, 'href.tabs', href);
                 $.data(a, 'load.tabs', href);
             // remote tab
@@ -93,7 +116,10 @@ $.widget("ui.mokshatabs", {
                 $.data(a, 'href.tabs', href); // required for restore on destroy
                 $.data(a, 'load.tabs', href); // mutable
                 var id = self.tabId(a);
-                a.href = '#' + id;
+
+                $(a).data('dynamic_href.tabs', '#' + id);
+                a.href = self._generateTabLink(self._stripUUID(id), true);
+
                 var $panel = $('#' + id + ':first', self.element);
                 if (!$panel.length) {
                     $panel = $(o.panelTemplate).attr('id', id).addClass(o.panelClass)
@@ -197,7 +223,7 @@ $.widget("ui.mokshatabs", {
 
                 var l = this.$lis.eq(o.selected).addClass(o.selectedClass);
                 var a = $('a', l)[0];
-                var $show = $(a.hash + ':first', self.element)
+                var $show = $($(a).data('dynamic_href.tabs') + ':first', self.element)
                 $show.show().removeClass(o.hideClass); // use show and remove class to show in any case no matter how it has been hidden before
 
                 // seems to be expected behavior that the show callback is fired
@@ -289,7 +315,7 @@ $.widget("ui.mokshatabs", {
             //var trueClick = e.clientX; // add to history only if true click occured, not a triggered click
             var $li = $(this).parents('li:eq(0)'),
                 $hide = self.$panels.filter(':visible'),
-                $show = $(this.hash + ':first', self.element),
+                $show = $($(this).data('dynamic_href.tabs') + ':first', self.element),
                 isStaticLink = $(this).hasClass('static_link');
 
             // If tab disabled or
@@ -307,8 +333,11 @@ $.widget("ui.mokshatabs", {
             self.options.selected = self.$tabs.index(this);
 
             var $el = $(this)
-            var href = $el.attr('href');
-            href = href.split("-uuid")[0];
+
+            // we don't get the actual href but the dynamic one
+            var href = $el.data('dynamic_href.tabs');
+
+            href = self._stripUUID(href);
 
              if (isStaticLink) {
                   moksha.goto(href);
@@ -317,22 +346,18 @@ $.widget("ui.mokshatabs", {
 
             //only update the hash level we care about
             if (o.container_level != 0) {
-              var hash = location.hash.substr(1);
-              hash = hash.split('/');
-              hash[o.container_level] = href.substr(1);
-
-              hash = hash.splice(0, o.container_level + 1).join('/');
+              var hash = self._generateTabLink(href.substr(1), false);
 
               if (o.staticLoadOnClick) {
                   moksha.goto(hash);
-                  return;
+                  return false;
               } else {
                   location.hash = '#' + hash;
               }
             } else {
               if (o.staticLoadOnClick) {
                   moksha.goto(href.substr(1));
-                  return;
+                  return false;
               } else {
                   location.hash = href;
               }
@@ -407,7 +432,6 @@ $.widget("ui.mokshatabs", {
 
             //return o.bookmarkable && !!trueClick; // convert trueClick == undefined to Boolean required in IE
             return false;
-
         });
 
         // disable click if event is configured to something else
@@ -546,8 +570,12 @@ $.widget("ui.mokshatabs", {
         var index = -1;
         var l = id.length;
         for(var i=0; i < this.$tabs.length; i++) {
-            var h = $(this.$tabs[i]).attr('href');
-            h = h.split('-uuid')[0]
+            var h = $(this.$tabs[i]).data('dynamic_href.tabs');
+            // static links do not count
+            if (!h)
+                continue;
+
+            h = this._stripUUID(h);
             if (h == id) {
                 index = i;
                 break;
@@ -596,11 +624,9 @@ $.widget("ui.mokshatabs", {
                 .find('em').data('label.tabs', label).html(o.spinner);
         }
 
-        //if (o.passPathRemainder)
-        //    url += self.path_remainder;
-
         var success_cb = function(r, s) {
-                var $panel = $(a.hash + ':first', self.element);
+                var id = $(a).data('dynamic_href.tabs')
+                var $panel = $(id + ':first', self.element);
                 var $stripped = moksha.filter_resources(r);
 
                 $panel.html($stripped);
