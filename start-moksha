@@ -6,8 +6,9 @@ if [ ! $VIRTUAL_ENV ]; then
         echo "Initializing a TurboGears2 virtual environment"
         virtualenv --no-site-packages tg2env
         source tg2env/bin/activate
-        easy_install -U setuptools
-        ./pip.py install -E tg2env -r normal-reqs.txt --extra-index-url=http://www.turbogears.org/2.0/downloads/current/index
+        #easy_install -U setuptools
+        #./pip.py install -E tg2env -r normal-reqs.txt --extra-index-url=http://www.turbogears.org/2.0/downloads/current/index
+        easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
         pushd moksha/widgetbrowser; python setup.py develop; popd
     else
         source tg2env/bin/activate
