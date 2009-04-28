@@ -321,10 +321,16 @@ $.widget("ui.mokshatabs", {
         this.$tabs.unbind('.tabs').bind(o.event, function() {
 
             //var trueClick = e.clientX; // add to history only if true click occured, not a triggered click
+
+            // if we have a static link use that instead
+            var isStaticLink = $(this).hasClass('static_link');
+            if (isStaticLink)
+                return true;
+
             var $li = $(this).parents('li:eq(0)'),
                 $hide = self.$panels.filter(':visible'),
                 $show = $($(this).data('dynamic_href.tabs') + ':first', self.element),
-                isStaticLink = $(this).hasClass('static_link');
+
 
             // If tab disabled or
             // or is already loading or click callback returns false stop here.
@@ -346,11 +352,6 @@ $.widget("ui.mokshatabs", {
             var href = $el.data('dynamic_href.tabs');
 
             href = self._stripUUID(href);
-
-             if (isStaticLink) {
-                  moksha.goto(href);
-                  return false;
-             }
 
             //only update the hash level we care about
             if (o.container_level != 0) {
