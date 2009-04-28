@@ -329,8 +329,7 @@ $.widget("ui.mokshatabs", {
 
             var $li = $(this).parents('li:eq(0)'),
                 $hide = self.$panels.filter(':visible'),
-                $show = $($(this).data('dynamic_href.tabs') + ':first', self.element),
-
+                $show = $($(this).data('dynamic_href.tabs') + ':first', self.element)
 
             // If tab disabled or
             // or is already loading or click callback returns false stop here.
