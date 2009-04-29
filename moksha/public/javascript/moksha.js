@@ -134,6 +134,50 @@ moksha = {
     },
 
     /******************************************************************
+     * Filter anchors in a fragment of HTML or jQuery DOM marked with
+     * a moksha_url attribute so that they have updated static links
+     * (e.g. run moksha.url on them)
+     * and dynamic moksha.goto links
+     *
+     * Dynamic links will eventually be able to load the correct tabs
+     * on click and static links are used when the user opens the link
+     * in another browser window.
+     *
+     * moksha_url="dynamic" - make both a dynamic and static link
+     * moksha_url="static" - only make a static link
+     ******************************************************************/
+    update_marked_anchors: function(fragment) {
+        if (!fragment.jquery)
+            fragment = $(fragment);
+
+        var $a_list = $('a[moksha_url]', fragment);
+
+        var _goto = function(e) {
+           var href = $(this).data('dynamic_href.moksha');
+           moksha.goto(href);
+
+           return false;
+        }
+
+        $.each($a_list, function(i, e) {
+                            var $e = $(e)
+                            var href = $e.attr('href');
+                            var moksha_url = $e.attr('moksha_url');
+
+                            if (moksha_url.toLowerCase() == 'dynamic') {
+                                $e.data('dynamic_href.moksha', href);
+                                $e.unbind('click.moksha').bind('click.moksha', _goto);
+                            }
+
+                            href = moksha.url(href);
+                            e.href = href;
+                        }
+              );
+
+       return fragment;
+    },
+
+    /******************************************************************
      * Filter resources in a fragment of HTML or jQuery DOM
      * so that they aren't double loaded.  Right now this is only
      * scripts but could be expanded to css and other loaded
@@ -147,6 +191,7 @@ moksha = {
 
         var $f = moksha.filter_scripts(fragment);
         $f = moksha.filter_links($f);
+        $f = moksha.update_marked_anchors($f);
         return $f;
     },
 
@@ -271,6 +316,33 @@ moksha = {
             },
 
             prepend_base_url: function(base_url) {
+                // make sure we haven't already prepended the base url
+                // always remove leading slashes
+                var leading_slashes = /^\/+/;
+
+                var base_split = base_url.replace(leading_slashes, '').split('/');
+                var dir_split = this.directory.replace(leading_slashes, '').split('/');
+
+                var should_exit = true;
+                for (i in base_split) {
+
+                    try {
+                        var b = base_split[i];
+                        var d = dir_split[i];
+                    } catch (e) {
+                        should_exit = false;
+                        break;
+                    }
+
+                    if (b != d) {
+                        should_exit = false;
+                        break;
+                    }
+                }
+
+                if (should_exit)
+                    return;
+
                 this.directory = base_url + this.directory;
                 this.directory = this._normalize_path(this.directory);
 
@@ -304,7 +376,8 @@ moksha = {
                 }
 
                 var query = qlist.join('&')
-                url += '?'+ query;
+                if(query)
+                    url += '?'+ query;
 
                 if (this.anchor)
                     url += '#' + this.anchor;
@@ -475,11 +548,11 @@ moksha = {
             params = {};
 
        var purl = moksha.parseUri(url);
-       purl.update_query_string(params);
 
        if (!purl.protocol) {
            var burl = moksha.get_base_url();
            purl.prepend_base_url(burl);
+           purl.update_query_string(params);
 
            moksha.csrf_rewrite_uri(purl);
        }

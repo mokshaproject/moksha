@@ -8,7 +8,7 @@
        <ul>
        % for j, item in enumerate(c['items']):
          <li>
-            <a id="${content_id}_${i}_${j}" href="javascript:moksha.goto('${item['link']}')" >${item['label']}</a>
+            <a id="${content_id}_${i}_${j}" href="${item['link']}" moksha_url="dynamic">${item['label']}</a>
             % if 'data' in item:
             <script type="text/javascript">
                 <%
