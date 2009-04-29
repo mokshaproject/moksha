@@ -120,8 +120,7 @@ moksha = {
     /******************************************************************
      * Filter anchors in a fragment of HTML or jQuery DOM marked with
      * a moksha_url attribute so that they have updated static links
-     * (e.g. run moksha.url on them)
-     * and dynamic moksha.goto links
+     * (e.g. run moksha.url on them) and dynamic moksha.goto links
      *
      * Dynamic links will eventually be able to load the correct tabs
      * on click and static links are used when the user opens the link
@@ -134,7 +133,10 @@ moksha = {
         if (!fragment.jquery)
             fragment = $(fragment);
 
-        var $a_list = $('a[moksha_url]', fragment);
+        // get all anchors with a moksha_url attr but not inside a rowtemplate
+        var $a_list = $('a[moksha_url]:not(.rowtemplate *):not(.template *)', fragment);
+        if (!$a_list.length)
+            return fragment;
 
         var _goto = function(e) {
            var href = $(this).data('dynamic_href.moksha');

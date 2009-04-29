@@ -310,9 +310,6 @@
       if (rowtemplate.length)
           rowtemplate.after(self.$rowplaceholder);
 
-      var $a = jQuery('a[href]', rowtemplate);
-      $.each($a, function(i,e) { $(e).attr('moksha_url', 'dynamic') });
-
       // hack to get the full html of the template including the root tag
       // this also removes the template from the document
       var container_div = jQuery('<div />');
