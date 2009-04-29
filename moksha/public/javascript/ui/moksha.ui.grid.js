@@ -375,7 +375,6 @@
       $pager_bottom_placeholder.append($("<div></div>").addClass('pager'));
       $pager_bottom_placeholder.insertAfter(self.element);
       self.$pager_bottom_placeholder = $pager_bottom_placeholder;
-      $("<div></div>").addClass('clear').insertAfter($pager_bottom_placeholder);
 
       self.request_data_refresh();
     },
