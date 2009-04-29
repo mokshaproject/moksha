@@ -70,6 +70,8 @@
             return;
 
         var $new_row = jQuery(o.row_template.apply(row_data));
+        moksha.update_marked_anchors($new_row);
+
         var $ph = self.$rowplaceholder;
         if (i == -1 || row_count == i) {
             var row_class = o.rowClass + '_' + row_count.toString();
@@ -307,6 +309,9 @@
       rowtemplate.removeClass('rowtemplate')
       if (rowtemplate.length)
           rowtemplate.after(self.$rowplaceholder);
+
+      var $a = jQuery('a[href]', rowtemplate);
+      $.each($a, function(i,e) { $(e).attr('moksha_url', 'dynamic') });
 
       // hack to get the full html of the template including the root tag
       // this also removes the template from the document
