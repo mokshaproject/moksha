@@ -36,6 +36,8 @@
       self.$rowplaceholder = jQuery('<span />').addClass('moksha_rowplaceholder');
       self.$rowplaceholder.hide();
 
+      self._init_controls();
+
       if (!self.element.is('table')) {
           var t = self._generate_table();
 
@@ -43,8 +45,6 @@
       } else {
           self._setup_template();
       }
-
-      self._init_controls();
 
       self.clear();
     },
@@ -520,6 +520,37 @@
                                     "Loading..."]
           }
   });
+
+  $.ui.mokshagrid.prototype.controls.filter = {
+      _init: function($grid, $el) {
+          var filters = this.getFilters($el);
+          var self = this;
+          var o = $grid.options;
+
+          var onChange = function() {
+              o.filters[this.name] = this.value;
+              $grid.request_data_refresh();
+          }
+
+          filters.change(onChange);
+
+          // set the defaults
+          $.each(filters, function (i, f) {
+                              alert (f.name + '=' + f.value);
+                              o.filters[f.name] = f.value;
+                          });
+      },
+
+      getFilters: function($el) {
+          var filters = $el.find('select,input');
+
+          return filters;
+      },
+
+      processElement: function($el) {
+          // we don't do anything here as it is all handled by the event handler
+      },
+  }
 
   $.ui.mokshagrid.prototype.controls.info_display = {
       _init: function($grid, $el) {
