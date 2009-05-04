@@ -1,21 +1,22 @@
 // This file is part of Moksha.
 // Copyright (C) 2008-2009  Red Hat, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
 // published by the Free Software Foundation, either version 3 of the
 // License, or (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (function($) {
   $.widget("ui.mokshagrid",{
+    controls: function(){},
     /* methods */
 
     _init: function() {
@@ -42,6 +43,8 @@
       } else {
           self._setup_template();
       }
+
+      self._init_controls();
 
       self.clear();
     },
@@ -219,6 +222,53 @@
         self.request_data_refresh();
     },
 
+    _foreach_controls: function(callback) {
+        var self = this;
+
+        // get our controls
+        var $controls = $('#grid-controls', this.element.parent());
+
+        // iterate through all of our control plugins
+        // and get any id that matches
+        for(var key in self.controls) {
+            var $matched_controls = $("#" + key, $controls);
+            $.each($matched_controls, function(i, c) {
+                                          callback(self.controls[key], i, c);
+                                      });
+        }
+    },
+
+    _init_controls: function() {
+        var self = this;
+        var f = function(plugin, i, c) {
+            // for each matched control call the
+            // _init method of the plugin if it has one
+
+            $(c).data('grid.moksha_grid', self);
+            if (plugin._init)
+                plugin._init.call(plugin,
+                                  self,
+                                  $(c));
+        }
+
+        this._foreach_controls(f);
+    },
+
+    _process_controls: function() {
+         var self = this;
+         var f = function(plugin, i, c) {
+            // for each matched control call the
+            // processElement method of the plugin
+            results = plugin.processElement.call(plugin,
+                                                 $(c));
+
+            // place the results inside the element
+            $(c).html(results);
+          }
+
+        this._foreach_controls(f);
+    },
+
     refresh_data: function(event, search_criteria) {
         var self = this;
         var o = self.options;
@@ -233,13 +283,18 @@
                 self.append_row(json.rows[i]);
             }
 
-            var tr = json.total_rows;
-            var vr = self.visible_row_count();
-            var sr = json.start_row;
-            var rpp = json.rows_per_page;
 
+            // reset based on returned values
+            o.total_rows = json.total_rows;
+            o.start_row = json.start_row;
+            o.rows_per_pager = json.rows_per_page;
+
+            self._process_controls();
+
+            var vr = self.visible_row_count();
+
+            /* msg block
             var msg = '';
-            var pager = '';
 
             var show_range = vr.toString();
             // show an actual range if we are not starting from 0
@@ -252,21 +307,7 @@
 
             $('.message', self.$pager_bottom_placeholder).html(msg);
 
-            var pager;
-            if (o.more_link)
-                pager = self._generate_more_link(o.more_link,
-                                                 search_criteria.filters);
-            else
-                pager = self._generate_numerical_pager(tr, sr, rpp);
-
-            $('.pager', self.$pager_bottom_placeholder).html(pager);
-            self.$pager_bottom_placeholder.show();
-
-            if (o.alphaPager) {
-                pager = self._generate_alpha_pager();
-                $('.pager', self.$pager_top_placeholder).html(pager);
-                self.$pager_top_placeholder.show();
-            }
+            */
         }
 
         var dispatch_data = {}
@@ -309,8 +350,10 @@
         var $rows = $('.' + o.rowClass, $ph.parent());
 
         for (i=$rows.length; i > 0; i--) {
-            if (!$($rows[i-1]).hasClass(o.blankRowClass))
+            if (!$($rows[i-1]).hasClass(o.blankRowClass)) {
+                o.visible_rows = i + 1;
                 return i;
+            }
         }
 
         return 0;
@@ -397,128 +440,6 @@
       self.request_data_refresh();
     },
 
-    _generate_more_link: function (more_link, filters) {
-        var go = moksha.csrf_rewrite_url(more_link, filters);
-        var pager = $('<a>View more ></a>').attr('href',
-                                     'javascript:moksha.goto("' + go + '")');
-
-        return pager;
-    },
-
-    _generate_alpha_pager: function () {
-        var self = this;
-        var o = self.options;
-        var curr_alpha = o.filters.prefix;
-        if (typeof(curr_alpha) == 'undefined')
-            current_alpha = '';
-
-        var pager = $('<ul />');
-        var goto_page = function() {
-                    var page_jump = $(this).data('alpha_page.moksha_grid');
-                    self.goto_alpha_page(page_jump);
-                }
-
-        var alph = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        for (i in alph) {
-            var a = alph[i];
-
-            var page = $('<li />').html(a).addClass('page-button').addClass('current-page');
-            if (a!=curr_alpha) {
-                page.removeClass('current-page');
-
-                var page_link = $('<a href="javascript:void(0)"></a>').html(a);
-                page_link.data('alpha_page.moksha_grid', a);
-                page_link.click(goto_page);
-
-                page.html(page_link);
-            }
-
-            pager.append(page);
-        }
-
-        var page = $('<li>All</li>').addClass('page-button').addClass('current-button');
-        if (curr_alpha != '') {
-           var page_link = $('<a href="javascript:void(0)"></a>').html('All');
-
-           page_link.data('alpha_page.moksha_grid', '');
-           page_link.click(goto_page);
-
-           page.html(page_link);
-        }
-
-        pager.append(page);
-
-        return pager;
-    },
-
-    _generate_numerical_pager: function (total_rows, start_row, rows_per_page) {
-        var self = this;
-        var o = self.options;
-        var total_pages = parseInt(total_rows / rows_per_page);
-        if (total_rows != total_pages * rows_per_page)
-            total_pages += 1;
-
-        var curr_page = parseInt((start_row + 0.5) / rows_per_page) + 1;
-
-        var next_page = curr_page + 1;
-
-        var pager = $('<ul />');
-        var goto_page = function() {
-                    var page_jump = $(this).data('page.moksha_grid');
-                    self.goto_page(page_jump);
-                }
-
-        var show_prev = parseInt((o.pagerPageLimit + 0.5) / 2) + 1;
-        var show_next = o.pagerPageLimit - show_prev;
-        var num_next_left = total_pages - curr_page;
-        if (num_next_left < show_next)
-            show_prev += (show_next - num_next_left)
-
-        var page_list = [];
-        var i, j;
-        for (i = curr_page, j = 0; i > 0 && j < show_prev ; i--, j++) {
-            page_list.push(i);
-        }
-
-        page_list.reverse();
-        if (page_list.length < show_prev)
-            show_next += (show_prev - page_list.length)
-
-        for (i = curr_page + 1, j = 0; i <= total_pages && j < show_next ; i++, j++) {
-            page_list.push(i);
-        }
-
-        for (i in page_list) {
-            var page_num = page_list[i];
-            var page = $('<li></li>').html(page_num).addClass('page-button').addClass('current-page');
-            if (page_num != curr_page) {
-                page.removeClass('current-page');
-                var page_link = $('<a href="javascript:void(0)"></a>').html(page_num);
-
-                page_link.data('page.moksha_grid', page_num);
-                page_link.click(goto_page);
-
-                page.html(page_link);
-            }
-
-            pager.append(page);
-        }
-
-        var page = $("<li>Next</li>").addClass('page-button').addClass('next-page');
-
-        if (curr_page < total_pages) {
-             var page_link = $('<a href="javascript:void(0)"></a>').html('Next');
-
-             page_link.data('page.moksha_grid', next_page);
-             page_link.click(goto_page);
-             page.html(page_link);
-        }
-
-        pager.append(page);
-
-        return(pager);
-    },
-
     _generate_table: function() {
         var self = this;
         var t = $('<table />');
@@ -578,6 +499,7 @@
                  rows_per_page: 10,
                  page_num: 1,
                  total_rows: 0,
+                 visible_rows: 0,
                  filters: {},
                  unique_key: undefined,
                  sort_key: undefined,
@@ -587,11 +509,10 @@
                  resource_path: null,
                  blankRowClass: 'moksha-grid-blank-row',
                  rowClass: 'moksha-grid-row',
-                 moreClass: 'moksha-grid-more',
-                 pagerTopClass: 'moksha-grid-pager-top',
-                 pagerBottomClass: 'moksha-grid-pager-bottom',
                  pagerPageLimit: 10,
                  alphaPager: false,
+                 numericPager: false,
+                 filterControls: false,
                  more_link: null,
                  loading_throbber: ["Loading",    // list of img urls or text
                                     "Loading.",
@@ -599,6 +520,231 @@
                                     "Loading..."]
           }
   });
+
+  $.ui.mokshagrid.prototype.controls.info_display = {
+      _init: function($grid, $el) {
+          var template_html = '<span>' + unescape($el.html()) + '<span>';
+          var $template = jQuery.template(template_html, {regx:'moksha'});
+
+          // place in a data slot inside the element
+          $el.data('info_display_template.moksha_grid', $template);
+
+          $el.html(this.processElement($el));
+
+          // remove the template marker from the element
+          $el.removeClass('template');
+      },
+
+      processElement: function($el) {
+          var $grid = $el.data('grid.moksha_grid');
+
+          var $template = $el.data('info_display_template.moksha_grid');
+          return this._generate_info_display($template, $grid.options);
+      },
+
+      _generate_info_display: function($template, o) {
+          var $display = jQuery($template.apply(o));
+          moksha.update_marked_anchors($display);
+
+          return $display;
+      }
+  }
+
+  $.ui.mokshagrid.prototype.controls.pager = {
+      pager_types: {},
+      _init: function($grid, $el) {
+          var type = $el.attr('type');
+
+          var pager_obj = this.pager_types[type];
+          if (!pager_obj) {
+              moksha.warn('Pager type ' + type + ' requested but does not have a plugin');
+              return '';
+          }
+
+
+          if (typeof(pager_obj._init) == "function") {
+              pager_obj._init.call(pager_obj,
+                                   $grid,
+                                   $el);
+          }
+      },
+
+      processElement: function($el) {
+          var type = $el.attr('type');
+
+          var pager_obj = this.pager_types[type];
+
+          if (!pager_obj) {
+              moksha.warn('Pager type ' + type + ' requested but does not have a plugin');
+              return '';
+          }
+
+          return pager_obj.processElement.call(this.pager_types[type],
+                                               $el);
+      },
+  };
+
+  $.ui.mokshagrid.prototype.controls.pager.pager_types.more_link = {
+
+      _init: function($grid, $el) {
+          var template_html = unescape($el.html());
+          var $template = jQuery.template(template_html, {regx:'moksha'});
+
+          // place in a data slot inside the element
+          $el.data('more_link_template.moksha_grid', $template);
+
+          // remove the template marker from the element
+          $el.removeClass('template');
+
+          $el.html(this.processElement($el));
+      },
+
+      processElement: function($el) {
+          var $grid = $el.data('grid.moksha_grid');
+          if (!$grid.options.more_link)
+              return "";
+
+          var $template = $el.data('more_link_template.moksha_grid');
+          return this._generate_more_pager($template, $grid.options);
+      },
+
+      _generate_more_pager: function($template, o) {
+          var $pager = jQuery($template.apply(o));
+          moksha.update_marked_anchors($pager);
+
+          return $pager;
+      }
+  }
+
+  $.ui.mokshagrid.prototype.controls.pager.pager_types.alpha = {
+      processElement: function($el) {
+          var $grid = $el.data('grid.moksha_grid');
+
+          if (!$grid.options.alphaPager)
+              return "";
+
+          return this._generate_alpha_pager($grid);
+      },
+
+      _generate_alpha_pager: function ($grid) {
+          var o = $grid.options;
+          var curr_alpha = o.filters.prefix;
+          if (typeof(curr_alpha) == 'undefined')
+              current_alpha = '';
+
+          var pager = $('<ul />');
+          var goto_page = function() {
+              var page_jump = $(this).data('alpha_page.moksha_grid');
+              $grid.goto_alpha_page(page_jump);
+          }
+
+          var alph = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+          for (i in alph) {
+              var a = alph[i];
+
+              var page = $('<li />').html(a).addClass('page-button').addClass('current-page');
+              if (a!=curr_alpha) {
+                  page.removeClass('current-page');
+
+                  var page_link = $('<a href="javascript:void(0)"></a>').html(a);
+                  page_link.data('alpha_page.moksha_grid', a);
+                  page_link.click(goto_page);
+
+                  page.html(page_link);
+              }
+
+              pager.append(page);
+          }
+
+          var page = $('<li>All</li>').addClass('page-button').addClass('current-button');
+          if (curr_alpha != '') {
+             var page_link = $('<a href="javascript:void(0)"></a>').html('All');
+
+             page_link.data('alpha_page.moksha_grid', '');
+             page_link.click(goto_page);
+
+             page.html(page_link);
+          }
+
+          pager.append(page);
+
+          return pager;
+      }
+  };
+
+  $.ui.mokshagrid.prototype.controls.pager.pager_types.numeric = {
+      processElement: function($el) {
+          var $grid = $el.data('grid.moksha_grid');
+          var o = $grid.options;
+          if (!o.numericPager)
+               return ""
+
+          return this._generate_numerical_pager($grid,
+                                                o.total_rows,
+                                                o.start_row,
+                                                o.rows_per_page);
+      },
+
+      _generate_numerical_pager: function ($grid, total_rows, start_row, rows_per_page) {
+          var o = $grid.options;
+          var total_pages = parseInt(total_rows / rows_per_page);
+          if (total_rows != total_pages * rows_per_page)
+              total_pages += 1;
+
+          var curr_page = parseInt((start_row + 0.5) / rows_per_page) + 1;
+          var next_page = curr_page + 1;
+          var pager = $('<ul />');
+
+          var goto_page = function() {
+              var page_jump = $(this).data('page.moksha_grid');
+              $grid.goto_page(page_jump);
+          }
+
+          var show_prev = parseInt((o.pagerPageLimit + 0.5) / 2) + 1;
+          var show_next = o.pagerPageLimit - show_prev;
+          var num_next_left = total_pages - curr_page;
+          if (num_next_left < show_next)
+              show_prev += (show_next - num_next_left)
+
+          var page_list = [];
+          var i, j;
+          for (i = curr_page, j = 0; i > 0 && j < show_prev; i--, j++)
+              page_list.push(i);
+
+          page_list.reverse();
+          if (page_list.length < show_prev)
+              show_next += (show_prev - page_list.length)
+
+          for (i = curr_page + 1, j = 0; i <= total_pages && j < show_next; i++, j++)
+              page_list.push(i);
+
+          for (i in page_list) {
+              var page_num = page_list[i];
+              var page = $('<li></li>').html(page_num).addClass('page-button').addClass('current-page');
+              if (page_num != curr_page) {
+                  page.removeClass('current-page');
+                  var page_link = $('<a href="javascript:void(0)"></a>').html(page_num);
+
+                  page_link.data('page.moksha_grid', page_num);
+                  page_link.click(goto_page);
+                  page.html(page_link);
+              }
+
+              pager.append(page);
+          }
+
+          var page = $("<li>Next</li>").addClass('page-button').addClass('next-page');
+          if (curr_page < total_pages) {
+              var page_link = $('<a href="javascript:void(0)"></a>').html('Next');
+              page_link.data('page.moksha_grid', next_page);
+              page_link.click(goto_page);
+              page.html(page_link);
+          }
+
+          pager.append(page);
+          return(pager);
+      }
+  };
 
 $.extend( $.template.regx , {
              moksha:/\@\{([\w-]+)(?:\:([\w\.]*)(?:\((.*?)?\))?)?\}/g
