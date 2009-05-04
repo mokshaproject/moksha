@@ -536,7 +536,6 @@
 
           // set the defaults
           $.each(filters, function (i, f) {
-                              alert (f.name + '=' + f.value);
                               o.filters[f.name] = f.value;
                           });
       },
