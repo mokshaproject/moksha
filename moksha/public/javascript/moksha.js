@@ -147,9 +147,8 @@ moksha = {
         // run over all the toplevel arguments and add them to the list
         // if they match
         var $filtered_fragment = fragment.filter('a[moksha_url]');
-        $a_list.extend($filtered_fragment);
 
-        if (!$a_list.length)
+        if (!($a_list.length + $filtered_fragment.length))
             return fragment;
 
         var _goto = function(e) {
@@ -159,7 +158,7 @@ moksha = {
            return false;
         }
 
-        $.each($a_list, function(i, e) {
+        var transform = function(i, e) {
                             var $e = $(e)
                             var href = $e.attr('href');
                             var moksha_url = $e.attr('moksha_url');
@@ -172,7 +171,9 @@ moksha = {
                             href = moksha.url(href);
                             e.href = href;
                         }
-              );
+
+       $.each($a_list, transform);
+       $.each($filtered_fragment, transform);
 
        return fragment;
     },
