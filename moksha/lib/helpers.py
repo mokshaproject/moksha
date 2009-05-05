@@ -84,9 +84,6 @@ class ConfigWrapper(object):
     Derive from this class to create new configuration syntax
 
     """
-    def __init__(self):
-        super(ConfigWrapper, self).__init__()
-        self.uuid = 'uuid' + str(uuid.uuid4())
 
     def _update_nested_dicts(self, dest, source):
         """Recursive helper which updates nested dicts"""
@@ -135,8 +132,8 @@ class ConfigWrapper(object):
         the configuration option
         """
         default_values = dict(query_string='',
-                              id = self.uuid,
-                              type = self.__class__.__name__)
+                              id='uuid' + str(uuid.uuid4()),
+                              type=self.__class__.__name__)
 
         return default_values
 
