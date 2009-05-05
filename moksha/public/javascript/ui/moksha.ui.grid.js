@@ -226,7 +226,7 @@
         var self = this;
 
         // get our controls
-        var $controls = $('#grid-controls', this.element.parent());
+        var $controls = self._control_list;
 
         // iterate through all of our control plugins
         // and get any id that matches
@@ -240,15 +240,42 @@
 
     _init_controls: function() {
         var self = this;
+
+        $controls = $('#grid-controls', this.element.parent());
+        self._control_list = $controls;
+
+        $.each($controls, function(i, c) {
+            var $c = $(c);
+            var attach = $c.attr('attach');
+            if (attach) {
+                // attach is a jQuery selector relative to the ancestor
+                // ancestor is specified by an integer indicating how many
+                // levels we should traverse up the parent tree
+                parent_nest = $c.attr('ancestor');
+
+                $parent = $(document);
+                if (typeof(parent_nest) != 'undefined') {
+                    $parent = $c;
+                    for (var i=0; i<parent_nest; i++) {
+                        $parent = $parent.parent();
+                    }
+                }
+
+                var $attach_node = $(attach, $parent);
+                $attach_node.append($c);
+            }
+        });
+
         var f = function(plugin, i, c) {
             // for each matched control call the
             // _init method of the plugin if it has one
+            $c = $(c);
+            $c.data('grid.moksha_grid', self);
 
-            $(c).data('grid.moksha_grid', self);
             if (plugin._init)
                 plugin._init.call(plugin,
                                   self,
-                                  $(c));
+                                  $c);
         }
 
         this._foreach_controls(f);
