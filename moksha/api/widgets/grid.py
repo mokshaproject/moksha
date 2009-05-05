@@ -48,7 +48,7 @@ class Grid(FormField):
     rows_per_page = 10
     page_num = 1
     total_rows = 0
-    filters = {}
+    filters = None
     unique_key = None
     sort_key = None
     sort_order = -1
@@ -64,6 +64,9 @@ class Grid(FormField):
         super(Grid, self).update_params(d)
         if not getattr(d,"id",None):
             raise ValueError, "Moksha Grid is supposed to have id"
+
+        if not d.filters:
+            d.filters = {}
 
         grid_d = {}
         for p in self.params:
