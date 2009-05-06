@@ -62,67 +62,99 @@ $(document).ready(function(){
 
 moksha = {
     /******************************************************************
-     * Filter the script tags in a fragment of HTML or jQuery DOM
-     * so that they aren't double loaded.  You should send in HTML
-     * if possible because placing script tags in a jQuery DOM can
-     * cause them to load if not done correctly
+     * Filter the script tags in a fragment of HTML so that they aren't
+     * double loaded.
      ******************************************************************/
     filter_scripts: function(fragment) {
-        // don't append to a tag, doing so will cause scripts to load
-        if (!fragment.jquery)
-            fragment = $(fragment);
+        var find_scripts = /<(\/)?\s*script((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)(\/)?>/gmi;
+        var find_src_attr = /\s*src\s*=("|')(.*)\1/i;
+        var find_end_tag_state = null; // if !null then = start tag index
 
-        var $stripped = [];
-        $.each(fragment, function(i, s) {
-            var $s = $(s)
-            if ($s.is('script[src]')){
-                var src = $s.attr('src');
+        while ((match = find_scripts.exec(fragment))!=null) {
+            var is_self_closing_tag = (match[-1] == '/');
+            var is_close_tag = (match[1] == '/') || is_self_closing_tag;
+
+            if (is_close_tag && find_end_tag_state) {
+                fragment = (fragment.substring(0, find_end_tag_state) +
+                               fragment.substring(find_scripts.lastIndex));
+
+                find_scripts.lastIndex = find_end_tag_state;
+                find_end_tag_state = null;
+
+                continue;
+            }
+
+            var attrs = match[2];
+            var src = attrs.match(find_src_attr);
+            if (src){
                 //strip query string
-                src = src.split('?')[0];
+                src = src[2].split('?')[0];
 
                 if(!_moksha_page_scripts_cache[src]) {
                     // we can add more attributes later
                     // right now just set to true
                     _moksha_page_scripts_cache[src] = true;
-                    $stripped.push(s);
+                } else {
+                    if (is_self_closing_tag) {
+                        fragment = (fragment.substring(0, match.index) +
+                               fragment.substring(find_scripts.lastIndex));
+                        find_scripts.lastIndex = match.index;
+                    } else {
+                        find_end_tag_state = match.index;
+                    }
                 }
-            } else {
-                $stripped.push(s);
             }
-        });
+        }
 
-        return $stripped;
+        return fragment;
     },
 
     /******************************************************************
-     * Filter the link tags in a fragment of HTML or jQuery DOM
-     * so that they aren't double loaded.
+     * Filter the link tags in a fragment of HTML so they aren't
+     * double loaded.
      ******************************************************************/
     filter_links: function(fragment) {
-        // don't append to a tag, doing so will cause scripts to load
-        if (!fragment.jquery)
-            fragment = $(fragment);
+        var find_links = /<(\/)?\s*link((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)(\/)?>/gmi;
+        var find_href_attr = /\s*href\s*=("|')(.*)\1/i;
+        var find_end_tag_state = null; // if !null then = start tag index
 
-        var $stripped = [];
-        $.each(fragment, function(i, s) {
-            var $s = $(s)
-            if ($s.is('link[href]')){
-                var href = $s.attr('href');
+        while ((match = find_links.exec(fragment))!=null) {
+            var is_self_closing_tag = (match[-1] == '/');
+            var is_close_tag = (match[1] == '/') || is_self_closing_tag;
+
+            if (is_close_tag && (find_end_tag_state != null)) {
+                fragment = (fragment.substring(0, find_end_tag_state) +
+                               fragment.substring(find_links.lastIndex));
+
+                find_links.lastIndex = find_end_tag_state;
+                find_end_tag_state = null;
+
+                continue;
+            }
+
+            var attrs = match[2];
+            var href = attrs.match(find_href_attr);
+            if (href){
                 //strip query string
-                href = href.split('?')[0];
+                href = href[2].split('?')[0];
 
                 if(!_moksha_page_links_cache[href]) {
                     // we can add more attributes later
                     // right now just set to true
                     _moksha_page_links_cache[href] = true;
-                    $stripped.push(s);
+                } else {
+                    if (is_self_closing_tag) {
+                        fragment = (fragment.substring(0, match.index) +
+                               fragment.substring(find_links.lastIndex));
+                        find_links.lastIndex = match.index;
+                    } else {
+                        find_end_tag_state = match.index;
+                    }
                 }
-            } else {
-                $stripped.push(s);
             }
-        });
+        }
 
-        return $stripped;
+        return fragment;
     },
 
     /******************************************************************
@@ -179,19 +211,16 @@ moksha = {
     },
 
     /******************************************************************
-     * Filter resources in a fragment of HTML or jQuery DOM
-     * so that they aren't double loaded.  Right now this is only
-     * scripts but could be expanded to css and other loaded
-     * resource types. You should send in HTML
-     * if possible since loading into a jQuery DOM can cause them
-     * to load if not done correctly
+     * Filter resources in a fragment of HTML so that they aren't double
+     * loaded. You should send in HTML text since loading into a jQuery
+     * DOM can cause them to load depending on browser
      ******************************************************************/
     filter_resources: function(fragment) {
-        if (!fragment.jquery)
-            fragment = $(fragment);
+        var f = moksha.filter_scripts(fragment);
+        f = moksha.filter_links(f);
 
-        var $f = moksha.filter_scripts(fragment);
-        $f = moksha.filter_links($f);
+        // now we can convert this to a DOM
+        $f =  $(f);
         $f = moksha.update_marked_anchors($f);
         return $f;
     },
@@ -292,7 +321,7 @@ moksha = {
      */
     parseUri: function (str) {
         var options = {
-            strictMode: false,
+              strictMode: false,
             key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
             q:   {
                 name:   "queryKey",
