@@ -56,7 +56,7 @@ class MokshaDefaultMenu(MokshaMenu):
                             .append($('<div/>')
                             .attr('id', '%(id)s_loader')); 
                             $.ajax({
-                                url: moksha.csrf_rewrite_url('/widgets/%(id)s?chrome=True'),
+                                url: moksha.url('/widgets/%(id)s?chrome=True'),
                                 success: function(r, s) {
                                     var $panel = $('#%(id)s_loader');
                                     var $stripped = moksha.filter_resources(r);
