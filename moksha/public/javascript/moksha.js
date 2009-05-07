@@ -26,8 +26,8 @@ False = false
 if (!(typeof(moksha) === 'undefined'))
     return;
 
-var _moksha_page_scripts_cache = {};
-var _moksha_page_links_cache = {};
+var _moksha_resource_cache = {'scripts':{},
+                              'links':{}};
 
 var _moksha_init = false;
 // preload cache
@@ -42,8 +42,8 @@ $(document).ready(function(){
                 var src = $a.attr('src');
                 // for right now just compare exact source values
                 // later we will want to be a bit smarter
-                if(!_moksha_page_scripts_cache[src]) {
-                    _moksha_page_scripts_cache[src] = true;
+                if(!_moksha_resource_cache['scripts'][src]) {
+                    _moksha_resource_cache['scripts'][src] = true;
                 }
              }
          );
@@ -53,8 +53,8 @@ $(document).ready(function(){
                 var href = $a.attr('href');
                 // for right now just compare exact source values
                 // later we will want to be a bit smarter
-                if(!_moksha_page_links_cache[href]) {
-                    _moksha_page_links_cache[href] = true;
+                if(!_moksha_resource_cache['links'][href]) {
+                    _moksha_resource_cache['links'][href] = true;
                 }
              }
          );
@@ -62,43 +62,115 @@ $(document).ready(function(){
 
 moksha = {
     /******************************************************************
-     * Filter the script tags in a fragment of HTML so that they aren't
-     * double loaded.
+     * Generic method for filtering out resources which have already
+     * been loaded.
+     *
+     * fragment - fragment of HTML text to be filtered ,
+     * tag - the HTML tag you are looking for
+     * resource_attr - the attribute which holds the resource locater
+     * cache_name - the name of the cache to lookup to see if the resource was
+     *              loaded
+     *
+     * Since the browser loads the resources we don't actually cache
+     * the contents.  We only cache the resource locater.  If the same
+     * resource has been loaded already we remove the tag from the
+     * HTML fragment so it is never loaded more than once.
+     *
+     * To work around browser incompatibilities, any resource found
+     * inside the head tag is placed in the body tag to make sure
+     * they are loaded.
      ******************************************************************/
-    filter_scripts: function(fragment) {
-        var find_scripts = /<(\/)?\s*script((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)(\/)?>/gmi;
-        var find_src_attr = /\s*src\s*=("|')(.*)\1/i;
-        var find_end_tag_state = null; // if !null then = start tag index
+    filter_and_cache_resource: function(fragment, tag, resource_attr, cache_name) {
+        var head_pos = moksha.find_head_tags(fragment);
+        function in_head(pos) {
+            for(i in head_pos) {
+                low = head_pos[i][0];
+                high = head_pos[i][1];
 
-        while ((match = find_scripts.exec(fragment))!=null) {
-            var is_self_closing_tag = (match[-1] == '/');
+                if ((pos > low) && (pos < high))
+                    return i;
+            }
+
+            // -1 = not inside of the head tag
+            return -1;
+        }
+
+        function offset_head(index, length) {
+            head_pos[index][1] -= length;
+            for(i=index + 1; i < head_pos.length; i++) {
+                head_pos[index][0] -= length;
+                head_pos[index][1] -= length;
+            }
+        }
+
+        var find_tag = new RegExp("<(/)?\\s*" + tag +
+                                  "((\\s+\\w+(\\s*=\\s*(?:\".*?\"|'.*?'|[^'\">\\s]+))?)+\\s*|\\s*)(/)?>","gmi");
+        var find_attr = new RegExp("\\s*" +  resource_attr +
+                                   "\\s*=(\"|')(.*)\\1", "i");
+
+        var find_end_tag_state = null; // if !null then = start tag index
+        var relocate_tag_state = false; // used for relocating resources
+                                        // from the head to the body
+        var relocate_tag_list = []; // list of tags to relocate
+
+        while ((match = find_tag.exec(fragment))!=null) {
+            var is_self_closing_tag = (match[match.length-1] == '/');
             var is_close_tag = (match[1] == '/') || is_self_closing_tag;
 
             if (is_close_tag && find_end_tag_state) {
-                fragment = (fragment.substring(0, find_end_tag_state) +
-                               fragment.substring(find_scripts.lastIndex));
+                if (relocate_tag_state)
+                    relocate_tag_list.push(fragment.substring(find_end_tag_state,
+                                                              find_tag.lastIndex)
+                                          );
 
-                find_scripts.lastIndex = find_end_tag_state;
+                var head_index = in_head(find_end_tag_state);
+                if (head_index != -1)
+                    offset_head(head_index, find_tag.lastIndex - find_end_tag_state);
+
+                fragment = (fragment.substring(0, find_end_tag_state) +
+                               fragment.substring(find_tag.lastIndex));
+
+                find_tag.lastIndex = find_end_tag_state;
                 find_end_tag_state = null;
 
                 continue;
             }
 
             var attrs = match[2];
-            var src = attrs.match(find_src_attr);
-            if (src){
+            var resource = attrs.match(find_attr);
+            if (resource){
                 //strip query string
-                src = src[2].split('?')[0];
+                resource = resource[2].split('?')[0];
 
-                if(!_moksha_page_scripts_cache[src]) {
+                if(!_moksha_resource_cache[cache_name][resource]) {
                     // we can add more attributes later
                     // right now just set to true
-                    _moksha_page_scripts_cache[src] = true;
+                    _moksha_resource_cache[cache_name][resource] = true;
+
+                    var head_index = in_head(match.index);
+                    if (head_index) {
+                        relocate_tag_state = true;
+
+                        if (is_self_closing_tag) {
+                            offset_head(head_index, find_tag.lastIndex - match.index);
+                            fragment = (fragment.substring(0, match.index) +
+                               fragment.substring(find_tag.lastIndex));
+                            find_tag.lastIndex = match.index;
+
+                            relocate_tag_list.push(match[0]);
+                        } else {
+                            find_end_tag_state = match.index;
+                        }
+                    }
                 } else {
                     if (is_self_closing_tag) {
+                        var head_index = in_head(match.index);
+                        if (head_index != -1)
+                            offset_head(head_index, find_tag.lastIndex - match.index);
+
                         fragment = (fragment.substring(0, match.index) +
-                               fragment.substring(find_scripts.lastIndex));
-                        find_scripts.lastIndex = match.index;
+                               fragment.substring(find_tag.lastIndex));
+                        find_tag.lastIndex = match.index;
                     } else {
                         find_end_tag_state = match.index;
                     }
@@ -106,7 +178,19 @@ moksha = {
             }
         }
 
+        fragment = moksha.relocate_tags_to_body(fragment, relocate_tag_list);
         return fragment;
+    },
+
+    /******************************************************************
+     * Filter the script tags in a fragment of HTML so that they aren't
+     * double loaded.
+     ******************************************************************/
+    filter_scripts: function(fragment) {
+        return moksha.filter_and_cache_resource(fragment,
+                                                'script',
+                                                'src',
+                                                'scripts');
     },
 
     /******************************************************************
@@ -114,47 +198,10 @@ moksha = {
      * double loaded.
      ******************************************************************/
     filter_links: function(fragment) {
-        var find_links = /<(\/)?\s*link((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)(\/)?>/gmi;
-        var find_href_attr = /\s*href\s*=("|')(.*)\1/i;
-        var find_end_tag_state = null; // if !null then = start tag index
-
-        while ((match = find_links.exec(fragment))!=null) {
-            var is_self_closing_tag = (match[-1] == '/');
-            var is_close_tag = (match[1] == '/') || is_self_closing_tag;
-
-            if (is_close_tag && (find_end_tag_state != null)) {
-                fragment = (fragment.substring(0, find_end_tag_state) +
-                               fragment.substring(find_links.lastIndex));
-
-                find_links.lastIndex = find_end_tag_state;
-                find_end_tag_state = null;
-
-                continue;
-            }
-
-            var attrs = match[2];
-            var href = attrs.match(find_href_attr);
-            if (href){
-                //strip query string
-                href = href[2].split('?')[0];
-
-                if(!_moksha_page_links_cache[href]) {
-                    // we can add more attributes later
-                    // right now just set to true
-                    _moksha_page_links_cache[href] = true;
-                } else {
-                    if (is_self_closing_tag) {
-                        fragment = (fragment.substring(0, match.index) +
-                               fragment.substring(find_links.lastIndex));
-                        find_links.lastIndex = match.index;
-                    } else {
-                        find_end_tag_state = match.index;
-                    }
-                }
-            }
-        }
-
-        return fragment;
+        return moksha.filter_and_cache_resource(fragment,
+                                                'link',
+                                                'href',
+                                                'links');
     },
 
     /******************************************************************
@@ -222,7 +269,52 @@ moksha = {
         // now we can convert this to a DOM
         $f =  $(f);
         $f = moksha.update_marked_anchors($f);
+
         return $f;
+    },
+
+    /********************************************************************
+     * Find the body tag in a fragment and inject the tags in the tag
+     * list there
+     ********************************************************************/
+    relocate_tags_to_body: function(fragment, tag_list) {
+        if(!tag_list.length)
+            return fragment;
+
+        var body_re = /<(\/)?\s*body.*?>/ig;
+        var match = body_re.exec(fragment);
+        var pos = body_re.lastIndex;
+
+        var tag_string = "";
+        for(i in tag_list)
+            tag_string += tag_list[i]
+
+        fragment = fragment.substring(0,pos) + tag_string + fragment.substring(pos);
+
+        return fragment;
+    },
+
+    /********************************************************************
+     * Find the position of all head tags and return them as a list of
+     * two element tuples
+     ********************************************************************/
+    find_head_tags: function(fragment) {
+        var head_re = /<(\/)?\s*head.*?>/ig
+        var results = [];
+        var index = null;
+
+        while((match = head_re.exec(fragment)) != null) {
+            is_closing_tag = (match[1]=='/');
+            if (!is_closing_tag) {
+                index = [match.index,0];
+            } else {
+                index[1] = match.index + match[0].length;
+                results.push(index);
+                index = null;
+            }
+        }
+
+        return results;
     },
 
     /********************************************************************
