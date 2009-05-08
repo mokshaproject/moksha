@@ -281,7 +281,7 @@ moksha = {
         if(!tag_list.length)
             return fragment;
 
-        var body_re = /<(\/)?\s*body.*?>/ig;
+        var body_re = /<\s*body.*?>/ig;
         var match = body_re.exec(fragment);
         var pos = body_re.lastIndex;
 
