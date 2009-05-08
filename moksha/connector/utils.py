@@ -193,7 +193,10 @@ class ParamFilter(object):
         self._translation_table = {}
         self._param_table = {}
 
-    def add_filter(self, param, args=[], cast=None, allow_none=True, filter_func=None):
+    def add_filter(self, param, args=None, cast=None, allow_none=True, filter_func=None):
+        if args == None:
+            args = []
+
         pf = {}
         if cast:
             assert(isinstance(cast, type),
@@ -205,6 +208,7 @@ class ParamFilter(object):
         pf['filter_func'] = filter_func
 
         self._param_table[param] = pf
+
         args.append(param)
         for a in args:
             assert(not(a in self._translation_table),
