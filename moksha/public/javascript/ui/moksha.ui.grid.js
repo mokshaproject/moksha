@@ -748,6 +748,9 @@
           if (total_rows != total_pages * rows_per_page)
               total_pages += 1;
 
+          if (total_pages == 1)
+              return "";
+
           var curr_page = parseInt((start_row + 0.5) / rows_per_page) + 1;
           var next_page = curr_page + 1;
           var pager = $('<ul />');
