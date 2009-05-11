@@ -95,11 +95,11 @@ class Feed(Widget):
                 break
             yield entry
 
-    def entries(self):
+    def get_entries(self):
         return [entry for entry in self.iterentries()]
 
     def num_entries(self):
-        return len(self.entries())
+        return len(self.get_entries())
 
     def update_params(self, d):
         super(Feed, self).update_params(d)

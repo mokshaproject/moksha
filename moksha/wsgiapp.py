@@ -52,4 +52,3 @@ class MokshaAppDispatcher(PylonsApp):
             return self.root()
         else:
             return self.application
-

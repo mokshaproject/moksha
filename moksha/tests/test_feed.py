@@ -28,7 +28,7 @@ class TestFeed(object):
         assert feed.num_entries() > 0
         for entry in feed.iterentries():
             pass
-        for entry in feed.entries():
+        for entry in feed.get_entries():
             pass
 
     def test_widget_children(self):
