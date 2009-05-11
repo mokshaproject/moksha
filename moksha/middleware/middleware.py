@@ -51,7 +51,7 @@ class MokshaMiddleware(object):
     def __init__(self, application):
         log.info('Creating Moksha Middleware')
         self.application = application
-        self.mokshaapp = MokshaAppDispatcher()
+        self.mokshaapp = MokshaAppDispatcher(application)
 
         moksha.apps = {}        # {'app name': tg.TGController/tg.WSGIAppController}
         moksha._widgets = {}    # {'widget name': tw.api.Widget}
@@ -72,17 +72,7 @@ class MokshaMiddleware(object):
 
     def __call__(self, environ, start_response):
         self.register_stomp(environ)
-        request = Request(environ)
-
-        path = self.strip_script(environ, request.path)
-        if path.startswith('/apps/') or \
-           path.startswith('/widget') or \
-           path.startswith('/docs/') or \
-           path.startswith('/moksha_admin/'):
-            response = request.get_response(self.mokshaapp)
-        else:
-            response = request.get_response(self.application)
-        return response(environ, start_response)
+        return self.mokshaapp(environ, start_response)
 
     def register_stomp(self, environ):
         environ['paste.registry'].register(moksha.stomp, {

@@ -16,7 +16,10 @@
 #
 # Authors: Luke Macken <lmacken@redhat.com>
 
+from pylons import request
 from pylons.wsgiapp import PylonsApp
+
+from moksha.lib.helpers import strip_script
 
 class MokshaAppDispatcher(PylonsApp):
     """ Moksha WSGI Application Dispatcher.
@@ -27,10 +30,11 @@ class MokshaAppDispatcher(PylonsApp):
     """
     root = None
 
-    def __init__(self):
+    def __init__(self, application):
         super(MokshaAppDispatcher, self).__init__()
         from moksha.controllers.root import RootController
         self.root = RootController
+        self.application = application
 
     def resolve(self, environ, start_response): 
         """ Uses dispatching information found in
@@ -40,4 +44,12 @@ class MokshaAppDispatcher(PylonsApp):
 
         """
         environ['pylons.routes_dict'] = environ['wsgiorg.routing_args'][1]
-        return self.root()
+        path = strip_script(environ)
+        if path.startswith('/apps/') or \
+           path.startswith('/widget') or \
+           path.startswith('/docs/') or \
+           path.startswith('/moksha_admin/'):
+            return self.root()
+        else:
+            return self.application
+
