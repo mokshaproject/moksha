@@ -59,26 +59,14 @@
        var o = self.options;
        var $ph = self.$rowplaceholder;
 
-       /*
-       var $rows = $('.' + o.rowClass, $ph.parent());
-
-       for (j=0; j < $rows.length; j++) {
-           var $blank = $(self._blank_row).addClass(o.rowClass + '_' + j.toString());
-           $($rows[j]).replaceWith($blank);
-       }
-
-       for (i=j; i<o.rows_per_page; i++) {
-           var $blank = $(self._blank_row).addClass(o.rowClass + '_' + i.toString());
-           $ph.before($blank);
-       }*/
-
        $('.' + o.rowClass, self.element).replaceWith('');
+       o.visible_rows = 0;
     },
 
     insert_row: function(i, row_data) {
         var self = this;
         var o = self.options
-        var row_count = self.visible_row_count();
+        var row_count = o.visible_rows
 
         // store the widget for this element
         jQuery.data(self.element, 'mokshagrid', self);
@@ -96,30 +84,28 @@
             var row_class = o.rowClass + '_' + row_count.toString();
             $ph.parent().append($new_row);
             $new_row.addClass(row_class).addClass(o.rowClass);
+            o.visible_rows++;
         } else {
             // insert before i element and update all row numbers
-            // if it is a blank row, replace the row
             var row_class = o.rowClass + '_' + i.toString();
             var $row = $('.' + row_class, $ph.parent());
             $new_row.addClass(row_class).add_class(o.rowClass);
 
-            if($row.hasClass(o.blankRowClass)) {
-              $row.replaceWith(new_row);
-            } else {
-              var $current_rows = $(o.rowClass, $ph.parent());
-              for (j = i; j < $current_rows.length; j++) {
-                  var k = j + 1;
-                  var old_class = '.' + o.rowClass + '_' + j.toString();
-                  var new_class = '.' + o.rowClass + '_' + k.toString();
-                  $current_rows[j].removeClass(old_class);
-                  $current_rows[j].addClass(new_class);
+            var $current_rows = $(o.rowClass, $ph.parent());
+            for (j = i; j < $current_rows.length; j++) {
+                var k = j + 1;
+                var old_class = '.' + o.rowClass + '_' + j.toString();
+                var new_class = '.' + o.rowClass + '_' + k.toString();
+                $current_rows[j].removeClass(old_class);
+                $current_rows[j].addClass(new_class);
+            }
 
-              }
+            $row.before($new_row);
 
-              $row.before($new_row);
-
-              if (row_count == o.rows_per_page)
-                  self.remove_row(o.rows_per_page);
+            o.visible_rows++;
+            if (row_count == o.rows_per_page) {
+                o.visible_rows = o.rows_per_page;
+                self.remove_row(o.rows_per_page);
             }
         }
 
@@ -140,7 +126,13 @@
         var o = self.options;
         var $ph = self.$rowplaceholder;
         var $rows = $(row_class, $ph.parent());
-        $rows[i].replaceWith('');
+        var $r = $rows[i];
+
+        if ($r.length) {
+            replaceWith('');
+            if (i < o.rows_per_page)
+                o.visible_rows--;
+        }
 
         //FIXME: We need to relabel rows if this is not the
         //       end of the rows
@@ -326,34 +318,18 @@
             self.clear();
 
             for (var i in json.rows) {
-                self.append_row(json.rows[i]);
+                var row = json.rows[i];
+                moksha.defer(self, self.append_row, [row]);
             }
-
 
             // reset based on returned values
             o.total_rows = json.total_rows;
             o.start_row = json.start_row;
             o.rows_per_pager = json.rows_per_page;
 
-            self._process_controls();
-
-            var vr = self.visible_row_count();
-
-            /* msg block
-            var msg = '';
-
-            var show_range = vr.toString();
-            // show an actual range if we are not starting from 0
-            if (sr > 0)
-                show_range = sr.toString() + '-' + (sr + vr).toString();
-
-
-            msg = 'Viewing ' + show_range + ' of ' + tr.toString();
-            msg += ' items.';
-
-            $('.message', self.$pager_bottom_placeholder).html(msg);
-
-            */
+            moksha.defer(self, function() {
+                                            self._process_controls();
+                                          });
         }
 
         var dispatch_data = {}
@@ -392,17 +368,7 @@
     visible_row_count: function() {
         var self = this;
         var o = self.options;
-        var $ph = self.$rowplaceholder;
-        var $rows = $('.' + o.rowClass, $ph.parent());
-
-        for (i=$rows.length; i > 0; i--) {
-            if (!$($rows[i-1]).hasClass(o.blankRowClass)) {
-                o.visible_rows = i + 1;
-                return i;
-            }
-        }
-
-        return 0;
+        return o.visible_rows;
     },
 
     /* Private */

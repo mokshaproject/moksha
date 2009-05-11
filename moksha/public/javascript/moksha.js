@@ -29,6 +29,8 @@ if (!(typeof(moksha) === 'undefined'))
 var _moksha_resource_cache = {'scripts':{},
                               'links':{}};
 
+var _moksha_deferred = [];
+
 var _moksha_init = false;
 // preload cache
 
@@ -686,6 +688,39 @@ moksha = {
        }
 
        return purl.toString();
+    },
+
+    /***********************************************************
+     * Defers execution of a function so we don't block the UI.
+     * The function is placed in a stack and a timer is started
+     * Every time the timer goes off a function is popped off the
+     * stack and executed.
+     *
+     * scope - what the "this" variable evaluates to when the
+     *         function is called
+     * func - the function to be executed.  return values are
+     *        ignored
+     * args - a list of arguments to pass to the function
+     ************************************************************/
+    defer: function(scope, func, args) {
+      var defer_time = 1; // ms
+      var timeout = function () {
+          var closure = _moksha_deferred.shift();
+          var self = closure[0];
+          var f = closure[1];
+          var args = closure[2];
+          if (!args)
+            args = [];
+
+          f.apply(self, args);
+          if (_moksha_deferred.length > 0)
+            setTimeout(timeout, defer_time);
+      }
+
+      _moksha_deferred.push([scope, func, args]);
+
+      if (_moksha_deferred.length == 1)
+        setTimeout(timeout, defer_time);
     }
 }
 
