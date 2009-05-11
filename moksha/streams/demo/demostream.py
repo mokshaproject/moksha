@@ -35,9 +35,12 @@ class MokshaDemoDataStream(PollingDataStream):
     n = 0
 
     # Feed demo specific variables
-    feed = Feed(url='http://doggdot.us/rss')
-    feed_entries = feed.entries()
     i = 0
+
+    def __init__(self, *args, **kw):
+        self.feed = Feed(url='http://doggdot.us/rss')
+        self.feed_entries = self.feed.entries()
+        super(MokshaDemoDataStream, self).__init__(*args, **kw)
 
     def poll(self):
         self.n += 1
