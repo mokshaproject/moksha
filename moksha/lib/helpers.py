@@ -876,3 +876,18 @@ class EnumGroup(object):
         (category, enum_id) = key.rsplit('.', 1)
         enum = self._enums[category]
         return enum.get_data(key)
+
+
+def strip_script(environ):
+    """
+    Strips the script portion of a url path so the middleware works even
+    when mounted under a path other than root.
+    """
+    path = environ['PATH_INFO']
+    if path.startswith('/') and 'SCRIPT_NAME' in environ:
+        prefix = environ.get('SCRIPT_NAME')
+        if prefix.endswith('/'):
+            prefix = prefix[:-1]
+        if path.startswith(prefix):
+            path = path[len(prefix):]
+    return path
