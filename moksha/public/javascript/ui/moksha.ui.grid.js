@@ -222,11 +222,30 @@
         self.request_data_refresh();
     },
 
-    _foreach_controls: function(callback) {
-        var self = this;
+    _foreach_controls: function(callback, eval_conditional) {
+        var options = this.options;
 
-        // get our controls
-        var $controls = self._control_list;
+        // get our controls if conditional is true
+        var _filter_conditional = function(i) {
+            var if_attr = $(this).attr('if');
+            // always return true for elements without a conditional
+            var result = true;
+            if (if_attr)
+                // return the results of the conditional
+                result = eval(if_attr);
+
+           if (!result)
+               $(this).hide();
+           else
+               $(this).show();
+
+           return result;
+        }
+
+        var self = this;
+        var $contols = self.$_control_list;
+        if (eval_conditional)
+            $controls = self.$_control_list.filter(_filter_conditional);
 
         // iterate through all of our control plugins
         // and get any id that matches
@@ -241,8 +260,8 @@
     _init_controls: function() {
         var self = this;
 
-        $controls = $('#grid-controls', this.element.parent());
-        self._control_list = $controls;
+        $controls = $('#grid-controls', this.element.parent()).hide();
+        self.$_control_list = $controls;
 
         $.each($controls, function(i, c) {
             var $c = $(c);
@@ -293,7 +312,7 @@
             $(c).html(results);
           }
 
-        this._foreach_controls(f);
+        this._foreach_controls(f, true);
     },
 
     refresh_data: function(event, search_criteria) {
