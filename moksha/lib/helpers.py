@@ -255,7 +255,7 @@ class App(ConfigWrapper):
         if self.label and not self.content_id:
             self.content_id = scrub_filter.sub('_', self.label.lower())
 
-    def clone(self, update_params=None, auth=None, content_id=None):
+    def clone(self, update_params=None, auth=None, content_id=None, label=None):
         if not update_params:
             update_params = {}
 
@@ -269,7 +269,10 @@ class App(ConfigWrapper):
         if content_id == None:
             content_id == self.content_id
 
-        return App(label=self.label,
+        if label == None:
+            label = self.label
+
+        return App(label=label,
                    url=self.url,
                    params=params,
                    auth=auth,
