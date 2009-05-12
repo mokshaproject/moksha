@@ -222,9 +222,31 @@
             var if_attr = $(this).attr('if');
             // always return true for elements without a conditional
             var result = true;
-            if (if_attr)
-                // return the results of the conditional
-                result = eval(if_attr);
+            if (if_attr) {
+
+                // contain this in a function block to contain variables
+                // which is executed immediately
+                (function() {
+                    // turn the dictionary members into variable local to this
+                    // function block
+                    for(key in options) {
+                        var eval_line = 'var ' + key + '=';
+                        var value = options[key];
+
+                        try {
+                            eval_line += $.toJSON(value);
+                        } catch(err) {
+                            continue;
+                        }
+                        eval(eval_line);
+                        value = ''
+                        eval_line = '';
+                    }
+
+                    // return the results of the conditional
+                    result = eval(if_attr);
+                })();
+            }
 
            if (!result)
                $(this).hide();
