@@ -260,9 +260,9 @@ class WeightedSearch(object):
     HEAVY_WEIGHT = 100
 
     def __init__(self, search_func, cols, cache=None):
-            self.search_func = search_func
-            self.cache = cache
-            self.cols = cols
+        self.search_func = search_func
+        self.cache = cache
+        self.cols = cols
 
     def weigh(self, search_term, weighted_item):
         search_term_len = len(search_term)
