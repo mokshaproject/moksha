@@ -894,3 +894,21 @@ def strip_script(environ):
         if path.startswith(prefix):
             path = path[len(prefix):]
     return path
+
+
+def utc_offset(cls, tz):
+    """ Return the UTC offset for a given timezone """
+    utc_offset = ''
+    now = datetime.now(utc)
+    now = now.astimezone(timezone(tz))
+    offset = now.strftime('%z')
+    if offset.startswith('-'):
+        offset = offset[1:]
+        utc_offset += '-'
+    hours = int(offset[:2])
+    utc_offset += str(hours)
+    # FIXME: account for minutes?
+    #minutes = int(offset[2:])
+    #if minutes:
+    #    utc_offset += '.%d' % ...
+    return utc_offset
