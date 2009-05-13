@@ -934,6 +934,13 @@ class DateTimeDisplay(object):
         '1 day'
         >>> d.age(datetime(2010, 7, 10, 10, 10), granularity='minute')
         '1 year, 1 month, 29 days, 10 hours and 10 minutes'
+        >>> d.age(tz='US/Eastern')
+        '1 day and 11 hours'
+        >>> d = DateTimeDisplay(datetime(2009, 5, 12, 12, 0, 0))
+        >>> d.timestamp
+        datetime.datetime(2009, 5, 12, 12, 0)
+        >>> d.astimezone('Europe/Amsterdam')
+        datetime.datetime(2009, 5, 12, 14, 0, tzinfo=<DstTzInfo 'Europe/Amsterdam' CEST+2:00:00 DST>)
 
     """
     def __init__(self, timestamp, format='%Y-%m-%d %H:%M:%S'):
@@ -949,16 +956,25 @@ class DateTimeDisplay(object):
             raise Exception("You must provide either a datetime object or a"
                             "string, not %s" % type(timestamp))
 
+    def astimezone(self, tz):
+        """ Return `self.datetime` as a different timezone """
+        timestamp = self.datetime.replace(tzinfo=utc)
+        zone = timezone(tz)
+        return zone.normalize(timestamp.astimezone(zone))
+
     def age(self, end=None, tz=None, granularity='hour'):
         """
         Return the distance of time in words from `self.datetime` to `end`.
         """
+        start = self.datetime
         if not end:
             if tz:
+                tz = timezone(tz)
                 end = datetime.now(utc)
-                end = end.astimezone(timezone(tz))
+                end = end.astimezone(tz)
+                start = self.datetime.replace(tzinfo=utc)
+                start = tz.normalize(start.astimezone(tz))
             else:
                 end = datetime.utcnow()
 
-        return distance_of_time_in_words(self.datetime, end,
-                                         granularity=granularity)
+        return distance_of_time_in_words(start, end, granularity=granularity)
