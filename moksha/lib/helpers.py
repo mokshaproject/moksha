@@ -934,8 +934,8 @@ class DateTimeDisplay(object):
         '1 day'
         >>> d.age(datetime(2010, 7, 10, 10, 10), granularity='minute')
         '1 year, 1 month, 29 days, 10 hours and 10 minutes'
-        >>> d.age(tz='US/Eastern')
-        '1 day and 11 hours'
+        >>> d.age(datetime(2010, 7, 10, 10, 10), tz='Europe/Amsterdam')
+        '1 year, 1 month, 29 days and 10 hours'
         >>> d = DateTimeDisplay(datetime(2009, 5, 12, 12, 0, 0))
         >>> d.timestamp
         datetime.datetime(2009, 5, 12, 12, 0)
@@ -968,13 +968,12 @@ class DateTimeDisplay(object):
         """
         start = self.datetime
         if not end:
-            if tz:
-                tz = timezone(tz)
-                end = datetime.now(utc)
-                end = end.astimezone(tz)
-                start = self.datetime.replace(tzinfo=utc)
-                start = tz.normalize(start.astimezone(tz))
-            else:
-                end = datetime.utcnow()
+            end = datetime.utcnow()
+        if tz:
+            zone = timezone(tz)
+            #end = zone.localize(end)
+            end = end.replace(tzinfo=utc)
+            end = zone.normalize(end.astimezone(zone))
+            start = self.astimezone(tz)
 
         return distance_of_time_in_words(start, end, granularity=granularity)
