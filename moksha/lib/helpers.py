@@ -14,18 +14,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from webhelpers import date, feedgenerator, html, number, misc, text
-
-from repoze.what.predicates import  (Not, Predicate, All, Any, has_all_permissions,
-                                    has_any_permission, has_permission,
-                                    in_all_groups, in_any_group, in_group,
-                                    is_user, not_anonymous)
-
-from repoze.what.authorize import check_authorization, NotAuthorizedError
-
-from webob import Request
-
+import moksha
 import copy
+import time
 import pylons
 import urllib
 import uuid
@@ -34,9 +25,20 @@ import re
 import os
 import logging
 
+from pytz import timezone, utc
 from webob import Request
 from decorator import decorator
-import moksha
+from datetime import datetime
+from webhelpers import date, feedgenerator, html, number, misc, text
+from webhelpers.date import distance_of_time_in_words
+from repoze.what.authorize import check_authorization, NotAuthorizedError
+from repoze.what.predicates import  (Not, Predicate, All, Any,
+                                     has_all_permissions, has_any_permission,
+                                     has_permission, in_all_groups,
+                                     in_any_group, in_group, is_user,
+                                     not_anonymous)
+
+from moksha.exc import MokshaConfigNotFound
 
 log = logging.getLogger(__name__)
 scrub_filter = re.compile('[^_a-zA-Z0-9-]')
@@ -896,8 +898,13 @@ def strip_script(environ):
     return path
 
 
-def utc_offset(cls, tz):
-    """ Return the UTC offset for a given timezone """
+def utc_offset(tz):
+    """ Return the UTC offset for a given timezone.
+
+        >>> utc_offset('US/Eastern')
+        '-4'
+
+    """
     utc_offset = ''
     now = datetime.now(utc)
     now = now.astimezone(timezone(tz))
@@ -912,3 +919,45 @@ def utc_offset(cls, tz):
     #if minutes:
     #    utc_offset += '.%d' % ...
     return utc_offset
+
+class DateTimeDisplay(object):
+    """
+    DateTimeDisplay is an object which takes any number of datetime objects
+    and process them for display::
+
+        >>> from datetime import datetime
+        >>> now = datetime(2009, 5, 12)
+        >>> later = datetime(2009, 5, 13)
+        >>> d = DateTimeDisplay(now)
+        >>> d.age(later)
+        '1 day'
+        >>> d.age(datetime(2010, 7, 10, 10, 10), granularity='minute')
+        '1 year, 1 month, 29 days, 10 hours and 10 minutes'
+
+    """
+    def __init__(self, timestamp, format='%Y-%m-%d %H:%M:%S'):
+        self.timestamp = timestamp
+        if isinstance(timestamp, datetime):
+            self.datetime = timestamp
+        elif isinstance(timestamp, basestring):
+            if hasattr(datetime, 'strptime'): # Python 2.5+
+                self.datetime = datetime.strptime(timestamp, format)
+            else: # Python 2.4
+                self.datetime = datetime(*time.strptime(timestamp, format)[:-2])
+        else:
+            raise Exception("You must provide either a datetime object or a"
+                            "string, not %s" % type(timestamp))
+
+    def age(self, end=None, tz=None, granularity='hour'):
+        """
+        Return the distance of time in words from `self.datetime` to `end`.
+        """
+        if not end:
+            if tz:
+                end = datetime.now(utc)
+                end = end.astimezone(timezone(tz))
+            else:
+                end = datetime.utcnow()
+
+        return distance_of_time_in_words(self.datetime, end,
+                                         granularity=granularity)
