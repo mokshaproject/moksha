@@ -16,17 +16,22 @@
 #
 # Authors: John (J5) Palmieri <johnp@redhat.com>
 
-from datetime import datetime
-from UserDict import DictMixin
-
 import time
 import bisect
+import warnings
+
+from datetime import datetime
+from UserDict import DictMixin
 
 class DateTimeDisplay(object):
     """DateTimeDisplay is an object which takes any number of datetime objects
     and process them for display.
     """
     def __init__(self, *datetime_args):
+        warnings.warn("moksha.connectors.utils.DateTimeDisplay has been "
+                      "deprecated, use moksha.lib.helpers.DateTimeDisplay "
+                      "instead.", DeprecationWarning)
+
         # All dates are sorted from latest to earliest
         self._datetime_ordered_list = []
         for dt in datetime_args:

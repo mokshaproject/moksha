@@ -920,6 +920,7 @@ def utc_offset(tz):
     #    utc_offset += '.%d' % ...
     return utc_offset
 
+
 class DateTimeDisplay(object):
     """
     DateTimeDisplay is an object which takes any number of datetime objects
