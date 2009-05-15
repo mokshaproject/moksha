@@ -543,7 +543,7 @@
                  resource_path: null,
                  blankRowClass: 'moksha-grid-blank-row',
                  rowClass: 'moksha-grid-row',
-                 pagerPageLimit: 10,
+                 pagerPageLimit: 5,
                  alphaPager: false,
                  numericPager: false,
                  filterControls: false,
@@ -760,6 +760,10 @@
 
           var curr_page = parseInt((start_row + 0.5) / rows_per_page) + 1;
           var next_page = curr_page + 1;
+          var prev_page = curr_page -1;
+          var next_elipse = curr_page + o.pagerPageLimit;
+          var prev_elipse = curr_page - o.pagerPageLimit;
+
           var pager = $('<ul />');
 
           var goto_page = function() {
@@ -772,6 +776,38 @@
           var num_next_left = total_pages - curr_page;
           if (num_next_left < show_next)
               show_prev += (show_next - num_next_left)
+
+          // previous link
+          var page = $("<li>Prev</li>").addClass('page-button').addClass('prev-page');
+          if (curr_page != 1) {
+              var page_link = $('<a href="javascript:void(0)"></a>').html('Prev');
+              page_link.data('page.moksha_grid', prev_page);
+              page_link.click(goto_page);
+              page.html(page_link);
+          }
+
+          pager.append(page);
+
+          // elipsised page jumper
+          if (curr_page - show_prev > 0) {
+              // first page link
+              var page = $('<li></li>').addClass('page-button');
+              page_link = $('<a href="javascript:void(0)"></a>').html('1');
+              page_link.data('page.moksha_grid', 1);
+              page_link.click(goto_page);
+              page.html(page_link);
+              pager.append(page);
+
+              // elipse link
+              var page = $('<li>...</li>').addClass('page-button');
+              if (prev_elipse > 1) {
+                  page_link = $('<a href="javascript:void(0)"></a>').html('...');
+                  page_link.data('page.moksha_grid', prev_elipse);
+                  page_link.click(goto_page);
+                  page.html(page_link);
+              }
+              pager.append(page);
+          }
 
           var page_list = [];
           var i, j;
@@ -798,6 +834,28 @@
               }
 
               pager.append(page);
+          }
+
+          // elipsised page jumper
+          if (curr_page + show_next < total_pages) {
+              // elipse link
+              var page = $('<li>...</li>').addClass('page-button');
+              if (next_elipse < total_pages) {
+                  page_link = $('<a href="javascript:void(0)"></a>').html('...');
+                  page_link.data('page.moksha_grid', next_elipse);
+                  page_link.click(goto_page);
+                  page.html(page_link);
+              }
+              pager.append(page);
+
+              // last page link
+              var page = $('<li></li>').addClass('page-button');
+              page_link = $('<a href="javascript:void(0)"></a>').html(total_pages);
+              page_link.data('page.moksha_grid', total_pages);
+              page_link.click(goto_page);
+              page.html(page_link);
+              pager.append(page);
+
           }
 
           var page = $("<li>Next</li>").addClass('page-button').addClass('next-page');
