@@ -1,16 +1,16 @@
 // This file is part of Moksha.
 // Copyright (C) 2008-2009  Red Hat, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
 // published by the Free Software Foundation, either version 3 of the
 // License, or (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -69,18 +69,14 @@ _extensions.prototype = {
 
         var append_div = jQuery("#" + data.placeholder_id);
 
-        var block_element;
-        if (append_div.is('ul') ||
-            append_div.is('ol'))
-          {
+        for(var i = 0; i < obj_list.length; i++) {
+          var block_element;
+          if (append_div.is('ul') ||
+              append_div.is('ol')) {
             block_element = jQuery('<li/>')
-          }
-        else
-          {
+          } else {
             block_element = jQuery('<div/>')
           }
-
-        for(var i = 0; i < obj_list.length; i++) {
           //clone our data and generate our uid so we are unique
           var d = new moksha.shallow_clone(data);
           d.uid = "extension_" + this.get_uid();
@@ -94,11 +90,15 @@ _extensions.prototype = {
           d.overlay = overlay;
 
           //run the script and parse in the results
-          var result = obj_list[i].run(d);
-          if (!result)
-            {
-              return;
+          try {
+            var result = obj_list[i].run(d);
+            if (!result) {
+                result = '';
             }
+          } catch (error) {
+            moksha.error('Extension Point Error (' + data.type + '): ' + error.toString());
+            continue;
+          }
 
           div.append(result);
 
