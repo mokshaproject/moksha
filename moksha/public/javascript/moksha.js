@@ -721,6 +721,37 @@ moksha = {
 
       if (_moksha_deferred.length == 1)
         setTimeout(timeout, defer_time);
+    },
+
+    /*************************************************************
+     * Updates a component of the title
+     *
+     * label - the text to add into the title
+     * level - which component to update (e.g. if you have a two
+     *         component title "Moksha" and "Updates" it will be
+     *         displayed as "Updates - Moksha" if you then call
+     *         moksha.update_title("Builds", 1) it will be rendered
+     *         as "Builds - Moksha".  level is a 0 based index so
+     *         level 0 == "Moksha"
+     **************************************************************/
+
+    title: [],
+    update_title: function(label, level) {
+        var title = moksha.title;
+        var i;
+
+        title.length = level + 1;
+        title[level] = label;
+
+        var title_str = '';
+        for(i=title.length - 1; i > 0; i--) {
+            title_str += title[i] + ' - ';
+        }
+
+        title_str += title[0];
+        document.title = title_str;
+
+        moksha.title = title;
     }
 }
 

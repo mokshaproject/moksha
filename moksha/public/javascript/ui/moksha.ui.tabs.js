@@ -250,7 +250,12 @@ $.widget("ui.mokshatabs", {
             if (o.selected !== null) {
 
                 var l = this.$lis.eq(o.selected).addClass(o.selectedClass);
+
                 var a = $('a', l)[0];
+                var title = $(a).attr('title');
+                if (title)
+                    moksha.update_title(title, 1);
+
                 var $show = $($(a).data('dynamic_href.tabs') + ':first', self.element)
                 $show.show().removeClass(o.hideClass); // use show and remove class to show in any case no matter how it has been hidden before
 
@@ -312,6 +317,11 @@ $.widget("ui.mokshatabs", {
         // Show a tab, animation prevents browser scrolling to fragment,
         // $hide is optional.
         function showTab(clicked, $show, $hide) {
+            // last tab gets to set the second title component
+            var title = $(clicked).attr('title');
+            if (title)
+                moksha.update_title(title, 1);
+
             if (showFx === baseFx)
                 $show.css('display', 'block'); // prevent occasionally occuring flicker in Firefox cause by gap between showing and hiding the tab panels
             $show.animate(showFx, showFx.duration || baseDuration, function() {
