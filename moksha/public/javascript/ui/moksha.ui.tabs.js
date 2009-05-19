@@ -69,7 +69,7 @@ $.widget("ui.mokshatabs", {
       if (attach_query_string  && location.search)
         tab_link += location.search;
 
-      return '/' + tab_link;
+      return tab_link;
     },
 
     setData: function(key, value) {
