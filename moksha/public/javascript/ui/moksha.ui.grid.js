@@ -338,6 +338,9 @@
 
         var results = function(json) {
             self.clear();
+            if (json.error) {
+
+            }
 
             for (var i in json.rows) {
                 var row = json.rows[i];

@@ -252,19 +252,26 @@ class IQuery(object):
             params = {}
 
         query_func = self.query_model(resource_path).get_query()
-        (total_rows, rows) = query_func(self,
+        (total_rows, rows_or_error) = query_func(self,
                                         start_row = start_row,
                                         rows_per_page = rows_per_page,
                                         order = sort_order,
                                         sort_col = sort_col,
                                         filters = filters,
                                         **params)
+
+
         r['total_rows'] = total_rows
         r['rows_per_page'] = rows_per_page
-        r['visible_rows'] = len(rows)
+
         if start_row:
             r['start_row'] = start_row
-        r['rows'] = rows
+
+        if total_rows == -1: # there has been an error
+            r['error'] = rows_or_error
+        else:
+            r['visible_rows'] = len(rows_or_error)
+            r['rows'] = rows_or_error
 
         results = r
 

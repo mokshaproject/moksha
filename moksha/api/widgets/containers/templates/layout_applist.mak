@@ -1,3 +1,4 @@
+% if category:
   <div id="${category['id']}" class="ui-sortable ${category['css_class']}">
       % for app in category['apps']:
               <div class="app ${app['css_class']}">
@@ -34,3 +35,4 @@
          </div>
       % endfor
     </div>
+% endif
