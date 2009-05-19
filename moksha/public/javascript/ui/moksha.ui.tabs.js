@@ -69,7 +69,7 @@ $.widget("ui.mokshatabs", {
       if (attach_query_string  && location.search)
         tab_link += location.search;
 
-      return tab_link;
+      return '/' + tab_link;
     },
 
     setData: function(key, value) {
@@ -394,7 +394,7 @@ $.widget("ui.mokshatabs", {
               }
             } else {
               if (o.staticLoadOnClick) {
-                  moksha.goto(href.substr(1));
+                  moksha.goto('/' + href.substr(1));
                   return false;
               } else {
                   location.hash = href;
