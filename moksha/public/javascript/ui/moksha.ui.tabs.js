@@ -217,11 +217,11 @@ $.widget("ui.mokshatabs", {
                                 }, 500);
                         }
                         scrollTo(0, 0);
-                    } else {
+                    } else if (index == -1) {
                        // invalid path, redirect to /invalid_path
                        path = location.hash.substring(1);
                        location.href=moksha.url('/invalid_path', {invalid_path: path});
-                    }
+                    } // else we goto the first non-static tab
 
                 }
                 else if (o.cookie) {
@@ -593,7 +593,7 @@ $.widget("ui.mokshatabs", {
 
         var id_index = level + offset;
         if (id_index >= hash.length)
-            return 0;
+            return -2;
 
         var id = "#" + hash[level + offset];
 
