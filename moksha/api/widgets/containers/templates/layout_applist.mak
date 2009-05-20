@@ -5,7 +5,7 @@
                 % if app['label']:
             <h3>${app['label']}</h3>
             % endif
-            <div id="${app['id']}_overlay"><div class="message"></div></div>
+            <div id="${app['id']}_overlay" class="overlay"><div class="message"></div></div>
             <div id="${app['id']}">
                         % if app.has_key('widget'):
                             ${app['widget'](**app['params'])}
