@@ -24,7 +24,7 @@
 
                           $(document).ready(function () {
                                                  moksha.html_load(moksha.url("${app['url']}"),
-                                                                 ${app['params']},
+                                                                 ${app['json_params']},
                                                                  success,
                                                                  $('#${app["id"]}_overlay')
                                                                  )

@@ -325,6 +325,7 @@ class App(ConfigWrapper):
         qs = self._create_query_string(p)
         results.update({'label': self.label, 'url': self.url,
                 'params': p,
+                'json_params': json.dumps(p),
                 'query_string': qs,
                 'content_id': self.content_id + '-' + results['id'],
                 'css_class': css_class})
