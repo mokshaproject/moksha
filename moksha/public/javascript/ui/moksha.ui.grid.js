@@ -61,6 +61,7 @@
 
        $('.' + o.rowClass, self.element).replaceWith('');
        o.visible_rows = 0;
+       o.last_visible_row = 0;
     },
 
     insert_row: function(i, row_data) {
@@ -85,6 +86,7 @@
             $ph.parent().append($new_row);
             $new_row.addClass(row_class).addClass(o.rowClass);
             o.visible_rows++;
+            o.last_visible_row = o.start_row + o.visible_rows;
         } else {
             // insert before i element and update all row numbers
             var row_class = o.rowClass + '_' + i.toString();
@@ -107,6 +109,8 @@
                 o.visible_rows = o.rows_per_page;
                 self.remove_row(o.rows_per_page);
             }
+
+            o.last_visible_row = o.start_row + o.visible_rows;
         }
 
         $new_row.show();
@@ -350,6 +354,7 @@
             // reset based on returned values
             o.total_rows = json.total_rows;
             o.start_row = json.start_row;
+            o.first_visible_row = o.start_row + 1; // user visible index always starts with 1 not 0
             o.rows_per_pager = json.rows_per_page;
 
             moksha.defer(self, function() {
@@ -536,6 +541,8 @@
                  rows_per_page: 10,
                  page_num: 1,
                  total_rows: 0,
+                 first_visible_row: 1, // 1 based index
+                 last_visible_row: 1, // 1 based index
                  visible_rows: 0,
                  filters: {},
                  unique_key: undefined,
@@ -895,7 +902,7 @@ $.extend( $.template.helpers , {
 
             filter: function(v, filter_cb) {
                         return window[filter_cb](v);
-                    }
+                    },
           }
 );
 
