@@ -781,8 +781,9 @@
               show_prev += (show_next - num_next_left)
 
           // previous link
-          var page = $("<li>Prev</li>").addClass('page-button').addClass('prev-page');
+          var page = $("<li>Prev</li>").addClass('page-button').addClass('prev-page').addClass('no-link');
           if (curr_page != 1) {
+              page.removeClass('no-link');
               var page_link = $('<a href="javascript:void(0)"></a>').html('Prev');
               page_link.data('page.moksha_grid', prev_page);
               page_link.click(goto_page);
@@ -861,8 +862,9 @@
 
           }
 
-          var page = $("<li>Next</li>").addClass('page-button').addClass('next-page');
+          var page = $("<li>Next</li>").addClass('page-button').addClass('next-page').addClass('no-link');
           if (curr_page < total_pages) {
+              page.removeClass('no-link');
               var page_link = $('<a href="javascript:void(0)"></a>').html('Next');
               page_link.data('page.moksha_grid', next_page);
               page_link.click(goto_page);
