@@ -7,15 +7,16 @@ Getting Started
 This guide will help quickly get you up and running with a local copy of
 Moksha.  It will run the Moksha WSGI application using the Paste threaded http
 server, a single orbited daemon with an embeded MorbidQ stomp message broker,
-flat-file feed caches, SQLite SQLAlchemy databases, and an in-memory cache.
-
-This setup is meant to be dead-simple to get up and running, and is not
-designed for production deployments.
+SQLite SQLAlchemy and Feed databases, and an in-memory cache.  This setup is
+meant to be dead-simple to get up and running, and is not designed for
+production deployments.
 
 At the moment, all of Moksha's dependencies are not all in Fedora.  They are
 all currently under review, but in the mean time these instructions will run
 Moksha within a virtual Python environment, without changing your global
 site-packages.
+
+You can track the progress of getting TurboGears2 into Fedora `here <http://fedoraproject.org/wiki/TurboGears2>`_.
 
 Installing the necessary dependencies
 -------------------------------------
