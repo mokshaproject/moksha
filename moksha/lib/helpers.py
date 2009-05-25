@@ -25,6 +25,7 @@ import re
 import os
 import logging
 
+from tw.api import js_callback
 from pytz import timezone, utc
 from webob import Request
 from decorator import decorator
@@ -994,3 +995,15 @@ class DateTimeDisplay(object):
 
     def __str__(self):
         return self.datetime.strftime('%Y-%m-%d %H:%M:%S %Z%z')
+
+
+def when_ready(func):
+    """
+    Takes a js_function and returns a js_callback that will run
+    when the document is ready.
+
+        >>> from tw.api import js_function
+        >>> print when_ready(js_function('jQuery')('foo').bar({'biz': 'baz'}))
+        $(document).ready(function(){jQuery("foo").bar({"biz": "baz"})});
+    """
+    return js_callback('$(document).ready(function(){' + str(func) + '});')
