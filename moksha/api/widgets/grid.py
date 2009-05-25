@@ -14,12 +14,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from tw.api import JSLink
+import uuid
+import simplejson as json
+
+from tw.api import JSLink, js_callback
 from tw.forms import FormField
 from tw.jquery.ui_core import jquery_ui_core_js
 from tw.jquery import jQuery, jquery_js
-import simplejson as json
-import uuid
 
 
 jquery_json_js = JSLink(filename='public/javascript/jquery.json.js',
@@ -79,4 +80,5 @@ class Grid(FormField):
 
         d['id'] += "-uuid" + str(uuid.uuid4())
 
-        self.add_call(jQuery("#%s" % d['id']).mokshagrid(grid_d))
+        from moksha.lib.helpers import when_ready
+        self.add_call(when_ready(jQuery("#%s" % d['id']).mokshagrid(grid_d)))
