@@ -17,10 +17,20 @@
 import logging
 import pkg_resources
 
-from inspect import isclass
+from tg import config, url
 from tw.api import Widget, CSSLink, JSLink
+from tw.jquery import jquery_js
+from paste.deploy.converters import asbool
+from pylons import request
+from inspect import isclass
 
 log = logging.getLogger(__name__)
+
+moksha_js = JSLink(modname="moksha", filename='public/javascript/moksha.js',
+                   javascript=[jquery_js])
+moksha_extension_points_js = JSLink(modname="moksha", javascript=[moksha_js],
+        filename='public/javascript/moksha.extensions.js')
+
 
 class GlobalResourceInjectionWidget(Widget):
     """
@@ -33,15 +43,29 @@ class GlobalResourceInjectionWidget(Widget):
            handles this for us, otherwise you can import the `global_resources`
            widget from this module and do it yourself.
     """
-    javascript = []
+    javascript = [moksha_js]
     children = []
     css = []
     template = """
         % for child in c:
             ${child()}
         % endfor
-    """
+        <script type="text/javascript">
+          moksha_base_url = "${base_url}";
+          moksha_csrf_token = "${csrf_token}";
+          moksha_userid = "${user_id}";
+          moksha_debug = ${debug};
+          moksha_profile = ${profile};
+        </script>
+        """
     engine_name = 'mako'
+
+    params = ['base_url', 'csrf_token', 'user_id', 'debug', 'profile']
+    base_url = '/'
+    csrf_token = ''
+    user_id = ''
+    debug = 'false'
+    profile = 'false'
 
     def __init__(self):
         super(GlobalResourceInjectionWidget, self).__init__()
@@ -60,5 +84,24 @@ class GlobalResourceInjectionWidget(Widget):
                 raise Exception("Unknown global resource: %s.  Should be "
                                 "either a JSLink or CSSLink." %
                                 widget_entry.name)
+
+        self.csrf_token_id = config.get('moksha.csrf.token_id', '_csrf_token')
+        if asbool(config.get('moksha.extensionpoints', False)):
+            self.javascript.append(moksha_extension_points_js)
+
+    def update_params(self, d):
+        super(GlobalResourceInjectionWidget, self).update_params(d)
+
+        d['base_url'] = url('/')
+
+        if asbool(config.get('debug')):
+            d['debug'] = 'true'
+        if asbool(config['global_conf'].get('profile')):
+            d['profile'] = 'true'
+
+        identity = request.environ.get('repoze.who.identity')
+        if identity:
+            d['csrf_token'] = identity.get(self.csrf_token_id, '')
+            d['user_id'] = identity.get('user_id', '')
 
 global_resources = GlobalResourceInjectionWidget()

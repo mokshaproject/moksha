@@ -103,7 +103,6 @@ setup(
     MokshaMessageMetricsWidget = moksha.widgets.metrics:MokshaMessageMetricsWidget
 
     [moksha.global]
-    moksha = moksha.api.widgets.moksha:MokshaGlobals
 
     # The pipeline for our live widgets
     stomp_js = moksha.api.widgets.stomp:stomp_js
