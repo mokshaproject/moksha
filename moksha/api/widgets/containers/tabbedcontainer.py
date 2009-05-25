@@ -19,7 +19,7 @@ from tw.api import Widget, JSLink, js_function
 from tw.forms import FormField
 from pylons import config, request
 from repoze.what import predicates
-from moksha.lib.helpers import eval_app_config, ConfigWrapper
+from moksha.lib.helpers import eval_app_config, ConfigWrapper, when_ready
 
 moksha_ui_tabs_js = JSLink(modname='moksha', filename='public/javascript/ui/moksha.ui.tabs.js', javascript=[jquery_ui_tabs_js])
 
@@ -80,7 +80,7 @@ class TabbedContainer(FormField):
              'tabdefault': d.get('tabdefault', 0),
              'staticLoadOnClick': d.get('staticLoadOnClick', False)
             }
-        self.add_call(jQuery("#%s" % d.id).mokshatabs(o))
+        self.add_call(when_ready(jQuery("#%s" % d.id).mokshatabs(o)))
 
         tabs = eval_app_config(config.get(self.config_key, "None"))
         if not tabs:
