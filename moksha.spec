@@ -77,7 +77,7 @@ information can be found on the Moksha Project Page at
 %attr(-,apache,root) %{_localstatedir}/log/%{name}
 %{python_sitelib}/%{name}-%{version}-py%{pyver}.egg-info/
 %attr(-,apache,apache) %dir %{_localstatedir}/cache/%{name}
-%{bindir}/moksha-hub
+%{_bindir}/moksha-hub
 
 %changelog
 * Wed May 27 2009 John (J5) Palmieri <johnp@redhat.com> - 0.1-0.1
