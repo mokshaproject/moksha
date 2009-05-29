@@ -22,6 +22,7 @@ from tw.forms import FormField
 from tw.jquery.ui_core import jquery_ui_core_js
 from tw.jquery import jQuery, jquery_js
 
+from moksha.lib.helpers import when_ready
 
 jquery_json_js = JSLink(filename='public/javascript/jquery.json.js',
                            modname='moksha', javascript=[jquery_js])
@@ -80,5 +81,4 @@ class Grid(FormField):
 
         d['id'] += "-uuid" + str(uuid.uuid4())
 
-        from moksha.lib.helpers import when_ready
         self.add_call(when_ready(jQuery("#%s" % d['id']).mokshagrid(grid_d)))
