@@ -981,6 +981,9 @@ class DateTimeDisplay(object):
         start = self.datetime
         if not end:
             end = datetime.utcnow()
+        else:
+            if isinstance(end, DateTimeDisplay):
+                end = end.datetime
         if tz:
             zone = timezone(tz)
             end = end.replace(tzinfo=utc)
