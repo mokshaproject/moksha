@@ -951,6 +951,8 @@ class DateTimeDisplay(object):
         self.timestamp = timestamp
         if isinstance(timestamp, datetime):
             self.datetime = timestamp
+        elif isinstance(timestamp, time.struct_time):
+            self.datetime = datetime(*timestamp[:-2])
         elif isinstance(timestamp, basestring):
             if hasattr(datetime, 'strptime'): # Python 2.5+
                 self.datetime = datetime.strptime(timestamp, format)
