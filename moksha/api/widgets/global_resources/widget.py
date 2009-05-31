@@ -39,7 +39,7 @@ class GlobalResourceInjectionWidget(Widget):
 
     :Note: Global Widget injection will only work when the global_resource
            widget is actually rendered in the template.  Otherwise, only JS
-           and CSS resources fill get injected.  Moksha's index.mak template
+           and CSS resources will get injected.  Moksha's index.mak template
            handles this for us, otherwise you can import the `global_resources`
            widget from this module and do it yourself.
     """
