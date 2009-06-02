@@ -17,6 +17,8 @@ BuildRequires: python-setuptools
 BuildRequires: python-setuptools-devel
 BuildRequires: python-devel
 BuildRequires: python-pygments
+BuildRequires: python-paver
+BuildRequires: python-sphinx
 
 Requires: TurboGears2
 Requires: python-toscawidgets >= 0.9.1
@@ -46,11 +48,21 @@ external services. It is a unified framework build using the best available
 open source technologies such as TurboGears2, jQuery, AMQP, and Orbited.  More 
 information can be found on the Moksha Project Page at 
 
+%package doc
+Summary: Developer documentation for Moksha
+Group: Documentation
+Requires: %name = %{version}-%{release}
+
+%description doc 
+This package contains developer documentation for Moksha along with
+other supporting documentation
+
 %prep
 %setup -q
 
 %build
 %{__python} setup.py build
+make -C docs html
 
 %install
 %{__rm} -rf %{buildroot}
@@ -82,6 +94,10 @@ information can be found on the Moksha Project Page at
 %{python_sitelib}/%{name}-%{version}-py%{pyver}.egg-info/
 %attr(-,apache,apache) %dir %{_localstatedir}/cache/%{name}
 %{_bindir}/moksha-hub
+
+%files doc
+%defattr(-,root,root)
+%doc doc/_build/html 
 
 %changelog
 * Wed May 27 2009 John (J5) Palmieri <johnp@redhat.com> - 0.1-0.1
