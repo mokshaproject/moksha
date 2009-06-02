@@ -57,14 +57,10 @@ information can be found on the Moksha Project Page at
 %{__python} setup.py install -O1 --skip-build \
     --install-data=%{_datadir} --root %{buildroot}
 
-%{__mkdir_p} %{buildroot}%{_datadir}/%{name}/apache
 %{__mkdir_p} -m 0755 %{buildroot}/%{_localstatedir}/log/%{name}
 %{__mkdir_p} -m 0700 %{buildroot}/%{_localstatedir}/cache/%{name}
 
-%{__install} -m 640 apache/%{name}.conf %{buildroot}%{_datadir}/%{name}/apache
-
-%{__install} apache/%{name}.wsgi %{buildroot}%{_datadir}/%{name}/%{name}.wsgi
-%{__install} sample-production.ini %{buildroot}%{_datadir}/%{name}/production.ini
+%{__install} production/ %{buildroot}%{_datadir}/%{name}/production
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -72,7 +68,7 @@ information can be found on the Moksha Project Page at
 
 %files 
 %defattr(-,root,root,-)
-%doc README
+%doc README AUTHORS LICENSE COPYING
 %{python_sitelib}/%{name}/
 %attr(-,apache,root) %{_datadir}/%{name}
 %attr(-,apache,root) %{_localstatedir}/log/%{name}
