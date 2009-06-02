@@ -1017,3 +1017,11 @@ def when_ready(func):
         $(document).ready(function(){jQuery("foo").bar({"biz": "baz"})});
     """
     return js_callback('$(document).ready(function(){' + str(func) + '});')
+
+
+def get_num_cpus():
+    cpus = 1
+    for line in open('/proc/cpuinfo'):
+        if line.startswith('processor'):
+            cpus = int(line.split()[-1]) + 1
+    return cpus
