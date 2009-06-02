@@ -57,11 +57,17 @@ information can be found on the Moksha Project Page at
 %{__python} setup.py install -O1 --skip-build \
     --install-data=%{_datadir} --root %{buildroot}
 
-%{__mkdir_p} %{buildroot}%{_datadir}/%{name}/production
+%{__mkdir_p} %{buildroot}%{_datadir}/%{name}/production/apache
+%{__mkdir_p} %{buildroot}%{_datadir}/%{name}/production/nginx
+%{__mkdir_p} %{buildroot}%{_datadir}/%{name}/production/rabbitmq
+
 %{__mkdir_p} -m 0755 %{buildroot}/%{_localstatedir}/log/%{name}
 %{__mkdir_p} -m 0700 %{buildroot}/%{_localstatedir}/cache/%{name}
 
-%{__install} -r production/* %{buildroot}%{_datadir}/%{name}/production/
+%{__install} production/*.* %{buildroot}%{_datadir}/%{name}/production/
+%{__install} production/apache/* %{buildroot}%{_datadir}/%{name}/production/apache
+%{__install} production/nginx/* %{buildroot}%{_datadir}/%{name}/production/nginx
+%{__install} production/rabbitmq/* %{buildroot}%{_datadir}/%{name}/production/rabbitmq
 
 %clean
 %{__rm} -rf %{buildroot}
