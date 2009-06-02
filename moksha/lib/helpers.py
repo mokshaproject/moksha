@@ -784,7 +784,8 @@ def get_moksha_config_path():
                 if os.path.isfile(cfg):
                     return cfg
 
-        raise MokshaConfigNotFound('Cannot find moksha configuration file!')
+        log.warn('No moksha configuratin file found, make sure the controlling app is fully configured')
+        # raise MokshaConfigNotFound('Cannot find moksha configuration file!')
 
 
 def to_unicode(obj, encoding='utf-8'):
