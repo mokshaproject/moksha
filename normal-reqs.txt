@@ -65,6 +65,5 @@ tg.devtools
 transaction
 tw.forms
 tw.jquery
-uuid
 zope.interface
 zope.sqlalchemy
