@@ -97,7 +97,7 @@ make -C docs html
 
 %files doc
 %defattr(-,root,root)
-%doc doc/_build/html 
+%doc docs/_build/html 
 
 %changelog
 * Wed May 27 2009 John (J5) Palmieri <johnp@redhat.com> - 0.1-0.1
