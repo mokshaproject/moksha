@@ -47,8 +47,6 @@ orbited
 #psycopg2
 PyOpenSSL
 pyprof2calltree
-repoze.profile
-repoze.squeeze
 repoze.tm2
 repoze.what
 repoze.what-pylons
