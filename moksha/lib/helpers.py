@@ -784,7 +784,9 @@ def get_moksha_config_path():
                 if os.path.isfile(cfg):
                     return cfg
 
-        log.warn('No moksha configuratin file found, make sure the controlling app is fully configured')
+        log.warn('No moksha configuration file found, make sure the controlling app is fully configured')
+
+        return None
         # raise MokshaConfigNotFound('Cannot find moksha configuration file!')
 
 
