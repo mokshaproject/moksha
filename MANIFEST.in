@@ -1,5 +1,5 @@
-include docs/
-include production/
+recursive-include docs *
+recursive-include production *
 include moksha.spec
 include stop-moksha
 include start-moksha
