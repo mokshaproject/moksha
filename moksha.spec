@@ -36,6 +36,7 @@ Requires: python-tw-forms
 Requires: python-morbid
 Requires: pytz
 Requires: pyevent
+Requires: python-repoze-who-testutil
 
 %description
 Moksha is a platform for creating real-time collaborative web applications.  It 
