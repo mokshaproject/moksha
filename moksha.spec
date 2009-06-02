@@ -19,22 +19,22 @@ BuildRequires: python-devel
 BuildRequires: python-pygments
 
 Requires: TurboGears2
-Requires: ToscaWidgets >= 0.9.1,
-Requires: zope.sqlalchemy,
-Requires: Shove,
-Requires: feedcache,
-Requires: feedparser,
-Requires: tw.jquery>=0.9.4.1,
-Requires: repoze.squeeze,
-Requires: repoze.profile,
-Requires: orbited,
-Requires: twisted,
-Requires: python-stomper,
-Requires: Sphinx,
-Requires: Paver,
-Requires: tw.forms,
+Requires: python-toscawidgets >= 0.9.1
+Requires: python-zope-sqlalchemy 
+Requires: python-shove
+Requires: python-feedcache
+Requires: python-feedparser
+Requires: python-tw-jquery >= 0.9.4.1
+#Requires: python-repoze-squeeze
+#Requires: python-repoze-profile
+Requires: orbited
+Requires: python-twisted
+Requires: python-stomper
+Requires: python-sphinx
+Requires: python-paver
+Requires: python-tw-forms
 Requires: python-morbid
-Requires: ptz
+Requires: pytz
 Requires: pyevent
 
 %description

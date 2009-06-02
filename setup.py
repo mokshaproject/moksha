@@ -31,8 +31,8 @@ setup(
         "feedcache",
         "feedparser",
         "tw.jquery>=0.9.4.1",
-        "repoze.squeeze",
-        "repoze.profile",
+        #"repoze.squeeze", # Not hard requirements
+        #"repoze.profile", # Not hard requirements
         "orbited",
         "twisted",
         "stomper",
