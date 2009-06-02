@@ -57,10 +57,11 @@ information can be found on the Moksha Project Page at
 %{__python} setup.py install -O1 --skip-build \
     --install-data=%{_datadir} --root %{buildroot}
 
+%{__mkdir_p} %{buildroot}%{_datadir}/%{name}/production
 %{__mkdir_p} -m 0755 %{buildroot}/%{_localstatedir}/log/%{name}
 %{__mkdir_p} -m 0700 %{buildroot}/%{_localstatedir}/cache/%{name}
 
-%{__install} production/ %{buildroot}%{_datadir}/%{name}/production
+%{__install} -r production/* %{buildroot}%{_datadir}/%{name}/production/
 
 %clean
 %{__rm} -rf %{buildroot}
