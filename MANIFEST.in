@@ -1,6 +1,8 @@
 recursive-include docs *
 recursive-include production *
 recursive-include moksha *.mak
+recursive-include moksha/public *
+
 include moksha.spec
 include stop-moksha
 include start-moksha

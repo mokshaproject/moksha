@@ -15,7 +15,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from setuptools import setup, find_packages
-packages = find_packages(exclude=['ez_setup'])
 
 package_data = {'moksha': ['i18n/*/LC_MESSAGES/*.mo',
                            'public/favicon',
@@ -24,7 +23,7 @@ package_data = {'moksha': ['i18n/*/LC_MESSAGES/*.mo',
                            'public/images/*.gif',
                            'public/images/*.jpg',
                            'public/javascript/*.js',
-                           'public/javascript/ui/*.js'],
+                           'public/javascript/ui/*.js']
                }
 
 setup(
@@ -52,11 +51,18 @@ setup(
         "tw.forms",
         #"WidgetBrowser", # not in PyPi yet
     ],
-    packages=packages,
+    packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
     test_suite='nose.collector',
     tests_require=['WebTest', 'BeautifulSoup'],
-    package_data=package_data,
+    package_data={'moksha': ['i18n/*/LC_MESSAGES/*.mo',
+                             'public/favicon',
+                             'public/css/*.css',
+                             'public/images/*.png',
+                             'public/images/*.gif',
+                             'public/images/*.jpg',
+                             'public/javascript/*.js',
+                             'public/javascript/ui/*.js']},
     message_extractors = {'moksha': [
             ('**.py', 'python', None),
             ('templates/**.mak', 'mako', None),
