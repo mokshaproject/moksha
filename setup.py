@@ -15,6 +15,22 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from setuptools import setup, find_packages
+packages = find_packages(exclude=['ez_setup'])
+
+package_data = {'moksha': ['i18n/*/LC_MESSAGES/*.mo',
+                           'public/favicon',
+                           'public/css/*.css',
+                           'public/images/*.png',
+                           'public/images/*.gif',
+                           'public/images/*.jpg',
+                           'public/javascript/*.js',
+                           'public/javascript/ui/*.js'],
+               }
+
+# get all template packages and add the .mak files from them
+for p in packages:
+    if p.endswith('packages'):
+        package_data[p] = ['*.mak'];
 
 setup(
     name='moksha',
@@ -41,19 +57,11 @@ setup(
         "tw.forms",
         #"WidgetBrowser", # not in PyPi yet
     ],
-    packages=find_packages(exclude=['ez_setup']),
+    packages=packages,
     include_package_data=True,
     test_suite='nose.collector',
     tests_require=['WebTest', 'BeautifulSoup'],
-    package_data={'moksha': ['i18n/*/LC_MESSAGES/*.mo',
-                                 'public/favicon',
-                                 'public/css/*.css',
-                                 'public/images/*.png',
-                                 'public/images/*.gif',
-                                 'public/images/*.jpg',
-                                 'public/javascript/*.js',
-                                 'public/javascript/ui/*.js'],
-                  'templates': ['*.mak', '*.py']},
+    package_data=package_data,
     message_extractors = {'moksha': [
             ('**.py', 'python', None),
             ('templates/**.mak', 'mako', None),
