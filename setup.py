@@ -16,6 +16,16 @@
 
 from setuptools import setup, find_packages
 
+package_data = {'moksha': ['i18n/*/LC_MESSAGES/*.mo',
+                           'public/favicon',
+                           'public/css/*.css',
+                           'public/images/*.png',
+                           'public/images/*.gif',
+                           'public/images/*.jpg',
+                           'public/javascript/*.js',
+                           'public/javascript/ui/*.js']
+               }
+
 setup(
     name='moksha',
     version='0.1',
@@ -46,14 +56,13 @@ setup(
     test_suite='nose.collector',
     tests_require=['WebTest', 'BeautifulSoup'],
     package_data={'moksha': ['i18n/*/LC_MESSAGES/*.mo',
-                                 'public/favicon',
-                                 'public/css/*.css',
-                                 'public/images/*.png',
-                                 'public/images/*.gif',
-                                 'public/images/*.jpg',
-                                 'public/javascript/*.js',
-                                 'public/javascript/ui/*.js'],
-                  'templates': ['*.mak', '*.py']},
+                             'public/favicon',
+                             'public/css/*.css',
+                             'public/images/*.png',
+                             'public/images/*.gif',
+                             'public/images/*.jpg',
+                             'public/javascript/*.js',
+                             'public/javascript/ui/*.js']},
     message_extractors = {'moksha': [
             ('**.py', 'python', None),
             ('templates/**.mak', 'mako', None),
