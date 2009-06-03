@@ -27,11 +27,6 @@ package_data = {'moksha': ['i18n/*/LC_MESSAGES/*.mo',
                            'public/javascript/ui/*.js'],
                }
 
-# get all template packages and add the .mak files from them
-for p in packages:
-    if p.endswith('templates'):
-        package_data[p] = ['*.mak'];
-
 setup(
     name='moksha',
     version='0.1',
