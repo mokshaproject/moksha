@@ -27,7 +27,7 @@ from tg.decorators import after_render
 
 from repoze.what import predicates
 from pkg_resources import resource_filename
-from widgetbrowser import WidgetBrowser
+#from widgetbrowser import WidgetBrowser
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 
 from moksha import _
@@ -51,6 +51,7 @@ class RootController(BaseController):
     moksha_admin = SecureController()
 
     # ToscaWidgets WidgetBrowser integration
+    """
     docs = WSGIAppController(
                 WidgetBrowser(
                     template_dirs=[
@@ -58,6 +59,7 @@ class RootController(BaseController):
                     docs_dir=config.get('docs_dir', 'docs'),
                     full_stack=False,
                     interactive=False))
+    """
 
     #@after_render(cache_rendered_data)
     @expose('mako:moksha.templates.index')

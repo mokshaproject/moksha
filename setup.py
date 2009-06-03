@@ -31,8 +31,8 @@ setup(
         "feedcache",
         "feedparser",
         "tw.jquery>=0.9.4.1",
-        "repoze.squeeze",
-        "repoze.profile",
+        #"repoze.squeeze", # Not hard requirements
+        #"repoze.profile", # Not hard requirements
         "orbited",
         "twisted",
         "stomper",
@@ -46,11 +46,17 @@ setup(
     test_suite='nose.collector',
     tests_require=['WebTest', 'BeautifulSoup'],
     package_data={'moksha': ['i18n/*/LC_MESSAGES/*.mo',
-                                 'templates/*/*',
-                                 'public/*/*']},
+                                 'public/favicon',
+                                 'public/css/*.css',
+                                 'public/images/*.png',
+                                 'public/images/*.gif',
+                                 'public/images/*.jpg',
+                                 'public/javascript/*.js',
+                                 'public/javascript/ui/*.js'],
+                  'templates': ['*.mak', '*.py']},
     message_extractors = {'moksha': [
             ('**.py', 'python', None),
-            ('templates/**.mako', 'mako', None),
+            ('templates/**.mak', 'mako', None),
             ('templates/**.html', 'genshi', None),
             ('public/**', 'ignore', None)]},
 
@@ -103,7 +109,6 @@ setup(
     MokshaMessageMetricsWidget = moksha.widgets.metrics:MokshaMessageMetricsWidget
 
     [moksha.global]
-    moksha = moksha.api.widgets.moksha:MokshaGlobals
 
     # The pipeline for our live widgets
     stomp_js = moksha.api.widgets.stomp:stomp_js

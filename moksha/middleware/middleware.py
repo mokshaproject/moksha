@@ -280,11 +280,16 @@ class MokshaMiddleware(object):
         where it is being run as WSGI middleware in a different environment.
 
         """
-        moksha_config_path = os.path.dirname(get_moksha_config_path())
+        moksha_config_path = get_moksha_config_path()
+        apps = []
+        if moksha_config_path:
+            moksha_config_path = os.path.dirname(moksha_config_path)
+            apps = [{'path': moksha_config_path}]
         main_app_config_path = os.path.dirname(get_main_app_config_path())
         loaded_configs = []
 
-        for app in [{'path': moksha_config_path}] + moksha.apps.values():
+        apps += moksha.apps.values()
+        for app in apps:
             for configfile in ('production.ini', 'development.ini'):
                 confpath = os.path.join(app['path'], configfile)
                 if os.path.exists(confpath):

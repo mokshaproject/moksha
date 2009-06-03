@@ -25,6 +25,7 @@ import re
 import os
 import logging
 
+from tw.api import js_callback
 from pytz import timezone, utc
 from webob import Request
 from decorator import decorator
@@ -783,7 +784,10 @@ def get_moksha_config_path():
                 if os.path.isfile(cfg):
                     return cfg
 
-        raise MokshaConfigNotFound('Cannot find moksha configuration file!')
+        log.warn('No moksha configuration file found, make sure the controlling app is fully configured')
+
+        return None
+        # raise MokshaConfigNotFound('Cannot find moksha configuration file!')
 
 
 def to_unicode(obj, encoding='utf-8'):
@@ -929,6 +933,8 @@ class DateTimeDisplay(object):
         >>> now = datetime(2009, 5, 12)
         >>> later = datetime(2009, 5, 13)
         >>> d = DateTimeDisplay(now)
+        >>> print d
+        2009-05-12 00:00:00 
         >>> d.age(later)
         '1 day'
         >>> d.age(datetime(2010, 7, 10, 10, 10), granularity='minute')
@@ -943,9 +949,13 @@ class DateTimeDisplay(object):
 
     """
     def __init__(self, timestamp, format='%Y-%m-%d %H:%M:%S'):
+        if '.' in timestamp:
+            timestamp = timestamp.split('.')[0]
         self.timestamp = timestamp
         if isinstance(timestamp, datetime):
             self.datetime = timestamp
+        elif isinstance(timestamp, time.struct_time):
+            self.datetime = datetime(*timestamp[:-2])
         elif isinstance(timestamp, basestring):
             if hasattr(datetime, 'strptime'): # Python 2.5+
                 self.datetime = datetime.strptime(timestamp, format)
@@ -961,18 +971,49 @@ class DateTimeDisplay(object):
         zone = timezone(tz)
         return zone.normalize(timestamp.astimezone(zone))
 
-    def age(self, end=None, tz=None, granularity='hour'):
+    def age(self, end=None, tz=None, granularity='hour', general=False):
         """
         Return the distance of time in words from `self.datetime` to `end`.
+
+            >>> start = datetime(1984, 11, 02)
+            >>> now = datetime(2009, 5, 22, 12, 11, 10)
+            >>> DateTimeDisplay(start).age(now)
+            '2 decades, 4 years, 6 months, 20 days and 12 hours'
+            >>> DateTimeDisplay(start).age(now, general=True)
+            '2 decades'
+
         """
         start = self.datetime
         if not end:
             end = datetime.utcnow()
+        else:
+            if isinstance(end, DateTimeDisplay):
+                end = end.datetime
         if tz:
             zone = timezone(tz)
-            #end = zone.localize(end)
             end = end.replace(tzinfo=utc)
             end = zone.normalize(end.astimezone(zone))
             start = self.astimezone(tz)
 
-        return distance_of_time_in_words(start, end, granularity=granularity)
+        age = distance_of_time_in_words(start, end, granularity=granularity)
+
+        if general:
+            if not age.startswith('less than'):
+                age = age.split('and')[0].split(',')[0]
+
+        return age
+
+    def __str__(self):
+        return self.datetime.strftime('%Y-%m-%d %H:%M:%S %Z%z')
+
+
+def when_ready(func):
+    """
+    Takes a js_function and returns a js_callback that will run
+    when the document is ready.
+
+        >>> from tw.api import js_function
+        >>> print when_ready(js_function('jQuery')('foo').bar({'biz': 'baz'}))
+        $(document).ready(function(){jQuery("foo").bar({"biz": "baz"})});
+    """
+    return js_callback('$(document).ready(function(){' + str(func) + '});')

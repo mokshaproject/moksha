@@ -47,8 +47,6 @@ orbited
 #psycopg2
 PyOpenSSL
 pyprof2calltree
-repoze.profile
-repoze.squeeze
 repoze.tm2
 repoze.what
 repoze.what-pylons
@@ -67,6 +65,5 @@ tg.devtools
 transaction
 tw.forms
 tw.jquery
-uuid
 zope.interface
 zope.sqlalchemy

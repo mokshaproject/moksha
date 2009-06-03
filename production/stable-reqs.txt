@@ -69,7 +69,6 @@ tg.devtools==2.0b7
 transaction==1.0a1
 tw.forms==0.9.2
 tw.jquery==0.9.4.2
-uuid==1.30
 zope.interface==3.5.1
 zope.sqlalchemy==0.4
 ## The following requirements were added by pip --freeze:

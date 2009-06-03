@@ -1,0 +1,10 @@
+recursive-include docs *
+recursive-include production *
+include moksha.spec
+include stop-moksha
+include start-moksha
+include orbited.cfg
+include LICENSE
+include README
+include AUTHORS
+include COPYING
