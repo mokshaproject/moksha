@@ -283,7 +283,7 @@ class WeightedSearch(object):
             x = col_count - i
             weight_factor = float(x) * factor
 
-            col_value = item.get(col_label, '')
+            col_value = unicode(item.get(col_label, ''), 'utf-8')
             if not isinstance(col_value, basestring):
                 col_value = ''
             else:
