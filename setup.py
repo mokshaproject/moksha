@@ -28,11 +28,11 @@ package_data = {'moksha': ['i18n/*/LC_MESSAGES/*.mo',
 
 setup(
     name='moksha',
-    version='0.1',
+    version='0.2',
     description='',
     author='',
     author_email='',
-    #url='',
+    url='http://moksha.fedorahoted.org',
     install_requires=[
         "TurboGears2",
         "ToscaWidgets >= 0.9.1",
@@ -44,7 +44,7 @@ setup(
         #"repoze.squeeze", # Not hard requirements
         #"repoze.profile", # Not hard requirements
         "orbited",
-        "twisted",
+        #"Twisted",
         "stomper",
         "Sphinx",
         "Paver",

@@ -2,8 +2,8 @@
 %{!?pyver: %define pyver %(%{__python} -c "import sys ; print sys.version[:3]")}
 
 Name:           moksha 
-Version:        0.1dev
-Release:        0.1%{?dist}
+Version:        0.2
+Release:        1%{?dist}
 Summary:        A flexable platform for creating live collaborative web applications
 Group:          Applications/Internet
 License:        AGPLv3
@@ -19,6 +19,7 @@ BuildRequires: python-devel
 BuildRequires: python-pygments
 BuildRequires: python-paver
 BuildRequires: python-sphinx
+BuildRequires: python-nose
 
 Requires: TurboGears2
 Requires: python-toscawidgets >= 0.9.1
@@ -100,6 +101,9 @@ make -C docs html
 %doc docs/_build/html 
 
 %changelog
+* Wed Jun 03 2009 Luke Macken <lmacken@redhat.com> - 0.2-1
+- Add nose to the build requirements
+
 * Wed May 27 2009 John (J5) Palmieri <johnp@redhat.com> - 0.1-0.1
 - first package
 
