@@ -67,5 +67,5 @@ def init_model(engine):
     #mapper(Reflected, t_reflected)
 
 # Import your model modules here.
-#from auth import User, Group, Permission
+from auth import User, Group, Permission
 #from model import Entity, Fact, with_characteristic
