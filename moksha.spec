@@ -52,7 +52,7 @@ information can be found on the Moksha Project Page at
 %package doc
 Summary: Developer documentation for Moksha
 Group: Documentation
-Requires: %name = %{version}-%{release}
+Requires: %{name} = %{version}-%{release}
 
 %description doc 
 This package contains developer documentation for Moksha along with
