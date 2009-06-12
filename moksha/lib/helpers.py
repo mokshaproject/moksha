@@ -1006,6 +1006,9 @@ class DateTimeDisplay(object):
     def __str__(self):
         return self.datetime.strftime('%Y-%m-%d %H:%M:%S %Z%z')
 
+    def __repr__(self):
+        return "<DateTimeDisplay %r>" % self.datetime
+
 
 def when_ready(func):
     """
