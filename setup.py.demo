@@ -16,16 +16,6 @@
 
 from setuptools import setup, find_packages
 
-package_data = {'moksha': ['i18n/*/LC_MESSAGES/*.mo',
-                           'public/favicon',
-                           'public/css/*.css',
-                           'public/images/*.png',
-                           'public/images/*.gif',
-                           'public/images/*.jpg',
-                           'public/javascript/*.js',
-                           'public/javascript/ui/*.js']
-               }
-
 setup(
     name='moksha',
     version='0.2',
