@@ -1006,6 +1006,9 @@ class DateTimeDisplay(object):
     def __str__(self):
         return self.datetime.strftime('%Y-%m-%d %H:%M:%S %Z%z')
 
+    def __repr__(self):
+        return "<DateTimeDisplay %r>" % self.datetime
+
 
 def when_ready(func):
     """
@@ -1017,3 +1020,11 @@ def when_ready(func):
         $(document).ready(function(){jQuery("foo").bar({"biz": "baz"})});
     """
     return js_callback('$(document).ready(function(){' + str(func) + '});')
+
+
+def get_num_cpus():
+    cpus = 1
+    for line in open('/proc/cpuinfo'):
+        if line.startswith('processor'):
+            cpus = int(line.split()[-1]) + 1
+    return cpus

@@ -68,4 +68,4 @@ def init_model(engine):
 
 # Import your model modules here.
 from auth import User, Group, Permission
-from model import Entity, Fact, with_characteristic
+#from model import Entity, Fact, with_characteristic

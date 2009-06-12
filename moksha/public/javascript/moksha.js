@@ -605,6 +605,7 @@ moksha = {
            if (typeof(loading_icon) == 'undefined')
                loading_icon = '/images/spinner.gif';
 
+           loading_icon = moksha.url(loading_icon);
            var $msg = $('.message', $overlay_div);
            // FIXME: make this globally configurable
            $msg.html('<img src="'+ loading_icon + '"></img>');
