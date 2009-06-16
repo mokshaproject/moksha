@@ -64,7 +64,10 @@ class RootController(BaseController):
     #@after_render(cache_rendered_data)
     @expose('mako:moksha.templates.index')
     def index(self):
-        tmpl_context.menu_widget = moksha.menus['default_menu']
+        if 'default_menu' in moksha.menus:
+            tmpl_context.menu_widget = moksha.menus['default_menu']
+        else:
+            tmpl_context.menu_widget = ''
         #tmpl_context.contextual_menu_widget = moksha.menus['contextual_menu']
         return dict(title='[ Moksha ]')
 
