@@ -76,7 +76,7 @@ setup(
     [moksha.stream]
     #demo = moksha.streams.demo:MokshaDemoDataStream
     feed = moksha.streams.feed:FeedStream
-    #livegraph = moksha.examples.livegraph:LiveGraphDataStream
+    #livegraph = moksha.widgets.livegraph:LiveGraphDataStream
     moksha_metrics = moksha.widgets.metrics:MokshaMetricsDataStream
 
     [moksha.consumer]
@@ -96,7 +96,7 @@ setup(
     chat = moksha.widgets.chat:LiveChatWidget
     #livefeed_demo = moksha.widgets.demos:LiveFeedDemo
     #liveflot = moksha.api.widgets.flot:LiveFlotWidget
-    #livegraph = moksha.examples.livegraph:LiveGraphWidget
+    #livegraph = moksha.widgets.livegraph:LiveGraphWidget
     grid = moksha.api.widgets:Grid
     ptd = moksha.widgets.misc.ptd:ProcessedTowerDefense
     placeholder = moksha.api.widgets:Placeholder
