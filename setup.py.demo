@@ -85,7 +85,7 @@ setup(
 
     #[moksha.wsgiapp]
     # Use this entry point to mount WSGI applications, which can then be
-    # accessed the same as regular apps, through the `/appz/name` url.
+    # accessed the same as regular apps, through the `/apps/name` url.
 
     [moksha.application]
     menu = moksha.api.menus.controllers:MokshaMenuController
