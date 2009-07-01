@@ -76,7 +76,7 @@ setup(
     [moksha.stream]
     #demo = moksha.streams.demo:MokshaDemoDataStream
     feed = moksha.streams.feed:FeedStream
-    #livegraph = moksha.examples.livegraph:LiveGraphDataStream
+    #livegraph = moksha.widgets.livegraph:LiveGraphDataStream
     moksha_metrics = moksha.widgets.metrics:MokshaMetricsDataStream
 
     [moksha.consumer]
@@ -85,18 +85,18 @@ setup(
 
     #[moksha.wsgiapp]
     # Use this entry point to mount WSGI applications, which can then be
-    # accessed the same as regular apps, through the `/appz/name` url.
+    # accessed the same as regular apps, through the `/apps/name` url.
 
     [moksha.application]
     menu = moksha.api.menus.controllers:MokshaMenuController
-    chat = moksha.api.widgets.chat.controllers:ChatController
+    chat = moksha.widgets.chat.controllers:ChatController
     feeds = moksha.widgets.feedtree.controllers.feed:FeedController
 
     [moksha.widget]
-    chat = moksha.api.widgets.chat:LiveChatWidget
+    chat = moksha.widgets.chat:LiveChatWidget
     #livefeed_demo = moksha.widgets.demos:LiveFeedDemo
     #liveflot = moksha.api.widgets.flot:LiveFlotWidget
-    #livegraph = moksha.examples.livegraph:LiveGraphWidget
+    #livegraph = moksha.widgets.livegraph:LiveGraphWidget
     grid = moksha.api.widgets:Grid
     ptd = moksha.widgets.misc.ptd:ProcessedTowerDefense
     placeholder = moksha.api.widgets:Placeholder

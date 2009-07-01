@@ -46,7 +46,7 @@ class PollingDataStream(DataStream):
     and calls the :meth:`poll` method.
     """
     frequency = None # Either a timedelta object, or the number of seconds
-    now = True
+    now = False
 
     def __init__(self):
         super(PollingDataStream, self).__init__()

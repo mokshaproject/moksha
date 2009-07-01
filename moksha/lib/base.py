@@ -59,13 +59,13 @@ class BaseController(TGController):
         # url is already taken
         tmpl_context.get_url = url
 
-
-            # Add our global widget to the template context, and register it's resources
+        # Add our global widget to the template context, and register it's
+        # resources
         tmpl_context.moksha_global_resources = global_resources
 
-            # This is normally done when the widget is rendered, but we cannot assume that
-            # moksha apps are going to be using our master index template, which renders
-            # this widget for us.
+        # This is normally done when the widget is rendered, but we cannot
+        # assume that moksha apps are going to be using our master index
+        # template, which renders this widget for us.
         global_resources.register_resources()
 
         return TGController.__call__(self, environ, start_response)

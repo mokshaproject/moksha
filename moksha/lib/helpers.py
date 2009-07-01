@@ -24,6 +24,7 @@ import simplejson as json
 import re
 import os
 import logging
+import warnings
 
 from tw.api import js_callback
 from pytz import timezone, utc
@@ -1028,3 +1029,7 @@ def get_num_cpus():
         if line.startswith('processor'):
             cpus = int(line.split()[-1]) + 1
     return cpus
+
+
+def deprecation(message):
+    warnings.warn(message, DeprecationWarning, level=2)
