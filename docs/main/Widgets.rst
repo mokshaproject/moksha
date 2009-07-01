@@ -19,3 +19,4 @@ Moksha also provides a number of Widgets in its API, some of which include:
    Feeds
    LiveWidget
    MokshaContainerWidgets
+   MindMap
