@@ -686,6 +686,9 @@ moksha = {
            purl.update_query_string(params);
 
            moksha.csrf_rewrite_uri(purl);
+       } else {
+           if (moksha_csrf_trusted_domains.indexOf(purl.host) != -1)
+               moksha.csrf_rewrite_uri(purl);
        }
 
        return purl.toString();

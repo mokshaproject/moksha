@@ -53,6 +53,7 @@ class GlobalResourceInjectionWidget(Widget):
         <script type="text/javascript">
           moksha_base_url = "${base_url}";
           moksha_csrf_token = "${csrf_token}";
+          moksha_csrf_trusted_domains = ${csrf_trusted_domains};
           moksha_userid = "${user_id}";
           moksha_debug = ${debug};
           moksha_profile = ${profile};
@@ -60,7 +61,7 @@ class GlobalResourceInjectionWidget(Widget):
         """
     engine_name = 'mako'
 
-    params = ['base_url', 'csrf_token', 'user_id', 'debug', 'profile']
+    params = ['base_url', 'csrf_token', 'user_id', 'debug', 'profile', 'csrf_trusted_domains']
     base_url = '/'
     csrf_token = ''
     user_id = ''
@@ -98,6 +99,8 @@ class GlobalResourceInjectionWidget(Widget):
             d['debug'] = 'true'
         if asbool(config['global_conf'].get('profile')):
             d['profile'] = 'true'
+
+        d['csrf_trusted_domains'] = config.get('moksha.csrf.trusted_domains', '').split(',')
 
         identity = request.environ.get('repoze.who.identity')
         if identity:
