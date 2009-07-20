@@ -84,20 +84,22 @@ moksha = {
      ******************************************************************/
     filter_and_cache_resource: function(fragment, tag, resource_attr, cache_name) {
         var head_pos = moksha.find_head_tags(fragment);
-        function in_head(pos) {
+        var in_head = function(pos) {
+            var i = -1;
+            
             for(i in head_pos) {
                 low = head_pos[i][0];
                 high = head_pos[i][1];
 
                 if ((pos > low) && (pos < high))
-                    return i;
+                    break;
             }
 
             // -1 = not inside of the head tag
-            return -1;
+            return i;
         }
 
-        function offset_head(index, length) {
+        var offset_head = function(index, length) {
             head_pos[index][1] -= length;
             for(i=index + 1; i < head_pos.length; i++) {
                 head_pos[index][0] -= length;
