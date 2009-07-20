@@ -281,16 +281,18 @@ class WeightedSearch(object):
         item = weighted_item[0]
         for i, col_label in enumerate(self.cols):
             x = col_count - i
-            weight_factor = float(x) * factor
+            weight_factor = float(x) * factor 
 
             col_value = item.get(col_label,'')
+            
             if not isinstance(col_value, basestring):
                 col_value = ''
             else:
                 if not isinstance(col_value, unicode):
-                    col_value = unicode(item.get(col_value, ''), 'utf-8')
+                    col_value = unicode(col_value, 'utf-8')
+                    
                 col_value = col_value.lower()
-
+                
             index = col_value.find(search_term)
 
             while(index != -1):
