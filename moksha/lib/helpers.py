@@ -1032,4 +1032,4 @@ def get_num_cpus():
 
 
 def deprecation(message):
-    warnings.warn(message, DeprecationWarning, level=2)
+    warnings.warn(message, DeprecationWarning)
