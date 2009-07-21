@@ -21,7 +21,15 @@
 Cross-site Request Forgery Protection.
 
 http://en.wikipedia.org/wiki/Cross-site_request_forgery
+
+:deprecated: This module has moved to fedora.wsgi.csrf
 """
+
+try:
+    from fedora.wsgi.csrf import CSRFProtectionMiddleware, CSRFMetadataProvider
+except ImportError:
+    from moksha.lib.helpers import deprecation
+    deprecation("moksha.middleware.csrf is deprecated and has moved to fedora.wsgi.csrf")
 
 import logging
 
