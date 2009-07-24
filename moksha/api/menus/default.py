@@ -75,7 +75,7 @@ class MokshaDefaultMenu(MokshaMenu):
             <br>Moksha is a platform for creating live collaborative web applications.<br><br>
         </a>
         <a rel="separator"></a>
-        <a href="/docs/">Documentation</a>
+        <a href="/apps/docs/">Documentation</a>
         <a href="https://fedorahosted.org/moksha/report/3">Tickets</a>
         <a href="https://fedorahosted.org/moksha/">Wiki</a>
         """

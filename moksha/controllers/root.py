@@ -18,30 +18,16 @@
 
 import moksha
 import pylons
-import os
 
-from tg import config, url
-from tg import expose, flash, require, tmpl_context, redirect, validate
-from tg.controllers import WSGIAppController
-from tg.decorators import after_render
-
-from repoze.what import predicates
-from pkg_resources import resource_filename
-#from widgetbrowser import WidgetBrowser
-from pylons.i18n import ugettext as _, lazy_ugettext as l_
+from tg import url
+from tg import expose, flash, tmpl_context, redirect
 
 from moksha import _
-from moksha.model import DBSession
 from moksha.lib.base import BaseController
-from moksha.lib.helpers import cache_rendered_data
-from moksha.exc import ApplicationNotFound
 from moksha.controllers.error import ErrorController
 from moksha.controllers.apps import AppController
 from moksha.controllers.widgets import WidgetController
 from moksha.controllers.secure import SecureController
-
-# So we can mount the WidgetBrowser as /docs
-os.environ['TW_BROWSER_PREFIX'] = '/docs'
 
 class RootController(BaseController):
 
@@ -50,18 +36,6 @@ class RootController(BaseController):
     error = ErrorController()
     moksha_admin = SecureController()
 
-    # ToscaWidgets WidgetBrowser integration
-    """
-    docs = WSGIAppController(
-                WidgetBrowser(
-                    template_dirs=[
-                        resource_filename('moksha','templates/widget_browser')],
-                    docs_dir=config.get('docs_dir', 'docs'),
-                    full_stack=False,
-                    interactive=False))
-    """
-
-    #@after_render(cache_rendered_data)
     @expose('mako:moksha.templates.index')
     def index(self):
         if 'default_menu' in moksha.menus:
@@ -70,17 +44,6 @@ class RootController(BaseController):
             tmpl_context.menu_widget = lambda: ''
         #tmpl_context.contextual_menu_widget = moksha.menus['contextual_menu']
         return dict(title='[ Moksha ]')
-
-    @expose()
-    def lookup(self, *remainder):
-        """
-        Moksha's default lookup method, called by the
-        :class:`MokshaMiddleware`.  This currently dispatches to our
-        WidgetBrowser when Moksha is being used as WSGI middleware in another
-        application.
-        """
-        if pylons.request.path.startswith('/docs/'):
-            return self.docs, remainder
 
     @expose('mako:moksha.templates.login')
     def login(self, came_from=None):

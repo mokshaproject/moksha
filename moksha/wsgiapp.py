@@ -47,7 +47,6 @@ class MokshaAppDispatcher(PylonsApp):
         path = strip_script(environ)
         if path.startswith('/apps/') or \
            path.startswith('/widget') or \
-           path.startswith('/docs/') or \
            path.startswith('/moksha_admin/'):
             return self.root()
         else:

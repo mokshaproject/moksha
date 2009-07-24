@@ -22,11 +22,10 @@ from tw.api import Widget
 from tw.jquery import jQuery
 from tg import expose, tmpl_context
 
-from moksha.lib.base import Controller
-from moksha.exc import ApplicationNotFound
-
 from moksha.api.widgets.containers import DashboardContainer
 from moksha.api.widgets import ContextAwareWidget
+from moksha.exc import ApplicationNotFound
+from moksha.lib.base import Controller
 from moksha.lib.helpers import Category, MokshaApp, MokshaWidget
 
 class AppWidgetContainer(DashboardContainer, ContextAwareWidget):
