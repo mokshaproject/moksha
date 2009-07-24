@@ -14,6 +14,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+:deprecated: This module was used for some very early Moksha demos, and generates a lot of useless data.  This has since been deprecated by a more useful, self-aware, Moksha demo.
+
+.. moduleauthor:: Luke Macken <lmacken@redhat.com>
+"""
+
 import math
 from random import random
 from datetime import timedelta
