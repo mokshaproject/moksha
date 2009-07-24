@@ -38,15 +38,15 @@ class AppController(Controller):
 
     @expose()
     def lookup(self, app, *remainder):
-        if app not in moksha.apps:
+        if app not in moksha._apps:
             raise ApplicationNotFound(app)
-        return moksha.apps[app]['controller'], remainder
+        return moksha.get_app(app), remainder
 
     @expose('mako:moksha.templates.widget')
     def container(self, application, height=675, width=910, left=55,
                   top=50, **kw):
         """ Return an application rendered in a Moksha Widget Container """
-        app = moksha.apps.get(application)
+        app = moksha.get_app(application)
         if not app:
             raise ApplicationNotFound(application)
 

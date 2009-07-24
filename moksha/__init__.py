@@ -24,13 +24,13 @@ feed_cache = None
 feed_storage = None
 
 # All loaded moksha applications
-apps = None
-
-# All WSGI applications
-wsgiapps = None
+_apps = None
 
 # All loaded ToscaWidgets
 _widgets = None
+
+# All WSGI applications
+wsgiapps = None
 
 # All loaded moksha menus
 menus = None
@@ -41,6 +41,10 @@ stomp = StackedObjectProxy()
 def get_widget(name):
     """ Get a widget instance by name """
     return _widgets[name]['widget']
+
+def get_app(name):
+    """ Get an app controller by name """
+    return _apps[name]['controller']
 
 def shutdown():
     """ Called when Moksha shuts down """

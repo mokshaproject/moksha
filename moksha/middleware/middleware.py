@@ -53,7 +53,7 @@ class MokshaMiddleware(object):
         self.application = application
         self.mokshaapp = MokshaAppDispatcher(application)
 
-        moksha.apps = {}        # {'app name': tg.TGController/tg.WSGIAppController}
+        moksha._apps = {}        # {'app name': tg.TGController/tg.WSGIAppController}
         moksha._widgets = {}    # {'widget name': tw.api.Widget}
         moksha.menus = {}       # {'menu name': moksha.api.menus.MokshaMenu}
         self.engines = {}       # {'app name': sqlalchemy.engine.base.Engine}
@@ -92,11 +92,11 @@ class MokshaMiddleware(object):
         beforehand.
         """
         for app_entry in pkg_resources.iter_entry_points('moksha.application'):
-            if app_entry.name in moksha.apps:
+            if app_entry.name in moksha._apps:
                 raise MokshaException('Duplicate application name: %s' %
                                       app_entry.name)
             app_path = app_entry.dist.location
-            moksha.apps[app_entry.name] = {
+            moksha._apps[app_entry.name] = {
                     'name': app_entry.name,
                     'path': app_path,
                     }
@@ -116,9 +116,12 @@ class MokshaMiddleware(object):
             log.info('Loading %s application' % app_entry.name)
             app_class = app_entry.load()
             app_path = app_entry.dist.location
-            moksha.apps[app_entry.name].update({
-                    'name': getattr(app_class, 'name', app_entry.name),
-                    'controller': app_class(),
+            app_name = getattr(app_class, 'name', app_entry.name),
+            if isclass(app_class):
+                app = app_class()
+            moksha._apps[app_entry.name].update({
+                    'name': app_name,
+                    'controller': app_class,
                     'path': app_path,
                     'model': None,
                     })
@@ -126,9 +129,9 @@ class MokshaMiddleware(object):
                 model = __import__('%s.model' % app_entry.name,
                                    globals(), locals(),
                                    [app_entry.name])
-                moksha.apps[app_entry.name]['model'] = model
-            except ImportError:
-                pass
+                moksha._apps[app_entry.name]['model'] = model
+            except ImportError, e:
+                log.error(e)
 
     def load_wsgi_applications(self):
         log.info('Loading moksha WSGI applications')
@@ -136,7 +139,7 @@ class MokshaMiddleware(object):
             log.info('Loading %s WSGI application' % app_entry.name)
             app_class = app_entry.load()
             app_path = app_entry.dist.location
-            moksha.apps[app_entry.name] = {
+            moksha._apps[app_entry.name] = {
                     'name': getattr(app_class, 'name', app_entry.name),
                     'controller': WSGIAppController(app_class()),
                     'path': app_path,
@@ -288,14 +291,14 @@ class MokshaMiddleware(object):
         main_app_config_path = os.path.dirname(get_main_app_config_path())
         loaded_configs = []
 
-        apps += moksha.apps.values()
+        apps += moksha._apps.values()
         for app in apps:
             for configfile in ('production.ini', 'development.ini'):
                 confpath = os.path.join(app['path'], configfile)
                 if os.path.exists(confpath):
                     conf = appconfig('config:' + confpath)
                     if app.get('name'):
-                        moksha.apps[app['name']]['config'] = conf
+                        moksha._apps[app['name']]['config'] = conf
                     if app['path'] == main_app_config_path or \
                             confpath in loaded_configs:
                         continue
@@ -326,7 +329,7 @@ class MokshaMiddleware(object):
         if they don't already exist.
 
         """
-        for name, app in moksha.apps.items():
+        for name, app in moksha._apps.items():
             sa_url = app.get('config', {}).get('sqlalchemy.url', None)
             if sa_url:
                 if app['config']['__file__'] == get_moksha_config_path():
