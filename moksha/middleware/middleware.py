@@ -118,7 +118,7 @@ class MokshaMiddleware(object):
             app_path = app_entry.dist.location
             app_name = getattr(app_class, 'name', app_entry.name),
             if isclass(app_class):
-                app = app_class()
+                app_class = app_class()
             moksha._apps[app_entry.name].update({
                     'name': app_name,
                     'controller': app_class,
