@@ -28,7 +28,7 @@ package_data = {'moksha': ['i18n/*/LC_MESSAGES/*.mo',
 
 setup(
     name='moksha',
-    version='0.2',
+    version='0.3',
     description='',
     author='',
     author_email='',
