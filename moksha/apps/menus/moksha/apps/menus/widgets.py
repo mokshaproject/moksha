@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-:mod:`moksha.api.menus.widgets` - Moksha Menu Widgets
+:mod:`moksha.apps.menus.widgets` - Moksha Menu Widgets
 =====================================================
 
 This is a powerful component to build easily a multilevel tree menu or a
@@ -44,7 +44,7 @@ jquery_mbmenu_min_js = JSLink(modname=modname,
 
 
 class MokshaMenuBase(Widget):
-    template = "mako:moksha.api.menus.templates.mbmenu"
+    template = "mako:moksha.apps.menus.templates.mbmenu"
     javascript = [jquery_mbmenu_min_js]
     css = [CSSLink(modname=modname, filename='static/css/menu1.css',
                    media='screen')]
@@ -57,7 +57,7 @@ class MokshaMenuBase(Widget):
     rootMenuSelector = 'rootVoices'
     menuSelector = 'menuContainer'
     callback = '/apps/menu'
-    iconPath = '/toscawidgets/resources/moksha.api.menus.widgets/static/images/'
+    iconPath = '/toscawidgets/resources/moksha.apps.menus.widgets/static/images/'
     additionalData = ""
     menus = []
     menuWidth = 200

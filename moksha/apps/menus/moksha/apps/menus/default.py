@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-:mod:`moksha.api.menus.default` - The default Moksha Menu
+:mod:`moksha.apps.menus.default` - The default Moksha Menu
 =========================================================
 The default Moksha menu is an example Menu that lists
 the installed Applications, Widgets, etc.
@@ -24,7 +24,7 @@ the installed Applications, Widgets, etc.
 """
 
 import moksha
-from moksha.api.menus import MokshaMenu, MokshaContextualMenu
+from moksha.apps.menus import MokshaMenu, MokshaContextualMenu
 
 class MokshaContextMenu(MokshaContextualMenu):
 
