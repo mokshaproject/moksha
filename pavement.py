@@ -20,6 +20,7 @@ import urllib2
 from urlparse import urlparse
 
 from paver.easy import *
+from paver.setuputils import find_packages, find_package_data
 import paver.misctasks
 import paver.virtual
 
@@ -45,6 +46,8 @@ options(
         name="Moksha",
         api="1"
     ),
+    package_data=find_package_data(),
+    packages=find_packages(exclude=['ez_setup']),
     build_top=path("build"),
     build_dir=lambda: options.build_top / "Moksha",
     license=Bunch(
@@ -170,3 +173,25 @@ def test():
     from os import system
     sh("nosetests")
     system("nosetests")
+
+@task
+def reinstall():
+    # TODO: get the moksha version so we can fill it in below
+    sh('rm -fr dist/')
+    sh('python setup.py sdist --format=bztar')
+    sh('mv dist/* ~/rpmbuild/SOURCES/')
+    sh('cp moksha.spec ~/rpmbuild/SPECS/')
+    sh('rpmbuild -ba ~/rpmbuild/SPECS/moksha.spec') 
+    sh('sudo rpm -ivh --replacefiles --replacepkgs ~/rpmbuild/RPMS/noarch/moksha{,-docs}-0.3-1.noarch.rpm')
+    sh('sudo /sbin/service httpd restart')
+    sh('curl http://localhost/')
+
+@task
+def reinstall_apps():
+# rebuild and install all apps?
+    import os
+    for app in os.listdir('moksha/apps'):
+        os.chdir('moksha/apps/' + app)
+        if os.path.isfile('pavement.py'):
+            sh('echo `pwd` ;paver rpm')
+        os.chdir('../../')
