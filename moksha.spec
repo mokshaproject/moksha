@@ -2,7 +2,7 @@
 %{!?pyver: %define pyver %(%{__python} -c "import sys ; print sys.version[:3]")}
 
 Name:           moksha 
-Version:        0.2
+Version:        0.3
 Release:        1%{?dist}
 Summary:        A flexable platform for creating live collaborative web applications
 Group:          Applications/Internet
@@ -49,12 +49,12 @@ external services. It is a unified framework build using the best available
 open source technologies such as TurboGears2, jQuery, AMQP, and Orbited.  More 
 information can be found on the Moksha Project Page at 
 
-%package doc
+%package docs
 Summary: Developer documentation for Moksha
 Group: Documentation
 Requires: %{name} = %{version}-%{release}
 
-%description doc 
+%description docs
 This package contains developer documentation for Moksha along with
 other supporting documentation
 
@@ -67,8 +67,12 @@ make -C docs html
 
 %install
 %{__rm} -rf %{buildroot}
+
 %{__python} setup.py install -O1 --skip-build \
     --install-data=%{_datadir} --root %{buildroot}
+
+# Wipe out moksha/apps because that is where other app packages install
+%{__rm} -fr %{buildroot}%{python_sitelib}/moksha/apps/*
 
 %{__mkdir_p} %{buildroot}%{_datadir}/%{name}/production/apache
 %{__mkdir_p} %{buildroot}%{_datadir}/%{name}/production/nginx
@@ -96,7 +100,7 @@ make -C docs html
 %attr(-,apache,apache) %dir %{_localstatedir}/cache/%{name}
 %{_bindir}/moksha-hub
 
-%files doc
+%files docs
 %defattr(-,root,root)
 %doc docs/_build/html 
 
