@@ -1,6 +1,6 @@
 recursive-include docs *
 recursive-include production *
-recursive-include moksha *.mak
+recursive-include moksha *.mak *.html *.js *.css *.png *.jpg *.gif
 recursive-include moksha/public *
 
 include moksha.spec
