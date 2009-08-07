@@ -16,7 +16,6 @@ __import__('pkg_resources').declare_namespace(__name__)
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from pylons.i18n import ugettext as _
 from paste.registry import StackedObjectProxy
 
 # The central feed cache, used by the Feed widget.

@@ -21,8 +21,8 @@ import pylons
 
 from tg import url
 from tg import expose, flash, tmpl_context, redirect
+from pylons.i18n import ugettext as _
 
-from moksha import _
 from moksha.lib.base import BaseController
 from moksha.controllers.error import ErrorController
 from moksha.controllers.apps import AppController
