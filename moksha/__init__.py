@@ -1,3 +1,5 @@
+__import__('pkg_resources').declare_namespace(__name__)
+
 # This file is part of Moksha.
 # Copyright (C) 2008-2009  Red Hat, Inc.
 # 
