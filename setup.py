@@ -15,20 +15,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from setuptools import setup, find_packages
-
-package_data = {'moksha': ['i18n/*/LC_MESSAGES/*.mo',
-                           'public/favicon',
-                           'public/css/*.css',
-                           'public/images/*.png',
-                           'public/images/*.gif',
-                           'public/images/*.jpg',
-                           'public/javascript/*.js',
-                           'public/javascript/ui/*.js']
-               }
+from paver.setuputils import find_package_data
 
 setup(
     name='moksha',
-    version='0.2',
+    version='0.3',
     description='',
     author='',
     author_email='',
@@ -54,15 +45,19 @@ setup(
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
     test_suite='nose.collector',
+    namespace_packages=['moksha'],
     tests_require=['WebTest', 'BeautifulSoup'],
-    package_data={'moksha': ['i18n/*/LC_MESSAGES/*.mo',
-                             'public/favicon',
-                             'public/css/*.css',
-                             'public/images/*.png',
-                             'public/images/*.gif',
-                             'public/images/*.jpg',
-                             'public/javascript/*.js',
-                             'public/javascript/ui/*.js']},
+    package_data=find_package_data(exclude=['ez_setup']),
+    #package_data={'moksha': ['i18n/*/LC_MESSAGES/*.mo',
+    #                         'public/favicon',
+    #                         'public/css/*.css',
+    #                         'public/images/*.png',
+    #                         'public/images/*.gif',
+    #                         'public/images/*.jpg',
+    #                         'public/javascript/*.js',
+    #                         'templates/*.html',
+    #                         'templates/*.mak',
+    #                         'public/javascript/ui/*.js']},
     message_extractors = {'moksha': [
             ('**.py', 'python', None),
             ('templates/**.mak', 'mako', None),
