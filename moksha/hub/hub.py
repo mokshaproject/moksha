@@ -29,7 +29,7 @@ from orbited import json
 from threading import Thread
 from paste.deploy import appconfig
 
-from moksha.lib.helpers import trace, defaultdict
+from moksha.lib.helpers import trace, defaultdict, get_moksha_config_path
 from moksha.hub.amqp import AMQPHub
 from moksha.hub.stomp import StompHub
 
@@ -219,10 +219,7 @@ def setup_logger(verbose):
 def main():
     """ The main MokshaHub method """
     setup_logger('-v' in sys.argv or '--verbose' in sys.argv)
-    cfgfile = 'development.ini'
-    if os.path.isfile('production.ini'):
-        cfgfile= 'production.ini'
-    cfg = appconfig('config:' + os.path.abspath(cfgfile))
+    cfg = appconfig('config:' + get_moksha_config_path())
     config.update(cfg)
 
     hub = CentralMokshaHub()
