@@ -182,7 +182,7 @@ def reinstall():
     sh('mv dist/* ~/rpmbuild/SOURCES/')
     sh('cp moksha.spec ~/rpmbuild/SPECS/')
     sh('rpmbuild -ba ~/rpmbuild/SPECS/moksha.spec') 
-    sh('sudo rpm -ivh --replacefiles --replacepkgs ~/rpmbuild/RPMS/noarch/moksha{,-docs}-0.3-1.noarch.rpm')
+    sh('sudo rpm -ivh --replacefiles --replacepkgs ~/rpmbuild/RPMS/noarch/moksha{,-docs}-0.3-1.*noarch.rpm')
     sh('sudo /sbin/service httpd restart')
     sh('curl http://localhost/')
 
