@@ -106,6 +106,9 @@ make -C docs html
 %doc docs/_build/html 
 
 %changelog
+* Mon Aug 03 2009 Luke Macken <lmacken@redhat.com> - 0.3-1
+- 0.3, bugfix release
+
 * Wed Jun 03 2009 Luke Macken <lmacken@redhat.com> - 0.2-1
 - Add nose to the build requirements
 
