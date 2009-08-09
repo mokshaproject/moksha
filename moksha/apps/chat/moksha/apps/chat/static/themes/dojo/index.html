@@ -1,0 +1,226 @@
+<html>
+ <head>
+  <link rel="stylesheet" type="text/css" href="style.css">
+<script src="http://localhost:9000/static/Orbited.js"></script>
+<script src="/toscawidgets/resources/moksha.apps.chat.widgets.chat.chat/static/irc2.js"></script>
+<script src="/toscawidgets/resources/moksha.apps.chat.widgets.chat.chat/static/willowchat.js"></script>
+<script src="/toscawidgets/resources/moksha.apps.chat.widgets.chat.chat/static/gui.js"></script>
+<script src="gui.js"></script>
+  <script>
+    TCPSocket = Orbited.TCPSocket
+    document.domain = document.domain
+/*    Orbited.system.enabled = true;
+    Orbited.loggers['Orbited.XSDR'].enabled = false
+    Orbited.loggers['Orbited.CometSession'].enabled = true
+    Orbited.loggers['Orbited.TCPSocket'].enabled = true
+    Orbited.loggers['XSDRBridge'].enabled = true
+    Orbited.loggers['Orbited.CometTransports.LongPoll'].enabled = true
+    Orbited.loggers['Orbited.CometTransports.XHRStream'].enabled = true
+    Orbited.loggers['Orbited.CometTransports.HTMLFile'].enabled = true
+    Orbited.loggers['Orbited.CometTransports.SSE'].enabled = true 
+    Orbited.loggers['WC.c.IRCClient'].enabled = true
+*/
+  </script>
+
+
+	<link rel="stylesheet" 
+			href="http://o.aolcdn.com/dojo/1.2/dijit/themes/soria/soria.css">
+		<!-- load Dojo, and all the required modules -->
+		
+		<script type="text/javascript">
+
+				djConfig = {
+					isDebug: true,
+					baseUrl: "./",
+					xdWaitSeconds: 10,
+					parseOnLoad: true
+				};
+			</script>
+		
+		<script src="http://o.aolcdn.com/dojo/1.2/dojo/dojo.xd.js" ></script>
+		
+		<script>
+		
+		dojo.require("dijit.layout.BorderContainer");
+		dojo.require("dijit.layout.AccordionContainer");
+		dojo.require("dijit.layout.ContentPane");
+		dojo.require("dijit.layout.TabContainer");
+		
+		dojo.require("dijit.form.TextBox");
+		dojo.require("dijit.form.Button");
+		dojo.require("dijit.Dialog");
+		
+		
+		var username = null;
+		var roomMembers = [];
+		
+		dojo.addOnLoad(function() {
+			dijit.byId("logindialog").show();
+			console.log("hi?", willowConnection);
+			
+			
+			var mssageBox = dojo.byId("messageBox");
+			dojo.connect(mssageBox, "keyup", function(e) {
+		        var key = e.charCode || e.keyCode || 0
+		        if (key == dojo.keys.ENTER) {
+					var msg = mssageBox.value;
+		           	willowConnection.sendMessage(msg)
+			        willowConnection.onMessage(username, msg);
+					mssageBox.value = "";
+		        };
+		    });
+	
+			
+		});
+		
+		function login(nickname) {
+			username = nickname;
+			 willowConnection.connect( {
+		            username: nickname
+		        });
+		
+		
+		
+		
+				    willowConnection.onConnect = function(data) { 
+			            /* This is somewhat important -- without this IE can run into some
+			             * issues with reconnecting
+			             */
+
+			            window.onbeforeunload = function() {
+			                if (willowConnection.readyState == willowConnection.READY_STATE_CONNECTED) {
+			                return 'Are you sure you want to quit and lose the chat connection?';
+			                }
+			            };
+			            window.onunload = function() {
+			                if (willowConnection.readyState == willowConnection.READY_STATE_CONNECTED) {
+			                    willowConnection.disconnect();
+			                }
+			           }
+
+
+			           // $("<div class='informative'>Entered ChatRoom</div>").appendTo("#history");
+			            for (var i = 0; i < willowConnection.presence.length; ++i) {
+			              addName(willowConnection.presence[i]);
+			              console.log("who?", willowConnection.presence[i]);
+			            }
+						updateMembers();
+ 						console.log('connected', data, willowConnection.presence) 
+			        }
+			        willowConnection.onMessage = function(sender, message) { 
+			            console.log('msg', sender, message); 
+						chatArea.domNode.innerHTML += "<div>" + sender + ": " + message + "</div>";
+						scrollDown();
+			          /*  var messagediv = $('<div class="message"></div>');
+
+			            if (sender == username) {
+			                messagediv.addClass("self");
+			            }
+			            if (isSubstring(username, message)) {
+			                messagediv.addClass("mentioned");
+			            }
+			            messagediv.html('<span class="user">' + sender + ':</span> ' +
+			                            sanitize(message))
+			            .appendTo("#history");
+			            scrollDown();*/
+			        }
+			        willowConnection.onAction = function(s, m) { console.log('action', s, m); }
+
+			        willowConnection.onJoin = function(joiner) { 
+			            console.log('join', joiner);
+			            addName(joiner);
+						updateMembers();
+						chatArea.domNode.innerHTML +=	"<span class='user'>" + joiner + "</span> has joined<br/>";
+						scrollDown();
+			        }
+			
+			        willowConnection.onLeave = function(leaver) { 
+			           console.log('leave', leaver); 
+						var idx = -1;
+					   for(var i = 0; idx > -1 && i < roomMembers.length; i++) {
+							if(leaver == roomMembers[i]) {
+								idx = i;
+							}
+						}
+						roomMembers.splice(i, 1);
+						_updateMemberDisplay();
+			        }
+			
+			        willowConnection.onDisconnect = function() { console.log('disconneted'); roomMembers = []; _updateMemberDisplay();	dijit.byId("logindialog").show();}
+			        willowConnection.onUsernameTaken = function() {
+			            console.log('onUsernameTaken', username);
+			         username += '_'
+			            try {
+			                willowConnection.rename(username);
+			                console.log('rename sent');
+			            }
+			            catch(e) {
+			                console.log('rename failed:', e)
+			            }
+			        }
+		
+		
+		
+		
+		
+		} 
+		
+		function addName(name) {
+			roomMembers.push(name);
+		//	presenceContainer.domNode.innerHTML += name + "<br/>";
+		} 
+		
+		
+		function updateMembers() {
+			roomMembers.sort();
+			_updateMemberDisplay();
+		}
+		
+		function _updateMemberDisplay() {
+				presenceContainer.domNode.innerHTML  =  "";
+				for(var i = 0; i < roomMembers.length; i++) {
+					var member = roomMembers[i];
+					presenceContainer.domNode.innerHTML += member + "<br/>";
+				}
+		}
+		
+		function scrollDown() {
+	      chatArea.domNode.scrollTop = chatArea.domNode.scrollHeight;
+	    }
+		
+		function logout() {
+			willowConnection.disconnect();
+		}
+		
+		
+		
+		
+		</script>
+
+
+ </head>
+ <body class="soria" >
+	<div dojoType="dijit.Dialog" id="logindialog" title="Chat"
+				execute="login(arguments[0]['name'] ? arguments[0]['name'] : 'guest');">
+		<label for="name">Nickname: </label>
+		<input dojoType=dijit.form.TextBox type="text"  maxlength="16"  name="name" id="name" value="">
+		<button dojoType=dijit.form.Button type="submit">OK</button>
+	</div>
+	
+	<div>
+		<div dojoType="dijit.layout.BorderContainer" style="width:100%; height:100%">
+				<div dojoType="dijit.layout.ContentPane" region="top" style="border:1px solid gray;  height: 20px; background: #eee;">
+					WillowChat now with Dojo 	<button dojoType=dijit.form.Button onClick="logout();" style="font-size:10px;" type="submit">Leave</button>
+				</div>
+				<div dojoType="dijit.layout.ContentPane" region="left" jsId="presenceContainer"  style="width: 100px; border:1px solid gray; background: #eee;" splitter="true" minSize="0" maxSize="250">
+					
+				</div>
+				<div dojoType="dijit.layout.ContentPane" region="center" jsId="chatArea"  style="border:1px solid gray;  background: #eee;" >
+				
+				</div>
+				<div dojoType="dijit.layout.ContentPane" region="bottom" style="height: 50px; border:1px solid gray;  background: #eee;" >
+					<textarea id="messageBox" style="width:90%"></textarea>
+				</div>
+			</div>
+	</div>
+</html>

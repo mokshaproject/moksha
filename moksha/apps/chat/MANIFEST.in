@@ -1,0 +1,1 @@
+recursive-include moksha *.mak *.html *.js *.png *.gif *.css *.jpg *.jpeg
