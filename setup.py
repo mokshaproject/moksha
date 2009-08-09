@@ -45,7 +45,7 @@ setup(
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
     test_suite='nose.collector',
-    namespace_packages=['moksha'],
+    #namespace_packages=['moksha'],
     tests_require=['WebTest', 'BeautifulSoup'],
     package_data=find_package_data(exclude=['ez_setup']),
     #package_data={'moksha': ['i18n/*/LC_MESSAGES/*.mo',
