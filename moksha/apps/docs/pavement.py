@@ -12,7 +12,7 @@ options(
         release="1",
         url="http://moksha.fedorahosted.org",
         description="Moksha Docs App",
-        long_description="TODO.",
+        long_description="Moksha Sphinx docs and ToscaWidgets demos",
         license='AGPLv3',
         rpm_name='moksha-apps-docs',
         author="Luke Macken",
@@ -23,7 +23,7 @@ options(
         namespace_packages=['moksha'],
         entry_points={
             'moksha.application': (
-                'docs = moksha.apps.docs.docs:docs',
+                'docs = moksha.apps.docs:docs',
             ),
         }
     ),

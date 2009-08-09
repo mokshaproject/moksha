@@ -1,0 +1,9 @@
+.widgetbrowser iframe {
+    width: 100%;
+    border: 0;
+}
+div.small iframe { height: 50px; }
+div.medium iframe { height: 150px; }
+div.large iframe { height: 300px; }
+div.x-large iframe { height: 500px; }
+

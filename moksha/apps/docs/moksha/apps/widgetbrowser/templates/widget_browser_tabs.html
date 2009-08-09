@@ -1,0 +1,12 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<div xmlns:py="http://genshi.edgewall.org/"
+     class="widgetbrowser ${size}">
+  <ul>
+    <li py:for="text, url in tabs">
+      <a href="${url}" class="${text == 'Demo' and 'use_iframe' or None}">
+        <span>${text}</span>
+      </a>
+    </li>
+  </ul>
+</div>
+

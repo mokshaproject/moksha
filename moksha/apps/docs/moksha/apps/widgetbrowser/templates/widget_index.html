@@ -1,0 +1,18 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"
+      xmlns:py="http://genshi.edgewall.org/">
+  <?python
+      from widgetbrowser.widgets import WidgetBrowserTabs
+      from widgetbrowser.util import widget_path
+      browser = WidgetBrowserTabs(size='x-large')
+  ?>
+  <head>
+    <title>WidgetBrowser: ${widget_path(widget)}</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  </head>
+  <body>
+    <h1>${widget_path(widget)}</h1>
+    <p><a href="javascript:history.back()">Back</a></p>
+    ${browser(widget)}
+  </body>
+</html>

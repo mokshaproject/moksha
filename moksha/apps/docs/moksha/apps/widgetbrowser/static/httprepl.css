@@ -1,0 +1,78 @@
+.httprepl .output pre {
+    font: 10pt monospace;
+    margin: 0;
+    padding: 1px;
+    border: 1px solid #E0E0FF;
+    background-color: #F8F8FF;
+    
+    white-space: -moz-pre-wrap; /* Mozilla, supported since 1999 */
+    white-space: -pre-wrap; /* Opera 4 - 6 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    white-space: pre-wrap; /* CSS3 - Text module (Candidate Recommendation)
+                            http://www.w3.org/TR/css3-text/#white-space */
+    word-wrap: break-word; /* IE 5.5+ */
+}
+
+.httprepl .output pre.stdin {
+    border: none;
+    background-color: transparent;
+}
+
+form {
+    font: 10pt monospace;
+    margin: 0;
+}
+
+.httprepl .input {
+    font: 10pt monospace;
+    width: 95%;
+    border-top: none;
+    border-right: 1px dotted #E0E0FF;
+    border-bottom: none;
+    border-left: 1px dotted #E0E0FF;
+}
+
+.httprepl .tipbar {
+    position: fixed;
+    top: 10px;
+    
+    /* See http://annevankesteren.nl/test/examples/ie/position-fixed.html */
+    _position:absolute;
+    _top:expression(eval(document.body.scrollTop) + 10);
+    
+    right: 10px;
+    
+    max-width: 50%;
+    max-height: 80%;
+    /* See http://www.svendtofte.com/code/max_width_in_ie/ */
+    width: expression(document.body.clientWidth / 2);
+    height: expression(document.body.clientHeight * 0.8);
+    
+    border: 2px outset #DDCCBB;
+    background-color: #FFEEDD;
+    font: 9pt monospace;
+    
+    margin: 0;
+    padding: 4px;
+    
+    white-space: -moz-pre-wrap; /* Mozilla, supported since 1999 */
+    white-space: -pre-wrap; /* Opera 4 - 6 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    white-space: pre-wrap; /* CSS3 - Text module (Candidate Recommendation)
+                            http://www.w3.org/TR/css3-text/#white-space */
+    word-wrap: break-word; /* IE 5.5+ */
+    
+    display: none;
+    overflow: auto;
+}
+
+.httprepl .tipbar a {
+    padding: 4px;
+    text-decoration: none;
+    color: #666666;
+}
+
+.widget-dialog  {
+    background: #fff;
+    z-index: 9999;
+}
