@@ -19,6 +19,7 @@ options(
         author_email="lmacken@redhat.com",
         packages=find_packages(),
         package_data=find_package_data(),
+        include_package_data=True,
         install_requires=["Moksha"],
         namespace_packages=['moksha'],
         entry_points={

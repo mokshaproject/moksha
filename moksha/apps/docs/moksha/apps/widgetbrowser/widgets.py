@@ -4,7 +4,8 @@ import string
 
 __all__ = ['WidgetBrowserTabs']
 
-mod = 'widgetbrowser'
+mod = __name__
+#mod = 'widgetbrowser'
 flora_all_css = CSSLink(modname=mod, filename="static/themes/flora/flora.all.css")
 tabs_css = CSSLink(modname=mod, filename="static/ui.tabs.css")
 wb_css = CSSLink(modname=mod, filename="static/widgetbrowser.css")
@@ -36,7 +37,7 @@ httprepl_js = JSLink(modname=mod, filename='static/httprepl.js',
                      location="bodybottom")
 
 class WidgetBrowserTabs(Widget):
-    template = "genshi:widgetbrowser.templates.widget_browser_tabs"
+    template = "genshi:moksha.apps.widgetbrowser.templates.widget_browser_tabs"
     params = ["tabs", "prefix", "size", "in_sphinx"]
     in_sphinx = False
     javascript = [widgetbrowser_js]

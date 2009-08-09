@@ -58,12 +58,12 @@ class WidgetBrowser(object):
             self.http_repl = exc.HTTPForbidden("Interactive mode is disabled")
         if docs_dir:
             from paste.cascade import Cascade
-            dest_dir = os.path.abspath(os.path.join(docs_dir, '.build'))
-            log.info('Building docs...')
-            try:
-                util.build_docs(docs_dir, dest_dir)
-            except Exception, e:
-                log.warning('Skipping building docs: %s' % str(e))
+            dest_dir = os.path.abspath(os.path.join(docs_dir))
+            #log.info('Building docs...')
+            #try:
+            #    util.build_docs(docs_dir, dest_dir)
+            #except Exception, e:
+            #    log.warning('Skipping building docs: %s' % str(e))
             self.built_docs = dest_dir
             self.app = Cascade([self.docs_app, self.app])
         if asbool(full_stack):
@@ -124,7 +124,7 @@ class WidgetBrowser(object):
     def __call__(self, environ, start_response):
         return self.app(environ, start_response)
 
-    @cache_rendered
+    #@cache_rendered
     def app(self, environ, start_response):
         req = Request(environ)
         resp = Response(request=req, content_type='text/html; charset=utf-8')

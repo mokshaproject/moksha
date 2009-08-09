@@ -22,7 +22,7 @@ def widgetbrowser_directive(dirname, arguments, options, content, lineno,
         prb = nodes.problematic(block_text, block_text, msg)
         return [msg, prb]
     tabs = options.get('tabs') or widget_tabs.tabs
-    prefix = os.environ.get('TW_BROWSER_PREFIX')
+    prefix = os.environ.get('TW_BROWSER_PREFIX', '/apps/docs')
     size = options.get('size')
     html = widget_tabs(widget, tabs=tabs, prefix=prefix, size=size)
     node = nodes.raw('', html, format='html')
