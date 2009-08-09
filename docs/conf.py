@@ -162,8 +162,12 @@ code_path = test_path = os.path.dirname(os.path.abspath(__file__)) + os.path.sep
 try:
     import widgetbrowser
     extensions.append("widgetbrowser.sphinx_ext")
-except:
-    print "Unable to import the `widgetbrowser`.  Try doing `cd moksha/widgetbrowser; python setup.py develop` to install it."
+except ImportError:
+    try:
+        from moksha.apps import widgetbrowser
+        extensions.append("moksha.apps.widgetbrowser.sphinx_ext")
+    except ImportError:
+        print "Unable to import the `widgetbrowser`"
 
 #
 # example configuration for intersphinx: refer to the python standard library.
