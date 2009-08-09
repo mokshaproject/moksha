@@ -41,7 +41,10 @@ for entry_point in ('moksha.widget', 'moksha.menu', 'moksha.global'):
 from moksha.widgets.container import MokshaContainer
 __all__.append(MokshaContainer)
 
-from widgetbrowser import widgets
-for obj in dir(widgets):
-    if isinstance(getattr(widgets, obj), Widget):
-        __all__.append(obj)
+try:
+    from moksha.apps.widgetbrowser import widgets
+    for obj in dir(widgets):
+        if isinstance(getattr(widgets, obj), Widget):
+            __all__.append(obj)
+except ImportError:
+    pass
