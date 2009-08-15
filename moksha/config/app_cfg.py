@@ -45,6 +45,7 @@ base_config.sa_auth.permission_class = model.Permission
 # this makes sure the passwords are not stored in clear-text
 # inside the database. Choices are "md5", "sha1" or "salted_sha1"
 base_config.sa_auth.password_encryption_method = "salted_sha1"
+base_config.sa_auth.cookie_secret = "/\\/\\0|<5|-|4"
 
 # override this if you would like to provide a different who plugin for 
 # managing login and logout of your application
