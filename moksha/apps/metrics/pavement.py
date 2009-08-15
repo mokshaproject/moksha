@@ -1,9 +1,6 @@
 from paver.easy import *
-from paver.setuputils import (setup, find_package_data, find_packages,
-                              install_distutils_tasks)
+from paver.setuputils import setup, find_package_data, find_packages
 from moksha.lib.paver_tasks import *
-
-install_distutils_tasks()
 
 options(
     setup=Bunch(

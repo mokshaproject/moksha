@@ -1,5 +1,8 @@
 import os
 from paver.easy import *
+from paver.setuputils import install_distutils_tasks
+
+install_distutils_tasks()
 
 @task
 def rpm():
