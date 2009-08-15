@@ -198,3 +198,18 @@ def reinstall_apps():
         if os.path.isfile('pavement.py'):
             sh('paver reinstall')
         os.chdir(top)
+
+@task
+@cmdopts([
+    ('distro=', 'd', 'Distribution to build for'),
+    ('arch=', 'a', 'Architecture to build'),
+])
+def smock(options):
+    """ Use smock.pl to rebuild everything in ~/rpmbuild/SRPMS """
+    arches = getattr(options, 'arch', 'i386 x86_64').split()
+    distros = getattr(options, 'distro',
+                     'epel-5 fedora-11 fedora-rawhide fedora-10').split()
+    for distro in distros:
+        for arch in arches:
+            sh('~/smock.pl --arch=%s --distro=%s ~/rpmbuild/SRPMS/*.rpm' % (
+               arch, distro))
