@@ -58,6 +58,16 @@ Requires: %{name} = %{version}-%{release}
 This package contains developer documentation for Moksha along with
 other supporting documentation
 
+%package server
+Summary: mod_wsgi Moksha server
+Group: Applications/Internet
+Requires: %{name} = %{version}-%{release}
+Requires: mod_wsgi httpd
+
+%description server
+This package contains an Apache mod_wsgi configuration for Moksha.
+
+
 %prep
 %setup -q
 
@@ -77,12 +87,12 @@ make -C docs html
 %{__mkdir_p} %{buildroot}%{_datadir}/%{name}/production/apache
 %{__mkdir_p} %{buildroot}%{_datadir}/%{name}/production/nginx
 %{__mkdir_p} %{buildroot}%{_datadir}/%{name}/production/rabbitmq
-
-%{__mkdir_p} -m 0755 %{buildroot}/%{_localstatedir}/log/%{name}
 %{__mkdir_p} -m 0700 %{buildroot}/%{_localstatedir}/cache/%{name}
+%{__mkdir_p} -m 0755 %{buildroot}/etc/httpd/conf.d
 
 %{__install} production/*.* %{buildroot}%{_datadir}/%{name}/production/
 %{__install} production/apache/* %{buildroot}%{_datadir}/%{name}/production/apache
+%{__install} production/apache/moksha.conf %{buildroot}%{_sysconfdir}/httpd/conf.d/
 %{__install} production/nginx/* %{buildroot}%{_datadir}/%{name}/production/nginx
 %{__install} production/rabbitmq/* %{buildroot}%{_datadir}/%{name}/production/rabbitmq
 
@@ -95,16 +105,21 @@ make -C docs html
 %doc README AUTHORS LICENSE COPYING
 %{python_sitelib}/%{name}/
 %attr(-,apache,root) %{_datadir}/%{name}
-%attr(-,apache,root) %{_localstatedir}/log/%{name}
 %{python_sitelib}/%{name}-%{version}-py%{pyver}.egg-info/
 %attr(-,apache,apache) %dir %{_localstatedir}/cache/%{name}
 %{_bindir}/moksha-hub
+
+%files server
+%config(noreplace) %{_sysconfdir}/httpd/conf.d/moksha.conf
 
 %files docs
 %defattr(-,root,root)
 %doc docs/_build/html 
 
 %changelog
+* Sat Aug 15 2009 Luke Macken <lmacken@redhat.com> - 0.3.1-2
+- Break out the mod_wsgi configuration into a moksha-server subpackage.
+
 * Fri Aug 14 2009 Luke Macken <lmacken@redhat.com> - 0.3.1-1
 - 0.3.1
 
