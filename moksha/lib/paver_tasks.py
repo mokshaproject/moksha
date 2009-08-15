@@ -63,4 +63,4 @@ paver install -O1 --skip-build --root %%{buildroot}
 @task
 @needs(['rpm'])
 def reinstall():
-    sh('sudo rpm -ivh --replacefiles --replacepkgs ~/rpmbuild/RPMS/noarch/%s-%s-%s.noarch.rpm' % (options.rpm_name, options.version, options.release))
+    sh('sudo rpm -ivh --replacefiles --replacepkgs ~/rpmbuild/RPMS/noarch/%s-%s-%s.*noarch.rpm' % (options.rpm_name, options.version, options.release))

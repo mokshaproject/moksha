@@ -24,6 +24,8 @@ from paver.setuputils import find_packages, find_package_data
 import paver.misctasks
 import paver.virtual
 
+from moksha import version
+
 HEADER = """This file is part of Moksha.
 Copyright (C) 2008-2009  Red Hat, Inc.
 
@@ -42,9 +44,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>."""
 
 options(
     version=Bunch(
-        number="0.1",
+        number=version,
         name="Moksha",
-        api="1"
     ),
     package_data=find_package_data(),
     packages=find_packages(exclude=['ez_setup']),
@@ -193,5 +194,5 @@ def reinstall_apps():
     for app in os.listdir('moksha/apps'):
         os.chdir('moksha/apps/' + app)
         if os.path.isfile('pavement.py'):
-            sh('echo `pwd` ;paver rpm')
+            sh('paver reinstall')
         os.chdir('../../')
