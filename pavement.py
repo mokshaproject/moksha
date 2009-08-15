@@ -183,7 +183,7 @@ def reinstall():
     sh('mv dist/* ~/rpmbuild/SOURCES/')
     sh('cp moksha.spec ~/rpmbuild/SPECS/')
     sh('rpmbuild -ba ~/rpmbuild/SPECS/moksha.spec') 
-    sh('sudo rpm -ivh --replacefiles --replacepkgs ~/rpmbuild/RPMS/noarch/moksha{,-docs}-%s-1.*noarch.rpm' % options.version.number)
+    sh('sudo rpm -ivh --replacefiles --replacepkgs ~/rpmbuild/RPMS/noarch/moksha{,-docs,-server}-%s-1.*noarch.rpm' % options.version.number)
 
 @task
 def restart_httpd():
