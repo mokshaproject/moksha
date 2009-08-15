@@ -9,6 +9,32 @@ Getting the code
 
     $ git clone git://git.fedorahosted.org/git/moksha
 
+Rebuilding and Reinstalling the RPM
+-----------------------------------
+
+.. code-block:: bash
+
+    $ paver reinstall
+
+Reinstalling *all* apps
+-----------------------
+
+.. code-block:: bash
+
+    $ paver reinstall_apps
+
+
+.. note::
+
+   These instructions assume that you already have an RPM development
+   environment setup.  To do this, simply install `rpmdevtools` and run
+   `rpmdev-setuptree`
+
+.. note::
+
+   The instructions below are considered to be deprecated.
+   The ideal installation mechanism is via RPM.
+
 Starting
 --------
 
