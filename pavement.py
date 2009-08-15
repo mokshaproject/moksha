@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import sys
 import tarfile
 import urllib2
@@ -177,22 +178,23 @@ def test():
 
 @task
 def reinstall():
-    # TODO: get the moksha version so we can fill it in below
     sh('rm -fr dist/')
     sh('python setup.py sdist --format=bztar')
     sh('mv dist/* ~/rpmbuild/SOURCES/')
     sh('cp moksha.spec ~/rpmbuild/SPECS/')
     sh('rpmbuild -ba ~/rpmbuild/SPECS/moksha.spec') 
-    sh('sudo rpm -ivh --replacefiles --replacepkgs ~/rpmbuild/RPMS/noarch/moksha{,-docs}-0.3-1.*noarch.rpm')
+    sh('sudo rpm -ivh --replacefiles --replacepkgs ~/rpmbuild/RPMS/noarch/moksha{,-docs}-%s-1.*noarch.rpm' % options.version.number)
+
+@task
+def restart_httpd():
     sh('sudo /sbin/service httpd restart')
     sh('curl http://localhost/')
 
 @task
 def reinstall_apps():
-# rebuild and install all apps?
-    import os
     for app in os.listdir('moksha/apps'):
-        os.chdir('moksha/apps/' + app)
+        top = os.getcwd()
+        os.chdir(path('moksha') / 'apps' / app)
         if os.path.isfile('pavement.py'):
             sh('paver reinstall')
-        os.chdir('../../')
+        os.chdir(top)
