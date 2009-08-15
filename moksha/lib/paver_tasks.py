@@ -24,6 +24,7 @@ BuildRoot:      %%{_tmppath}/%%{name}-%%{version}-%%{release}-root-%%(%%{__id_u}
 BuildArch:      noarch
 BuildRequires:  python-setuptools-devel
 BuildRequires:  python-paver
+BuildRequires:  moksha
 Requires:       moksha
 
 %%description
