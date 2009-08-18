@@ -25,7 +25,7 @@ from paver.setuputils import find_packages, find_package_data
 import paver.misctasks
 import paver.virtual
 
-from moksha import version
+VERSION = '0.3.1'
 
 HEADER = """This file is part of Moksha.
 Copyright (C) 2008-2009  Red Hat, Inc.
@@ -45,7 +45,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>."""
 
 options(
     version=Bunch(
-        number=version,
+        number=VERSION,
         name="Moksha",
     ),
     package_data=find_package_data(),
