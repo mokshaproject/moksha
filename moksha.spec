@@ -1,7 +1,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 %{!?pyver: %define pyver %(%{__python} -c "import sys ; print sys.version[:3]")}
 
-Name:           moksha 
+Name:           moksha
 Version:        0.3.1
 Release:        1%{?dist}
 Summary:        A flexable platform for creating live collaborative web applications
@@ -19,6 +19,7 @@ BuildRequires: python-devel
 BuildRequires: python-pygments
 BuildRequires: python-paver
 BuildRequires: python-sphinx
+BuildRequires: python-paste
 BuildRequires: python-nose
 
 Requires: TurboGears2
@@ -80,9 +81,6 @@ make -C docs html
 
 %{__python} setup.py install -O1 --skip-build \
     --install-data=%{_datadir} --root %{buildroot}
-
-# Wipe out moksha/apps because that is where other app packages install
-%{__rm} -fr %{buildroot}%{python_sitelib}/moksha/apps/*
 
 %{__mkdir_p} %{buildroot}%{_datadir}/%{name}/production/apache
 %{__mkdir_p} %{buildroot}%{_datadir}/%{name}/production/nginx
