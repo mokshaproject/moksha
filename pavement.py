@@ -193,11 +193,13 @@ def restart_httpd():
 @task
 def reinstall_apps():
     for app in os.listdir('moksha/apps'):
-        top = os.getcwd()
-        os.chdir(path('moksha') / 'apps' / app)
-        if os.path.isfile('pavement.py'):
-            sh('paver reinstall')
-        os.chdir(top)
+        app_dir = path('moksha') / 'apps' / app
+        if os.path.isdir(app_dir):
+            top = os.getcwd()
+            os.chdir(path('moksha') / 'apps' / app)
+            if os.path.isfile('pavement.py'):
+                sh('paver reinstall')
+            os.chdir(top)
 
 @task
 @cmdopts([
