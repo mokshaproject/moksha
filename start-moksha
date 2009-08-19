@@ -12,7 +12,7 @@ if [ ! $VIRTUAL_ENV ]; then
 
         # Hack around Shove's hard SQLAlchemy requirement :(
         easy_install -U Shove
-        sed -i -e 's/SQLAlchemy==0\.4/SQLAlchemy/' tg2env/lib/python2.6/site-packages/shove-*.egg/EGG-INFO/requires.txt
+        sed -i -e 's/SQLAlchemy==0\.4/SQLAlchemy/' tg2env/lib/python*/site-packages/shove-*.egg/EGG-INFO/requires.txt
         easy_install -U SQLAlchemy
         easy_install Paver
         easy_install -U ToscaWidgets
