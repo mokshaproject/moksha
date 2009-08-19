@@ -16,11 +16,10 @@
 
 from setuptools import setup, find_packages
 from paver.setuputils import find_package_data
-from moksha import version
 
 setup(
     name='moksha',
-    version=version,
+    version='0.3.2',
     description='',
     author='',
     author_email='',
