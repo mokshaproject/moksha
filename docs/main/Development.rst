@@ -24,6 +24,13 @@ Reinstalling *all* apps
     $ paver reinstall_apps
 
 
+Reinstall everything, and restart apache
+----------------------------------------
+
+.. code-block:: bash
+
+    $ paver reinstall reinstall_apps restart_httpd
+
 .. note::
 
    These instructions assume that you already have an RPM development
