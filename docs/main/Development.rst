@@ -2,8 +2,11 @@
 Hacking with Moksha
 ===================
 
+RPM Installation
+----------------
+
 Install the dependencies
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 Run the following commands as root, replacing `$DISTRO` with either
 `fedora-11`, `fedora-10`, or `epel-5`.
@@ -29,21 +32,21 @@ Run the following commands as root, replacing `$DISTRO` with either
    http://fedoraproject.org/wiki/TurboGears2
 
 Getting the code
-----------------
+~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
     $ git clone git://git.fedorahosted.org/git/moksha
 
 Rebuilding and Reinstalling the RPM
------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
     $ paver reinstall
 
 Reinstalling *all* apps
------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
@@ -51,7 +54,7 @@ Reinstalling *all* apps
 
 
 Reinstall everything, and restart apache
-----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
@@ -63,13 +66,22 @@ Reinstall everything, and restart apache
    environment setup.  To do this, simply install `rpmdevtools` and run
    `rpmdev-setuptree`
 
-.. note::
 
-   The instructions below are considered to be deprecated.
-   The ideal installation mechanism is via RPM.
+
+Non-RPM installation (OSX)
+--------------------------
+
+This installation method should work on non
+
+Getting the code
+~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    $ git clone git://git.fedorahosted.org/git/moksha
 
 Starting
---------
+~~~~~~~~
 
 .. code-block:: bash
 
@@ -84,21 +96,21 @@ Stopping
 
 
 Generating documentation
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
     $ paver html
 
 Running the test suite
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
     $ nosetests
 
 Freezing requirements
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
