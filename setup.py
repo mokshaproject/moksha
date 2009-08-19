@@ -36,7 +36,7 @@ setup(
         #"repoze.squeeze", # Not hard requirements
         #"repoze.profile", # Not hard requirements
         "orbited",
-        #"Twisted",
+        "Twisted",
         "stomper",
         "Sphinx",
         "Paver",

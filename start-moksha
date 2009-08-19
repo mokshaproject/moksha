@@ -15,6 +15,7 @@ if [ ! $VIRTUAL_ENV ]; then
         sed -i -e 's/SQLAlchemy==0\.4/SQLAlchemy/' tg2env/lib/python2.6/site-packages/shove-*.egg/EGG-INFO/requires.txt
         easy_install -U SQLAlchemy
         easy_install Paver
+        easy_install -U ToscaWidgets
 
         #./pip.py install -E tg2env -r normal-reqs.txt --extra-index-url=http://www.turbogears.org/2.0/downloads/current/index
         #easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
