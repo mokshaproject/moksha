@@ -9,9 +9,15 @@ if [ ! $VIRTUAL_ENV ]; then
         fi
         python tg2-bootstrap.py --no-site-packages tg2env
         source tg2env/bin/activate
+
+        # Hack around Shove's hard SQLAlchemy requirement :(
+        easy_install -U Shove
+        sed -i -e 's/SQLAlchemy==0\.4/SQLAlchemy/' tg2env/lib/python2.6/site-packages/shove-*.egg/EGG-INFO/requires.txt
+        easy_install -U SQLAlchemy
+
         #./pip.py install -E tg2env -r normal-reqs.txt --extra-index-url=http://www.turbogears.org/2.0/downloads/current/index
         #easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
-        pushd moksha/widgetbrowser; python setup.py develop; popd
+        #pushd moksha/widgetbrowser; python setup.py develop; popd
     else
         source tg2env/bin/activate
     fi
