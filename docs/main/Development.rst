@@ -26,7 +26,7 @@ Run the following commands as root, replacing `$DISTRO` with either
    so you'll have to hook up a third party repository.  You can track the
    status of TurboGears2 in Fedora here:
 
-   http://fedoraproject.org/wiki/TurbGears2
+   http://fedoraproject.org/wiki/TurboGears2
 
 Getting the code
 ----------------
