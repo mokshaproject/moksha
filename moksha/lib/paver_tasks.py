@@ -40,7 +40,6 @@ paver build
 %%install
 %%{__rm} -rf %%{buildroot}
 paver install -O1 --skip-build --root %%{buildroot}
-%%{__rm} %%{buildroot}%%{python_sitelib}/moksha/apps/__init__.py{,c,o}
 
 %%clean
 %%{__rm} -rf %%{buildroot}
