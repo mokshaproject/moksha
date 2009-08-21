@@ -66,15 +66,12 @@ allows you to integrate web applications with arbitrary back-end systems.
 Simplifies creating rich web applications by providing direct integration with
 open protocols.
 
-`AMQP <http://amqp.org/>`_/`Qpid <http://incubator.apache.org/qpid/>`_/`RHM <http://rhm.et.redhat.com/>`_
+`AMQP <http://amqp.org/>`_/`Qpid <http://incubator.apache.org/qpid/>`_
 ---------------------------------------------------------------------------------------------------------
 
 `AMQP <http://amqp.org/>`_ is an open Internet Protocol for Business Messaging.
 `Qpid <http://incubator.apache.org/qpid/>`_ is a message broker daemon that
-receives, stores, and routes messages using the AMQP protocol.  `RHM
-<http://rhm.et.redhat.com/>`_ is a persistence extension to the Qpid AMQP
-broker that allows message storage using either a libaio-based asynchronous
-journal or synchronously with Berkely DB.  -
+receives, stores, and routes messages using the AMQP protocol.
 
 `Twisted <http://twistedmatrix.com>`_
 -------------------------------------
