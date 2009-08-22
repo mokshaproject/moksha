@@ -15,4 +15,6 @@ tg2env
 rabbitmq-codegen
 rabbitmq-server
 rabbitmq-stomp
-
+moksha/apps/*/*.spec
+moksha/apps/*/build
+moksha/apps/*/*egg-info
