@@ -57,8 +57,6 @@ def shutdown():
     except AttributeError:
         pass
 
-import tg
-
 def global_resources():
     """ Returns a rendered Moksha Global Resource Widget.
 
@@ -70,6 +68,7 @@ def global_resources():
         ${global_resources()}
 
     """
+    import tg
     if tg.config.default_renderer == 'genshi':
         # There's Got To Be A Better Way!
         from genshi import unescape, Markup
