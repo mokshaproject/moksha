@@ -86,6 +86,7 @@ make -C docs html
 %{__mkdir_p} %{buildroot}%{_datadir}/%{name}/production/nginx
 %{__mkdir_p} %{buildroot}%{_datadir}/%{name}/production/rabbitmq
 %{__mkdir_p} -m 0700 %{buildroot}/%{_localstatedir}/cache/%{name}
+%{__mkdir_p} -m 0700 %{buildroot}/%{_localstatedir}/lib/%{name}
 %{__mkdir_p} -m 0755 %{buildroot}%{_sysconfdir}/httpd/conf.d
 %{__mkdir_p} -m 0755 %{buildroot}/%{_sysconfdir}/%{name}/
 
@@ -106,6 +107,7 @@ make -C docs html
 %{python_sitelib}/%{name}/
 %{python_sitelib}/%{name}-%{version}-py%{pyver}.egg-info/
 %attr(-,apache,apache) %dir %{_localstatedir}/cache/%{name}
+%attr(-,apache,apache) %dir %{_localstatedir}/lib/%{name}
 %{_bindir}/moksha-hub
 
 %files server
