@@ -30,11 +30,6 @@ class LiveWidget(Widget):
     """
     engine_name = 'mako'
 
-    def __init__(self, *args, **kw):
-        super(LiveWidget, self).__init__(*args, **kw)
-        self.children.append(stomp_widget)
-        self.template = self.template + '${c.stomp()}'
-
     def update_params(self, d):
         """ Register this widgets stomp callbacks """
         super(LiveWidget, self).update_params(d)
