@@ -56,7 +56,7 @@ class MokshaDefaultMenu(MokshaMenu):
                             .append($('<div/>')
                             .attr('id', '%(id)s_loader')); 
                             $.ajax({
-                                url: moksha.url('/widgets/%(id)s?chrome=True'),
+                                url: moksha.url('/widgets/%(id)s?chrome=True&live=%(live)s'),
                                 success: function(r, s) {
                                     var $panel = $('#%(id)s_loader');
                                     var $stripped = moksha.filter_resources(r);
@@ -65,7 +65,7 @@ class MokshaDefaultMenu(MokshaMenu):
                             });
                             return false;">%(name)s</a>
 
-                """ % {'name': widget['name'], 'id': id}
+                """ % {'name': widget['name'], 'id': id, 'live': widget['live']}
         return menu
 
     def moksha(self, *args, **kw):

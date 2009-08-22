@@ -23,11 +23,17 @@ from tg import expose, tmpl_context
 from moksha.exc import WidgetNotFound
 from moksha.lib.base import Controller
 from moksha.widgets.container import container
+from moksha.api.widgets.stomp import stomp_widget
 
 class WidgetController(Controller):
 
     @expose('mako:moksha.templates.widget')
-    def default(self, widget, chrome=None, **kw):
+    def default(self, widget, chrome=None, live=False, **kw):
+        """ Display a single widget.
+
+        :chrome: Display in a Moksha Container
+        :live: Inject a socket for live widgets
+        """
         options = {}
         options.update(kw)
         w = moksha._widgets.get(widget)
@@ -45,4 +51,6 @@ class WidgetController(Controller):
                 options.update(container_options)
         else:
             tmpl_context.widget = w['widget']
+        if live:
+            tmpl_context.moksha_socket = stomp_widget
         return dict(options=options)
