@@ -56,3 +56,27 @@ def shutdown():
             feed_storage.close()
     except AttributeError:
         pass
+
+import tg
+
+def global_resources():
+    """ Returns a rendered Moksha Global Resource Widget.
+
+    This widget contains all of the resources and widgets on the
+    `moksha.global` entry-point.  To use it, simply do this at the bottom of
+    your master template::
+
+        <?python from moksha import global_resources ?>
+        ${global_resources()}
+
+    """
+    if tg.config.default_renderer == 'genshi':
+        # There's Got To Be A Better Way!
+        from genshi import unescape, Markup
+        return Markup(unescape(Markup(tg.tmpl_context.moksha_global_resources)))
+    elif tg.config.default_renderer == 'mako':
+        return tg.tmpl_context.moksha_global_resources()
+    else:
+        # If this gets called, and explodes, then you need to add support
+        # for your templating engine here.
+        return tg.tmpl_context.moksha_global_resources()
