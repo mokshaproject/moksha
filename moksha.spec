@@ -2,7 +2,7 @@
 %{!?pyver: %define pyver %(%{__python} -c "import sys ; print sys.version[:3]")}
 
 Name:           moksha
-Version:        0.3.1
+Version:        0.3.2
 Release:        1%{?dist}
 Summary:        A flexable platform for creating live collaborative web applications
 Group:          Applications/Internet
@@ -118,6 +118,9 @@ make -C docs html
 %doc docs/_build/html 
 
 %changelog
+* Sat Aug 22 2009 Luke Macken <lmacken@redhat.com> - 0.3.2-1
+- Update to 0.3.2
+
 * Sat Aug 15 2009 Luke Macken <lmacken@redhat.com> - 0.3.1-2
 - Break out the mod_wsgi configuration into a moksha-server subpackage.
 
