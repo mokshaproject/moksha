@@ -33,6 +33,7 @@ from sqlalchemy import create_engine
 from feedcache.cache import Cache
 
 from moksha.exc import MokshaException
+from moksha.api.widgets.live import LiveWidget
 from moksha.lib.helpers import (defaultdict, get_moksha_config_path,
                                 get_main_app_config_path)
 from moksha.wsgiapp import MokshaAppDispatcher
@@ -157,12 +158,11 @@ class MokshaMiddleware(object):
             else:
                 widget = widget_class
             moksha._widgets[widget_entry.name] = {
-                    'name': getattr(widget_class, 'name',
-                                    widget_entry.name),
+                    'name': getattr(widget_class, 'name', widget_entry.name),
                     'widget': widget,
                     'path': widget_path,
+                    'live': isinstance(widget, LiveWidget),
                     }
-
         moksha._widgets = moksha._widgets
 
     def load_menus(self):
