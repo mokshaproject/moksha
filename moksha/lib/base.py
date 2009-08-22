@@ -49,7 +49,7 @@ class BaseController(TGController):
         # TGController.__call__ dispatches to the Controller method
         # the request is routed to. This routing information is
         # available in environ['pylons.routes_dict']
-        tmpl_context.stomp = stomp_widget
+
         request.identity = request.environ.get('repoze.who.identity')
         tmpl_context.identity = request.identity
 
