@@ -102,12 +102,12 @@ make -C docs html
 %defattr(-,root,root,-)
 %doc README AUTHORS LICENSE COPYING
 %{python_sitelib}/%{name}/
-%attr(-,apache,root) %{_datadir}/%{name}
 %{python_sitelib}/%{name}-%{version}-py%{pyver}.egg-info/
 %attr(-,apache,apache) %dir %{_localstatedir}/cache/%{name}
 %{_bindir}/moksha-hub
 
 %files server
+%attr(-,apache,root) %{_datadir}/%{name}
 %config(noreplace) %{_sysconfdir}/httpd/conf.d/moksha.conf
 
 %files docs
