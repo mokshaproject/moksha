@@ -49,13 +49,26 @@ class StompWidget(Widget):
     onmessageframe = ''
     onconnectedframe = ''
     engine_name = 'mako'
-    template = """
-      <script>
+    template = u"""
+      <script type="text/javascript">
 
-        /* Create a new TCPSocket & Stomp client */
         if (typeof stomp == 'undefined') {
             var moksha_callbacks = new Object();
+        }
 
+        ## Register our topic callbacks
+        %% for topic in topics:
+            var topic = "${topic}";
+            if (!moksha_callbacks[topic]) {
+                moksha_callbacks[topic] = [];
+            }
+            moksha_callbacks[topic].push(function(json, frame) {
+                ${onmessageframe[topic]};
+            });
+        %% endfor
+
+        ## Create a new TCPSocket & Stomp client
+        if (typeof stomp == 'undefined') {
             Orbited.settings.port = %s;
             Orbited.settings.hostname = '%s';
             Orbited.settings.streaming = true;
@@ -79,18 +92,10 @@ class StompWidget(Widget):
 
             stomp.connect('%s', %s, '%s', '%s');
 
-        /* Utilize the existing stomp connection */
+        ## Utilize the existing stomp connection
         } else {
             ${onconnectedframe}
         }
-
-        %% for topic in topics:
-            var topic = "${topic}";
-            if (!moksha_callbacks[topic]) {
-                moksha_callbacks[topic] = [];
-            }
-            moksha_callbacks[topic].push(function(json, frame){ ${onmessageframe}; });
-        %% endfor
 
       </script>
     """ % (orbited_port, orbited_host,
