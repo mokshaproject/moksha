@@ -22,6 +22,7 @@ from tg import config
 from tw.api import Widget, JSLink, js_callback
 
 from moksha.api.widgets.orbited import orbited_host, orbited_port, orbited_url
+from moksha.lib.helpers import defaultdict
 
 stomp_js = JSLink(link=orbited_url + '/static/protocols/stomp/stomp.js')
 
@@ -107,6 +108,7 @@ class StompWidget(Widget):
     def update_params(self, d):
         super(StompWidget, self).update_params(d)
         d.topics = []
+        d.onmessageframe = defaultdict(str) # {topic: 'js callbacks'}
         for callback in self.callbacks:
             if len(moksha.stomp[callback]):
                 cbs = ''
@@ -114,7 +116,7 @@ class StompWidget(Widget):
                     for topic in moksha.stomp[callback]:
                         d.topics.append(topic)
                         for cb in moksha.stomp[callback][topic]:
-                            cbs += "%s;" % str(cb)
+                            d.onmessageframe[topic] += '%s;' % str(cb)
                 else:
                     for cb in moksha.stomp[callback]:
                         if isinstance(cb, js_callback):
