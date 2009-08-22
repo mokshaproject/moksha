@@ -34,10 +34,10 @@ options(
                 'MokshaMessageMetricsWidget = moksha.apps.metrics.widgets:MokshaMessageMetricsWidget',
             ),
             'moksha.global': (
-                'stomp_js = moksha.api.widgets.stomp:stomp_js',
+                'stomp = moksha.api.widgets.stomp:stomp_widget',
                 'orbited = moksha.api.widgets.orbited:orbited_js',
-                'jquery_ui_draggable = tw.jquery.ui:ui_draggable_min_js',
-                'jquery_ui_resizable = tw.jquery.ui:ui_resizable_min_js',
+                'jquery_ui_draggable = tw.jquery.ui:ui_draggable_js',
+                'jquery_ui_resizable = tw.jquery.ui:ui_resizable_js',
             ),
         }
     ),
