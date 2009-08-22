@@ -40,6 +40,7 @@ def stomp_subscribe(topic):
 class StompWidget(Widget):
     callbacks = ['onopen', 'onerror', 'onerrorframe', 'onclose',
                  'onconnectedframe', 'onmessageframe']
+    javascript = [stomp_js]
     params = callbacks[:] + ['topics']
     onopen = js_callback('function(){}')
     onerror = js_callback('function(error){}')
