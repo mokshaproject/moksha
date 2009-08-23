@@ -24,10 +24,10 @@ from formencode import validators
 
 from moksha.exc import WidgetNotFound
 from moksha.lib.base import Controller
+from moksha.api.widgets.live import moksha_socket
 from moksha.widgets.source import code_widget
 from moksha.widgets.container import container
 from moksha.widgets.iframe import iframe_widget
-from moksha.api.widgets.stomp import stomp_widget
 
 log = logging.getLogger(__name__)
 
@@ -63,9 +63,8 @@ class WidgetController(Controller):
                 options.update(container_options)
         else:
             tmpl_context.widget = w['widget']
-# maybe do this in the basecontroller?
         if live:
-            tmpl_context.moksha_socket = stomp_widget
+            tmpl_context.moksha_socket = moksha_socket
         if source:
             options['content'] = iframe_widget(url='/widgets/code/' + source,
                                                height='90%')
