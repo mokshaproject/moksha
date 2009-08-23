@@ -39,7 +39,7 @@ wsgiapps = None
 menus = None
 
 # Per-request stomp callbacks registered by rendered widget
-stomp = StackedObjectProxy()
+stomp = StackedObjectProxy(name="stomp")
 
 def get_widget(name):
     """ Get a widget instance by name """
