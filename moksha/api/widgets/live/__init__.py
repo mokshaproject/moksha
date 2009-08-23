@@ -15,3 +15,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from live import LiveWidget
+
+# At the moment we're using the StompWidget as our primary publish/subscribe
+# messaging standard.  If we want to change the default to an AMQP widget
+# down the road, we would change it here so we have a consistent API to
+# develop against.
+from moksha.api.widgets.stomp import stomp_widget
+moksha_socket = stomp_widget

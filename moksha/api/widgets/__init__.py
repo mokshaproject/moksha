@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from live import LiveWidget
+from live import LiveWidget, moksha_socket
 from util import *
 from grid import Grid
 from placeholder import Placeholder
