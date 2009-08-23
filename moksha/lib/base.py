@@ -43,9 +43,6 @@ class BaseController(TGController):
 
     def __call__(self, environ, start_response):
         """Invoke the Controller"""
-        # TGController.__call__ dispatches to the Controller method
-        # the request is routed to. This routing information is
-        # available in environ['pylons.routes_dict']
 
         request.identity = request.environ.get('repoze.who.identity')
         tmpl_context.identity = request.identity
@@ -65,4 +62,8 @@ class BaseController(TGController):
         # template, which renders this widget for us.
         global_resources.register_resources()
 
+        # TGController.__call__ dispatches to the Controller method
+        # the request is routed to. This routing information is
+        # available in environ['pylons.routes_dict'], which is currently
+        # being set in moksha.wsgiapp
         return TGController.__call__(self, environ, start_response)
