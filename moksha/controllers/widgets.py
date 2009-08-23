@@ -17,13 +17,17 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 
 import moksha
+import logging
 
-from tg import expose, tmpl_context
+from tg import expose, tmpl_context, flash, redirect
 
 from moksha.exc import WidgetNotFound
 from moksha.lib.base import Controller
+from moksha.widgets.source import code_widget
 from moksha.widgets.container import container
 from moksha.api.widgets.stomp import stomp_widget
+
+log = logging.getLogger(__name__)
 
 class WidgetController(Controller):
 
@@ -54,3 +58,17 @@ class WidgetController(Controller):
         if live:
             tmpl_context.moksha_socket = stomp_widget
         return dict(options=options)
+
+    @expose('mako:moksha.templates.widget')
+    def source(self, widget):
+        """ Display the source code for a given widget """
+        tmpl_context.widget = code_widget
+        widget = None
+        try:
+            widget = moksha.get_widget(widget)
+        except:
+            msg = "Widget %s not found" % widget
+            flash(msg)
+            log.debug(msg)
+            redirect('/')
+        return dict(options={'widget': widget})
