@@ -55,12 +55,7 @@ class BaseController(TGController):
 
         # Add our global widget to the template context, and register it's
         # resources
-        tmpl_context.moksha_global_resources = global_resources
-
-        # This is normally done when the widget is rendered, but we cannot
-        # assume that moksha apps are going to be using our master index
-        # template, which renders this widget for us.
-        global_resources.register_resources()
+        tmpl_context.moksha_global_resources = moksha.global_resources
 
         # TGController.__call__ dispatches to the Controller method
         # the request is routed to. This routing information is
