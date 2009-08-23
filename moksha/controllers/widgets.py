@@ -19,12 +19,14 @@
 import moksha
 import logging
 
-from tg import expose, tmpl_context, flash, redirect
+from tg import expose, tmpl_context, flash, redirect, validate
+from formencode import validators
 
 from moksha.exc import WidgetNotFound
 from moksha.lib.base import Controller
 from moksha.widgets.source import code_widget
 from moksha.widgets.container import container
+from moksha.widgets.iframe import iframe_widget
 from moksha.api.widgets.stomp import stomp_widget
 
 log = logging.getLogger(__name__)
@@ -32,18 +34,24 @@ log = logging.getLogger(__name__)
 class WidgetController(Controller):
 
     @expose('mako:moksha.templates.widget')
-    def default(self, widget, chrome=None, live=False, **kw):
+    @validate({
+        'live': validators.StringBool(),
+        'chrome': validators.StringBool(),
+        'source': validators.UnicodeString(),
+    })
+    def default(self, widget, chrome=False, live=False, source=False, **kw):
         """ Display a single widget.
 
         :chrome: Display in a Moksha Container
         :live: Inject a socket for live widgets
+        :source: Display the source code for this widget
         """
         options = {}
         options.update(kw)
         w = moksha._widgets.get(widget)
         if not w:
             raise WidgetNotFound(widget)
-        if chrome and getattr(w['widget'], 'visible', True):
+        if (chrome and getattr(w['widget'], 'visible', True)) or source:
             tmpl_context.widget = container
             options['content'] = w['widget']
             options['title'] =  w['name']
@@ -55,20 +63,17 @@ class WidgetController(Controller):
                 options.update(container_options)
         else:
             tmpl_context.widget = w['widget']
+# maybe do this in the basecontroller?
         if live:
             tmpl_context.moksha_socket = stomp_widget
+        if source:
+            options['content'] = iframe_widget(url='/widgets/code/' + source,
+                                               height='90%')
+            options['id'] += source + '_source'
+            options['view_source'] = False
         return dict(options=options)
 
     @expose('mako:moksha.templates.widget')
-    def source(self, widget):
-        """ Display the source code for a given widget """
+    def code(self, widget):
         tmpl_context.widget = code_widget
-        widget = None
-        try:
-            widget = moksha.get_widget(widget)
-        except:
-            msg = "Widget %s not found" % widget
-            flash(msg)
-            log.debug(msg)
-            redirect('/')
         return dict(options={'widget': widget})

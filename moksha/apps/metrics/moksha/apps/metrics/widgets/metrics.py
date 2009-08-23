@@ -38,7 +38,7 @@ class MokshaMemoryUsageWidget(LiveFlotWidget):
     name = 'Memory Usage'
     topic = 'moksha_mem_metrics'
     container_options = {
-            'icon': 'chart.png', 'top': 400, 'left': 80, 'height': 310,
+            'icon': 'chart.png', 'top': 400, 'left': 80, 'height': 325,
             'iconize': False, 'minimize': False,
             }
 
@@ -47,7 +47,7 @@ class MokshaCPUUsageWidget(LiveFlotWidget):
     name = 'CPU Usage'
     topic = 'moksha_cpu_metrics'
     container_options = {
-            'icon': 'chart.png', 'top': 80, 'left': 80, 'height': 310,
+            'icon': 'chart.png', 'top': 80, 'left': 80, 'height': 325,
             'iconize': False, 'minimize': False,
             }
 

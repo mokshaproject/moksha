@@ -79,5 +79,8 @@ setup(
     [toscawidgets.widgets]
     widgets = moksha.widgets.all
 
+    [moksha.widget]
+    code_widget = moksha.widgets.source:code_widget
+
     """,
 )

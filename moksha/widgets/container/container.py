@@ -29,14 +29,16 @@ class MokshaContainer(Widget):
     options = ['draggable', 'resizable']
     button_options = ['iconize', 'minimize', 'close']
     params = ['buttons', 'skin', 'height', 'width', 'left', 'top', 'id',
-              'title', 'icon', 'content'] + \
+              'title', 'icon', 'content', 'widget_name', 'view_source'] + \
              options[:]
     draggable = droppable = resizable = True
     iconize = minimize = close = True
     hidden = True # hide from the moksha menu
     content = '' # either text, or a Widget instance
+    widget_name = None
     title = 'Moksha Container'
     skin = 'default' # default, black, white, stiky, alert
+    view_source = True
     #icon = 'chart.png'
 
     # Pixel tweaking
@@ -49,6 +51,7 @@ class MokshaContainer(Widget):
         super(MokshaContainer, self).update_params(d)
 
         if isinstance(d.content, Widget):
+            d.widget_name = d.content.__class__.__name__
             d.content = d.content.display()
 
         for option in self.options:

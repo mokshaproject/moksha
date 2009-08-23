@@ -24,6 +24,7 @@ returns the source code, in HTML.
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
 """
 
+import moksha
 import inspect
 
 from tw.api import Widget
@@ -35,12 +36,15 @@ class SourceCodeWidget(Widget):
     params = ['widget', 'code']
     template = "${code}"
     engine_name = 'mako'
+    container_options = {'width': 600, 'height': 500, 'title': 'View Source'}
+    visible = False
 
     def update_params(self, d):
         super(SourceCodeWidget, self).update_params(d)
+        d.widget = moksha.get_widget(d.widget)
         title = d.widget.__class__.__name__
         source = inspect.getsource(d.widget.__class__)
         d.code = highlight(source, PythonLexer(),
-                           HtmlFormatter(full=True, title=title))
+                           HtmlFormatter(full=True))
 
 code_widget = SourceCodeWidget('code_widget')
