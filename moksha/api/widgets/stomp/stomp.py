@@ -22,9 +22,11 @@ from tg import config
 from tw.api import Widget, JSLink, js_callback
 
 from moksha.api.widgets.orbited import orbited_host, orbited_port, orbited_url
+from moksha.api.widgets.orbited import orbited_js
 from moksha.lib.helpers import defaultdict
 
-stomp_js = JSLink(link=orbited_url + '/static/protocols/stomp/stomp.js')
+stomp_js = JSLink(link=orbited_url + '/static/protocols/stomp/stomp.js',
+                  javascript=[orbited_js])
 
 def stomp_subscribe(topic):
     """ Return a javascript callback that subscribes to a given topic,
@@ -82,8 +84,8 @@ class StompWidget(Widget):
             stomp.onerrorframe = ${onerrorframe};
             stomp.onconnectedframe = function(){ ${onconnectedframe} };
             stomp.onmessageframe = function(f){
-                var json = JSON.parse(f.body);
                 var dest = f.headers.destination;
+                var json = JSON.parse(f.body);
                 if (moksha_callbacks[dest]) {
                     for (var i = 0; i < moksha_callbacks[dest].length; i++) {
                         moksha_callbacks[dest][i](json, f);
