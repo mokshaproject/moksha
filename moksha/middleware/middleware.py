@@ -68,8 +68,13 @@ class MokshaMiddleware(object):
         self.load_models()
         self.load_menus()
 
-        moksha.feed_storage = Shove(config['feed_cache'], compress=True)
-        moksha.feed_cache = Cache(moksha.feed_storage)
+        try:
+            moksha.feed_storage = Shove(config.get('feed_cache',
+                'sqlite:///%(here)s/feeds.db'), compress=True)
+            moksha.feed_cache = Cache(moksha.feed_storage)
+        except Exception, e:
+            log.exception(e)
+            log.error("Unable to initialize the Feed Storage")
 
     def __call__(self, environ, start_response):
         self.register_stomp(environ)
