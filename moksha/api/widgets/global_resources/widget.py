@@ -80,7 +80,11 @@ class GlobalResourceInjectionWidget(Widget):
             elif isinstance(loaded, CSSLink):
                 self.css.append(loaded)
             elif isinstance(loaded, Widget):
-                self.children.append(loaded)
+                if loaded in self.children:
+                    log.debug("Skipping duplicate global widget: %s" %
+                              widget_entry.name)
+                else:
+                    self.children.append(loaded)
             else:
                 raise Exception("Unknown global resource: %s.  Should be "
                                 "either a JSLink or CSSLink." %
