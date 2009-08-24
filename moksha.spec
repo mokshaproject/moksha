@@ -3,7 +3,7 @@
 
 Name:           moksha
 Version:        0.3.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A flexable platform for creating live collaborative web applications
 Group:          Applications/Internet
 License:        AGPLv3
@@ -96,6 +96,7 @@ make -C docs html
 %{__install} production/nginx/* %{buildroot}%{_datadir}/%{name}/production/nginx
 %{__install} production/rabbitmq/* %{buildroot}%{_datadir}/%{name}/production/rabbitmq
 %{__cp} production/sample-production.ini %{buildroot}%{_sysconfdir}/%{name}/production.ini
+%{__cp} orbited.cfg %{buildroot}%{_sysconfdir}/%{name}/orbited.cfg
 
 %clean
 %{__rm} -rf %{buildroot}
