@@ -37,7 +37,7 @@ class RootController(BaseController):
     moksha_admin = SecureController()
 
     @expose('mako:moksha.templates.index')
-    def index(self):
+    def index(self, *args, **kw):
         if 'default_menu' in moksha.menus:
             tmpl_context.menu_widget = moksha.menus['default_menu']
         else:
