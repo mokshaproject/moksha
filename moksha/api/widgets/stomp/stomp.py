@@ -26,6 +26,7 @@ from moksha.api.widgets.orbited import orbited_js
 from moksha.lib.helpers import defaultdict
 
 stomp_js = JSLink(link=orbited_url + '/static/protocols/stomp/stomp.js')
+                  # Disabled until ticket #45 is fixed...
                   #javascript=[orbited_js])
 
 def stomp_subscribe(topic):
