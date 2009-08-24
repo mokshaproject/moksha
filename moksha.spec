@@ -105,6 +105,7 @@ make -C docs html
 %defattr(-,root,root,-)
 %doc README AUTHORS LICENSE COPYING
 %{python_sitelib}/%{name}/
+%{python_sitelib}/%{name}-%{version}-py%{pyver}-nspkg.pth
 %{python_sitelib}/%{name}-%{version}-py%{pyver}.egg-info/
 %attr(-,apache,apache) %dir %{_localstatedir}/cache/%{name}
 %attr(-,apache,apache) %dir %{_localstatedir}/lib/%{name}

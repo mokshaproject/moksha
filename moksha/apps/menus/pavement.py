@@ -19,7 +19,7 @@ options(
         rpm_name='moksha-menus',
         packages=find_packages(),
         package_data=find_package_data(),
-        namespace_packages=['moksha'],
+        namespace_packages=['moksha', 'moksha.apps'],
         install_requires=["Moksha"],
         entry_points={
             'moksha.menu': (
