@@ -26,8 +26,6 @@ from moksha.api.widgets.orbited import orbited_js
 from moksha.lib.helpers import defaultdict
 
 stomp_js = JSLink(link=orbited_url + '/static/protocols/stomp/stomp.js')
-                  # Disabled until ticket #45 is fixed...
-                  #javascript=[orbited_js])
 
 def stomp_subscribe(topic):
     """ Return a javascript callback that subscribes to a given topic,
@@ -44,7 +42,7 @@ def stomp_subscribe(topic):
 class StompWidget(Widget):
     callbacks = ['onopen', 'onerror', 'onerrorframe', 'onclose',
                  'onconnectedframe', 'onmessageframe']
-    javascript = [stomp_js]
+    javascript = [stomp_js, orbited_js]
     params = callbacks[:] + ['topics']
     onopen = js_callback('function(){}')
     onerror = js_callback('function(error){}')

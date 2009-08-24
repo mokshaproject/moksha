@@ -34,12 +34,7 @@ options(
                 'MokshaMessageMetricsWidget = moksha.apps.metrics.widgets:MokshaMessageMetricsWidget',
             ),
             'moksha.global': (
-                # Ideally we want to be able to import the moksha_socket alone,
-                # and have it pull in Stomp/Orbited, or whatever transport is
-                # necessary.  See ticket #45 for more details.
-                #'moksha_socket = moksha.api.widgets:moksha_socket',
-                'stomp = moksha.api.widgets.stomp:stomp_widget',
-                'orbited = moksha.api.widgets.orbited:orbited_js',
+                'moksha_socket = moksha.api.widgets:moksha_socket',
                 'jquery_ui_draggable = tw.jquery.ui:ui_draggable_js',
                 'jquery_ui_resizable = tw.jquery.ui:ui_resizable_js',
             ),
