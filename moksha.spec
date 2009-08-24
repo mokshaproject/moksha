@@ -108,7 +108,6 @@ make -C docs html
 %{python_sitelib}/%{name}/
 %{python_sitelib}/%{name}-%{version}-py%{pyver}-nspkg.pth
 %{python_sitelib}/%{name}-%{version}-py%{pyver}.egg-info/
-%attr(-,apache,apache) %dir %{_localstatedir}/cache/%{name}
 %attr(-,apache,apache) %dir %{_localstatedir}/lib/%{name}
 %{_bindir}/moksha-hub
 
@@ -116,12 +115,17 @@ make -C docs html
 %attr(-,apache,root) %{_datadir}/%{name}
 %config(noreplace) %{_sysconfdir}/httpd/conf.d/moksha.conf
 %config(noreplace) %{_sysconfdir}/%{name}/production.ini
+%config(noreplace) %{_sysconfdir}/%{name}/orbited.cfg
+%attr(-,apache,apache) %dir %{_localstatedir}/cache/%{name}/
 
 %files docs
 %defattr(-,root,root)
-%doc docs/_build/html 
+%doc docs/_build/html
 
 %changelog
+* Mon Aug 24 2009 Luke Macken <lmacken@redhat.com> - 0.3.2-2
+- Include our orbited configuration file in the moksha-server subpackage
+
 * Sat Aug 22 2009 Luke Macken <lmacken@redhat.com> - 0.3.2-1
 - Update to 0.3.2
 
