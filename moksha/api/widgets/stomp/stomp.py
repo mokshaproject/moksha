@@ -42,7 +42,8 @@ def stomp_subscribe(topic):
 class StompWidget(Widget):
     callbacks = ['onopen', 'onerror', 'onerrorframe', 'onclose',
                  'onconnectedframe', 'onmessageframe']
-    javascript = [stomp_js, orbited_js]
+    #javascript = [stomp_js, orbited_js]
+    #children = [stomp_js, orbited_js]
     params = callbacks[:] + ['topics']
     onopen = js_callback('function(){}')
     onerror = js_callback('function(error){}')
@@ -53,8 +54,7 @@ class StompWidget(Widget):
     engine_name = 'mako'
     template = u"""
       <script type="text/javascript">
-
-        if (typeof stomp == 'undefined') {
+        if (typeof TCPSocket == 'undefined') {
             var moksha_callbacks = new Object();
         }
 
@@ -69,46 +69,58 @@ class StompWidget(Widget):
             });
         %% endfor
 
-        ## Create a new TCPSocket & Stomp client
-        if (typeof stomp == 'undefined') {
-            Orbited.settings.port = %s;
-            Orbited.settings.hostname = '%s';
-            Orbited.settings.streaming = true;
+        if (typeof TCPSocket == 'undefined') {
             document.domain = document.domain;
-            TCPSocket = Orbited.TCPSocket;
-            stomp = new STOMPClient();
-            stomp.onopen = ${onopen};
-            stomp.onclose = ${onclose};
-            stomp.onerror = ${onerror};
-            stomp.onerrorframe = ${onerrorframe};
-            stomp.onconnectedframe = function(){ ${onconnectedframe} };
-            stomp.onmessageframe = function(f){
-                var dest = f.headers.destination;
-                var json = JSON.parse(f.body);
-                if (moksha_callbacks[dest]) {
-                    for (var i = 0; i < moksha_callbacks[dest].length; i++) {
-                        moksha_callbacks[dest][i](json, f);
-                    }
-                }
-            };
+            $.getScript("%(orbited_url)s/static/Orbited.js", function(){
+                Orbited.settings.port = %(orbited_port)s;
+                Orbited.settings.hostname = '%(orbited_host)s';
+                Orbited.settings.streaming = true;
+                TCPSocket = Orbited.TCPSocket;
+                $.getScript("%(orbited_url)s/static/protocols/stomp/stomp.js", function(){
+                    ## Create a new TCPSocket & Stomp client
+                    stomp = new STOMPClient();
+                    stomp.onopen = ${onopen};
+                    stomp.onclose = ${onclose};
+                    stomp.onerror = ${onerror};
+                    stomp.onerrorframe = ${onerrorframe};
+                    stomp.onconnectedframe = function(){ ${onconnectedframe} };
+                    stomp.onmessageframe = function(f){
+                        var dest = f.headers.destination;
+                        var json = JSON.parse(f.body);
+                        if (moksha_callbacks[dest]) {
+                            for (var i=0; i < moksha_callbacks[dest].length; i++) {
+                                moksha_callbacks[dest][i](json, f);
+                            }
+                        }
+                    };
 
-            stomp.connect('%s', %s, '%s', '%s');
+                    stomp.connect('%(stomp_host)s', %(stomp_port)s,
+                                  '%(stomp_user)s', '%(stomp_pass)s');
 
-        ## Utilize the existing stomp connection
+                });
+            });
+
         } else {
+            ## Utilize the existing stomp connection
             ${onconnectedframe}
         }
 
         window.onbeforeunload = function() {
-            stomp.reset();
+            if (typeof stomp != 'undefined') {
+                stomp.reset();
+            }
         }
 
       </script>
-    """ % (orbited_port, orbited_host,
-           config.get('stomp_host', 'localhost'),
-           config.get('stomp_port', 61613),
-           config.get('stomp_user', 'guest'),
-           config.get('stomp_pass', 'guest'))
+    """ % {
+            'orbited_url': orbited_url,
+            'orbited_port': orbited_port,
+            'orbited_host': orbited_host,
+            'stomp_host': config.get('stomp_host', 'localhost'),
+            'stomp_port': config.get('stomp_port', 61613),
+            'stomp_user': config.get('stomp_user', 'guest'),
+            'stomp_pass': config.get('stomp_pass', 'guest'),
+            }
 
     def update_params(self, d):
         super(StompWidget, self).update_params(d)
