@@ -19,7 +19,7 @@ from paver.setuputils import find_package_data
 
 setup(
     name='moksha',
-    version='0.3.2',
+    version='0.3.3',
     description='',
     author='',
     author_email='',
@@ -46,7 +46,7 @@ setup(
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
     test_suite='nose.collector',
-    namespace_packages=['moksha', 'moksha.apps'],
+    #namespace_packages=['moksha'],
     tests_require=['WebTest', 'BeautifulSoup'],
     package_data=find_package_data(exclude=['ez_setup']),
     #package_data={'moksha': ['i18n/*/LC_MESSAGES/*.mo',

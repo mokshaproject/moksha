@@ -21,7 +21,7 @@ options(
         package_data=find_package_data(),
         include_package_data=True,
         install_requires=["Moksha"],
-        namespace_packages=['moksha', 'moksha.apps'],
+        namespace_packages=['moksha'],
         entry_points={
             'moksha.application': (
                 'docs = moksha.apps.docs:docs',

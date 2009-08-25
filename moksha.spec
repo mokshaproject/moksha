@@ -2,8 +2,8 @@
 %{!?pyver: %define pyver %(%{__python} -c "import sys ; print sys.version[:3]")}
 
 Name:           moksha
-Version:        0.3.2
-Release:        2%{?dist}
+Version:        0.3.3
+Release:        1%{?dist}
 Summary:        A flexable platform for creating live collaborative web applications
 Group:          Applications/Internet
 License:        AGPLv3
@@ -106,7 +106,6 @@ make -C docs html
 %defattr(-,root,root,-)
 %doc README AUTHORS LICENSE COPYING
 %{python_sitelib}/%{name}/
-%{python_sitelib}/%{name}-%{version}-py%{pyver}-nspkg.pth
 %{python_sitelib}/%{name}-%{version}-py%{pyver}.egg-info/
 %attr(-,apache,apache) %dir %{_localstatedir}/lib/%{name}
 %{_bindir}/moksha-hub
@@ -123,7 +122,7 @@ make -C docs html
 %doc docs/_build/html
 
 %changelog
-* Mon Aug 24 2009 Luke Macken <lmacken@redhat.com> - 0.3.2-2
+* Mon Aug 24 2009 Luke Macken <lmacken@redhat.com> - 0.3.3-1
 - Include our orbited configuration file in the moksha-server subpackage
 
 * Sat Aug 22 2009 Luke Macken <lmacken@redhat.com> - 0.3.2-1

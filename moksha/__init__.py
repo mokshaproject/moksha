@@ -16,7 +16,7 @@
 
 __import__('pkg_resources').declare_namespace(__name__)
 
-version = '0.3.2'
+version = '0.3.3'
 
 from paste.registry import StackedObjectProxy
 

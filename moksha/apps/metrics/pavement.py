@@ -19,7 +19,7 @@ options(
         rpm_name='moksha-metrics',
         packages=find_packages(),
         package_data=find_package_data(),
-        namespace_packages=['moksha', 'moksha.apps'],
+        namespace_packages=['moksha'],
         install_requires=["Moksha"],
         entry_points={
             'moksha.stream': (
