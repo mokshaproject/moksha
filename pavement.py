@@ -172,9 +172,7 @@ def license():
 
 @task
 def test():
-    from os import system
     sh("nosetests")
-    system("nosetests")
 
 @task
 def reinstall():
