@@ -46,6 +46,7 @@ paver install -O1 --skip-build --root %%{buildroot}
 
 %%files
 %%defattr(-,root,root,-)
+%%config(noreplace) %%{_sysconfdir}/moksha/conf.d/%%{modname}/
 %%{python_sitelib}/%%{modname}-%%{version}-py%%{pyver}-nspkg.pth
 %%{python_sitelib}/%%{modname}-%%{version}-py%%{pyver}.egg-info/
 %%{python_sitelib}/moksha/apps/*
@@ -64,3 +65,14 @@ paver install -O1 --skip-build --root %%{buildroot}
 @needs(['rpm'])
 def reinstall():
     sh('sudo rpm -ivh --replacefiles --replacepkgs ~/rpmbuild/RPMS/noarch/%s-%s-%s.*noarch.rpm' % (options.rpm_name, options.version, options.release))
+
+@task
+@needs('setuptools.command.install')
+def install():
+    """Overrides install to make sure that our setup.py is generated."""
+    conf_d = path('etc') / 'moksha' / 'conf.d' / options.name
+    os.makedirs(path(options.install.root) / conf_d)
+    for cfg in path('.').glob('*.ini'):
+        if os.path.exists(cfg):
+            dest = path(options.install.root) / conf_d / cfg[2:]
+            sh('cp %s %s' % (cfg, dest))
