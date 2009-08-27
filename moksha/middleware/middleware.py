@@ -124,7 +124,7 @@ class MokshaMiddleware(object):
             log.info('Loading %s application' % app_entry.name)
             app_class = app_entry.load()
             app_path = app_entry.dist.location
-            app_name = getattr(app_class, 'name', app_entry.name),
+            app_name = getattr(app_class, 'name', app_entry.name)
             if isclass(app_class):
                 app_class = app_class()
             moksha._apps[app_entry.name].update({
