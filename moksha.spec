@@ -89,6 +89,7 @@ make -C docs html
 %{__mkdir_p} -m 0700 %{buildroot}/%{_localstatedir}/lib/%{name}
 %{__mkdir_p} -m 0755 %{buildroot}%{_sysconfdir}/httpd/conf.d
 %{__mkdir_p} -m 0755 %{buildroot}/%{_sysconfdir}/%{name}/
+%{__mkdir_p} -m 0755 %{buildroot}/%{_sysconfdir}/%{name}/conf.d
 
 %{__install} production/*.* %{buildroot}%{_datadir}/%{name}/production/
 %{__install} production/apache/* %{buildroot}%{_datadir}/%{name}/production/apache
@@ -124,6 +125,7 @@ make -C docs html
 %changelog
 * Mon Aug 24 2009 Luke Macken <lmacken@redhat.com> - 0.3.3-1
 - Include our orbited configuration file in the moksha-server subpackage
+- Create a /etc/moksha/conf.d for our app configs
 
 * Sat Aug 22 2009 Luke Macken <lmacken@redhat.com> - 0.3.2-1
 - Update to 0.3.2
