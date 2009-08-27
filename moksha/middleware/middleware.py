@@ -104,6 +104,7 @@ class MokshaMiddleware(object):
             app_path = app_entry.dist.location
             moksha._apps[app_entry.name] = {
                     'name': app_entry.name,
+                    'project_name': app_entry.dist.project_name,
                     'path': app_path,
                     }
         for widget_entry in pkg_resources.iter_entry_points('moksha.widget'):
@@ -113,6 +114,7 @@ class MokshaMiddleware(object):
             widget_path = widget_entry.dist.location
             moksha._widgets[widget_entry.name] = {
                     'name': widget_entry.name,
+                    'project_name': widget_entry.dist.project_name,
                     'path': widget_path,
                     }
 
