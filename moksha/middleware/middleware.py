@@ -290,37 +290,40 @@ class MokshaMiddleware(object):
         where it is being run as WSGI middleware in a different environment.
 
         """
-        moksha_config_path = get_moksha_config_path()
         apps = []
+        loaded_configs = []
+        conf_d = '/etc/moksha/conf.d/%s/'
+
+        moksha_config_path = get_moksha_config_path()
         if moksha_config_path:
             moksha_config_path = os.path.dirname(moksha_config_path)
             apps = [{'path': moksha_config_path}]
         main_app_config_path = os.path.dirname(get_main_app_config_path())
-        loaded_configs = []
 
         apps += moksha._apps.values()
         for app in apps:
             for configfile in ('production.ini', 'development.ini'):
-                confpath = os.path.join(app['path'], configfile)
-                if os.path.exists(confpath):
-                    conf = appconfig('config:' + confpath)
-                    if app.get('name'):
-                        moksha._apps[app['name']]['config'] = conf
-                    if app['path'] == main_app_config_path or \
-                            confpath in loaded_configs:
-                        continue
-                    log.info('Loading configuration: %s' % confpath)
-                    for entry in conf.global_conf:
-                        if entry.startswith('_'):
+                for path in (app['path'], conf_d % app.get('project_name')):
+                    confpath = os.path.join(path, configfile)
+                    if os.path.exists(confpath):
+                        conf = appconfig('config:' + confpath)
+                        if app.get('name'):
+                            moksha._apps[app['name']]['config'] = conf
+                        if app['path'] == main_app_config_path or \
+                                confpath in loaded_configs:
                             continue
-                        if entry in config:
-                            log.warning('Conflicting variable: %s' % entry)
-                            continue
-                        else:
-                            config[entry] = conf.global_conf[entry]
-                            log.debug('Set `%s` in global config' % entry)
-                    loaded_configs.append(confpath)
-                    break
+                        log.info('Loading configuration: %s' % confpath)
+                        for entry in conf.global_conf:
+                            if entry.startswith('_'):
+                                continue
+                            if entry in config:
+                                log.warning('Conflicting variable: %s' % entry)
+                                continue
+                            else:
+                                config[entry] = conf.global_conf[entry]
+                                log.debug('Set `%s` in global config' % entry)
+                        loaded_configs.append(confpath)
+                        break
 
     def load_models(self):
         """ Setup the SQLAlchemy database models for all moksha applications.
