@@ -2,34 +2,11 @@
 Hacking with Moksha
 ===================
 
-RPM Installation
-----------------
+Setting up your RPM/virtualenv development environments
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Install the dependencies
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-Run the following commands as root, replacing `$DISTRO` with either
-`fedora-11`, `fedora-10`, or `epel-5`.
-
-.. code-block:: bash
-
-   # cd /etc/yum.repos.d/
-   # wget http://lmacken.fedorapeople.org/rpms/tg2/$DISTRO/tg2.repo
-   # yum -y install TurboGears2 python-tg-devtools
-
-.. note::
-
-   It is recommended that you perform a `yum update` after installing the
-   Moksha/TurboGears2 stack, to ensure that you have the latest versions
-   of all the dependencies.
-
-.. note::
-
-   At the moment the full TurboGears2 stack is not yet fully in Fedora/EPEL, 
-   so you'll have to hook up a third party repository.  You can track the
-   status of TurboGears2 in Fedora here:
-
-   http://fedoraproject.org/wiki/TurboGears2
+:RPM mod_wsgi installation (Red Hat, Fedora, etc.): :doc:`RPMInstallation`
+:virtualenv installation (OSX, Ubuntu, etc.): :doc:`VirtualenvInstallation`
 
 Getting the code
 ~~~~~~~~~~~~~~~~
@@ -38,62 +15,12 @@ Getting the code
 
     $ git clone git://git.fedorahosted.org/git/moksha
 
-Rebuilding and Reinstalling the RPM
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Rebuilding and reinstall *everything*, and restart apache
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-    $ paver reinstall
-
-Reinstalling *all* apps
-~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-    $ paver reinstall_apps
-
-
-Reinstall everything, and restart apache
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-    $ paver reinstall reinstall_apps restart_httpd
-
-.. note::
-
-   These instructions assume that you already have an RPM development
-   environment setup.  To do this, simply install `rpmdevtools` and run
-   `rpmdev-setuptree`
-
-
-
-Non-RPM installation (OSX)
---------------------------
-
-This installation method should work on non
-
-Getting the code
-~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-    $ git clone git://git.fedorahosted.org/git/moksha
-
-Starting
-~~~~~~~~
-
-.. code-block:: bash
-
-    $ ./start-moksha
-
-Stopping
---------
-
-.. code-block:: bash
-
-    $ ./stop-moksha
-
+   $ paver reinstall reinstall_apps restart_httpd
 
 Generating documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -114,7 +41,7 @@ Freezing requirements
 
 .. code-block:: bash
 
-    $ ./pip.py freeze -E tg2env -r normal-reqs.txt production/stable-reqs.txt
+    $ pip freeze -E tg2env -r requirements.txt production/stable-reqs.txt
 
 Profiling the WSGI stack
 ------------------------
