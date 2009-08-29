@@ -46,7 +46,11 @@ class MokshaMiddleware(object):
     environment, as well as handling every request/response in the application.
 
     If a request for an application comes in (/apps/$NAME), it will dispatch to
-    the RootController of that application as defined in it's egg-info.
+    the WSGI Application or RootController of that application as defined in
+    it's egg-info entry-points.
+
+    This middleware also sets up the `moksha.stomp` StackedObjectProxy, which
+    acts as a registry for Moksha LiveWidget topic callbacks.
 
     """
     def __init__(self, application):
