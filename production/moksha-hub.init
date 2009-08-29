@@ -1,0 +1,52 @@
+#!/bin/bash
+#
+#       /etc/rc.d/init.d/
+#
+#
+#
+#
+#
+
+# Source function library.
+. /etc/init.d/functions
+
+start() {
+        echo -n "Starting the Moksha Hub: "
+        if [ -f /var/lock/subsys/moksha-hub ]; then
+            echo Moksha Hub already running
+            exit 2;
+        fi
+        touch /var/lock/subsys/moksha-hub
+        daemon moksha-hub --daemon
+        return $?
+}
+
+stop() {
+        echo -n "Shutting down : "
+        echo
+        killproc moksha-hub
+        echo
+        rm -f /var/lock/subsys/moksha-hub
+        return
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    *)
+        echo "Usage:  {start|stop|status|reload|restart[|probe]"
+        exit 1
+        ;;
+esac
+exit $?
