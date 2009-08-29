@@ -1,0 +1,20 @@
+#!/usr/bin/python
+
+__requires__ = 'moksha'
+
+import os
+import sys
+
+def main():
+    from pkg_resources import load_entry_point
+    sys.exit(load_entry_point('moksha', 'console_scripts', 'moksha-hub')())
+
+if '--daemon' in sys.argv:
+    pid = os.fork()
+    if pid == 0:
+        os.setsid()
+        pid = os.fork()
+        if pid == 0:
+            main()
+else:
+    main()
