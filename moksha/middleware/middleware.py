@@ -149,11 +149,11 @@ class MokshaMiddleware(object):
         log.info('Loading moksha WSGI applications')
         for app_entry in pkg_resources.iter_entry_points('moksha.wsgiapp'):
             log.info('Loading %s WSGI application' % app_entry.name)
-            app_class = app_entry.load()
             app_path = app_entry.dist.location
+            app_class = app_entry.load()
             moksha._apps[app_entry.name] = {
                     'name': getattr(app_class, 'name', app_entry.name),
-                    'controller': WSGIAppController(app_class()),
+                    'controller': WSGIAppController(app_class),
                     'path': app_path,
                     'model': None,
                     }
