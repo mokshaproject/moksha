@@ -97,6 +97,7 @@ make -C docs html
 %{__install} production/nginx/* %{buildroot}%{_datadir}/%{name}/production/nginx
 %{__install} production/rabbitmq/* %{buildroot}%{_datadir}/%{name}/production/rabbitmq
 %{__cp} production/sample-production.ini %{buildroot}%{_sysconfdir}/%{name}/production.ini
+%{__sed} -i -e 's/$VERSION/%{version}/g' %{buildroot}%{_sysconfdir}/%{name}/production.ini
 %{__cp} orbited.cfg %{buildroot}%{_sysconfdir}/%{name}/orbited.cfg
 
 %clean
