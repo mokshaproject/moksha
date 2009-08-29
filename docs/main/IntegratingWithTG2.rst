@@ -6,6 +6,8 @@ The best way to learn how to use Moksha within TurboGears2 by example.
 
 .. image:: ../_static/jqplotdemo.png
 
+:Running demo: http://moksha.csh.rit.edu/apps/jqplotdemo
+
 We'll take a demo written to show off the :mod:`tw.jquery.jqplot` module for
 example.  This demo shows off the JQPlotWidget, which queries the server every
 2 seconds and reloads the graphs.
@@ -218,3 +220,101 @@ TODO: link to docs on entry points
    The source code for the MokshaJQPlotDemo can be found here:
 
    http://lmacken.fedorapeople.org/MokshaJQPlotDemo.tar.bz2
+
+
+At this point, you're all set to run `paster serve development.ini` and enjoy
+your shiny new live web app.
+
+You are now free to go and deploy your application however you please.
+However, Moksha can run it for you if you wish...
+
+--------------------------------------------------------------------------------
+
+Running your app inside of Moksha
+---------------------------------
+
+The above example shows how you can easily use Moksha within your existing app.
+Moksha also allows lets you run your app inside of it.  Moksha is preconfigured
+to run in an Apache & mod_wsgi environment, which will handle loading and
+mounting your apps within itself.
+
+
+.. warning::
+
+   If you're running your app inside of Moksha, you must ensure that you
+   are not running the MokshaMiddleware inside of your app first.  This
+   currently leads to a fun infinite WSGI middleware loop :)
+
+   So if you're creating a new app, don't worry about this, but for the above
+   example, just remove the `wrap_app=make_moksha_middleware` from your
+   `jqplotdemo/config/middleware.py`
+
+
+Create your WSGI app
+~~~~~~~~~~~~~~~~~~~~
+
+If your app is already WSGI-mountable, then don't worry about this.  For a TurboGears2 app, it's as easy as:
+
+.. code-block:: diff
+
+   --- /dev/null
+   +++ b/jqplotdemo/wsgi.py
+   @@ -0,0 +1,2 @@
+   +from paste.deploy import loadapp
+   +application = loadapp('config:/etc/moksha/conf.d/jqplotdemo/production.ini')
+
+
+Make a production configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In production we want to make sure any caches are setup in the right spot.
+We base the `production.ini` on our existing `development.ini`, and make a tiny tweak.
+
+.. code-block:: diff
+
+   --- development.ini
+   +++ production.in
+   @@ -23,7 +23,7 @@
+    use = egg:JQPlotDemo
+    lang = en
+   -cache_dir = %(here)s/data
+   +cache_dir = /var/cache/moksha/jqplotdemo/data
+    beaker.session.key = jqplotdemo
+
+.. code-block:: diff
+
+   --- a/ MANIFEST.in      
+   +++ b/ MANIFEST.in      
+   @@ -2,3 +2,4 @@ recursive-include jqplotdemo/public *
+    include jqplotdemo/public/favicon.ico
+    recursive-include jqplotdemo/i18n *
+    recursive-include jqplotdemo/templates *
+   +include production.ini
+
+
+Integrate your TG2/WSGI app into Moksha
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can plug your WSGI application into Moksha by using the `moksha.wsgiapp`
+entry-point.
+
+.. code-block:: diff
+
+   --- a/ setup.py 
+   +++ b/ setup.py 
+   @@ -47,6 +47,9 @@ setup(
+        [moksha.stream]
+        jqplot_stream = jqplotdemo.streams:JQPlotDemoStream
+    
+   +    [moksha.wsgiapp]
+   +    jqplotdemo = jqplotdemo.wsgi:application
+   +
+        [moksha.global]
+        moksha_socket = moksha.api.widgets:moksha_socket
+
+
+.. seealso::
+
+   :doc:`MokshaApplications`
+
+
