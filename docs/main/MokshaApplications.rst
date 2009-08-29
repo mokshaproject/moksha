@@ -52,7 +52,7 @@ Configuration
 -------------
 
 Moksha will reads every application's ``production.ini`` or ``development.ini``
-upon startup and loads all of the ``[DEFAULT]`` variables into the global
+from ``/etc/moksha/conf.d/$APPNAME/`` upon startup and loads all of the ``[DEFAULT]`` variables into the global
 :class:`pylons.config` object.  This enables TG2/Pylons Moksha applications to
 use the config object as they would do normally.  However, this requires that
 applications do not have conflicting configuration variable names.  Moksha will
