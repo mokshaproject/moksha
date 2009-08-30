@@ -19,7 +19,7 @@ from paver.setuputils import find_package_data
 
 setup(
     name='moksha',
-    version='0.3.3',
+    version='0.3.4',
     description='',
     author='',
     author_email='',

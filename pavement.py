@@ -25,7 +25,7 @@ from paver.setuputils import find_packages, find_package_data
 import paver.misctasks
 import paver.virtual
 
-VERSION = '0.3.3'
+VERSION = '0.3.4'
 
 HEADER = """This file is part of Moksha.
 Copyright (C) 2008-2009  Red Hat, Inc.
