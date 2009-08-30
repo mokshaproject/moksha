@@ -32,8 +32,6 @@ Requires: python-tw-jquery >= 0.9.4.1
 #Requires: python-repoze-squeeze
 #Requires: python-repoze-profile
 Requires: orbited
-Requires: python-twisted
-Requires: python-stomper
 Requires: python-sphinx
 Requires: python-paver
 Requires: python-tw-forms
@@ -68,6 +66,15 @@ Requires: mod_wsgi httpd
 %description server
 This package contains an Apache mod_wsgi configuration for Moksha.
 
+%package hub
+Summary: Moksha Hub
+Group: Applications/Internet
+Requires: %{name} = %{version}-%{release}
+Requires: python-twisted
+Requires: python-stomper
+
+%description hub
+This package contains the Moksha Hub.
 
 %prep
 %setup -q
@@ -90,6 +97,7 @@ make -C docs html
 %{__mkdir_p} -m 0755 %{buildroot}%{_sysconfdir}/httpd/conf.d
 %{__mkdir_p} -m 0755 %{buildroot}/%{_sysconfdir}/%{name}/
 %{__mkdir_p} -m 0755 %{buildroot}/%{_sysconfdir}/%{name}/conf.d
+%{__mkdir_p} -m 0755 %{buildroot}/%{_sysconfdir}/init.d/
 
 %{__install} production/*.* %{buildroot}%{_datadir}/%{name}/production/
 %{__install} production/apache/* %{buildroot}%{_datadir}/%{name}/production/apache
@@ -99,6 +107,9 @@ make -C docs html
 %{__cp} production/sample-production.ini %{buildroot}%{_sysconfdir}/%{name}/production.ini
 %{__sed} -i -e 's/$VERSION/%{version}/g' %{buildroot}%{_sysconfdir}/%{name}/production.ini
 %{__cp} orbited.cfg %{buildroot}%{_sysconfdir}/%{name}/orbited.cfg
+
+%{__install} production/moksha-hub %{buildroot}%{_bindir}/moksha-hub
+%{__install} production/moksha-hub.init %{buildroot}%{_sysconfdir}/init.d/moksha-hub
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -110,7 +121,6 @@ make -C docs html
 %{python_sitelib}/%{name}/
 %{python_sitelib}/%{name}-%{version}-py%{pyver}.egg-info/
 %attr(-,apache,apache) %dir %{_localstatedir}/lib/%{name}
-%{_bindir}/moksha-hub
 
 %files server
 %attr(-,apache,root) %{_datadir}/%{name}
@@ -119,11 +129,19 @@ make -C docs html
 %config(noreplace) %{_sysconfdir}/%{name}/orbited.cfg
 %attr(-,apache,apache) %dir %{_localstatedir}/cache/%{name}/
 
+%files hub
+%defattr(-,root,root,-)
+%{_bindir}/moksha-hub
+%{_sysconfdir}/init.d/moksha-hub
+
 %files docs
 %defattr(-,root,root)
 %doc docs/_build/html
 
 %changelog
+* Sat Aug 29 2009 Luke Macken <lmacken@redhat.com> - 0.3.4-1
+- Add a moksha-hub subpackage
+
 * Mon Aug 24 2009 Luke Macken <lmacken@redhat.com> - 0.3.3-1
 - Include our orbited configuration file in the moksha-server subpackage
 - Create a /etc/moksha/conf.d for our app configs
