@@ -33,18 +33,28 @@ from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
 
 class SourceCodeWidget(Widget):
-    params = ['widget', 'code']
+    params = {
+        'widget': 'The name of the widget',
+        'module': 'Whether to display the entire module',
+        'code': 'The actual source code',
+    }
     template = "${code}"
     engine_name = 'mako'
     container_options = {'width': 600, 'height': 500, 'title': 'View Source',
-                         'icon': 'comment.png'}
+                         'icon': 'comment.png', 'top': 80, 'left': 250,
+                         'iconize': False, 'minimize': False}
     hidden = True
 
     def update_params(self, d):
         super(SourceCodeWidget, self).update_params(d)
         d.widget = moksha.get_widget(d.widget)
         title = d.widget.__class__.__name__
-        source = inspect.getsource(d.widget.__class__)
+        if d.module:
+            obj = __import__(d.widget.__module__, globals(), locals(),
+                             [d.widget.__module__])
+        else:
+            obj = d.widget.__class__
+        source = inspect.getsource(obj)
         d.code = highlight(source, PythonLexer(),
                            HtmlFormatter(full=True))
 

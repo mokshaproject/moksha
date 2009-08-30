@@ -38,8 +38,10 @@ class WidgetController(Controller):
         'live': validators.StringBool(),
         'chrome': validators.StringBool(),
         'source': validators.UnicodeString(),
+        'module': validators.StringBool(),
     })
-    def default(self, widget, chrome=False, live=False, source=False, **kw):
+    def default(self, widget, chrome=False, live=False, source=False,
+                module=False, **kw):
         """ Display a single widget.
 
         :chrome: Display in a Moksha Container
@@ -66,13 +68,17 @@ class WidgetController(Controller):
         if live:
             tmpl_context.moksha_socket = moksha_socket
         if source:
-            options['content'] = iframe_widget(url='/widgets/code/' + source,
+            options['content'] = iframe_widget(url='/widgets/code/' + source +
+                                               '?module=%s' % module,
                                                height='90%')
             options['id'] += source + '_source'
             options['view_source'] = False
         return dict(options=options)
 
     @expose('mako:moksha.templates.widget')
-    def code(self, widget):
+    @validate({
+        'module': validators.StringBool(),
+    })
+    def code(self, widget, module=False):
         tmpl_context.widget = code_widget
-        return dict(options={'widget': widget})
+        return dict(options={'widget': widget, 'module': module})
