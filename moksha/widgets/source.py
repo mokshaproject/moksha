@@ -41,9 +41,9 @@ class SourceCodeWidget(Widget):
     template = "${code}"
     engine_name = 'mako'
     container_options = {'width': 600, 'height': 500, 'title': 'View Source',
-                         'icon': 'comment.png', 'top': 80, 'left': 250,
-                         'iconize': False, 'minimize': False}
+                         'icon': 'comment.png', 'top': 80, 'left': 250}
     hidden = True
+    module = False
 
     def update_params(self, d):
         super(SourceCodeWidget, self).update_params(d)
