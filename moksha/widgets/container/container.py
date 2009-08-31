@@ -66,6 +66,18 @@ class MokshaContainer(Widget):
 
         if isinstance(d.content, Widget):
             d.widget_name = d.content.__class__.__name__
+
+            if isinstance(d.content, LiveWidget):
+                topics = d.content.get_topics()
+                # FIXME: also unregister the moksha callback functions.  Handle
+                # cases where multiple widgets are listening to the same topics
+                d.onClose = js_callback("function(o){%s $(o).remove();}" %
+                        unsubscribe_topics(topics))
+                d.onIconize = d.onCollapse = js_callback("function(o){%s}" %
+                        unsubscribe_topics(topics))
+                d.onRestore = js_callback("function(o){%s}" %
+                        subscribe_topics(topics))
+
             d.content = d.content.display()
 
         for option in self.options:
