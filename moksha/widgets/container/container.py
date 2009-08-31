@@ -16,8 +16,11 @@
 #
 # Authors: Luke Macken <lmacken@redhat.com>
 
-from tw.api import Widget, JSLink, CSSLink
+from tw.api import Widget, JSLink, CSSLink, js_callback
 from tw.jquery import jquery_js, jQuery
+
+from moksha.api.widgets.live import LiveWidget
+from moksha.api.widgets.live import subscribe_topics, unsubscribe_topics
 
 container_js = JSLink(filename='static/js/mbContainer.min.js', modname=__name__)
 container_css = CSSLink(filename='static/css/mbContainer.css', modname=__name__)
@@ -29,9 +32,11 @@ class MokshaContainer(Widget):
     options = ['draggable', 'resizable']
     button_options = ['iconize', 'minimize', 'close']
     params = ['buttons', 'skin', 'height', 'width', 'left', 'top', 'id',
-              'title', 'icon', 'content', 'widget_name', 'view_source'] + \
-             options[:]
-    draggable = droppable = resizable = True
+              'title', 'icon', 'content', 'widget_name', 'view_source', 'dock',
+              'onResize', 'onClose', 'onCollapse', 'onIconize', 'onDrag',
+              'onRestore'] + options[:]
+    draggable = droppable = True
+    resizable = False
     iconize = minimize = close = True
     hidden = True # hide from the moksha menu
     content = '' # either text, or a Widget instance
@@ -47,6 +52,14 @@ class MokshaContainer(Widget):
     height = 500
     left = 170
     top = 270
+
+    # Javascript callbacks
+    onResize = js_callback("function(o){}")
+    onClose = js_callback("function(o){}")
+    onCollapse = js_callback("function(o){}")
+    onIconize = js_callback("function(o){}")
+    onDrag = js_callback("function(o){}")
+    onRestore = js_callback("function(o){}")
 
     def update_params(self, d):
         super(MokshaContainer, self).update_params(d)
@@ -65,7 +78,13 @@ class MokshaContainer(Widget):
         d.buttons = d.buttons[:-1]
 
         self.add_call(jQuery('#%s' % d.id).buildContainers({
-            'elementsPath': '/toscawidgets/resources/moksha.widgets.container.container/static/css/elements/'
+            'elementsPath': '/toscawidgets/resources/moksha.widgets.container.container/static/css/elements/',
+            'onClose': d.onClose,
+            'onResize': d.onResize,
+            'onCollapse': d.onCollapse,
+            'onIconize': d.onIconize,
+            'onDrag': d.onDrag,
+            'onRestore': d.onRestore,
             }))
 
 

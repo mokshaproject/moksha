@@ -1,4 +1,4 @@
-<div id="${id}" class="containerPlus ${draggable} ${resizable}" style="top:${top}px;left:${left}px" buttons="${buttons}" skin="${skin}" icon="${icon}" width="${width}" height="${height}">
+<div id="${id}" class="containerPlus ${draggable} ${resizable}" style="top:${top}px;left:${left}px" buttons="${buttons}" skin="${skin}" icon="${icon}" width="${width}" height="${height}" dock="${dock}">
     <div class="no">
         <div class="ne">
             <div class="n">${title}</div>
