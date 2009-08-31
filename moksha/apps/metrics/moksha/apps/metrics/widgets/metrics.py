@@ -39,7 +39,6 @@ class MokshaMemoryUsageWidget(LiveFlotWidget):
     topic = 'moksha_mem_metrics'
     container_options = {
             'icon': 'chart.png', 'top': 400, 'left': 80, 'height': 325,
-            'iconize': False, 'minimize': False,
             }
 
 
@@ -48,7 +47,6 @@ class MokshaCPUUsageWidget(LiveFlotWidget):
     topic = 'moksha_cpu_metrics'
     container_options = {
             'icon': 'chart.png', 'top': 80, 'left': 80, 'height': 325,
-            'iconize': False, 'minimize': False,
             }
 
 
