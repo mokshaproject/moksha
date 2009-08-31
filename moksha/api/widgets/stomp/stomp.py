@@ -39,6 +39,18 @@ def stomp_subscribe(topic):
     return sub
 
 
+def stomp_unsubscribe(topic):
+    """ Return a javascript callback that unsubscribes to a given topic,
+        or a list of topics.
+    """
+    sub = 'stomp.unsubscribe("%s");'
+    if isinstance(topic, list):
+        sub = ''.join([sub % t for t in topic])
+    else:
+        sub = sub % topic
+    return sub
+
+
 class StompWidget(Widget):
     callbacks = ['onopen', 'onerror', 'onerrorframe', 'onclose',
                  'onconnectedframe', 'onmessageframe']

@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from live import LiveWidget
+from live import LiveWidget, subscribe_topics, unsubscribe_topics
 
 # At the moment we're using the StompWidget as our primary publish/subscribe
 # messaging standard.  If we want to change the default to an AMQP widget

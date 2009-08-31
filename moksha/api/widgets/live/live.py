@@ -20,7 +20,7 @@ import moksha
 
 from tw.api import Widget
 from moksha.exc import MokshaException
-from moksha.api.widgets.stomp import stomp_widget, stomp_subscribe
+from moksha.api.widgets.stomp import stomp_widget, stomp_subscribe, stomp_unsubscribe
 
 class LiveWidget(Widget):
     """ A live streaming widget.
@@ -46,3 +46,22 @@ class LiveWidget(Widget):
                 moksha.stomp['onconnectedframe'].append(stomp_subscribe(topics))
             elif callback in self.params:
                 moksha.stomp[callback].append(getattr(self, callback))
+
+    def get_topics(self):
+        topics = []
+        for key in ('topic', 'topics'):
+            if hasattr(self, key):
+                topic = getattr(self, key)
+                if topic:
+                    if isinstance(topic, basestring):
+                        map(topics.append, topic.split())
+                    else:
+                        topics += topic
+        return topics
+
+
+# Moksha Topic subscription handling methods
+subscribe_topics = stomp_subscribe
+unsubscribe_topics = stomp_unsubscribe
+
+
