@@ -29,6 +29,8 @@
       </div>
     </a>
 
+    <div id="moksha_dock" style="display:block; padding-top: 10px; height: 30px; bottom:5px; position: absolute;" />
+
     ## Inject our global resources
     ${tmpl_context.moksha_global_resources()}
 

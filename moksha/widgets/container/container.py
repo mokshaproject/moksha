@@ -39,6 +39,7 @@ class MokshaContainer(Widget):
     title = 'Moksha Container'
     skin = 'default' # default, black, white, stiky, alert
     view_source = True
+    dock = 'moksha_dock'
     #icon = 'chart.png'
 
     # Pixel tweaking
