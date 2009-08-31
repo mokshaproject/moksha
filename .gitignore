@@ -18,3 +18,4 @@ rabbitmq-stomp
 moksha/apps/*/*.spec
 moksha/apps/*/build
 moksha/apps/*/*egg-info
+tg2-bootstrap.py
