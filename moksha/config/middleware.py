@@ -43,7 +43,8 @@ def make_app(global_conf, full_stack=True, **app_conf):
                 log_filename='profile.log',
                 discard_first_request=True,
                 flush_at_shutdown=True,
-                path='/__profile__'
+                path='/__profile__',
+                cachegrind_filename='moksha.cachegrind',
                 )
 
     return app
