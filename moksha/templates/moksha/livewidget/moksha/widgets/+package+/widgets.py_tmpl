@@ -3,7 +3,7 @@ from moksha.api.widgets.live import LiveWidget
 class {{widget_name}}(LiveWidget):
     topic = '{{topic}}'
     params = ['id']
-    onmessage = "$('<div/>').text(json).appendTo('${id}');"
+    onmessage = "$('<div/>').text(json.message).appendTo('#${id}');"
     template = 'mako:moksha.widgets.{{package}}.templates.widget'
 
     def update_params(self, d):
