@@ -19,7 +19,7 @@
 import moksha
 
 from tg import config
-from tw.api import Widget, JSLink, js_callback
+from tw.api import Widget, JSLink, js_callback, js_function
 
 from moksha.api.widgets.orbited import orbited_host, orbited_port, orbited_url
 from moksha.api.widgets.orbited import orbited_js
@@ -148,7 +148,7 @@ class StompWidget(Widget):
                             d.onmessageframe[topic] += '%s;' % str(cb)
                 else:
                     for cb in moksha.stomp[callback]:
-                        if isinstance(cb, js_callback):
+                        if isinstance(cb, (js_callback, js_function)):
                             cbs += '$(%s);' % str(cb)
                         else:
                             cbs += str(cb)
