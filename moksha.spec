@@ -111,6 +111,11 @@ make -C docs html
 %{__install} production/moksha-hub %{buildroot}%{_bindir}/moksha-hub
 %{__install} production/moksha-hub.init %{buildroot}%{_sysconfdir}/init.d/moksha-hub
 
+%post
+semanage fcontext -a -t httpd_cache_t '/var/cache/moksha(/.*)?'
+restorecon -Rv /var/cache/moksha
+
+
 %clean
 %{__rm} -rf %{buildroot}
 

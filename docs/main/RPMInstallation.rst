@@ -50,9 +50,7 @@ Installing the Moksha Apache/mod_wsgi server
 
 .. code-block:: bash
 
-   $ sudo yum install moksha-server
-   $ sudo semanage fcontext -a -t httpd_cache_t '/var/cache/moksha(/.*)?'
-   $ sudo restorecon -Rv /var/cache/moksha
+   $ sudo yum install moksha-{server,hub,docs}
 
 
 Running Moksha
