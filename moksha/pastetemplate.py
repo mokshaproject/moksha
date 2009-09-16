@@ -32,6 +32,27 @@ class MokshaLiveWidgetTemplate(Template):
 
         vars['widget_name'] = vars['package'].title() + 'Widget'
 
+
+class MokshaStreamTemplate(Template):
+    summary = 'Moksha Stream Quickstart Template'
+    _template_dir = 'templates/moksha/stream'
+    template_renderer = staticmethod(paste_script_template_renderer)
+    vars = [
+            var('topic', 'The moksha topic to utilize',
+                default='moksha.topics.test'),
+    ]
+
+    def pre(self, command, output_dir, vars):
+        """Called before template is applied."""
+        package_logger = vars['package']
+        if package_logger == 'root':
+            # Rename the app logger in the rare case a project is named 'root'
+            package_logger = 'app'
+        vars['package_logger'] = package_logger
+
+        vars['stream_name'] = vars['package'].title() + 'Stream'
+
+
 class MokshaTemplate(Template):
     """
     Moksha default paste template class

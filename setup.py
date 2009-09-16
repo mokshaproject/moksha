@@ -86,7 +86,8 @@ setup(
     moksha = moksha.commands.quickstart:MokshaQuickstartCommand
 
     [paste.paster_create_template]
-    livewidget = moksha.pastetemplate:MokshaLiveWidgetTemplate
+    moksha.livewidget = moksha.pastetemplate:MokshaLiveWidgetTemplate
+    moksha.stream = moksha.pastetemplate:MokshaStreamTemplate
 
     """,
 )
