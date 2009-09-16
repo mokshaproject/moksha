@@ -31,7 +31,7 @@ def stomp_subscribe(topic):
     """ Return a javascript callback that subscribes to a given topic,
         or a list of topics.
     """
-    sub = 'stomp.subscribe("%s");'
+    sub = "stomp.subscribe('%s');"
     if isinstance(topic, list):
         sub = ''.join([sub % t for t in topic])
     else:
@@ -43,7 +43,7 @@ def stomp_unsubscribe(topic):
     """ Return a javascript callback that unsubscribes to a given topic,
         or a list of topics.
     """
-    sub = 'stomp.unsubscribe("%s");'
+    sub = "stomp.unsubscribe('%s');"
     if isinstance(topic, list):
         sub = ''.join([sub % t for t in topic])
     else:
