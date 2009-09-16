@@ -23,7 +23,7 @@ setup(
     description='',
     author='',
     author_email='',
-    url='http://moksha.fedorahoted.org',
+    url='http://moksha.fedorahosted.org',
     install_requires=[
         "TurboGears2",
         "ToscaWidgets >= 0.9.1",
