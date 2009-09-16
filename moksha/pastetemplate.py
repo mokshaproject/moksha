@@ -60,7 +60,7 @@ class MokshaTemplate(Template):
     _template_dir = 'templates/app/moksha'
     template_renderer = staticmethod(paste_script_template_renderer)
     summary = 'Moksha Quickstart Template'
-    egg_plugins = ['PasteScript', 'Pylons', 'TurboGears2', 'tg.devtools']
+    #egg_plugins = ['PasteScript', 'Pylons', 'TurboGears2', 'tg.devtools']
     vars = [
         var('livewidget', 'Create a Moksha Live Widget example', default=False),
         var('connector', 'Create a Moksha Connector example', default=False),
@@ -88,7 +88,3 @@ class MokshaTemplate(Template):
                                                                  ' ' * 8)
         else:
             vars['babel_templates_extractor'] = ''
-
-        #if vars['geo'] == 'True':
-        #    # Add tgext.geo as paster plugin
-        ##    vars['egg_plugins'].append('tgext.geo')

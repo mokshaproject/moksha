@@ -18,7 +18,7 @@ Usage:
 
 .. parsed-literal::
 
-    paster quickstart [--version][-h|--help]
+    paster moksha [--version][-h|--help]
             [-p *PACKAGE*][--dry-run][-t|--templates *TEMPLATES*]
             [-s|--sqlalchemy][-o|--sqlobject][-a|--auth][-g|--geo]
 
@@ -32,14 +32,6 @@ Usage:
       package name for the code
   --dry-run
       dry run (don't actually do anything)
-  -t TEMPLATES, --templates=TEMPLATES
-      user specific templates
-  -s, --sqlalchemy
-      use SQLAlchemy as ORM
-  -a, --auth
-      provide authentication and authorization support
-  -g, --geo
-      add GIS support
 """
 
 import pkg_resources
@@ -101,7 +93,7 @@ Example usage::
             action="store_true", dest="consumer")
     parser.add_option("-s", "--stream",
             help='Create an example Moksha DataStream',
-            action="store_true", dest="connector")
+            action="store_true", dest="stream")
     parser.add_option("-p", "--package",
             help="package name for the code",
             dest="package")
@@ -174,8 +166,10 @@ Example usage::
         #    cmd_args.append("--template=%s" % template)
         # Hardcode livewdigets for now...
         if self.livewidget:
-            cmd_args.append('--template=livewidget')
+            cmd_args.append('--template=moksha.livewidget')
             #cmd_args.append('topic=%s' % self.topic)
+        if self.stream:
+            cmd_args.append('--template=moksha.stream')
 
         if self.dry_run:
             cmd_args.append("--simulate")
