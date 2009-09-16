@@ -195,9 +195,7 @@ Example usage::
             if os.path.exists(startscript):
                 oldmode = os.stat(startscript).st_mode
                 os.chmod(startscript, oldmode | stat.S_IXUSR)
-            #sys.argv = ["pavement.py", "egg_info"]
             os.system('paver egg_info')
-            #imp.load_module("pavement", *imp.find_module("pavement", ["."]))
 
             # dirty hack to allow "empty" dirs
             for base, path, files in os.walk("./"):
