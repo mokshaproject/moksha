@@ -1,0 +1,11 @@
+{{project}}
+
+Building an RPM of this Widget
+------------------------------
+
+    $ paver rpm
+
+Remove, rebuild and re-install the RPM
+--------------------------------------
+
+    $ paver reinstall

@@ -1,0 +1,30 @@
+# -*- coding: utf-8 -*-
+from paver.easy import *
+from paver.setuputils import (setup, find_package_data, find_packages,
+                              install_distutils_tasks)
+install_distutils_tasks()
+from moksha.lib.paver_tasks import *
+
+options(
+    setup=Bunch(
+        name="{{project}}",
+        version="0.1",
+        release="1",
+        url="http://moksha.fedorahosted.org",
+        description="Describe your widget here",
+        license="AGPLv3",
+        long_description="",
+        author="",
+        author_email="",
+        rpm_name='{{package}}',
+        packages=find_packages(),
+        package_data=find_package_data(),
+        namespace_packages=['moksha', 'moksha.widgets'],
+        install_requires=["Moksha"],
+        entry_points={
+            'moksha.widget': (
+                '{{widget_name}} = moksha.widgets.{{package}}.widgets:{{widget_name}}',
+            ),
+        }
+    ),
+)

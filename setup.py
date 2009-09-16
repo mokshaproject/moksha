@@ -82,5 +82,11 @@ setup(
     [moksha.widget]
     code_widget = moksha.widgets.source:code_widget
 
+    [paste.global_paster_command]
+    moksha = moksha.commands.quickstart:MokshaQuickstartCommand
+
+    [paste.paster_create_template]
+    livewidget = moksha.pastetemplate:MokshaLiveWidgetTemplate
+
     """,
 )
