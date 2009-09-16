@@ -1,0 +1,11 @@
+from datetime import timedelta
+from moksha.api.streams import PollingDataStream
+
+class {{stream_name}}(PollingDataStream):
+    frequency = timedelta(seconds=3)
+    topic = '{{topic}}'
+    i = 0
+
+    def poll(self):
+        self.send_message(self.topic, {'message': 'Message #%d' % self.i})
+        self.i += 1
