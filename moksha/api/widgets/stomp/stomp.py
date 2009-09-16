@@ -67,7 +67,7 @@ class StompWidget(Widget):
     template = u"""
       <script type="text/javascript">
         if (typeof TCPSocket == 'undefined') {
-            var moksha_callbacks = new Object();
+            moksha_callbacks = new Object();
         }
 
         ## Register our topic callbacks
