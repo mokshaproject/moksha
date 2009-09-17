@@ -160,6 +160,8 @@ Example usage::
             #cmd_args.append('topic=%s' % self.topic)
         if self.stream:
             cmd_args.append('--template=moksha.stream')
+        if self.consumer:
+            cmd_args.append('--template=moksha.consumer')
 
         if self.dry_run:
             cmd_args.append("--simulate")
@@ -170,6 +172,9 @@ Example usage::
         cmd_args.append("consumer=%s" % self.consumer)
         cmd_args.append("stream=%s" % self.stream)
         cmd_args.append("package=%s" % self.package)
+        cmd_args.append("widget_name=%s" % self.package.title() + 'Widget')
+        cmd_args.append("stream_name=%s" % self.package.title() + 'Stream')
+        cmd_args.append("consumer_name=%s" % self.package.title() + 'Consumer')
         command.run(cmd_args)
 
         if not self.dry_run:

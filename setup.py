@@ -89,6 +89,7 @@ setup(
     moksha.master = moksha.pastetemplate:MokshaMasterTemplate
     moksha.livewidget = moksha.pastetemplate:MokshaLiveWidgetTemplate
     moksha.stream = moksha.pastetemplate:MokshaStreamTemplate
+    moksha.consumer = moksha.pastetemplate:MokshaConsumerTemplate
 
     """,
 )

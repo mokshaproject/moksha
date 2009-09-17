@@ -1,0 +1,10 @@
+import logging
+log = logging.getLogger('moksha.hub')
+
+from moksha.api.hub import Consumer
+
+class {{consumer_name}}(Consumer):
+    topic = '{{topic}}'
+
+    def consume(self, message):
+        log.info("%r.consume(%r)" % (self, message))
