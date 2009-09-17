@@ -67,7 +67,7 @@ Example usage::
     name = None
     package = None
     svn_repository = None
-    templates = "moksha"
+    templates = "moksha.master"
     dry_run = False
     no_input = False
 
@@ -152,12 +152,8 @@ Example usage::
 
         command = create_distro.CreateDistroCommand("create")
         cmd_args = ['--template=moksha.master']
-        #for template in self.templates.split():
-        #    cmd_args.append("--template=%s" % template)
-        # Hardcode livewdigets for now...
         if self.livewidget:
             cmd_args.append('--template=moksha.livewidget')
-            #cmd_args.append('topic=%s' % self.topic)
         if self.stream:
             cmd_args.append('--template=moksha.stream')
         if self.consumer:
@@ -172,9 +168,9 @@ Example usage::
         cmd_args.append("consumer=%s" % self.consumer)
         cmd_args.append("stream=%s" % self.stream)
         cmd_args.append("package=%s" % self.package)
-        cmd_args.append("widget_name=%s" % self.package.title() + 'Widget')
-        cmd_args.append("stream_name=%s" % self.package.title() + 'Stream')
-        cmd_args.append("consumer_name=%s" % self.package.title() + 'Consumer')
+        cmd_args.append("widget_name=%s" % self.name.title() + 'Widget')
+        cmd_args.append("stream_name=%s" % self.name.title() + 'Stream')
+        cmd_args.append("consumer_name=%s" % self.name.title() + 'Consumer')
         command.run(cmd_args)
 
         if not self.dry_run:
@@ -184,6 +180,7 @@ Example usage::
             if os.path.exists(startscript):
                 oldmode = os.stat(startscript).st_mode
                 os.chmod(startscript, oldmode | stat.S_IXUSR)
+
             os.system('paver egg_info')
 
             # dirty hack to allow "empty" dirs
