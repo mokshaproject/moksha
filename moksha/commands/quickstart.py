@@ -161,7 +161,7 @@ Example usage::
             return
 
         command = create_distro.CreateDistroCommand("create")
-        cmd_args = []
+        cmd_args = ['--template=moksha.master']
         #for template in self.templates.split():
         #    cmd_args.append("--template=%s" % template)
         # Hardcode livewdigets for now...
