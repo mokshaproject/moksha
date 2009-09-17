@@ -1,4 +1,7 @@
-from datetime import timedelta
+#import logging
+#log = logging.getLogger('moksha.hub')
+
+from datetime import timedelta, datetime
 from moksha.api.streams import PollingDataStream
 
 class {{stream_name}}(PollingDataStream):
@@ -7,5 +10,6 @@ class {{stream_name}}(PollingDataStream):
     i = 0
 
     def poll(self):
-        self.send_message(self.topic, {'message': 'Message #%d' % self.i})
+        """ This method is called by the MokshaHub reactor every `frequency` """
         self.i += 1
+        self.send_message(self.topic, {'message': self.i})

@@ -129,16 +129,6 @@ Example usage::
                 self.package = raw_input(
                     "Enter package name [%s]: " % package).strip() or package
 
-        #if not self.no_input:
-        #    while self.auth is None:
-        #        self.auth = raw_input(
-        #            "Do you need authentication and authorization"
-        #            " in this project? [yes] ")
-        #        self.auth = dict(y=True, n=False).get(
-        #            self.auth.lstrip()[:1].lower() or 'y')
-        #        if self.auth is None:
-        #            print "Please enter y(es) or n(o)."
-
         self.name = pkg_resources.safe_name(self.name)
         self.rpm_name = self.name.replace('.', '_')
 
