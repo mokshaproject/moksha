@@ -80,6 +80,7 @@ This package contains the Moksha Hub.
 %setup -q
 
 %build
+%{__rm} -fr moksha/tests
 %{__python} setup.py build
 make -C docs html
 
