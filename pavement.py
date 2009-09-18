@@ -172,7 +172,7 @@ def license():
 
 @task
 def test():
-    sh("nosetests")
+    sh("nosetests -v")
 
 @task
 def reinstall():
