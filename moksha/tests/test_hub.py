@@ -17,12 +17,13 @@
 """Test Moksha's Hub """
 
 import moksha
+from moksha.hub import MokshaHub
 from nose.tools import eq_, assert_true
 
 class TestHub:
 
     def setUp(self):
-        self.hub = moksha.hub.MokshaHub()
+        self.hub = MokshaHub()
 
     def tearDown(self):
         self.hub.close()
