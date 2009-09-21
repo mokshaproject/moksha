@@ -17,7 +17,7 @@
 # Processed Tower Defense Widget
 
 from tw.api import Widget, CSSLink, JSLink
-from tw.jquery.ui import effects_core_js, effects_highlight_min_js
+from tw.jquery.ui import effects_core_js, effects_highlight_js
 from tw.jquery.processing import processing_js
 
 modname = __name__
@@ -36,7 +36,7 @@ class ProcessedTowerDefense(Widget):
     css = [CSSLink(filename='static/style.css', modname=modname),]
     javascript = [
             processing_js, jsfprocessing_js,
-            effects_core_js, effects_highlight_min_js,
+            effects_core_js, effects_highlight_js,
             JSLink(filename='game/creep_waves.js', modname=modname),
             JSLink(filename='game/terrain.js', modname=modname),
             JSLink(filename='game/util.js', modname=modname),
