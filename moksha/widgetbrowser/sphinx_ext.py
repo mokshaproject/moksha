@@ -2,7 +2,7 @@ import os
 from docutils import nodes, utils
 from docutils.parsers.rst import directives
 
-from moksha.apps.widgetbrowser import util, widgets
+from moksha.widgetbrowser import util, widgets
 
 widget_tabs = widgets.WidgetBrowserTabs(in_sphinx=True)
 

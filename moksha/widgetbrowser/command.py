@@ -1,7 +1,7 @@
 from wsgiref.simple_server import make_server
 from optparse import OptionParser
 
-from moksha.apps.widgetbrowser.wsgiapp import WidgetBrowser
+from moksha.widgetbrowser.wsgiapp import WidgetBrowser
 
 
 _parser = OptionParser(usage = "%prog [OPTIONS] [widget_url]")

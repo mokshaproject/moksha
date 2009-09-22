@@ -9,7 +9,7 @@ from genshi.template import TemplateLoader, Context
 from webob import Request, Response, exc
 import tw
 from tw.api import Widget, WidgetType, make_middleware
-from moksha.apps.widgetbrowser import util, widgets, repl
+from moksha.widgetbrowser import util, widgets, repl
 
 try:
     from formencode import Invalid
@@ -47,7 +47,7 @@ class WidgetBrowser(object):
         if isinstance(template_dirs, basestring):
             template_dirs = template_dirs.split()
         template_dirs = template_dirs or []
-        template_dirs.append(resource_filename('moksha.apps.widgetbrowser', 'templates'))
+        template_dirs.append(resource_filename('moksha.widgetbrowser', 'templates'))
         self.loader = TemplateLoader(template_dirs)
         self.interactive = asbool(interactive)
         if self.interactive:

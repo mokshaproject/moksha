@@ -29,7 +29,7 @@ from genshi.util import LRUCache
 import tw
 from tw.api import make_middleware, Widget
 
-from moksha.apps.widgetbrowser import util, widgets
+from moksha.widgetbrowser import util, widgets
 
 class HTTPREPL:
     

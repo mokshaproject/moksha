@@ -39,14 +39,14 @@ import os
 from tg import config
 from tg.controllers import WSGIAppController
 from pkg_resources import resource_filename
-from moksha.apps.widgetbrowser import WidgetBrowser
+from moksha.widgetbrowser import WidgetBrowser
 
 os.environ['TW_BROWSER_PREFIX'] = '/apps/docs'
 
 docs = WSGIAppController(
             WidgetBrowser(
                 template_dirs=[
-                    resource_filename('moksha.apps.widgetbrowser','templates')],
+                    resource_filename('moksha.widgetbrowser','templates')],
                 docs_dir=config.get('docs_dir', 'docs'),
                 full_stack=False,
                 interactive=False))

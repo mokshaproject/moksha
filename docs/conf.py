@@ -164,8 +164,8 @@ try:
     extensions.append("widgetbrowser.sphinx_ext")
 except ImportError:
     try:
-        from moksha.apps import widgetbrowser
-        extensions.append("moksha.apps.widgetbrowser.sphinx_ext")
+        from moksha.widgetbrowser import sphinx_ext
+        extensions.append("moksha.widgetbrowser.sphinx_ext")
     except ImportError:
         print "Unable to import the `widgetbrowser`"
 

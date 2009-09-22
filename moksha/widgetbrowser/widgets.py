@@ -1,5 +1,5 @@
 from tw.api import Widget, JSLink, CSSLink, js_function
-from moksha.apps.widgetbrowser import util
+from moksha.widgetbrowser import util
 import string
 
 __all__ = ['WidgetBrowserTabs']
@@ -37,7 +37,7 @@ httprepl_js = JSLink(modname=mod, filename='static/httprepl.js',
                      location="bodybottom")
 
 class WidgetBrowserTabs(Widget):
-    template = "genshi:moksha.apps.widgetbrowser.templates.widget_browser_tabs"
+    template = "genshi:moksha.widgetbrowser.templates.widget_browser_tabs"
     params = ["tabs", "prefix", "size", "in_sphinx"]
     in_sphinx = False
     javascript = [widgetbrowser_js]
