@@ -24,33 +24,26 @@ class TestControllerQuickstart(QuickstartTester):
         self.template = MokshaControllerTemplate
         self.templates = ['moksha.controller']
 
-    def get_entry(self):
-        for controller in pkg_resources.working_set.iter_entry_points('moksha.application'):
-            controller_class = controller.load()
-            if inspect.isclass(controller_class):
-                name = controller_class.__name__
-            else:
-                name = controller_class.__class__.__name__
-            if name == 'MokshatestController':
-                return controller_class
+    def get_controller(self):
+        return self.get_entry('moksha.application')
 
     def test_entry_point(self):
-        assert self.get_entry(), \
-                "Cannot find MokshatestController on `moksha.app` entry-point"
+        assert self.get_controller(), \
+                "Cannot find mokshatest on `moksha.app` entry-point"
 
     def test_controller_class(self):
-        assert isinstance(self.get_entry(), Controller) or \
-               issubclass(self.get_entry(), Controller)
+        assert isinstance(self.get_controller(), Controller) or \
+               issubclass(self.get_controller(), Controller)
 
     def test_controller_call_index(self):
-        controller = self.get_entry()()
+        controller = self.get_controller()()
         result = controller.index()
         assert result == {'name': 'world'}
 
     def test_controller_index(self):
-        resp = self.app.get('/apps/MokshatestController')
+        resp = self.app.get('/apps/mokshatest')
         assert 'Hello' in resp, resp
 
     def test_controller_index(self):
-        resp = self.app.get('/apps/MokshatestController?name=world')
+        resp = self.app.get('/apps/mokshatest?name=world')
         assert 'Hello world' in resp, resp

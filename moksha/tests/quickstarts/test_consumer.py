@@ -26,31 +26,25 @@ class TestConsumerQuickstart(QuickstartTester):
         self.template = MokshaConsumerTemplate
         self.templates = ['moksha.consumer']
 
-    def get_entry(self):
-        for consumer in pkg_resources.working_set.iter_entry_points('moksha.consumer'):
-            consumer_class = consumer.load()
-            if inspect.isclass(consumer_class):
-                name = consumer_class.__name__
-            else:
-                name = consumer_class.__class__.__name__
-            if name == 'MokshatestConsumer':
-                return consumer_class
+    def get_consumer(self):
+        return self.get_entry('moksha.consumer')
 
     def test_entry_point(self):
-        assert self.get_entry(), \
-                "Cannot find MokshatestConsumer on `moksha.consumer` entry-point"
+        assert self.get_consumer(), \
+                "Cannot find mokshatest on `moksha.consumer` entry-point"
 
     def test_polling_dataconsumer(self):
-        consumer = self.get_entry()
+        consumer = self.get_consumer()
+        print consumer
         assert isinstance(consumer, Consumer) or \
                issubclass(consumer, Consumer)
 
     def test_consumer_topic(self):
         """ Ensure the Consumer has a topic """
-        consumer = self.get_entry()
+        consumer = self.get_consumer()
         assert hasattr(consumer, 'topic')
 
     def test_consumer_consume(self):
         """ Ensure our Consumer has a `consume` method """
-        consumer = self.get_entry()
+        consumer = self.get_consumer()
         assert hasattr(consumer, 'consume')

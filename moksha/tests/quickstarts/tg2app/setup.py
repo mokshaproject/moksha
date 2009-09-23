@@ -49,5 +49,8 @@ setup(
     [moksha.application]
     tg2app = tg2app.controllers.root:RootController
 
+    [moksha.wsgiapp]
+    tg2wsgi = tg2app.wsgi:application
+
     """,
 )

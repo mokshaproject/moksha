@@ -23,6 +23,9 @@ class TestLiveWidgetQuickstart(QuickstartTester):
         self.template = MokshaLiveWidgetTemplate
         self.templates = ['moksha.livewidget']
 
+    def get_widget(self):
+        return self.get_entry('moksha.widget')
+
     def test_index(self):
         resp = self.app.get('/')
         assert '[ Moksha ]' in resp
@@ -49,23 +52,13 @@ class TestLiveWidgetQuickstart(QuickstartTester):
 
     def test_livewidget(self):
         """ Ensure our LiveWidget is available """
-        resp = self.app.get('/widgets/MokshatestWidget')
+        resp = self.app.get('/widgets/mokshatest')
         assert 'Hello world.' in resp, resp
-
-    def get_entry(self):
-        for widget in pkg_resources.working_set.iter_entry_points('moksha.widget'):
-            widget_class = widget.load()
-            if inspect.isclass(widget_class):
-                name = widget_class.__name__
-            else:
-                name = widget.__class__.__name__
-            if name == 'MokshatestWidget':
-                return widget_class
 
     def test_livewidget_entry_point(self):
         """ Ensure our widget is available on the `moksha.widget` entry-point """
-        assert self.get_entry(), \
-                "Cannot find MokshatestWidget on `moksha.widget` entry-point"
+        assert self.get_widget(), \
+                "Cannot find mokshatest on `moksha.widget` entry-point"
 
     def test_livewidget_topic(self):
-        assert hasattr(self.get_entry(), 'topic'), "LiveWidget does not have a `topic`"
+        assert hasattr(self.get_widget(), 'topic'), "LiveWidget does not have a `topic`"

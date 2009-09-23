@@ -27,19 +27,19 @@ options(
         install_requires=["Moksha"],
         entry_points={
             {{if stream}}'moksha.stream': (
-                '{{stream_name}} = moksha.apps.{{package}}.streams:{{stream_name}}',
+                '{{package}} = moksha.apps.{{package}}.streams:{{stream_name}}',
             ),{{endif}}
             {{if consumer}}'moksha.consumer': (
-                '{{consumer_name}} = moksha.apps.{{package}}.consumers:{{consumer_name}}'
+                '{{package}} = moksha.apps.{{package}}.consumers:{{consumer_name}}'
             ),{{endif}}
             {{if livewidget}}'moksha.widget': (
-                '{{widget_name}} = moksha.widgets.{{package}}.widgets:{{widget_name}}',
+                '{{package}} = moksha.widgets.{{package}}.widgets:{{widget_name}}',
             ),{{endif}}
             {{if connector}}'moksha.connector': (
-                '{{connector_name}} = moksha.apps.{{package}}.connector:{{connector_name}}'
+                '{{package}} = moksha.apps.{{package}}.connector:{{connector_name}}'
             ),{{endif}}
             {{if controller}}'moksha.application': (
-                '{{controller_name}} = moksha.apps.{{package}}.controllers:{{controller_name}}'
+                '{{package}} = moksha.apps.{{package}}.controllers:{{controller_name}}'
             ),{{endif}}
         }
     ),

@@ -61,3 +61,9 @@ class QuickstartTester(object):
     def tearDown(self):
         shutil.rmtree(testDataPath, ignore_errors=True)
         os.chdir(self.oldcwd)
+
+    def get_entry(self, entry_point):
+        for entry in pkg_resources.working_set.iter_entry_points(entry_point):
+            if entry.name == 'mokshatest':
+                return entry.load()
+
