@@ -88,7 +88,7 @@ Example usage::
         package = self.name.lower()
         package = beginning_letter.sub("", package)
         package = valid_only.sub("", package)
-        if package and self.no_input:
+        if package:
             self.package = package
         else:
             self.package = None
