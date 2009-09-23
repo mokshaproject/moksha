@@ -9,3 +9,13 @@ There are currently two ways of installing and running Moksha.
    RPMInstallation
    VirtualenvInstallation
 
+Once you have Moksha installed, there are many ways to start using it.
+
+
+.. toctree::
+   :maxdepth: 2
+
+   QuickstartTemplates
+   MokshaApplications
+   Widgets
+   IntegratingWithTG2
