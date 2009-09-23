@@ -1,69 +1,9 @@
-import sys
-import os, shutil
-import subprocess
+import inspect
 import pkg_resources
 
-from webtest import TestApp
-from paste.deploy import loadapp
-from paste.script.create_distro import CreateDistroCommand
-
-from moksha.commands.quickstart import MokshaQuickstartCommand
 from moksha.pastetemplate import MokshaLiveWidgetTemplate
 
-testDataPath = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
-
-class Options(object):
-    simulate = False
-    overwrite = True
-    templates = ['moksha.master']
-    output_dir = testDataPath
-    list_templates = False
-    list_variables = False
-    config = None
-    inspect_files = False
-    svn_repository = None
-
-
-class QuickstartTester(object):
-
-    def setUp(self):
-        command = CreateDistroCommand('MokshaQuickStartUnitTest')
-        command.verbose = False
-        command.simulate = False
-        command.options = Options()
-        command.interactive=False
-        command.args=[
-                'mokshatest', '--package=mokshatest',
-                '--template=moksha.master',
-                ]
-        for template in self.templates:
-            command.args.append('--template=%s' % template)
-
-        for arg in self.args:
-            command.args.append('%s=%s' % (arg, self.args[arg]))
-
-        proj_dir = os.path.join(testDataPath, 'mokshatest')
-        command.create_template(
-                self.template('mokshatest'),
-                proj_dir,
-                self.template_vars)
-        command.command()
-
-        cwd = os.getcwd()
-        os.chdir(proj_dir)
-        subprocess.Popen('paver egg_info', shell=True, stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE).communicate()
-        os.chdir(cwd)
-
-        pkg_resources.working_set.add_entry(proj_dir)
-
-        self.app = loadapp('config:/srv/moksha/development.ini',
-                           relative_to=proj_dir)
-        self.app = TestApp(self.app)
-
-    def tearDown(self):
-        shutil.rmtree(testDataPath, ignore_errors=True)
-
+from base import QuickstartTester
 
 class TestLiveWidgetQuickstart(QuickstartTester):
 
@@ -112,11 +52,20 @@ class TestLiveWidgetQuickstart(QuickstartTester):
         resp = self.app.get('/widgets/MokshatestWidget')
         assert 'Hello world.' in resp, resp
 
+    def get_entry(self):
+        for widget in pkg_resources.working_set.iter_entry_points('moksha.widget'):
+            widget_class = widget.load()
+            if inspect.isclass(widget_class):
+                name = widget_class.__name__
+            else:
+                name = widget.__class__.__name__
+            if name == 'MokshatestWidget':
+                return widget_class
 
-if __name__ == '__main__':
-    import nose
-    cls = TestQuickStart()
-    cls.setUp()
-    testspath = os.path.join(testDataPath,'mokshatest','mokshatest','tests')
-    nose.main(argv=['-w',testspath],exit=False)
-    cls.tearDown()
+    def test_livewidget_entry_point(self):
+        """ Ensure our widget is available on the `moksha.widget` entry-point """
+        assert self.get_entry(), \
+                "Cannot find MokshatestWidget on `moksha.widget` entry-point"
+
+    def test_livewidget_topic(self):
+        assert hasattr(self.get_entry(), 'topic'), "LiveWidget does not have a `topic`"
