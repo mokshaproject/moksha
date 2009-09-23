@@ -90,6 +90,8 @@ setup(
     moksha.livewidget = moksha.pastetemplate:MokshaLiveWidgetTemplate
     moksha.stream = moksha.pastetemplate:MokshaStreamTemplate
     moksha.consumer = moksha.pastetemplate:MokshaConsumerTemplate
+    moksha.connector = moksha.pastetemplate:MokshaConnectorTemplate
+    moksha.controller = moksha.pastetemplate:MokshaControllerTemplate
 
     """,
 )

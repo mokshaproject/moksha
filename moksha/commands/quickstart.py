@@ -91,6 +91,9 @@ Example usage::
     parser.add_option("-u", "--consumer",
             help='Create an example Moksha Consumer',
             action="store_true", dest="consumer")
+    parser.add_option("-C", "--controller",
+            help='Create an example Moksha Controller',
+            action="store_true", dest="controller")
     parser.add_option("-s", "--stream",
             help='Create an example Moksha DataStream',
             action="store_true", dest="stream")
@@ -158,6 +161,10 @@ Example usage::
             cmd_args.append('--template=moksha.stream')
         if self.consumer:
             cmd_args.append('--template=moksha.consumer')
+        if self.connector:
+            cmd_args.append('--template=moksha.connector')
+        if self.controller:
+            cmd_args.append('--template=moksha.controller')
 
         if self.dry_run:
             cmd_args.append("--simulate")
@@ -166,11 +173,14 @@ Example usage::
         cmd_args.append("livewidget=%s" % self.livewidget)
         cmd_args.append("connector=%s" % self.connector)
         cmd_args.append("consumer=%s" % self.consumer)
+        cmd_args.append("controller=%s" % self.controller)
         cmd_args.append("stream=%s" % self.stream)
         cmd_args.append("package=%s" % self.package)
         cmd_args.append("widget_name=%s" % self.name.title() + 'Widget')
         cmd_args.append("stream_name=%s" % self.name.title() + 'Stream')
         cmd_args.append("consumer_name=%s" % self.name.title() + 'Consumer')
+        cmd_args.append("connector_name=%s" % self.name.title() + 'Connector')
+        cmd_args.append("controller_name=%s" % self.name.title() + 'Controller')
         command.run(cmd_args)
 
         if not self.dry_run:

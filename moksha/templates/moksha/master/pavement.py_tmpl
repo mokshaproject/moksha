@@ -21,7 +21,7 @@ options(
         package_data=find_package_data(),
         namespace_packages=[
             'moksha',
-            {{if stream or consumer}}'moksha.apps',{{endif}}
+            {{if stream or consumer or controller}}'moksha.apps',{{endif}}
             {{if livewidget}}'moksha.widgets',{{endif}}
         ],
         install_requires=["Moksha"],
@@ -34,6 +34,12 @@ options(
             ),{{endif}}
             {{if livewidget}}'moksha.widget': (
                 '{{widget_name}} = moksha.widgets.{{package}}.widgets:{{widget_name}}',
+            ),{{endif}}
+            {{if connector}}'moksha.connector': (
+                '{{connector_name}} = moksha.apps.{{package}}.connector:{{connector_name}}'
+            ),{{endif}}
+            {{if controller}}'moksha.application': (
+                '{{controller_name}} = moksha.apps.{{package}}.controllers:{{controller_name}}'
             ),{{endif}}
         }
     ),

@@ -13,6 +13,10 @@ class MokshaMasterTemplate(Template):
             var('stream_name', 'The name of the stream', default=None),
             var('consumer', 'Include an exmaple consumer', default=False),
             var('consumer_name', 'The name of the consumer', default=None),
+            var('connector', 'Include an example connector', default=None),
+            var('connector_name', 'The name of the connector', default=None),
+            var('controller', 'Include an example controller', default=None),
+            var('controller_name', 'The name of the controller', default=None),
     ]
 
     def pre(self, command, output_dir, vars):
@@ -65,7 +69,6 @@ class MokshaStreamTemplate(Template):
             # Rename the app logger in the rare case a project is named 'root'
             package_logger = 'app'
         vars['package_logger'] = package_logger
-
         vars['stream_name'] = vars['package'].title() + 'Stream'
 
 
@@ -85,25 +88,14 @@ class MokshaConsumerTemplate(Template):
             # Rename the app logger in the rare case a project is named 'root'
             package_logger = 'app'
         vars['package_logger'] = package_logger
+        vars['consumer_name'] = vars['package'].title() + 'Consumer'
 
 
-class MokshaTemplate(Template):
-    """
-    Moksha default paste template class
-    """
-    _template_dir = 'templates/app/moksha'
+class MokshaConnectorTemplate(Template):
+    summary = 'Moksha Connector Quickstart Template'
+    _template_dir = 'templates/moksha/connector'
     template_renderer = staticmethod(paste_script_template_renderer)
-    summary = 'Moksha Quickstart Template'
-    #egg_plugins = ['PasteScript', 'Pylons', 'TurboGears2', 'tg.devtools']
-    vars = [
-        var('livewidget', 'Create a Moksha Live Widget example', default=False),
-        var('connector', 'Create a Moksha Connector example', default=False),
-        var('consumer', 'Create a Moksha Consumer example', default=False),
-        var('stream', 'Create a Moksha DataStream example', default=False),
-        # app (basic controller... if you want a real app, use tg2 quickstart)
-        # docs (sphinx quickstart)
-        # tests (tg2/tw style testing?)
-    ]
+    vars = []
 
     def pre(self, command, output_dir, vars):
         """Called before template is applied."""
@@ -112,13 +104,20 @@ class MokshaTemplate(Template):
             # Rename the app logger in the rare case a project is named 'root'
             package_logger = 'app'
         vars['package_logger'] = package_logger
+        vars['connector_name'] = vars['package'].title() + 'Connector'
 
-        template_engine = vars.setdefault('template_engine', 'mako')
 
-        if template_engine == 'mako':
-            # Support a Babel extractor default for Mako
-            vars['babel_templates_extractor'] = \
-                "('templates/**.mako', 'mako', None),\n%s#%s" % (' ' * 4,
-                                                                 ' ' * 8)
-        else:
-            vars['babel_templates_extractor'] = ''
+class MokshaControllerTemplate(Template):
+    summary = 'Moksha Controller Quickstart Template'
+    _template_dir = 'templates/moksha/controller'
+    template_renderer = staticmethod(paste_script_template_renderer)
+    vars = []
+
+    def pre(self, command, output_dir, vars):
+        """Called before template is applied."""
+        package_logger = vars['package']
+        if package_logger == 'root':
+            # Rename the app logger in the rare case a project is named 'root'
+            package_logger = 'app'
+        vars['package_logger'] = package_logger
+        vars['controller_name'] = vars['package'].title() + 'Controller'
