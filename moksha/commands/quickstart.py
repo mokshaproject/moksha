@@ -1,39 +1,3 @@
-"""Quickstart command to generate a new project.
-
-Moksha uses Paste to create and deploy projects as well as create new
-controllers and their tests.
-
-Quickstart takes the files from turbogears.pastetemplates and processes them to
-produce a new, ready-to-run project.
-
-Create a new project named helloworld with this command::
-
-    $ paster quickstart helloworld
-
-You can use TurboGears2, Pylons, and WebHelper paster commands within the
-project, as well as any paster commands that are provided by a plugin, or you
-create yourself.
-
-Usage:
-
-.. parsed-literal::
-
-    paster moksha [--version][-h|--help]
-            [-p *PACKAGE*][--dry-run][-t|--templates *TEMPLATES*]
-            [-s|--sqlalchemy][-o|--sqlobject][-a|--auth][-g|--geo]
-
-.. container:: paster-usage
-
-  --version
-      how program's version number and exit
-  -h, --help
-      show this help message and exit
-  -p PACKAGE, --package=PACKAGE
-      package name for the code
-  --dry-run
-      dry run (don't actually do anything)
-"""
-
 import pkg_resources
 import re
 import optparse
@@ -68,8 +32,8 @@ Example usage::
     package = None
     svn_repository = None
     templates = "moksha.master"
-    dry_run = False
-    no_input = False
+    #dry_run = False
+    #no_input = False
 
     livewidget = False
     connector = False
@@ -103,12 +67,12 @@ Example usage::
     parser.add_option("-t", "--topic",
             help="The Moksha topic to utilize",
             dest="topic")
-    parser.add_option("--dry-run",
-            help="dry run (don't actually do anything)",
-            action="store_true", dest="dry_run")
-    parser.add_option("--noinput",
-            help="no input (don't ask any questions)",
-            action="store_true", dest="no_input")
+    #parser.add_option("--dry-run",
+    #        help="dry run (don't actually do anything)",
+    #        action="store_true", dest="dry_run")
+    #parser.add_option("--noinput",
+    #        help="no input (don't ask any questions)",
+    #        action="store_true", dest="no_input")
 
     def command(self):
         """Quickstarts the new project."""
@@ -166,9 +130,9 @@ Example usage::
         if self.controller:
             cmd_args.append('--template=moksha.controller')
 
-        if self.dry_run:
-            cmd_args.append("--simulate")
-            cmd_args.append("-q")
+        #if self.dry_run:
+        #    cmd_args.append("--simulate")
+        #    cmd_args.append("-q")
         cmd_args.append(self.name)
         cmd_args.append("livewidget=%s" % self.livewidget)
         cmd_args.append("connector=%s" % self.connector)
@@ -183,18 +147,18 @@ Example usage::
         cmd_args.append("controller_name=%s" % self.name.title() + 'Controller')
         command.run(cmd_args)
 
-        if not self.dry_run:
-            os.chdir(self.name)
+        #if not self.dry_run:
+        #    os.chdir(self.name)
 
-            startscript = "start-%s.py" % self.package
-            if os.path.exists(startscript):
-                oldmode = os.stat(startscript).st_mode
-                os.chmod(startscript, oldmode | stat.S_IXUSR)
+        #    startscript = "start-%s.py" % self.package
+        #    if os.path.exists(startscript):
+        #        oldmode = os.stat(startscript).st_mode
+        #        os.chmod(startscript, oldmode | stat.S_IXUSR)
 
-            os.system('paver egg_info')
+        #    os.system('paver egg_info')
 
-            # dirty hack to allow "empty" dirs
-            for base, path, files in os.walk("./"):
-                for file in files:
-                    if file == "empty":
-                        os.remove(os.path.join(base, file))
+        #    # dirty hack to allow "empty" dirs
+        #    for base, path, files in os.walk("./"):
+        #        for file in files:
+        #            if file == "empty":
+        #                os.remove(os.path.join(base, file))
