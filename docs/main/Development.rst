@@ -59,6 +59,13 @@ Rebuilding and reinstall *everything*, restart apache, and run the test suite
 
    $ paver reinstall reinstall_apps restart_httpd test
 
+.. note::
+
+   As a developer, performing the full rebuild, reinstall, restart, and test
+   sequence is usually a good habit to get into, however it can take a long
+   time.  If you're hardcore, this `RPM patch <http://www.rpm.org/ticket/92>`_
+   will speed things up quite a bit.
+
 Freezing requirements
 ~~~~~~~~~~~~~~~~~~~~~
 
