@@ -85,9 +85,13 @@ class MokshaConnectorMiddleware(object):
                     if params[k] and len(params[k]) == 1:
                         params[k] = params[k][0]
 
-            response = self._run_connector(environ, request,
-                                           s[0], s[1], *s[2:],
-                                           **params)
+            try:
+                response = self._run_connector(environ, request,
+                                               s[0], s[1], *s[2:],
+                                               **params)
+            except IndexError, e:
+                log.info('Invalid connector path: %s' % str(e))
+                return Response(status='404 Not Found')(environ, start_response)
         else:
             response = request.get_response(self.application)
 

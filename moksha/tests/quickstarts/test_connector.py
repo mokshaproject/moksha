@@ -34,6 +34,9 @@ class TestConnectorQuickstart(QuickstartTester):
         resp = self.app.get('/moksha_connector/mokshatest/call/foo')
         assert "MokshatestConnector.call('foo')" in resp, resp.body
 
+    def test_failed_connector_call(self):
+        self.app.get('/moksha_connector/foo', status=404)
+
     def test_connector_query(self):
         """ Ensure we can perform a basic connector query """
         resp = self.app.get('/moksha_connector/mokshatest/query/query_stuff/')
