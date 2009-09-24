@@ -1,5 +1,5 @@
-Moksha Applications
-===================
+Moksha Plugin Entry Points
+==========================
 
 When the :class:`moksha.middleware.MokshaMiddleware` is loaded, it will
 automatically load all applications and widgets from those entry points,
