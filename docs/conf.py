@@ -37,7 +37,7 @@ master_doc = 'index'
 
 # General substitutions.
 project = 'Moksha'
-copyright = '2008, Red Hat, Inc'
+copyright = '2008-2009, Red Hat, Inc'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
@@ -164,8 +164,8 @@ try:
     extensions.append("widgetbrowser.sphinx_ext")
 except ImportError:
     try:
-        from moksha.apps import widgetbrowser
-        extensions.append("moksha.apps.widgetbrowser.sphinx_ext")
+        from moksha.widgetbrowser import sphinx_ext
+        extensions.append("moksha.widgetbrowser.sphinx_ext")
     except ImportError:
         print "Unable to import the `widgetbrowser`"
 

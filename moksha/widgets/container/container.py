@@ -45,13 +45,13 @@ class MokshaContainer(Widget):
     skin = 'default' # default, black, white, stiky, alert
     view_source = True
     dock = 'moksha_dock'
-    #icon = 'chart.png'
+    icon = 'gears.png'
 
     # Pixel tweaking
     width = 450
     height = 500
     left = 170
-    top = 270
+    top = 125
 
     # Javascript callbacks
     onResize = js_callback("function(o){}")

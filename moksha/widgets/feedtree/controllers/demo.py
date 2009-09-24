@@ -18,7 +18,7 @@
 
 from tg.controllers import WSGIAppController
 from pylons import cache
-from moksha.apps.widgetbrowser import WidgetBrowser
+from moksha.widgetbrowser import WidgetBrowser
 
 from moksha.widgets.feedtree import moksha_feedreader
 from moksha.controllers.apps import AppController

@@ -19,11 +19,11 @@ from paver.setuputils import find_package_data
 
 setup(
     name='moksha',
-    version='0.3.4',
+    version='0.3.5',
     description='',
     author='',
     author_email='',
-    url='http://moksha.fedorahoted.org',
+    url='http://moksha.fedorahosted.org',
     install_requires=[
         "TurboGears2",
         "ToscaWidgets >= 0.9.1",
@@ -81,6 +81,17 @@ setup(
 
     [moksha.widget]
     code_widget = moksha.widgets.source:code_widget
+
+    [paste.global_paster_command]
+    moksha = moksha.commands.quickstart:MokshaQuickstartCommand
+
+    [paste.paster_create_template]
+    moksha.master = moksha.pastetemplate:MokshaMasterTemplate
+    moksha.livewidget = moksha.pastetemplate:MokshaLiveWidgetTemplate
+    moksha.stream = moksha.pastetemplate:MokshaStreamTemplate
+    moksha.consumer = moksha.pastetemplate:MokshaConsumerTemplate
+    moksha.connector = moksha.pastetemplate:MokshaConnectorTemplate
+    moksha.controller = moksha.pastetemplate:MokshaControllerTemplate
 
     """,
 )

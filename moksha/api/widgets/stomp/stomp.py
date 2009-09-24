@@ -19,7 +19,7 @@
 import moksha
 
 from tg import config
-from tw.api import Widget, JSLink, js_callback
+from tw.api import Widget, JSLink, js_callback, js_function
 
 from moksha.api.widgets.orbited import orbited_host, orbited_port, orbited_url
 from moksha.api.widgets.orbited import orbited_js
@@ -31,7 +31,7 @@ def stomp_subscribe(topic):
     """ Return a javascript callback that subscribes to a given topic,
         or a list of topics.
     """
-    sub = 'stomp.subscribe("%s");'
+    sub = "stomp.subscribe('%s');"
     if isinstance(topic, list):
         sub = ''.join([sub % t for t in topic])
     else:
@@ -43,7 +43,7 @@ def stomp_unsubscribe(topic):
     """ Return a javascript callback that unsubscribes to a given topic,
         or a list of topics.
     """
-    sub = 'stomp.unsubscribe("%s");'
+    sub = "stomp.unsubscribe('%s');"
     if isinstance(topic, list):
         sub = ''.join([sub % t for t in topic])
     else:
@@ -67,7 +67,7 @@ class StompWidget(Widget):
     template = u"""
       <script type="text/javascript">
         if (typeof TCPSocket == 'undefined') {
-            var moksha_callbacks = new Object();
+            moksha_callbacks = new Object();
         }
 
         ## Register our topic callbacks
@@ -148,7 +148,7 @@ class StompWidget(Widget):
                             d.onmessageframe[topic] += '%s;' % str(cb)
                 else:
                     for cb in moksha.stomp[callback]:
-                        if isinstance(cb, js_callback):
+                        if isinstance(cb, (js_callback, js_function)):
                             cbs += '$(%s);' % str(cb)
                         else:
                             cbs += str(cb)

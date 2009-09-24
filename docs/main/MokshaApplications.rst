@@ -59,3 +59,10 @@ applications do not have conflicting configuration variable names.  Moksha will
 display a warning message for each variable conflict.  Resolving these can be
 done by namespacing your configuration variables.  For example, if your config
 variable is `foo=bar`, you could rename it to `myapp.foo=bar`.
+
+
+.. seealso::
+
+   :doc:`GettingStarted` for details on getting things up and running,
+   :doc:`QuickstartTemplates` for creating new Moksha Components, and
+   :doc:`IntegratingWithTG2` for using Moksha with TurboGears2.

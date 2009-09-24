@@ -5,7 +5,7 @@ Copyright
 
 Moksha and this documentation is:
 
-Copyright © 2008 Red Hat, Inc.
+Copyright © 2008-2009 Red Hat, Inc.
 
 -----
 

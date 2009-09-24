@@ -39,17 +39,14 @@ paver build
 
 %%install
 %%{__rm} -rf %%{buildroot}
-paver install -O1 --skip-build --root %%{buildroot}
+paver install -O1 --skip-build --root %%{buildroot} --record INSTALLED_FILES
 
 %%clean
 %%{__rm} -rf %%{buildroot}
 
-%%files
+%%files -f INSTALLED_FILES
 %%defattr(-,root,root,-)
 %%config(noreplace) %%{_sysconfdir}/moksha/conf.d/%%{modname}/
-%%{python_sitelib}/%%{modname}-%%{version}-py%%{pyver}-nspkg.pth
-%%{python_sitelib}/%%{modname}-%%{version}-py%%{pyver}.egg-info/
-%%{python_sitelib}/moksha/apps/*
         """ % {'name': options.name, 'version': options.version,
                'release': options.release, 'description': options.description,
                'long_description': options.long_description, 'license': options.license,

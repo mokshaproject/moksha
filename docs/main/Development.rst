@@ -15,12 +15,28 @@ Getting the code
 
     $ git clone git://git.fedorahosted.org/git/moksha
 
-Rebuilding and reinstall *everything*, and restart apache
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Rebuilding and reinstalling Moksha
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-   $ paver reinstall reinstall_apps restart_httpd
+   $ paver reinstall
+
+Rebuilding and reinstalling all Moksha apps
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   $ paver reinstall_apps
+
+Restart apache and load the front page
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   $ paver restart_httpd
+
 
 Generating documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -34,7 +50,14 @@ Running the test suite
 
 .. code-block:: bash
 
-    $ nosetests
+    $ paver test
+
+Rebuilding and reinstall *everything*, restart apache, and run the test suite
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   $ paver reinstall reinstall_apps restart_httpd test
 
 Freezing requirements
 ~~~~~~~~~~~~~~~~~~~~~

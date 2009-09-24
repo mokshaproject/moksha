@@ -25,7 +25,7 @@ from paver.setuputils import find_packages, find_package_data
 import paver.misctasks
 import paver.virtual
 
-VERSION = '0.3.4'
+VERSION = '0.3.5'
 
 HEADER = """This file is part of Moksha.
 Copyright (C) 2008-2009  Red Hat, Inc.
@@ -172,17 +172,17 @@ def license():
 
 @task
 def test():
-    sh("nosetests")
+    sh("nosetests -v")
 
 @task
 def reinstall():
     print "Removing existing Moksha install"
-    sh('sudo rpm -e --nodeps moksha{,-docs,-server,-hub}', ignore_error=True)
     sh('rm -fr dist/')
     sh('python setup.py sdist --format=bztar')
     sh('mv dist/* ~/rpmbuild/SOURCES/')
     sh('cp moksha.spec ~/rpmbuild/SPECS/')
     sh('rpmbuild -ba ~/rpmbuild/SPECS/moksha.spec') 
+    sh('sudo rpm -e --nodeps moksha{,-docs,-server,-hub}', ignore_error=True)
     sh('sudo rpm -ivh ~/rpmbuild/RPMS/noarch/moksha{,-docs,-server,-hub}-%s-1.*noarch.rpm' % options.version.number)
 
 @task

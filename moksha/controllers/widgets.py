@@ -70,7 +70,7 @@ class WidgetController(Controller):
         if source:
             options['content'] = iframe_widget(url='/widgets/code/' + source +
                                                '?module=%s' % module,
-                                               height='90%')
+                                               height='425px')
             options['id'] += source + '_source'
             options['view_source'] = False
         return dict(options=options)

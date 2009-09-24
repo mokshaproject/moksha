@@ -63,5 +63,3 @@ class LiveWidget(Widget):
 # Moksha Topic subscription handling methods
 subscribe_topics = stomp_subscribe
 unsubscribe_topics = stomp_unsubscribe
-
-

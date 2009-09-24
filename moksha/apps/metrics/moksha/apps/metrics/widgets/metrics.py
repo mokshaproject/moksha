@@ -136,17 +136,3 @@ class MokshaMessageMetricsWidget(LiveFlotWidget):
     def update_params(self, d):
         d.topic = str(uuid4())
         super(MokshaMessageMetricsWidget, self).update_params(d)
-
-
-# @@ FIXME: We need to not insert two stomp widgets in this case...
-#class MokshaMetricsWidget(Widget):
-#    children = [MokshaCPUUsageWidget('moksha_cpu'),
-#                MokshaMemoryUsageWidget('moksha_mem')]
-#    template = """
-#        <center>${c.moksha_cpu.label}</center>
-#        ${c.moksha_cpu()}
-#        <br/>
-#        <center>${c.moksha_mem.label}</center>
-#        ${c.moksha_mem()}
-#    """
-#    engine_name = 'mako'

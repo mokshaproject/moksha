@@ -1,0 +1,11 @@
+{{project}}
+
+Building an RPM of this Connector
+---------------------------------
+
+    $ paver rpm
+
+Remove, rebuild and re-install the RPM
+--------------------------------------
+
+    $ paver reinstall
