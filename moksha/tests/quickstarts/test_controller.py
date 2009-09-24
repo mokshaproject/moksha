@@ -3,26 +3,39 @@ import pkg_resources
 
 from datetime import timedelta
 from moksha.pastetemplate import MokshaControllerTemplate
-from base import QuickstartTester
 
 from moksha.lib.base import Controller
 
+from base import QuickstartTester, setup_quickstart, teardown_quickstart
+
+app = None
+
+def setup():
+    template_vars = {
+            'package': 'mokshatest',
+            'project': 'mokshatest',
+            'egg': 'mokshatest',
+            'egg_plugins': ['Moksha'],
+    }
+    args = {
+        'controller': True,
+        'controller_name': 'MokshatestController',
+    }
+    template = MokshaControllerTemplate
+    templates = ['moksha.controller']
+    global app
+    app = setup_quickstart(template=template, templates=templates, args=args,
+                           template_vars=template_vars)
+
+
+def teardown():
+    teardown_quickstart()
+
+
 class TestControllerQuickstart(QuickstartTester):
 
-    def __init__(self,**options):
-        self.app = None
-        self.template_vars = {
-                'package': 'mokshatest',
-                'project': 'mokshatest',
-                'egg': 'mokshatest',
-                'egg_plugins': ['Moksha'],
-        }
-        self.args = {
-            'controller': True,
-            'controller_name': 'MokshatestController',
-        }
-        self.template = MokshaControllerTemplate
-        self.templates = ['moksha.controller']
+    def setUp(self):
+        self.app = app
 
     def get_controller(self):
         return self.get_entry('moksha.application')
