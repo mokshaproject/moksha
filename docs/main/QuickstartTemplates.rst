@@ -2,8 +2,7 @@
 Moksha Quickstart Templates
 ===========================
 
-Moksha provides templates for easily creating basic widgets, streams,
-consumers, etc.
+Moksha provides templates for easily creating basic components.
 
 .. code-block:: bash
 

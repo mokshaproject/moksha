@@ -15,23 +15,24 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Authors: John (J5) Palmieri <johnp@redhat.com>
+"""
+Moksha Data Connector Interfaces
+================================
+
+A Data Connector is an object which translate Moksha data requests to the
+native protocol of a data resource such as an XMLRPC or JSON server and then
+translates the results into a format the client is expecting.  They can also
+implement caching and other data services.  Think of a connector as an
+intelligent proxy to external servers.
+
+All Data Connectors must derive and implement the :class:`IConnector`
+interface.  All other interfaces are optional.  Any feature of an interface
+which is not implemented (e.g. sorting in the ITable interface) must raise
+NotImplementedError if the value is set to anything but None
+"""
 
 from utils import QueryPath, QueryCol, ParamFilter, WeightedSearch
 from beaker.cache import Cache
-
-""" Data Connector Interfaces
-
-A Data Connector is an object which translate Moksha data requests to the native
-protocol of a data resource such as an XMLRPC or json server and then translates
-the results into a format the client is expecting.  They can also implement
-caching and other data services.  Think of a connector as an intelligent proxy
-to external servers.
-
-All Data Connectors must derive and implement the IConnector interface.  All
-other interfaces are optional.  Any feature of an interface which is not
-implemented (e.g. sorting in the ITable interface) must
-raise NotImplementedError if the value is set to anything but None
-"""
 
 class IConnector(object):
     """ Data connector interface
@@ -111,15 +112,17 @@ class IConnector(object):
         """ Implement this method to return all available remote resource paths
         along with documentation for each path broken into this format:
 
-        {
-          path: {
-                  "doc": general documentation,
-                  "return": return documentation,
-                  "parameters": {
-                                  param name: param documentation
-                                },
-                }
-        }
+        .. code-block:: python
+
+           {
+             path: {
+                     "doc": general documentation,
+                     "return": return documentation,
+                     "parameters": {
+                                     param name: param documentation
+                                   },
+                   }
+           }
 
         You may return None if your resource does not have a way to introspect
         it but you must return something.
@@ -208,21 +211,27 @@ class IQuery(object):
         :sort_col: Which column we should sort by. None = default
         :sort_order: 1 = ascending, -1 = descending
         :filters: a hash of columns and their filters in this format:
-                      {
-                        colname: {
-                                   "value": value,
-                                   "op": operator # "=", "<", ">", etc.
-                                 }
-                      }
 
-                  - or -
+                  .. code-block::
 
-                  {
-                    colname: value  # assumes =
-                  }
+                     {
+                       colname: {
+                                  "value": value,
+                                  "op": operator # "=", "<", ">", etc.
+                                }
+                     }
+
+                     - or -
+
+                     {
+                       colname: value  # assumes =
+                     }
 
         :Returns:
             A hash with format:
+
+            .. code-block:: python
+
                 {
                   "total_rows": total_rows, # number of rows matched by query
                   "rows_per_page": rows_per_page,   # number of rows requested
@@ -232,6 +241,8 @@ class IQuery(object):
                                             # to pagination
                   "rows": rows              # list of rows which were returned
                 }
+
+
         """
 
         results = None
