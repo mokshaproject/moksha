@@ -22,8 +22,6 @@ Moksha provides templates for easily creating basic components.
                            package name for the code
      -t TOPIC, --topic=TOPIC
                            The Moksha topic to utilize
-     --dry-run             dry run (don't actually do anything)
-     --noinput             no input (don't ask any questions)
 
 .. note::
 
