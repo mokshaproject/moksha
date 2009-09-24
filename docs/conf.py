@@ -43,7 +43,7 @@ copyright = '2008-2009, Red Hat, Inc'
 # other places throughout the built documents.
 #
 # The short X.Y version.
-version = '0.1'
+version = '0.4.0'
 # The full version, including alpha/beta/rc tags.
 release = '0.1'
 
