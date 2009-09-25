@@ -44,3 +44,9 @@ Creating and installing an RPM for your new package
 
    $ paver reinstall
 
+
+Creating a new TurboGears2 app
+------------------------------
+
+See the `TurboGears2 QuickStart Documentation <http://turbogears.org/2.0/docs/main/QuickStart.html>`_ as well as the :doc:`IntegratingWithTG2` example.
+
