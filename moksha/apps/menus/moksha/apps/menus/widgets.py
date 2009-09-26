@@ -14,10 +14,9 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 """
 :mod:`moksha.apps.menus.widgets` - Moksha Menu Widgets
-=====================================================
+======================================================
 
 This is a powerful component to build easily a multilevel tree menu or a
 contextual menu (right click) in an intuitive way.
