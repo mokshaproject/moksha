@@ -30,6 +30,13 @@ Rebuilding and reinstalling all Moksha apps
 
    $ paver reinstall_apps
 
+Rebuilding and reinstalling a specific Moksha apps
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   $ paver reinstall_app --app=metrics
+
 Restart apache and load the front page
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
