@@ -17,7 +17,7 @@
 # Authors: John (J5) Palmieri <johnp@redhat.com>
 """
 Moksha Data Connector Interfaces
-================================
+--------------------------------
 
 A Data Connector is an object which translate Moksha data requests to the
 native protocol of a data resource such as an XMLRPC or JSON server and then

@@ -1,3 +1,6 @@
+Moksha Data Connector Interfaces
+================================
+
 .. automodule:: moksha.connector.connector
 
 .. seealso::
