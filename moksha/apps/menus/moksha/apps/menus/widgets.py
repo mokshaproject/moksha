@@ -28,7 +28,7 @@ Bicocchi. © 2002-2008 Open Lab srl, Matteo Bicocchi. GPL licensed.
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
 """
 
-from tw.api import JSLink, Widget, CSSLink, js_function, js_callback
+from tw.api import JSLink, Widget, CSSLink, js_symbol
 from tw.jquery import jquery_js, jQuery
 
 from moksha.lib.helpers import when_ready
@@ -126,7 +126,7 @@ class MokshaContextualMenu(MokshaMenuBase):
             menus.append((menu.lower().replace(' ', ''), menu))
         d.menus = menus
 
-        self.add_call(jQuery(js_callback('document')).buildContextualMenu({
+        self.add_call(jQuery(js_symbol('document')).buildContextualMenu({
                 'template': d.callback,
                 'menuWidth': d.menuWidth,
                 'rootMenuSelector': ".%s" % d.rootMenuSelector,
