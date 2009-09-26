@@ -58,8 +58,7 @@ class MokshaDefaultMenu(MokshaMenu):
                                 url: moksha.url('/widgets/%(id)s?chrome=True&live=%(live)s'),
                                 success: function(r, s) {
                                     $('#%(id)s_loader')
-                                      .html(moksha.filter_resources(r))
-                                      .appendTo(body);
+                                      .append(moksha.filter_resources(r));
                                 }
                             });
                             return false;">%(name)s</a>
