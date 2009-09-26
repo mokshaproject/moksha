@@ -83,6 +83,7 @@ class MokshaDefaultMenu(MokshaMenu):
                 'Wiki': 'http://fedoraproject.org/wiki',
                 'Hosted': 'http://fedorahosted.org',
                 'Bugzilla': 'http://bugzilla.redhat.com',
+                'Community': 'https://admin.fedoraproject.org/community',
                 'Elections': 'https://admin.fedoraproject.org/voting',
                 'Translations': 'http://translate.fedoraproject.org',
                 'Build System': 'http://koji.fedoraproject.org',
