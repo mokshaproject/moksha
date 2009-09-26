@@ -1,10 +1,15 @@
 Moksha Labs
 ===========
 
-The Moksha Labs is an experimental playground for re-usable apps & widgets.
+The Moksha Labs is an experimental R&D playground for reusable apps & widgets.
 
 .. toctree::
+   :maxdepth: 1
 
    ../apps/MokshaMenus
    LiveWidget
    Feeds
+   MokshaContainerWidgets
+   Connectors
+   Blueprint
+

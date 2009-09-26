@@ -11,12 +11,14 @@ official documentation, you can also find great ToscaWidgets tutorials in the
  * `Writing Widget Demos <http://toscawidgets.org/documentation/WidgetBrowser>`_
  * `TurboGears2 Documentation <http://www.turbogears.org/2.0/docs/toc.html>`_
 
-Moksha also provides a number of Widgets in its API, some of which include:
-
 .. toctree::
-   :maxdepth: 2
 
-   Feeds
+   Caching
+   GlobalResources
+   Feed
    LiveWidget
    MokshaContainerWidgets
-   Caching
+
+.. seealso::
+
+   :doc:`MokshaLabs`
