@@ -191,6 +191,10 @@ def restart_httpd():
     sh('curl http://localhost/')
 
 @task
+def restart_hub():
+    sh('sudo /sbin/service moksha-hub restart')
+
+@task
 def reinstall_apps():
     for app in os.listdir('moksha/apps'):
         app_dir = path('moksha') / 'apps' / app
