@@ -20,10 +20,12 @@ import moksha
 
 from tg import config
 from tw.api import Widget, JSLink, js_callback, js_function
+from paste.deploy.converters import asbool
 
 from moksha.api.widgets.orbited import orbited_host, orbited_port, orbited_url
 from moksha.api.widgets.orbited import orbited_js
 from moksha.lib.helpers import defaultdict
+from moksha.widgets.notify import moksha_notify
 
 stomp_js = JSLink(link=orbited_url + '/static/protocols/stomp/stomp.js')
 
@@ -56,13 +58,17 @@ class StompWidget(Widget):
                  'onconnectedframe', 'onmessageframe']
     #javascript = [stomp_js, orbited_js]
     #children = [stomp_js, orbited_js]
-    params = callbacks[:] + ['topics']
+    params = callbacks[:] + ['topics', 'notify']
     onopen = js_callback('function(){}')
     onerror = js_callback('function(error){}')
     onclose = js_callback('function(c){}')
     onerrorframe = js_callback('function(f){}')
     onmessageframe = ''
     onconnectedframe = ''
+
+    # Popup notification bubbles on socket state changes
+    notify = asbool(config.get('moksha.socket.notify', False))
+
     engine_name = 'mako'
     template = u"""
       <script type="text/javascript">
@@ -123,6 +129,9 @@ class StompWidget(Widget):
             }
         }
 
+        %%if notify:
+            $.jGrowl.defaults.position = 'bottom-right';
+        %%endif
       </script>
     """ % {
             'orbited_url': orbited_url,
@@ -154,6 +163,13 @@ class StompWidget(Widget):
                             cbs += str(cb)
                 if cbs:
                     d[callback] = cbs
+
+        if d.notify:
+            moksha_notify.register_resources()
+            d.onopen = js_callback('function() { $.jGrowl("Moksha live socket connected") }')
+            d.onerror = js_callback('function(error) { $.jGrowl("Moksha Live Socket Error: " + error) }')
+            d.onerrorframe = js_callback('function(f) { $.jGrowl("Error frame received from Moksha Socket: " + f) }')
+            d.onclose = js_callback('function(c) { $.jGrowl("Moksha Socket Closed") }')
 
 
 stomp_widget = StompWidget('stomp')
