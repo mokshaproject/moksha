@@ -82,6 +82,8 @@ This package contains the Moksha Hub.
 %build
 %{__rm} -fr moksha/tests
 %{__python} setup.py build
+
+%{__sed} -i -e 's/$VERSION/%{version}/g' docs/conf.py
 make -C docs html
 
 %install
@@ -145,7 +147,7 @@ restorecon -Rv /var/cache/moksha
 %doc docs/_build/html
 
 %changelog
-* Thu Sep 24 2009 Luke Macken <lmacken@redhat.com> - 0.4.0-01
+* Thu Sep 24 2009 Luke Macken <lmacken@redhat.com> - 0.4.0-1
 - 0.4.0 release
 
 * Tue Sep 22 2009 Luke Macken <lmacken@redhat.com> - 0.3.5-1
