@@ -38,10 +38,15 @@ class MokshaMenuController(Controller):
         try:
             menu = getattr(moksha.menus[menu_id], menu_item)(**kw)
         except KeyError, e:
-            log.error(e)
-            redirect('/404')
+            # For the widget demo, just use the default menu
+            if menu_id == 'test_widget':
+                menu_id = 'default_menu'
+                menu = getattr(moksha.menus[menu_id], menu_item)(**kw)
+            else:
+                redirect('/404')
         return """
             <div id="%(menuId)s" class="menu">
                 %(menu)s
             </div>
         """ % {'menuId': menuId, 'menu': menu}
+
