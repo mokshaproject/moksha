@@ -8,7 +8,7 @@
   <script type="text/javascript">
     $(document).ready(function(){
         $("#moksha_logo").fadeIn('slow');
-        $("#moksha_menu").fadeIn('slow');
+        $("#moksha_menu").slideDown();
     });
   </script>
 </%def>
