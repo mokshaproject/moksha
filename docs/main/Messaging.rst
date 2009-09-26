@@ -4,8 +4,9 @@ Messaging
 .. toctree::
    :maxdepth: 2
 
-   MessageBrokers
    Topics
    Consumers
    DataStreams
+   LiveWidget
    MokshaHub
+   MessageBrokers
