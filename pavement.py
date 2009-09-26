@@ -207,6 +207,21 @@ def reinstall_apps():
 
 @task
 @cmdopts([
+    ('app=', 'a', 'Moksha app to rebuild and reinstall'),
+])
+def reinstall_app(options):
+    app = options.app
+    app_dir = path('moksha') / 'apps' / app
+    if os.path.isdir(app_dir):
+        top = os.getcwd()
+        os.chdir(path('moksha') / 'apps' / app)
+        if os.path.isfile('pavement.py'):
+            sh('paver reinstall')
+        os.chdir(top)
+
+
+@task
+@cmdopts([
     ('distro=', 'd', 'Distribution to build for'),
     ('arch=', 'a', 'Architecture to build'),
 ])
