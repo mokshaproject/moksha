@@ -784,7 +784,7 @@ moksha = {
             }
         });
         return false;
-    },
+    }
 }
 
 })();
