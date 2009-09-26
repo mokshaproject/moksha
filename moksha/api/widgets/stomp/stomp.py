@@ -26,6 +26,7 @@ from moksha.api.widgets.orbited import orbited_host, orbited_port, orbited_url
 from moksha.api.widgets.orbited import orbited_js
 from moksha.lib.helpers import defaultdict
 from moksha.widgets.notify import moksha_notify
+from moksha.widgets.json import jquery_json_js
 
 stomp_js = JSLink(link=orbited_url + '/static/protocols/stomp/stomp.js')
 
@@ -56,6 +57,7 @@ def stomp_unsubscribe(topic):
 class StompWidget(Widget):
     callbacks = ['onopen', 'onerror', 'onerrorframe', 'onclose',
                  'onconnectedframe', 'onmessageframe']
+    javascript = [jquery_json_js]
     #javascript = [stomp_js, orbited_js]
     #children = [stomp_js, orbited_js]
     params = callbacks[:] + ['topics', 'notify']
@@ -104,7 +106,7 @@ class StompWidget(Widget):
                     stomp.onconnectedframe = function(){ ${onconnectedframe} };
                     stomp.onmessageframe = function(f){
                         var dest = f.headers.destination;
-                        var json = JSON.parse(f.body);
+                        var json = $.secureEvalJSON(f.body);
                         if (moksha_callbacks[dest]) {
                             for (var i=0; i < moksha_callbacks[dest].length; i++) {
                                 moksha_callbacks[dest][i](json, f);
