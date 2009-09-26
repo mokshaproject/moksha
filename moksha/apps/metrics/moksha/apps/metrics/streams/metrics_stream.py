@@ -43,6 +43,7 @@ class MokshaMetricsDataStream(PollingDataStream):
 
     def _find_programs(self):
         programs = []
+        self.pids = {}
         for program in self.mem():
             for proc in self.procs:
                 if program[NAME].startswith(proc) or proc in program[NAME]:
