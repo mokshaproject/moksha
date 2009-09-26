@@ -60,7 +60,9 @@ class StompWidget(Widget):
     javascript = [jquery_json_js]
     #javascript = [stomp_js, orbited_js]
     #children = [stomp_js, orbited_js]
-    params = callbacks[:] + ['topics', 'notify']
+    params = callbacks[:] + ['topics', 'notify', 'orbited_host',
+            'orbited_port', 'orbited_url', 'orbited_js', 'stomp_host',
+            'stomp_port', 'stomp_user', 'stomp_pass']
     onopen = js_callback('function(){}')
     onerror = js_callback('function(error){}')
     onclose = js_callback('function(c){}')
@@ -69,7 +71,7 @@ class StompWidget(Widget):
     onconnectedframe = ''
 
     # Popup notification bubbles on socket state changes
-    notify = asbool(config.get('moksha.socket.notify', False))
+    notify = False
 
     engine_name = 'mako'
     template = u"""
@@ -79,7 +81,7 @@ class StompWidget(Widget):
         }
 
         ## Register our topic callbacks
-        %% for topic in topics:
+        % for topic in topics:
             var topic = "${topic}";
             if (!moksha_callbacks[topic]) {
                 moksha_callbacks[topic] = [];
@@ -87,16 +89,16 @@ class StompWidget(Widget):
             moksha_callbacks[topic].push(function(json, frame) {
                 ${onmessageframe[topic]};
             });
-        %% endfor
+        % endfor
 
         if (typeof TCPSocket == 'undefined') {
             document.domain = document.domain;
-            $.getScript("%(orbited_url)s/static/Orbited.js", function(){
-                Orbited.settings.port = %(orbited_port)s;
-                Orbited.settings.hostname = '%(orbited_host)s';
+            $.getScript("${orbited_url}/static/Orbited.js", function(){
+                Orbited.settings.port = ${orbited_port};
+                Orbited.settings.hostname = '${orbited_host}';
                 Orbited.settings.streaming = true;
                 TCPSocket = Orbited.TCPSocket;
-                $.getScript("%(orbited_url)s/static/protocols/stomp/stomp.js", function(){
+                $.getScript("${orbited_url}/static/protocols/stomp/stomp.js", function(){
                     ## Create a new TCPSocket & Stomp client
                     stomp = new STOMPClient();
                     stomp.onopen = ${onopen};
@@ -114,8 +116,8 @@ class StompWidget(Widget):
                         }
                     };
 
-                    stomp.connect('%(stomp_host)s', %(stomp_port)s,
-                                  '%(stomp_user)s', '%(stomp_pass)s');
+                    stomp.connect('${stomp_host}', ${stomp_port},
+                                  '${stomp_user}', '${stomp_pass}');
 
                 });
             });
@@ -131,19 +133,24 @@ class StompWidget(Widget):
             }
         }
 
-        %%if notify:
+        % if notify:
             $.jGrowl.defaults.position = 'bottom-right';
-        %%endif
+        % endif
       </script>
-    """ % {
-            'orbited_url': orbited_url,
-            'orbited_port': orbited_port,
-            'orbited_host': orbited_host,
-            'stomp_host': config.get('stomp_host', 'localhost'),
-            'stomp_port': config.get('stomp_port', 61613),
-            'stomp_user': config.get('stomp_user', 'guest'),
-            'stomp_pass': config.get('stomp_pass', 'guest'),
-            }
+    """
+    hidden = True
+
+    def __init__(self, *args, **kw):
+        self.notify = asbool(config.get('moksha.socket.notify', False))
+        self.orbited_host = config.get('orbited_host', 'localhost')
+        self.orbited_port = config.get('orbited_port', 9000)
+        self.orbited_url = 'http://%s:%s' % (orbited_host, orbited_port)
+        self.orbited_js = JSLink(link=orbited_url + '/static/Orbited.js')
+        self.stomp_host = config.get('stomp_host', 'localhost')
+        self.stomp_port = config.get('stomp_port', 61613)
+        self.stomp_user = config.get('stomp_user', 'guest')
+        self.stomp_pass = config.get('stomp_pass', 'guest')
+        super(StompWidget, self).__init__(*args, **kw)
 
     def update_params(self, d):
         super(StompWidget, self).update_params(d)
