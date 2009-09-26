@@ -170,6 +170,3 @@ class StompWidget(Widget):
             d.onerror = js_callback('function(error) { $.jGrowl("Moksha Live Socket Error: " + error) }')
             d.onerrorframe = js_callback('function(f) { $.jGrowl("Error frame received from Moksha Socket: " + f) }')
             d.onclose = js_callback('function(c) { $.jGrowl("Moksha Socket Closed") }')
-
-
-stomp_widget = StompWidget('stomp')
