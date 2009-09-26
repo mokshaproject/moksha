@@ -52,15 +52,14 @@ class MokshaDefaultMenu(MokshaMenu):
         for id, widget in moksha._widgets.iteritems():
             if not getattr(widget['widget'], 'hidden', False):
                 menu += """
-                      <a href="#" onclick="$('#footer')
-                            .append($('<div/>')
-                            .attr('id', '%(id)s_loader')); 
+                      <a href="#" onclick="
+                            $('<div/>').attr('id', '%(id)s_loader').appendTo('body')
                             $.ajax({
                                 url: moksha.url('/widgets/%(id)s?chrome=True&live=%(live)s'),
                                 success: function(r, s) {
-                                    var $panel = $('#%(id)s_loader');
-                                    var $stripped = moksha.filter_resources(r);
-                                    $panel.html($stripped);
+                                    $('#%(id)s_loader')
+                                      .html(moksha.filter_resources(r))
+                                      .appendTo(body);
                                 }
                             });
                             return false;">%(name)s</a>
