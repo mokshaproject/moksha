@@ -31,6 +31,8 @@ Bicocchi. © 2002-2008 Open Lab srl, Matteo Bicocchi. GPL licensed.
 from tw.api import JSLink, Widget, CSSLink, js_function, js_callback
 from tw.jquery import jquery_js, jQuery
 
+from moksha.lib.helpers import when_ready
+
 modname = __name__
 
 jquery_mbmenu_js = JSLink(modname=modname,
@@ -89,7 +91,7 @@ class MokshaMenu(MokshaMenuBase):
             menus.append((menu.lower().replace(' ', ''), menu))
         d.menus = menus
 
-        self.add_call(jQuery('.%s' % d.id).buildMenu({
+        self.add_call(when_ready(jQuery('.%s' % d.id).buildMenu({
                 'template': d.callback,
                 'additionalData': d.additionalData,
                 'menuWidth': d.menuWidth,
@@ -106,7 +108,9 @@ class MokshaMenu(MokshaMenuBase):
                 'opacity': d.opacity,
                 'shadow': d.shadow,
                 'minZindex': d.minZindex,
-                }))
+                })))
+
+        self.add_call(when_ready(jQuery('.moksha_menu').fadeIn('slow')))
 
 
 class MokshaContextualMenu(MokshaMenuBase):
