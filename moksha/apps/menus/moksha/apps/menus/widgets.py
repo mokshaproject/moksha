@@ -110,8 +110,6 @@ class MokshaMenu(MokshaMenuBase):
                 'minZindex': d.minZindex,
                 })))
 
-        self.add_call(when_ready(jQuery('.moksha_menu').fadeIn('slow')))
-
 
 class MokshaContextualMenu(MokshaMenuBase):
 
