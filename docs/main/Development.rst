@@ -15,12 +15,35 @@ Getting the code
 
     $ git clone git://git.fedorahosted.org/git/moksha
 
-Rebuilding and reinstall *everything*, and restart apache
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Rebuilding and reinstalling Moksha
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-   $ paver reinstall reinstall_apps restart_httpd
+   $ paver reinstall
+
+Rebuilding and reinstalling all Moksha apps
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   $ paver reinstall_apps
+
+Rebuilding and reinstalling a specific Moksha apps
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   $ paver reinstall_app --app=metrics
+
+Restart apache and load the front page
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   $ paver restart_httpd
+
 
 Generating documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -34,7 +57,21 @@ Running the test suite
 
 .. code-block:: bash
 
-    $ nosetests
+    $ paver test
+
+Rebuilding and reinstall *everything*, restart apache, and run the test suite
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   $ paver reinstall reinstall_apps restart_httpd test
+
+.. note::
+
+   As a developer, performing the full rebuild, reinstall, restart, and test
+   sequence is usually a good habit to get into, however it can take a long
+   time.  If you're hardcore, this `RPM patch <http://www.rpm.org/ticket/92>`_
+   will speed things up quite a bit.
 
 Freezing requirements
 ~~~~~~~~~~~~~~~~~~~~~

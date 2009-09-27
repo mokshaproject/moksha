@@ -122,10 +122,12 @@ moksha = {
             var is_close_tag = (match[1] == '/') || is_self_closing_tag;
 
             if (is_close_tag && find_end_tag_state) {
-                if (relocate_tag_state)
+                if (relocate_tag_state) {
                     relocate_tag_list.push(fragment.substring(find_end_tag_state,
                                                               find_tag.lastIndex)
                                           );
+                    relocate_tag_state = false;
+                 }
 
                 var head_index = in_head(find_end_tag_state);
                 if (head_index != -1)
@@ -784,7 +786,7 @@ moksha = {
             }
         });
         return false;
-    },
+    }
 }
 
 })();

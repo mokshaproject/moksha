@@ -24,7 +24,6 @@ from formencode import validators
 
 from moksha.exc import WidgetNotFound
 from moksha.lib.base import Controller
-from moksha.api.widgets.live import moksha_socket
 from moksha.widgets.source import code_widget
 from moksha.widgets.container import container
 from moksha.widgets.iframe import iframe_widget
@@ -66,11 +65,11 @@ class WidgetController(Controller):
         else:
             tmpl_context.widget = w['widget']
         if live:
-            tmpl_context.moksha_socket = moksha_socket
+            tmpl_context.moksha_socket = moksha.get_widget('moksha_socket')
         if source:
             options['content'] = iframe_widget(url='/widgets/code/' + source +
                                                '?module=%s' % module,
-                                               height='90%')
+                                               height='425px')
             options['id'] += source + '_source'
             options['view_source'] = False
         return dict(options=options)

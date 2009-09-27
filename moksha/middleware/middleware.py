@@ -174,7 +174,6 @@ class MokshaMiddleware(object):
                     'path': widget_path,
                     'live': isinstance(widget, LiveWidget),
                     }
-        moksha._widgets = moksha._widgets
 
     def load_menus(self):
         log.info('Loading moksha menus')

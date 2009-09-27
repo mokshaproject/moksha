@@ -40,11 +40,10 @@ for entry_point in ('moksha.widget', 'moksha.menu', 'moksha.global'):
 # Other stuff that isn't exposed
 from moksha.widgets.container import MokshaContainer
 __all__.append(MokshaContainer)
+from moksha.widgets.notify import MokshaNotificationWidget
+__all__.append(MokshaNotificationWidget)
 
-try:
-    from moksha.apps.widgetbrowser import widgets
-    for obj in dir(widgets):
-        if isinstance(getattr(widgets, obj), Widget):
-            __all__.append(obj)
-except ImportError:
-    pass
+from moksha.widgetbrowser import widgets
+for obj in dir(widgets):
+    if isinstance(getattr(widgets, obj), Widget):
+        __all__.append(obj)

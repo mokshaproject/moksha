@@ -37,15 +37,15 @@ master_doc = 'index'
 
 # General substitutions.
 project = 'Moksha'
-copyright = '2008, Red Hat, Inc'
+copyright = '2008-2009, Red Hat, Inc'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
 #
 # The short X.Y version.
-version = '0.1'
+version = '$VERSION'
 # The full version, including alpha/beta/rc tags.
-release = '0.1'
+release = '$VERSION'
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
@@ -164,8 +164,8 @@ try:
     extensions.append("widgetbrowser.sphinx_ext")
 except ImportError:
     try:
-        from moksha.apps import widgetbrowser
-        extensions.append("moksha.apps.widgetbrowser.sphinx_ext")
+        from moksha.widgetbrowser import sphinx_ext
+        extensions.append("moksha.widgetbrowser.sphinx_ext")
     except ImportError:
         print "Unable to import the `widgetbrowser`"
 

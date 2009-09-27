@@ -36,24 +36,18 @@ as root, replacing `$DISTRO` with either `fedora-rawhide`, `fedora-11`,
 
    http://fedoraproject.org/wiki/TurboGears2
 
-Install the dependencies and setup your RPM tree
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-   $ sudo yum install rpmdevtools python-paver python-tg-devtools TurboGears2
-   $ sudo yum-builddep -y moksha
-   $ rpmdev-setuptree
 
 Installing the Moksha Apache/mod_wsgi server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-   $ sudo yum install moksha-server
-   $ sudo semanage fcontext -a -t httpd_cache_t '/var/cache/moksha(/.*)?'
-   $ sudo restorecon -Rv /var/cache/moksha
+   $ sudo yum install moksha-{server,hub,docs}
 
+.. note::
+
+   The above setup does not install any apps.  To duplicate the moksha
+   dashboard demo, you can `yum install moksha\*`
 
 Running Moksha
 ~~~~~~~~~~~~~~
@@ -68,7 +62,7 @@ Running Orbited
 
 .. code-block:: bash
 
-   $ orbited
+   $ orbited -c /etc/moksha/orbited.cfg
 
 
 Running the Moksha Hub
@@ -77,6 +71,18 @@ Running the Moksha Hub
 .. code-block:: bash
 
    $ sudo /sbin/service moksha-hub restart
+
+
+Install the dependencies and setup your RPM tree
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This step is only necessary if you plan on building moksha apps.
+
+.. code-block:: bash
+
+   $ sudo yum install rpmdevtools
+   $ rpmdev-setuptree
+   $ sudo yum-builddep -y moksha
 
 
 Watching the Error Log

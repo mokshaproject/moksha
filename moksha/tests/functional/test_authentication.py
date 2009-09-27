@@ -58,7 +58,7 @@ class TestAuthentication(TestController):
         form = resp.form
         # Submitting the login form:
         form['login'] = u'manager'
-        form['password'] = 'managepass'
+        form['password'] = u'managepass'
         post_login = form.submit(status=302)
         # Being redirected to the initially requested page:
         assert post_login.location.startswith('http://localhost/post_login')

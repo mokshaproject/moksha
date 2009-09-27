@@ -1,0 +1,10 @@
+from tg import expose, validate
+from formencode import validators
+from moksha.lib.base import Controller
+
+class {{controller_name}}(Controller):
+
+    @expose('mako:moksha.apps.{{package}}.templates.index')
+    @validate({'name': validators.UnicodeString()})
+    def index(self, name='world', *args, **kw):
+        return dict(name=name)

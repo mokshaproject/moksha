@@ -16,7 +16,7 @@
 
 import moksha
 
-from tg import expose
+from tg import expose, redirect
 from moksha.lib.base import Controller
 
 class MokshaMenuController(Controller):
@@ -35,9 +35,18 @@ class MokshaMenuController(Controller):
         split = menuId.lower().split('_')
         menu_id = '_'.join(split[:-1])
         menu_item = split[-1]
-        menu = getattr(moksha.menus[menu_id], menu_item)(**kw)
+        try:
+            menu = getattr(moksha.menus[menu_id], menu_item)(**kw)
+        except KeyError, e:
+            # For the widget demo, just use the default menu
+            if menu_id == 'test_widget':
+                menu_id = 'default_menu'
+                menu = getattr(moksha.menus[menu_id], menu_item)(**kw)
+            else:
+                redirect('/404')
         return """
             <div id="%(menuId)s" class="menu">
                 %(menu)s
             </div>
         """ % {'menuId': menuId, 'menu': menu}
+

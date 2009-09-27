@@ -24,7 +24,6 @@ from tg.render import render
 from pylons.i18n import _, ungettext, N_
 
 import moksha
-from moksha.api.widgets.live import moksha_socket
 from moksha.lib.helpers import eval_and_check_predicates
 
 class Controller(object):
