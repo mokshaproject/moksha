@@ -4,7 +4,7 @@ import pkg_resources
 from webtest import TestApp
 from paste.deploy import loadapp
 
-class TestTG2App(object):
+class TestTG2AppInMoksha(object):
 
     def setUp(self):
         tg2app_path = os.path.join(os.path.dirname(__file__), 'tg2app')
@@ -37,3 +37,24 @@ class TestTG2App(object):
         """ Ensure we can get to TG2 when it is mounted as a WSGI app """
         resp = self.app.get('/apps/tg2wsgi/')
         assert 'Now Viewing: index' in resp
+
+
+class TestTG2App(object):
+    """ Test mounting the TurboGears2 app directly.
+
+    Since this test app does not contain the MokshaMiddleware, it
+    won't do much, but we should still make sure we can use it.
+
+    """
+    def setUp(self):
+        tg2app_path = os.path.join(os.path.dirname(__file__), 'tg2app')
+        cfg = os.path.join(tg2app_path, 'development.ini')
+        pkg_resources.working_set.add_entry(tg2app_path)
+        self.app = loadapp('config:' + cfg,
+                           relative_to=tg2app_path)
+        self.app = TestApp(self.app)
+
+    def test_index(self):
+        """ Make sure we properly route to the root of the TG2 app """
+        resp = self.app.get('/')
+        assert 'Welcome to TurboGears 2.0' in resp
