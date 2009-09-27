@@ -172,7 +172,10 @@ def license():
 
 @task
 def test():
-    sh("nosetests -v")
+    sh("nosetests")
+    cwd = os.getcwd()
+    os.chdir(path('moksha') / 'apps' / 'demo' / 'MokshaJQPlotDemo')
+    sh('nosetests')
 
 @task
 def reinstall():
