@@ -8,7 +8,7 @@
    main/Architecture
    main/GettingStarted
    main/Widgets
-   main/MokshaApplications
+   main/PluginEntryPoints
    main/Messaging
    main/Middleware
    main/Development
