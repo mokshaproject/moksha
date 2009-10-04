@@ -43,6 +43,7 @@ class MokshaMetricsDataStream(PollingDataStream):
 
     def _find_programs(self):
         programs = []
+        self.pids = {}
         for program in self.mem():
             for proc in self.procs:
                 if program[NAME].startswith(proc) or proc in program[NAME]:
@@ -51,7 +52,12 @@ class MokshaMetricsDataStream(PollingDataStream):
                         self.pids[int(pid)] = program[NAME]
                     if proc == 'httpd':
                         self.poll_for_new_pids = True
-        return programs
+        sorted_programs = []
+        for proc in self.procs:
+            for program in programs:
+                if program[NAME].startswith(proc) or proc in program[NAME]:
+                    sorted_programs.append(program)
+        return sorted_programs
 
     def _find_processors(self):
         """ Find the number of processors """
@@ -88,17 +94,15 @@ class MokshaMetricsDataStream(PollingDataStream):
             self.count = 0
 
         for program in self.programs:
-            for proc in self.procs:
-                if program[NAME].startswith(proc) or proc in program[NAME]:
-                    total_mem_usage = float(program[MEM_TOTAL].split()[0])
-                    mem_data['data'].append({
-                            'data': [[i, total_mem_usage]],
-                            'bars': {'show': 'true'},
-                            'label': program[NAME],
-                            })
-                    mem_data['options']['xaxis']['ticks'].append(
-                            [i + 0.5, program[NAME]])
-                    i += 1
+            total_mem_usage = float(program[MEM_TOTAL].split()[0])
+            mem_data['data'].append({
+                    'data': [[i, total_mem_usage]],
+                    'bars': {'show': 'true'},
+                    'label': program[NAME],
+                    })
+            mem_data['options']['xaxis']['ticks'].append(
+                    [i + 0.5, program[NAME]])
+            i += 1
 
         self.send_message('moksha_mem_metrics', [mem_data])
 
@@ -131,6 +135,7 @@ class MokshaMetricsDataStream(PollingDataStream):
 
         # Move everything to the left, and append the latest CPU usage.
         for program, cpu_usage in pid_cpu.items():
+            program = program.split()[0]
             for history in self.cpu_usage[program]:
                 history[0] -= 1
 
@@ -139,12 +144,14 @@ class MokshaMetricsDataStream(PollingDataStream):
             # Only store 50 ticks worth of data
             self.cpu_usage[program] = self.cpu_usage[program][-51:]
 
-        for program, history in self.cpu_usage.items():
-            cpu_data['data'].append({
-                'data': history,
-                'lines': {'show': 'true', 'fill': 'true'},
-                'label': program.split()[0],
-                })
+        for proc in self.procs:
+            for program, history in self.cpu_usage.items():
+                if program.startswith(proc) or proc in program:
+                    cpu_data['data'].append({
+                        'data': history,
+                        'lines': {'show': 'true', 'fill': 'true'},
+                        'label': program,
+                        })
 
         self.send_message('moksha_cpu_metrics', [cpu_data])
 

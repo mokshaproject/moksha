@@ -52,15 +52,13 @@ class MokshaDefaultMenu(MokshaMenu):
         for id, widget in moksha._widgets.iteritems():
             if not getattr(widget['widget'], 'hidden', False):
                 menu += """
-                      <a href="#" onclick="$('#footer')
-                            .append($('<div/>')
-                            .attr('id', '%(id)s_loader')); 
+                      <a href="#" onclick="
+                            $('<div/>').attr('id', '%(id)s_loader').appendTo('body')
                             $.ajax({
                                 url: moksha.url('/widgets/%(id)s?chrome=True&live=%(live)s'),
                                 success: function(r, s) {
-                                    var $panel = $('#%(id)s_loader');
-                                    var $stripped = moksha.filter_resources(r);
-                                    $panel.html($stripped);
+                                    $('#%(id)s_loader')
+                                      .append(moksha.filter_resources(r));
                                 }
                             });
                             return false;">%(name)s</a>
@@ -85,6 +83,7 @@ class MokshaDefaultMenu(MokshaMenu):
                 'Wiki': 'http://fedoraproject.org/wiki',
                 'Hosted': 'http://fedorahosted.org',
                 'Bugzilla': 'http://bugzilla.redhat.com',
+                'Community': 'https://admin.fedoraproject.org/community',
                 'Elections': 'https://admin.fedoraproject.org/voting',
                 'Translations': 'http://translate.fedoraproject.org',
                 'Build System': 'http://koji.fedoraproject.org',

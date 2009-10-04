@@ -6,25 +6,37 @@ from datetime import timedelta
 from moksha.api.streams import PollingDataStream
 from moksha.pastetemplate import MokshaStreamTemplate
 
-from base import QuickstartTester
+from base import QuickstartTester, setup_quickstart, teardown_quickstart
+
+app = None
+
+def setup():
+    template = MokshaStreamTemplate
+    templates = ['moksha.stream']
+    template_vars = {
+            'package': 'mokshatest',
+            'project': 'mokshatest',
+            'egg': 'mokshatest',
+            'egg_plugins': ['Moksha'],
+            'topic': 'moksha.topics.test',
+    }
+    args = {
+        'stream': True,
+        'stream_name': 'MokshatestStream',
+    }
+    global app
+    app = setup_quickstart(template=template, templates=templates, args=args,
+                           template_vars=template_vars)
+
+def teardown():
+    teardown_quickstart()
+
+
 
 class TestStreamQuickstart(QuickstartTester):
 
-    def __init__(self,**options):
-        self.app = None
-        self.template_vars = {
-                'package': 'mokshatest',
-                'project': 'mokshatest',
-                'egg': 'mokshatest',
-                'egg_plugins': ['Moksha'],
-                'topic': 'moksha.topics.test',
-        }
-        self.args = {
-            'stream': True,
-            'stream_name': 'MokshatestStream',
-        }
-        self.template = MokshaStreamTemplate
-        self.templates = ['moksha.stream']
+    def setUp(self):
+        self.app = app
 
     def get_stream(self):
         return self.get_entry('moksha.stream')

@@ -30,6 +30,13 @@ Rebuilding and reinstalling all Moksha apps
 
    $ paver reinstall_apps
 
+Rebuilding and reinstalling a specific Moksha apps
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   $ paver reinstall_app --app=metrics
+
 Restart apache and load the front page
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -58,6 +65,13 @@ Rebuilding and reinstall *everything*, restart apache, and run the test suite
 .. code-block:: bash
 
    $ paver reinstall reinstall_apps restart_httpd test
+
+.. note::
+
+   As a developer, performing the full rebuild, reinstall, restart, and test
+   sequence is usually a good habit to get into, however it can take a long
+   time.  If you're hardcore, this `RPM patch <http://www.rpm.org/ticket/92>`_
+   will speed things up quite a bit.
 
 Freezing requirements
 ~~~~~~~~~~~~~~~~~~~~~

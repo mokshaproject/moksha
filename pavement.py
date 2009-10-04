@@ -25,7 +25,7 @@ from paver.setuputils import find_packages, find_package_data
 import paver.misctasks
 import paver.virtual
 
-VERSION = '0.3.5'
+VERSION = '0.4.2'
 
 HEADER = """This file is part of Moksha.
 Copyright (C) 2008-2009  Red Hat, Inc.
@@ -172,7 +172,10 @@ def license():
 
 @task
 def test():
-    sh("nosetests -v")
+    sh("nosetests")
+    cwd = os.getcwd()
+    os.chdir(path('moksha') / 'apps' / 'demo' / 'MokshaJQPlotDemo')
+    sh('nosetests')
 
 @task
 def reinstall():
@@ -191,6 +194,10 @@ def restart_httpd():
     sh('curl http://localhost/')
 
 @task
+def restart_hub():
+    sh('sudo /sbin/service moksha-hub restart')
+
+@task
 def reinstall_apps():
     for app in os.listdir('moksha/apps'):
         app_dir = path('moksha') / 'apps' / app
@@ -200,6 +207,21 @@ def reinstall_apps():
             if os.path.isfile('pavement.py'):
                 sh('paver reinstall')
             os.chdir(top)
+
+@task
+@cmdopts([
+    ('app=', 'a', 'Moksha app to rebuild and reinstall'),
+])
+def reinstall_app(options):
+    app = options.app
+    app_dir = path('moksha') / 'apps' / app
+    if os.path.isdir(app_dir):
+        top = os.getcwd()
+        os.chdir(path('moksha') / 'apps' / app)
+        if os.path.isfile('pavement.py'):
+            sh('paver reinstall')
+        os.chdir(top)
+
 
 @task
 @cmdopts([

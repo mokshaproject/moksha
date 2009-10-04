@@ -2,8 +2,7 @@
 Moksha Quickstart Templates
 ===========================
 
-Moksha provides templates for easily creating basic widgets, streams,
-consumers, etc.
+Moksha provides templates for easily creating basic components.
 
 .. code-block:: bash
 
@@ -23,8 +22,6 @@ consumers, etc.
                            package name for the code
      -t TOPIC, --topic=TOPIC
                            The Moksha topic to utilize
-     --dry-run             dry run (don't actually do anything)
-     --noinput             no input (don't ask any questions)
 
 .. note::
 
@@ -46,4 +43,10 @@ Creating and installing an RPM for your new package
 .. code-block:: bash
 
    $ paver reinstall
+
+
+Creating a new TurboGears2 app
+------------------------------
+
+See the `TurboGears2 QuickStart Documentation <http://turbogears.org/2.0/docs/main/QuickStart.html>`_ as well as the :doc:`IntegratingWithTG2` example.
 

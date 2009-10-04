@@ -19,7 +19,7 @@ from paver.setuputils import find_package_data
 
 setup(
     name='moksha',
-    version='0.3.5',
+    version='0.4.2',
     description='',
     author='',
     author_email='',
@@ -81,6 +81,7 @@ setup(
 
     [moksha.widget]
     code_widget = moksha.widgets.source:code_widget
+    moksha_socket = moksha.api.widgets.live:moksha_socket
 
     [paste.global_paster_command]
     moksha = moksha.commands.quickstart:MokshaQuickstartCommand

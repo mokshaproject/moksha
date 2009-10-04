@@ -2,7 +2,7 @@
 %{!?pyver: %define pyver %(%{__python} -c "import sys ; print sys.version[:3]")}
 
 Name:           moksha
-Version:        0.3.5
+Version:        0.4.2
 Release:        1%{?dist}
 Summary:        A flexable platform for creating live collaborative web applications
 Group:          Applications/Internet
@@ -82,6 +82,8 @@ This package contains the Moksha Hub.
 %build
 %{__rm} -fr moksha/tests
 %{__python} setup.py build
+
+%{__sed} -i -e 's/$VERSION/%{version}/g' docs/conf.py
 make -C docs html
 
 %install
@@ -112,7 +114,7 @@ make -C docs html
 %{__install} production/moksha-hub %{buildroot}%{_bindir}/moksha-hub
 %{__install} production/moksha-hub.init %{buildroot}%{_sysconfdir}/init.d/moksha-hub
 
-%post
+%post server
 semanage fcontext -a -t httpd_cache_t '/var/cache/moksha(/.*)?'
 restorecon -Rv /var/cache/moksha
 
@@ -145,6 +147,9 @@ restorecon -Rv /var/cache/moksha
 %doc docs/_build/html
 
 %changelog
+* Thu Sep 24 2009 Luke Macken <lmacken@redhat.com> - 0.4.0-1
+- 0.4.0 release
+
 * Tue Sep 22 2009 Luke Macken <lmacken@redhat.com> - 0.3.5-1
 - 0.3.5
 

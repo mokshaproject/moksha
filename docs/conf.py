@@ -43,9 +43,9 @@ copyright = '2008-2009, Red Hat, Inc'
 # other places throughout the built documents.
 #
 # The short X.Y version.
-version = '0.1'
+version = '$VERSION'
 # The full version, including alpha/beta/rc tags.
-release = '0.1'
+release = '$VERSION'
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:

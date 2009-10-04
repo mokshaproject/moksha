@@ -14,10 +14,9 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 """
 :mod:`moksha.apps.menus.widgets` - Moksha Menu Widgets
-=====================================================
+======================================================
 
 This is a powerful component to build easily a multilevel tree menu or a
 contextual menu (right click) in an intuitive way.
@@ -29,8 +28,10 @@ Bicocchi. © 2002-2008 Open Lab srl, Matteo Bicocchi. GPL licensed.
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
 """
 
-from tw.api import JSLink, Widget, CSSLink, js_function, js_callback
+from tw.api import JSLink, Widget, CSSLink, js_symbol
 from tw.jquery import jquery_js, jQuery
+
+from moksha.lib.helpers import when_ready
 
 modname = __name__
 
@@ -90,7 +91,7 @@ class MokshaMenu(MokshaMenuBase):
             menus.append((menu.lower().replace(' ', ''), menu))
         d.menus = menus
 
-        self.add_call(jQuery('.%s' % d.id).buildMenu({
+        self.add_call(when_ready(jQuery('.%s' % d.id).buildMenu({
                 'template': d.callback,
                 'additionalData': d.additionalData,
                 'menuWidth': d.menuWidth,
@@ -107,7 +108,7 @@ class MokshaMenu(MokshaMenuBase):
                 'opacity': d.opacity,
                 'shadow': d.shadow,
                 'minZindex': d.minZindex,
-                }))
+                })))
 
 
 class MokshaContextualMenu(MokshaMenuBase):
@@ -125,7 +126,7 @@ class MokshaContextualMenu(MokshaMenuBase):
             menus.append((menu.lower().replace(' ', ''), menu))
         d.menus = menus
 
-        self.add_call(jQuery(js_callback('document')).buildContextualMenu({
+        self.add_call(jQuery(js_symbol('document')).buildContextualMenu({
                 'template': d.callback,
                 'menuWidth': d.menuWidth,
                 'rootMenuSelector': ".%s" % d.rootMenuSelector,

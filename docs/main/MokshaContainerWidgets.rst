@@ -1,5 +1,5 @@
-Moksha Container Widgets
-========================
+Moksha Dashboard Container Widgets
+==================================
 
 Moksha container widgets provide configurable containers for loading Moksha
 applications and widgets.  They are used for layout, navigation and dynamic

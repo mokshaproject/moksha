@@ -20,7 +20,7 @@ import moksha
 
 from tw.api import Widget
 from moksha.exc import MokshaException
-from moksha.api.widgets.stomp import stomp_widget, stomp_subscribe, stomp_unsubscribe
+from moksha.api.widgets.stomp import StompWidget, stomp_subscribe, stomp_unsubscribe
 
 class LiveWidget(Widget):
     """ A live streaming widget.
@@ -37,7 +37,7 @@ class LiveWidget(Widget):
         if not topics:
             raise MokshaException('You must specify a `topic` to subscribe to')
         topics = isinstance(topics, list) and topics or [topics]
-        for callback in stomp_widget.callbacks:
+        for callback in StompWidget.callbacks:
             if callback == 'onmessageframe':
                 for topic in topics:
                     cb = getattr(self, 'onmessage').replace('${id}', self.id)

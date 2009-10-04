@@ -313,6 +313,6 @@ entry-point.
 
 .. seealso::
 
-   :doc:`MokshaApplications`
+   :doc:`PluginEntryPoints`
 
 

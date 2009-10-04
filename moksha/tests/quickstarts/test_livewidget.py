@@ -3,25 +3,36 @@ import pkg_resources
 
 from moksha.pastetemplate import MokshaLiveWidgetTemplate
 
-from base import QuickstartTester
+from base import QuickstartTester, setup_quickstart, teardown_quickstart
+
+app = None
+
+def setup():
+    template = MokshaLiveWidgetTemplate
+    templates = ['moksha.livewidget']
+    template_vars = {
+            'package': 'mokshatest',
+            'project': 'mokshatest',
+            'egg': 'mokshatest',
+            'egg_plugins': ['Moksha'],
+            'topic': 'moksha.topics.test',
+    }
+    args = {
+        'livewidget': True,
+        'widget_name': 'MokshatestWidget',
+    }
+
+    global app
+    app = setup_quickstart(template=template, templates=templates, args=args,
+                           template_vars=template_vars)
+
+def teardown():
+    teardown_quickstart()
 
 class TestLiveWidgetQuickstart(QuickstartTester):
 
-    def __init__(self,**options):
-        self.app = None
-        self.template_vars = {
-                'package': 'mokshatest',
-                'project': 'mokshatest',
-                'egg': 'mokshatest',
-                'egg_plugins': ['Moksha'],
-                'topic': 'moksha.topics.test',
-        }
-        self.args = {
-            'livewidget': True,
-            'widget_name': 'MokshatestWidget',
-        }
-        self.template = MokshaLiveWidgetTemplate
-        self.templates = ['moksha.livewidget']
+    def setUp(self):
+        self.app = app
 
     def get_widget(self):
         return self.get_entry('moksha.widget')
