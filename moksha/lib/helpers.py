@@ -790,6 +790,12 @@ def get_moksha_config_path():
         return None
         # raise MokshaConfigNotFound('Cannot find moksha configuration file!')
 
+def get_moksha_dev_config():
+    cfg = os.path.join(os.path.abspath(__file__ + '/../../../'), 'development.ini')
+    if os.path.isfile(cfg):
+        return cfg
+    log.warn("Cannot find %r" % cfg)
+
 
 def to_unicode(obj, encoding='utf-8'):
     if isinstance(obj, basestring):

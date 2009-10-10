@@ -3,13 +3,14 @@ import pkg_resources
 
 from webtest import TestApp
 from paste.deploy import loadapp
+from moksha.lib.helpers import get_moksha_dev_config
 
 class TestTG2AppInMoksha(object):
 
     def setUp(self):
         tg2app_path = os.path.join(os.path.dirname(__file__), 'tg2app')
         pkg_resources.working_set.add_entry(tg2app_path)
-        self.app = loadapp('config:/srv/moksha/development.ini',
+        self.app = loadapp('config:%s' % get_moksha_dev_config(),
                            relative_to=tg2app_path)
         self.app = TestApp(self.app)
 
