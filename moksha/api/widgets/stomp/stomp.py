@@ -58,8 +58,6 @@ class StompWidget(Widget):
     callbacks = ['onopen', 'onerror', 'onerrorframe', 'onclose',
                  'onconnectedframe', 'onmessageframe']
     javascript = [jquery_json_js]
-    #javascript = [stomp_js, orbited_js]
-    #children = [stomp_js, orbited_js]
     params = callbacks[:] + ['topics', 'notify', 'orbited_host',
             'orbited_port', 'orbited_url', 'orbited_js', 'stomp_host',
             'stomp_port', 'stomp_user', 'stomp_pass']
