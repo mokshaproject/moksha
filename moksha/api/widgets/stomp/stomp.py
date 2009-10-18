@@ -58,8 +58,6 @@ class StompWidget(Widget):
     callbacks = ['onopen', 'onerror', 'onerrorframe', 'onclose',
                  'onconnectedframe', 'onmessageframe']
     javascript = [jquery_json_js]
-    #javascript = [stomp_js, orbited_js]
-    #children = [stomp_js, orbited_js]
     params = callbacks[:] + ['topics', 'notify', 'orbited_host',
             'orbited_port', 'orbited_url', 'orbited_js', 'stomp_host',
             'stomp_port', 'stomp_user', 'stomp_pass']
@@ -78,6 +76,7 @@ class StompWidget(Widget):
       <script type="text/javascript">
         if (typeof TCPSocket == 'undefined') {
             moksha_callbacks = new Object();
+            moksha_socket_busy = false;
         }
 
         ## Register our topic callbacks
@@ -87,12 +86,13 @@ class StompWidget(Widget):
                 moksha_callbacks[topic] = [];
             }
             moksha_callbacks[topic].push(function(json, frame) {
-                ${onmessageframe[topic]};
+                ${onmessageframe[topic]}
             });
         % endfor
 
         if (typeof TCPSocket == 'undefined') {
             document.domain = document.domain;
+            moksha_socket_busy = true;
             $.getScript("${orbited_url}/static/Orbited.js", function(){
                 Orbited.settings.port = ${orbited_port};
                 Orbited.settings.hostname = '${orbited_host}';
@@ -105,7 +105,11 @@ class StompWidget(Widget):
                     stomp.onclose = ${onclose};
                     stomp.onerror = ${onerror};
                     stomp.onerrorframe = ${onerrorframe};
-                    stomp.onconnectedframe = function(){ ${onconnectedframe} };
+                    stomp.onconnectedframe = function(){ 
+                        moksha_socket_busy = false;
+                        $('body').triggerHandler('moksha.socket_ready');
+                        ${onconnectedframe}
+                    };
                     stomp.onmessageframe = function(f){
                         var dest = f.headers.destination;
                         var json = $.secureEvalJSON(f.body);
@@ -118,13 +122,18 @@ class StompWidget(Widget):
 
                     stomp.connect('${stomp_host}', ${stomp_port},
                                   '${stomp_user}', '${stomp_pass}');
-
                 });
             });
 
         } else {
             ## Utilize the existing stomp connection
-            ${onconnectedframe}
+            if (moksha_socket_busy) {
+                $('body').bind('moksha.socket_ready', function() {
+                    ${onconnectedframe}
+                });
+            } else {
+                ${onconnectedframe}
+            }
         }
 
         window.onbeforeunload = function() {

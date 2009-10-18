@@ -194,8 +194,6 @@ Here we add our JQPlotDemo DataStream, along with the `moksha_socket`, which
 will setup a persistent publish/subscribe message bus with the server that
 all of the widgets can share.
 
-TODO: link to docs on entry points
-
 .. code-block:: diff
 
    --- a/setup.py

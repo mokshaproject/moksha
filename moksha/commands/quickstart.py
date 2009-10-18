@@ -96,7 +96,7 @@ Example usage::
                 self.package = raw_input(
                     "Enter package name [%s]: " % package).strip() or package
 
-        self.name = pkg_resources.safe_name(self.name)
+        self.name = pkg_resources.safe_name(self.name).replace('-', '_')
         self.rpm_name = self.name.replace('.', '_')
 
         env = pkg_resources.Environment()

@@ -7,6 +7,8 @@ from webtest import TestApp
 from paste.deploy import loadapp
 from paste.script.create_distro import CreateDistroCommand
 
+from moksha.lib.helpers import get_moksha_dev_config
+
 testDataPath = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
 
 class Options(object):
@@ -54,8 +56,8 @@ def setup_quickstart(template, templates, template_vars, args):
     pkg_resources.working_set.add_entry(proj_dir)
     reload(pkg_resources)
 
-    app = loadapp('config:/srv/moksha/development.ini',
-                       relative_to=proj_dir)
+    app = loadapp('config:%s' % get_moksha_dev_config(),
+                  relative_to=proj_dir)
     return TestApp(app)
 
 def teardown_quickstart():

@@ -44,7 +44,7 @@ Applications
 .. toctree::
    :maxdepth: 1
 
-   main/MokshaApplications
+   main/PluginEntryPoints
    main/Caching
    main/GlobalResources
 

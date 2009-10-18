@@ -16,6 +16,6 @@ Once you have Moksha installed, there are many ways to start using it.
    :maxdepth: 2
 
    QuickstartTemplates
-   MokshaApplications
+   PluginEntryPoints
    Widgets
    IntegratingWithTG2

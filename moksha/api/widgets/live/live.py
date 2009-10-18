@@ -33,7 +33,7 @@ class LiveWidget(Widget):
     def update_params(self, d):
         """ Register this widgets stomp callbacks """
         super(LiveWidget, self).update_params(d)
-        topics = d.get('topic', getattr(self, 'topic', None))
+        topics = d.get('topic', getattr(self, 'topic', d.get('topics', getattr(self, 'topics', None))))
         if not topics:
             raise MokshaException('You must specify a `topic` to subscribe to')
         topics = isinstance(topics, list) and topics or [topics]

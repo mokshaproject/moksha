@@ -237,3 +237,9 @@ def smock(options):
         for arch in arches:
             sh('~/smock.pl --arch=%s --distro=%s ~/rpmbuild/SRPMS/*.rpm' % (
                arch, distro))
+
+
+@task
+@needs(['paver.doctools.html'])
+def html():
+    pass
