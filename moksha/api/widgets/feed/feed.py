@@ -52,6 +52,8 @@ class Feed(Widget):
         """ If we're instantiated with a specific view, then use the 
         appropriate template 
         Available views: home, canvas, profile
+
+        :deprecated: This is old, and will be going away soon
         """
         view = kw.get('view', False)
         if not view:
