@@ -91,15 +91,18 @@
             // insert before i element and update all row numbers
             var row_class = o.rowClass + '_' + i.toString();
             var $row = $('.' + row_class, $ph.parent());
-            $new_row.addClass(row_class).add_class(o.rowClass);
+            $new_row.addClass(row_class).addClass(o.rowClass);
 
-            var $current_rows = $(o.rowClass, $ph.parent());
+            var $current_rows = $('.' + o.rowClass, $ph.parent());
             for (j = i; j < $current_rows.length; j++) {
                 var k = j + 1;
-                var old_class = '.' + o.rowClass + '_' + j.toString();
-                var new_class = '.' + o.rowClass + '_' + k.toString();
-                $current_rows[j].removeClass(old_class);
-                $current_rows[j].addClass(new_class);
+                var old_class = o.rowClass + '_' + j.toString();
+                var new_class = o.rowClass + '_' + k.toString();
+                var $cur_row = $($current_rows[j]);
+                if ($cur_row) {
+                    $cur_row.removeClass(old_class);
+                    $cur_row.addClass(new_class);
+                }
             }
 
             $row.before($new_row);
@@ -129,11 +132,11 @@
         var self = this;
         var o = self.options;
         var $ph = self.$rowplaceholder;
-        var $rows = $(row_class, $ph.parent());
-        var $r = $rows[i];
+        var $rows = $('.' + o.rowClass, $ph.parent());
+        var r = $rows[i];
 
-        if ($r.length) {
-            replaceWith('');
+        if (r) {
+            $(r).replaceWith('');
             if (i < o.rows_per_page)
                 o.visible_rows--;
         }
