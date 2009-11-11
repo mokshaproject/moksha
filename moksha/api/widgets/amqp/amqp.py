@@ -72,14 +72,12 @@ class AMQPSocket(Widget):
     javascript = [jquery_json_js, kamaloka_qpid_js]
     params = callbacks[:] + ['topics', 'notify', 'orbited_host',
             'orbited_port', 'orbited_url', 'orbited_js', 'amqp_broker_host',
-            'amqp_broker_port', 'amqp_broker_user', 'amqp_broker_pass']
-    #onopen = js_callback('function(){}')
-    #onerror = js_callback('function(error){}')
-    #onclose = js_callback('function(c){}')
-    #onerrorframe = js_callback('function(f){}')
+            'amqp_broker_port', 'amqp_broker_user', 'amqp_broker_pass',
+            'send_hook', 'recieve_hook']
     onmessageframe = ''
-    #onconnectedframe = ''
     onconnectedframe = amqp_subscribe('org.fedoraproject.#')
+    send_hook = ''
+    recieve_hook = ''
 
     # Popup notification bubbles on socket state changes
     notify = False
@@ -132,10 +130,8 @@ class AMQPSocket(Widget):
                     port: ${amqp_broker_port},
                     username: '${amqp_broker_user}',
                     password: '${amqp_broker_pass}',
-                    send_hook: function(data, frame) {
-                    },
-                    recive_hook: function(data, frame) {
-                    }
+                    send_hook: function(data, frame) { ${send_hook} },
+                    recive_hook: function(data, frame) { ${recieve_hook} }
                 });
                 amqp_conn.start();
 

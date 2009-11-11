@@ -28,13 +28,23 @@ class LiveWidget(Widget):
 
     This widget handles automatically subscribing your widget to any given
     topics, and registers all of the stomp callbacks.
+
+    The basics of the LiveWidget::
+
+        class MyLiveWidget(LiveWidget):
+            topic = 'mytopic'
+            onmessage = 'console.log(json)'
+            template = 'mako:myproject.templates.mylivewidget'
+
     """
+    callbacks = ['onmessage']
     engine_name = 'mako'
 
     def update_params(self, d):
         """ Register this widgets stomp callbacks """
         super(LiveWidget, self).update_params(d)
-        topics = d.get('topic', getattr(self, 'topic', d.get('topics', getattr(self, 'topics', None))))
+        topics = d.get('topic', getattr(self, 'topic', d.get('topics',
+                getattr(self, 'topics', None))))
         if not topics:
             raise MokshaException('You must specify a `topic` to subscribe to')
         topics = isinstance(topics, list) and topics or [topics]
