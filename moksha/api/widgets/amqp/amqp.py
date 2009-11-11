@@ -50,8 +50,6 @@ def amqp_subscribe(topic):
         sub = ''.join([sub % t for t in topic])
     else:
         sub = sub % topic
-    sub += 'moksha_amqp_queue.start();' # do this once?
-    #   we may need to have a seperate queue for each widget??
     return sub
 
 
@@ -153,6 +151,8 @@ class AMQPSocket(Widget):
 
                 ## TODO: possibly tweak this for AMQP
                 ${onconnectedframe}
+
+                moksha_amqp_queue.start();
 
             });
 
