@@ -42,21 +42,28 @@ class LiveWidget(Widget):
     callbacks = ['onmessage']
     engine_name = 'mako'
 
+    def __init__(self, id, *args, **kw):
+        super(LiveWidget, self).__init__(*args, **kw)
+        backend = tg.config.get('moksha.livesocket.backend', 'amqp').lower()
+        if backend == 'stomp':
+            self.callbacks.extend(StompWidget.callbacks)
+
     def update_params(self, d):
-        """ Register this widgets stomp callbacks """
+        """ Register this widgets message topic callbacks """
         super(LiveWidget, self).update_params(d)
         topics = d.get('topic', getattr(self, 'topic', d.get('topics',
                 getattr(self, 'topics', None))))
         if not topics:
             raise MokshaException('You must specify a `topic` to subscribe to')
         topics = isinstance(topics, list) and topics or [topics]
-        for callback in StompWidget.callbacks:
+        for callback in self.callbacks:
             if callback == 'onmessageframe':
                 for topic in topics:
                     cb = getattr(self, 'onmessage').replace('${id}', self.id)
                     moksha.livewidgets[callback][topic].append(cb)
             elif callback == 'onconnectedframe':
-                moksha.livewidgets['onconnectedframe'].append(stomp_subscribe(topics))
+                moksha.livewidgets['onconnectedframe'].append(
+                        subscribe_topics(topics))
             elif callback in self.params:
                 moksha.livewidgets[callback].append(getattr(self, callback))
 
