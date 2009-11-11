@@ -61,7 +61,7 @@ class QpidAMQPHub(BaseAMQPHub):
             default_port = 5672
         self.port = self.url.port or default_port
 
-    def send_message(self, topic, message, exchange='amq.fanout', **headers):
+    def send_message(self, topic, message, exchange='amq.topic', **headers):
         props = self.session.delivery_properties(**headers)
         msg = Message(props, message)
         self.session.message_transfer(destination=exchange, message=msg)
@@ -80,7 +80,7 @@ class QpidAMQPHub(BaseAMQPHub):
                                    arguments={'qpid.max_count': 0,
                                               'qpid.max_size': 0}, **kw)
 
-    def exchange_bind(self, queue, exchange='amq.fanout', binding_key=None):
+    def exchange_bind(self, queue, exchange='amq.topic', binding_key=None):
         self.session.exchange_bind(exchange=exchange, queue=queue,
                                    binding_key=binding_key)
 
