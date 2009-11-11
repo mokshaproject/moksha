@@ -80,7 +80,7 @@ class LiveWidget(Widget):
         return topics
 
     @classmethod
-    def subscribe_topics(topics):
+    def subscribe_topics(cls, topics):
         backend = tg.config.get('moksha.livesocket.backend', 'stomp').lower()
         if backend == 'amqp':
             return amqp_subscribe(topics)
@@ -92,7 +92,7 @@ class LiveWidget(Widget):
                                   "'stomp'." % backend)
 
     @classmethod
-    def unsubscribe_topics(topics):
+    def unsubscribe_topics(cls, topics):
         backend = tg.config.get('moksha.livesocket.backend', 'stomp').lower()
         if backend == 'amqp':
             return amqp_unsubscribe(topics)
