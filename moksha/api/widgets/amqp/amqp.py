@@ -90,7 +90,7 @@ class AMQPSocket(Widget):
             moksha_amqp_remote_queue = null;
             moksha_amqp_queue = null;
             moksha_amqp_on_message = function(msg) {
-                console.log('moksha_amqp_on_message,(' + msg.body + ')');
+                console.log('moksha_amqp_on_message(' + msg.body + ')');
                 var dest = msg.header.delivery_properties.routing_key;
                 var json = $.secureEvalJSON(msg.body);
                 if (moksha_callbacks[dest]) {
@@ -120,7 +120,6 @@ class AMQPSocket(Widget):
                 Orbited.settings.port = ${orbited_port};
                 Orbited.settings.hostname = '${orbited_host}';
                 Orbited.settings.streaming = true;
-                console.log('Opening AMQP connection');
                 moksha_amqp_conn = new amqp.Connection({
                     host: '${amqp_broker_host}',
                     port: ${amqp_broker_port},
@@ -131,14 +130,12 @@ class AMQPSocket(Widget):
                 });
                 moksha_amqp_conn.start();
 
-                console.log('Starting AMQP session');
                 moksha_amqp_session = moksha_amqp_conn.create_session(
                     'moksha_socket_' + (new Date().getTime() + Math.random()));
 
                 moksha_amqp_remote_queue = 'moksha_socket_queue_' +
                         moksha_amqp_session.name;
 
-                console.log('Declaring AMQP queue');
                 moksha_amqp_session.Queue('declare', {
                         queue: moksha_amqp_remote_queue
                 });
