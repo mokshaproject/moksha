@@ -49,8 +49,8 @@ class MokshaMiddleware(object):
     the WSGI Application or RootController of that application as defined in
     it's egg-info entry-points.
 
-    This middleware also sets up the `moksha.stomp` StackedObjectProxy, which
-    acts as a registry for Moksha LiveWidget topic callbacks.
+    This middleware also sets up the `moksha.livewidgets` StackedObjectProxy,
+    which acts as a registry for Moksha LiveWidget topic callbacks.
 
     """
     def __init__(self, application):
@@ -81,11 +81,19 @@ class MokshaMiddleware(object):
             log.error("Unable to initialize the Feed Storage")
 
     def __call__(self, environ, start_response):
-        self.register_stomp(environ)
+        self.register_livewidgets(environ)
         return self.mokshaapp(environ, start_response)
 
-    def register_stomp(self, environ):
-        environ['paste.registry'].register(moksha.stomp, {
+    def register_livewidgets(self, environ):
+        """ Register the `moksha.livewidgets` dictionary.
+
+        This is a per-request StackedObjectProxy that is used by the
+        LiveWidgets to register their own topic callbacks.  The Moksha Live
+        Socket then handles subscribing widgets to their appropriate topics,
+        decoding the incoming JSON data, and dispatching messages to them as
+        they arrive.
+        """
+        environ['paste.registry'].register(moksha.livewidgets, {
             'onopen': [],
             'onclose': [],
             'onerror': [],

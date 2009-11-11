@@ -34,7 +34,6 @@ from moksha.widgets.json import jquery_json_js
 
 from widgets import kamaloka_qpid_js
 
-# TODO: make it configurable to tweaks the moksha.api.widgets.live.*_subscribe methods
 def amqp_subscribe(topic):
     """ Return a javascript callback that subscribes to a given topic,
         or a list of topics.
@@ -195,15 +194,15 @@ class AMQPSocket(Widget):
         d.topics = []
         d.onmessageframe = defaultdict(str) # {topic: 'js callbacks'}
         for callback in self.callbacks:
-            if len(moksha.stomp[callback]):
+            if len(moksha.livewidgets[callback]):
                 cbs = ''
                 if callback == 'onmessageframe':
-                    for topic in moksha.stomp[callback]:
+                    for topic in moksha.livewidgets[callback]:
                         d.topics.append(topic)
-                        for cb in moksha.stomp[callback][topic]:
+                        for cb in moksha.livewidgets[callback][topic]:
                             d.onmessageframe[topic] += '%s;' % str(cb)
                 else:
-                    for cb in moksha.stomp[callback]:
+                    for cb in moksha.livewidgets[callback]:
                         if isinstance(cb, (js_callback, js_function)):
                             cbs += '$(%s);' % str(cb)
                         else:

@@ -42,11 +42,11 @@ class LiveWidget(Widget):
             if callback == 'onmessageframe':
                 for topic in topics:
                     cb = getattr(self, 'onmessage').replace('${id}', self.id)
-                    moksha.stomp[callback][topic].append(cb)
+                    moksha.livewidgets[callback][topic].append(cb)
             elif callback == 'onconnectedframe':
-                moksha.stomp['onconnectedframe'].append(stomp_subscribe(topics))
+                moksha.livewidgets['onconnectedframe'].append(stomp_subscribe(topics))
             elif callback in self.params:
-                moksha.stomp[callback].append(getattr(self, callback))
+                moksha.livewidgets[callback].append(getattr(self, callback))
 
     def get_topics(self):
         topics = []
