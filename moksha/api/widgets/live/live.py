@@ -16,9 +16,11 @@
 #
 # Authors: Luke Macken <lmacken@redhat.com>
 
+import tg
 import moksha
 
 from tw.api import Widget
+
 from moksha.exc import MokshaException
 from moksha.api.widgets.stomp import StompWidget, stomp_subscribe, stomp_unsubscribe
 from moksha.api.widgets.amqp import amqp_subscribe, amqp_unsubscribe
@@ -70,11 +72,31 @@ class LiveWidget(Widget):
                         topics += topic
         return topics
 
-# TODO: get rid of all stomp-isms in here!
+    @classmethod
+    def subscribe_topics(topics):
+        backend = tg.config.get('moksha.livesocket.backend', 'stomp').lower()
+        if backend == 'amqp':
+            return amqp_subscribe(topics)
+        elif backend == 'stomp':
+            return stomp_subscribe(topics)
+        else:
+            raise MokshaException("Unknown `moksha.livesocket.backend` %r. "
+                                  "Valid backends are currently 'amqp' and "
+                                  "'stomp'." % backend)
+
+    @classmethod
+    def unsubscribe_topics(topics):
+        backend = tg.config.get('moksha.livesocket.backend', 'stomp').lower()
+        if backend == 'amqp':
+            return amqp_unsubscribe(topics)
+        elif backend == 'stomp':
+            return stomp_unsubscribe(topics)
+        else:
+            raise MokshaException("Unknown `moksha.livesocket.backend` %r. "
+                                  "Valid backends are currently 'amqp' and "
+                                  "'stomp'." % backend)
+
 
 # Moksha Topic subscription handling methods
-#subscribe_topics = stomp_subscribe
-#unsubscribe_topics = stomp_unsubscribe
-
-subscribe_topics = amqp_subscribe
-unsubscribe_topics = amqp_unsubscribe
+subscribe_topics = LiveWidget.subscribe_topics
+unsubscribe_topics = LiveWidget.unsubscribe_topics
