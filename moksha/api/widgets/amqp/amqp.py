@@ -57,7 +57,7 @@ def amqp_unsubscribe(topic):
     """ Return a javascript callback that unsubscribes to a given topic,
         or a list of topics.
     """
-    # TODO: 
+    # TODO:
     #sub = "stomp.unsubscribe('%s');"
     #if isinstance(topic, list):
     #    sub = ''.join([sub % t for t in topic])
@@ -67,15 +67,14 @@ def amqp_unsubscribe(topic):
 
 
 class AMQPSocket(Widget):
-    callbacks = ['onopen', 'onerror', 'onerrorframe', 'onclose',
-                 'onconnectedframe', 'onmessageframe']
+    callbacks = ['onconnectedframe', 'onmessageframe']
     javascript = [jquery_json_js, kamaloka_qpid_js]
     params = callbacks[:] + ['topics', 'notify', 'orbited_host',
             'orbited_port', 'orbited_url', 'orbited_js', 'amqp_broker_host',
             'amqp_broker_port', 'amqp_broker_user', 'amqp_broker_pass',
             'send_hook', 'recieve_hook']
-    onmessageframe = ''
     onconnectedframe = amqp_subscribe('org.fedoraproject.#')
+    onmessageframe = ''
     send_hook = ''
     recieve_hook = ''
 
@@ -158,18 +157,6 @@ class AMQPSocket(Widget):
             ${onconnectedframe}
         }
 
-        /*
-        window.onbeforeunload = function() {
-            if (typeof stomp != 'undefined') {
-                stomp.reset();
-            }
-        }
-
-        % if notify:
-            $.jGrowl.defaults.position = 'bottom-right';
-        % endif
-        */
-
       </script>
     """
     hidden = True
@@ -206,10 +193,3 @@ class AMQPSocket(Widget):
                             cbs += str(cb)
                 if cbs:
                     d[callback] = cbs
-
-        #if d.notify:
-        #    moksha_notify.register_resources()
-        #    d.onopen = js_callback('function() { $.jGrowl("Moksha live socket connected") }')
-        #    d.onerror = js_callback('function(error) { $.jGrowl("Moksha Live Socket Error: " + error) }')
-        #    d.onerrorframe = js_callback('function(f) { $.jGrowl("Error frame received from Moksha Socket: " + f) }')
-        #    d.onclose = js_callback('function(c) { $.jGrowl("Moksha Socket Closed") }')
