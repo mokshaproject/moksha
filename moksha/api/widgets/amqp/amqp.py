@@ -86,8 +86,7 @@ class AMQPSocket(Widget):
     template = u"""
       <script type="text/javascript">
 
-
-        if (typeof TCPSocket == 'undefined') {
+        if (typeof moksha_amqp_conn == 'undefined') {
             moksha_callbacks = new Object();
             moksha_amqp_remote_queue = null;
             moksha_amqp_queue = null;
@@ -114,18 +113,16 @@ class AMQPSocket(Widget):
             });
         % endfor
 
-        ## Create a new TCPSocket & AMQP client
-        if (typeof TCPSocket == 'undefined') {
+        ## Create a new AMQP client
+        if (typeof moksha_amqp_conn == 'undefined') {
             document.domain = document.domain;
             $.getScript("${orbited_url}/static/Orbited.js", function() {
                 moksha.debug('Got Orbited');
                 Orbited.settings.port = ${orbited_port};
                 Orbited.settings.hostname = '${orbited_host}';
                 Orbited.settings.streaming = true;
-                /*TCPSocket = Orbited.TCPSocket;
-                */
                 console.log('Opening AMQP connection');
-                amqp_conn = new amqp.Connection({
+                moksha_amqp_conn = new amqp.Connection({
                     host: '${amqp_broker_host}',
                     port: ${amqp_broker_port},
                     username: '${amqp_broker_user}',
@@ -133,19 +130,23 @@ class AMQPSocket(Widget):
                     send_hook: function(data, frame) { ${send_hook} },
                     recive_hook: function(data, frame) { ${recieve_hook} }
                 });
-                amqp_conn.start();
+                moksha_amqp_conn.start();
 
                 console.log('Starting AMQP session');
-                session = amqp_conn.create_session('moksha_socket_' +
-                        (new Date().getTime() + Math.random()));
+                moksha_amqp_session = moksha_amqp_conn.create_session(
+                    'moksha_socket_' + (new Date().getTime() + Math.random()));
 
-                moksha_amqp_remote_queue = 'moksha_socket_queue_' + session.name;
+                moksha_amqp_remote_queue = 'moksha_socket_queue_' +
+                        moksha_amqp_session.name;
 
                 console.log('Declaring AMQP queue');
-                session.Queue('declare', {queue: moksha_amqp_remote_queue});
-                moksha_amqp_queue = session.create_local_queue({name: 'local_queue'});
+                moksha_amqp_session.Queue('declare', {
+                        queue: moksha_amqp_remote_queue
+                });
+                moksha_amqp_queue = moksha_amqp_session.create_local_queue({
+                        name: 'local_queue'
+                });
 
-                ## TODO: possibly tweak this for AMQP
                 ${onconnectedframe}
 
                 moksha_amqp_queue.start();
