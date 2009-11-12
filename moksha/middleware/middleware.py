@@ -359,6 +359,8 @@ class MokshaMiddleware(object):
                 else:
                     # App has specified its own engine url
                     self.engines[name] = create_engine(sa_url)
+            else:
+                self.engines[name] = create_engine(config['app_db'] % name)
 
             # If a `model` module exists in the application, call it's
             # `init_model` method,and bind the engine to it's `metadata`.

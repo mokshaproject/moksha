@@ -797,6 +797,18 @@ def get_moksha_dev_config():
     log.warn("Cannot find %r" % cfg)
 
 
+def get_moksha_appconfig():
+    """ Return the appconfig of Moksha """
+    from paste.deploy import appconfig
+    return appconfig('config:' + get_moksha_config_path())
+
+
+def create_app_engine(app):
+    """ Create a new SQLAlchemy engine for a given app """
+    from sqlalchemy import create_engine
+    return create_engine(pylons.config['app_db'] % app)
+
+
 def to_unicode(obj, encoding='utf-8'):
     if isinstance(obj, basestring):
         if not isinstance(obj, unicode):
