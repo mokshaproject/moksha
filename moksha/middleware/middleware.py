@@ -17,12 +17,12 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 
 import os
+import tg
 import moksha
 import logging
 import pkg_resources
 
 from tg.controllers import WSGIAppController
-from webob import Request
 from shove import Shove
 from pylons import config
 from inspect import isclass
