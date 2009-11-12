@@ -28,9 +28,8 @@ loaded, and receives each message for the specified topic through the
 
 import logging
 log = logging.getLogger('moksha.hub')
-
 from moksha.hub.hub import MokshaHub
-from moksha.lib.helpers import listify
+from moksha.lib.helpers import listify, create_app_engine
 
 class Consumer(object):
     """ A message consumer """
@@ -51,6 +50,14 @@ class Consumer(object):
                                        destination=local_queue_name)
                 self.hub.local_queue.start()
                 self.hub.local_queue.listen(self.consume)
+
+        # If the consumer specifies an 'app', then setup `self.engine` to
+        # be a SQLAlchemy engine, along with a configured DBSession
+        app = getattr(self, 'app', None)
+        if app:
+            from moksha.model import DBSession
+            self.engine = create_app_engine(app)
+            DBSession.configure(bind=self.engine)
 
     def consume(self, message):
         raise NotImplementedError
