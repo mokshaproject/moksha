@@ -26,7 +26,11 @@ loaded, and receives each message for the specified topic through the
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
 """
 
+import logging
+log = logging.getLogger('moksha.hub')
+
 from moksha.hub.hub import MokshaHub
+from moksha.lib.helpers import listify
 
 class Consumer(object):
     """ A message consumer """
@@ -34,6 +38,19 @@ class Consumer(object):
 
     def __init__(self):
         self.hub = MokshaHub()
+        self.log = log
+        if self.hub.amqp_broker and not self.hub.stomp_broker:
+            for topic in listify(self.topic):
+                log.debug('Subscribing to consumer topic %s' % topic)
+                server_queue_name = 'moksha_consumer_' + self.hub.session.name
+                self.hub.queue_declare(queue=server_queue_name, exclusive=True)
+                self.hub.exchange_bind(server_queue_name, binding_key=topic)
+                local_queue_name = 'moksha_consumer_' + self.hub.session.name
+                self.hub.local_queue = self.hub.session.incoming(local_queue_name)
+                self.hub.message_subscribe(queue=server_queue_name,
+                                       destination=local_queue_name)
+                self.hub.local_queue.start()
+                self.hub.local_queue.listen(self.consume)
 
     def consume(self, message):
         raise NotImplementedError
