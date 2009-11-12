@@ -16,11 +16,9 @@
 #
 # Authors: Luke Macken <lmacken@redhat.com>
 
-import qpid
 import logging
 
 from qpid.util import connect, URL, ssl
-from qpid.queue import Empty
 from qpid.datatypes import Message, uuid4, RangedSet
 from qpid.connection import Connection
 
@@ -66,7 +64,7 @@ class QpidAMQPHub(BaseAMQPHub):
         msg = Message(props, message)
         self.session.message_transfer(destination=exchange, message=msg)
 
-    def subscribe_queue(server_queue_name, local_queue_name):
+    def subscribe_queue(self, server_queue_name, local_queue_name):
         queue = self.session.incoming(local_queue_name)
         self.session.message_subscribe(queue=server_queue_name,
                                        destination=local_queue_name)
