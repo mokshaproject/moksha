@@ -96,40 +96,11 @@ class MokshaHub(StompHub, AMQPHub):
         This method will cause the specified `callback` to be executed with
         each message that goes through a given topic.
         """
+        log.debug('watch_topic(%s)' % locals())
         if len(self.topics[topic]) == 0:
             if self.stomp_broker:
                 self.subscribe(topic)
         self.topics[topic].append(callback)
-
-    def consume_amqp_message(self, message):
-        self.message_accept(message)
-        topic = message.headers[0]['routing_key']
-        try:
-            body = json.decode(message.body)
-        except Exception, e:
-            log.warning('Cannot decode message from JSON: %s' % e)
-            body = message.body
-        if self.stomp_broker:
-            StompHub.send_message(self, topic.encode('utf8'),
-                                  message.body.encode('utf8'))
-
-    def consume_stomp_message(self, message):
-        topic = message['headers'].get('destination')
-        if not topic:
-            return
-
-        # We can enable this if/when we need it...
-        #try:
-        #    body = json.decode(message['body'])
-        #except Exception, e:
-        #    log.warning('Cannot decode message from JSON: %s' % e)
-        #    body = message['body']
-
-
-        # feed all of our consumers
-        for callback in self.topics.get(topic, []):
-            reactor.callInThread(callback, message)
-
 
 class CentralMokshaHub(MokshaHub):
     """
@@ -154,7 +125,7 @@ class CentralMokshaHub(MokshaHub):
         log.debug("Initializing local AMQP queue...")
         self.server_queue_name = 'moksha_hub_' + self.session.name
         self.queue_declare(queue=self.server_queue_name, exclusive=True)
-        self.exchange_bind(self.server_queue_name) 
+        self.exchange_bind(self.server_queue_name, binding_key='#')
         self.local_queue_name = 'moksha_hub'
         self.local_queue = self.session.incoming(self.local_queue_name)
         self.message_subscribe(queue=self.server_queue_name,
@@ -203,6 +174,35 @@ class CentralMokshaHub(MokshaHub):
             for stream in self.data_streams:
                 log.debug("Stopping data stream %s" % stream)
                 stream.stop()
+
+    def consume_amqp_message(self, message):
+        self.message_accept(message)
+        topic = message.headers[0]['routing_key']
+        try:
+            body = json.decode(message.body)
+        except Exception, e:
+            log.warning('Cannot decode message from JSON: %s' % e)
+            log.debug('Message: %r' % message.body)
+            body = message.body
+        if self.stomp_broker:
+            StompHub.send_message(self, topic.encode('utf8'),
+                                  message.body.encode('utf8'))
+
+    def consume_stomp_message(self, message):
+        topic = message['headers'].get('destination')
+        if not topic:
+            return
+
+        # We can enable this if/when we need it...
+        #try:
+        #    body = json.decode(message['body'])
+        #except Exception, e:
+        #    log.warning('Cannot decode message from JSON: %s' % e)
+        #    body = message['body']
+
+        # feed all of our consumers
+        for callback in self.topics.get(topic, []):
+            reactor.callInThread(callback, message)
 
 
 def setup_logger(verbose):
