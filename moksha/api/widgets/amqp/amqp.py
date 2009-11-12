@@ -57,6 +57,7 @@ def amqp_unsubscribe(topic):
     """ Return a javascript callback that unsubscribes to a given topic,
         or a list of topics.
     """
+    return ""
     # TODO:
     #sub = "stomp.unsubscribe('%s');"
     #if isinstance(topic, list):
