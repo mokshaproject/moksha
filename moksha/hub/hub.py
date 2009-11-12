@@ -18,7 +18,6 @@
 
 from moksha.hub.reactor import reactor
 
-import os
 import sys
 import signal
 import pkg_resources
@@ -26,7 +25,6 @@ import logging
 
 from tg import config
 from orbited import json
-from threading import Thread
 from paste.deploy import appconfig
 
 from moksha.lib.helpers import trace, defaultdict, get_moksha_config_path
