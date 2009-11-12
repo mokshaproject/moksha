@@ -23,7 +23,7 @@ from tw.api import Widget
 
 from moksha.exc import MokshaException
 from moksha.api.widgets.stomp import StompWidget, stomp_subscribe, stomp_unsubscribe
-from moksha.api.widgets.amqp import amqp_subscribe, amqp_unsubscribe
+from moksha.api.widgets.amqp import amqp_subscribe, amqp_unsubscribe, AMQPSocket
 
 class LiveWidget(Widget):
     """ A live streaming widget.
@@ -39,14 +39,11 @@ class LiveWidget(Widget):
             template = 'mako:myproject.templates.mylivewidget'
 
     """
-    callbacks = ['onmessage']
     engine_name = 'mako'
 
     def __init__(self, id, *args, **kw):
         super(LiveWidget, self).__init__(*args, **kw)
-        backend = tg.config.get('moksha.livesocket.backend', 'amqp').lower()
-        if backend == 'stomp':
-            self.callbacks.extend(StompWidget.callbacks)
+        self.backend = tg.config.get('moksha.livesocket.backend', 'amqp').lower()
 
     def update_params(self, d):
         """ Register this widgets message topic callbacks """
@@ -56,7 +53,12 @@ class LiveWidget(Widget):
         if not topics:
             raise MokshaException('You must specify a `topic` to subscribe to')
         topics = isinstance(topics, list) and topics or [topics]
-        for callback in self.callbacks:
+        callbacks = []
+        if self.backend == 'stomp':
+            callbacks = StompWidget.callbacks
+        elif self.backend == 'amqp':
+            callbacks = AMQPSocket.callbacks
+        for callback in callbacks:
             if callback == 'onmessageframe':
                 for topic in topics:
                     cb = getattr(self, 'onmessage').replace('${id}', self.id)

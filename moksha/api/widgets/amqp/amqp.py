@@ -74,13 +74,10 @@ class AMQPSocket(Widget):
             'orbited_port', 'orbited_url', 'orbited_js', 'amqp_broker_host',
             'amqp_broker_port', 'amqp_broker_user', 'amqp_broker_pass',
             'send_hook', 'recieve_hook']
-    onconnectedframe = amqp_subscribe('org.fedoraproject.#')
+    onconnectedframe = ''
     onmessageframe = ''
     send_hook = ''
     recieve_hook = ''
-
-    # Popup notification bubbles on socket state changes
-    notify = False
 
     engine_name = 'mako'
     template = u"""
