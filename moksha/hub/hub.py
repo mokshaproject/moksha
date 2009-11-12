@@ -120,16 +120,17 @@ class CentralMokshaHub(MokshaHub):
         self.__init_data_streams()
 
     def __init_amqp(self):
-        log.debug("Initializing local AMQP queue...")
-        self.server_queue_name = 'moksha_hub_' + self.session.name
-        self.queue_declare(queue=self.server_queue_name, exclusive=True)
-        self.exchange_bind(self.server_queue_name, binding_key='#')
-        self.local_queue_name = 'moksha_hub'
-        self.local_queue = self.session.incoming(self.local_queue_name)
-        self.message_subscribe(queue=self.server_queue_name,
-                               destination=self.local_queue_name)
-        self.local_queue.start()
-        self.local_queue.listen(self.consume_amqp_message)
+        if self.stomp_broker:
+            log.debug("Initializing local AMQP queue...")
+            self.server_queue_name = 'moksha_hub_' + self.session.name
+            self.queue_declare(queue=self.server_queue_name, exclusive=True)
+            self.exchange_bind(self.server_queue_name, binding_key='#')
+            self.local_queue_name = 'moksha_hub'
+            self.local_queue = self.session.incoming(self.local_queue_name)
+            self.message_subscribe(queue=self.server_queue_name,
+                                   destination=self.local_queue_name)
+            self.local_queue.start()
+            self.local_queue.listen(self.consume_amqp_message)
 
     def __init_consumers(self):
         """ Initialize all Moksha Consumer objects """
