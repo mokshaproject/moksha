@@ -352,10 +352,11 @@ class MokshaMiddleware(object):
         """
         for name, app in moksha._apps.items():
             sa_url = app.get('config', {}).get('sqlalchemy.url', None)
+            app_db = config.get('app_db', 'sqlite:///%s.db')
             if sa_url:
                 if app['config']['__file__'] == get_moksha_config_path():
                     # Moksha's apps don't specify their own SA url
-                    self.engines[name] = create_engine(config['app_db'] % name)
+                    self.engines[name] = create_engine(app_db % name)
                 else:
                     # App has specified its own engine url
                     self.engines[name] = create_engine(sa_url)
@@ -364,7 +365,7 @@ class MokshaMiddleware(object):
             # `init_model` method,and bind the engine to it's `metadata`.
             if app.get('model'):
                 if not sa_url:
-                    self.engines[name] = create_engine(config['app_db'] % name)
+                    self.engines[name] = create_engine(app_db % name)
                 log.debug('Creating database engine for %s' % app['name'])
                 app['model'].init_model(self.engines[name])
                 app['model'].metadata.create_all(bind=self.engines[name])

@@ -806,7 +806,7 @@ def get_moksha_appconfig():
 def create_app_engine(app):
     """ Create a new SQLAlchemy engine for a given app """
     from sqlalchemy import create_engine
-    return create_engine(pylons.config['app_db'] % app)
+    return create_engine(pylons.config.get('app_db', 'sqlite:///%s.db') % app)
 
 
 def to_unicode(obj, encoding='utf-8'):
