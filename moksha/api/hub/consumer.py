@@ -30,6 +30,7 @@ import logging
 log = logging.getLogger('moksha.hub')
 from moksha.hub.hub import MokshaHub
 from moksha.lib.helpers import listify, create_app_engine
+from sqlalchemy.orm import sessionmaker
 
 class Consumer(object):
     """ A message consumer """
@@ -54,10 +55,11 @@ class Consumer(object):
         # If the consumer specifies an 'app', then setup `self.engine` to
         # be a SQLAlchemy engine, along with a configured DBSession
         app = getattr(self, 'app', None)
+        self.engine = self.DBSession = None
         if app:
-            from moksha.model import DBSession
+            log.debug("Setting up individual engine for consumer")
             self.engine = create_app_engine(app)
-            DBSession.configure(bind=self.engine)
+            self.DBSession = sessionmaker(bind=self.engine)()
 
     def consume(self, message):
         raise NotImplementedError
@@ -70,3 +72,5 @@ class Consumer(object):
 
     def stop(self):
         self.hub.close()
+        if self.DBSession:
+            self.DBSession.close()
