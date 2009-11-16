@@ -78,4 +78,7 @@ class PollingDataStream(DataStream):
 
     def stop(self):
         super(PollingDataStream, self).stop()
-        self.timer.stop()
+        try:
+            self.timer.stop()
+        except Exception, e:
+            self.log.warn(e)
