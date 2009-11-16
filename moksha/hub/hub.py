@@ -143,9 +143,11 @@ class CentralMokshaHub(MokshaHub):
 
     def __run_consumers(self):
         """ Instantiate the consumers """
+        self.consumers = []
         for topic in self.topics:
             for i, consumer in enumerate(self.topics[topic]):
                 c = consumer()
+                self.consumers.append(c)
                 self.topics[topic][i] = c.consume
 
     def __init_data_streams(self):
@@ -173,6 +175,10 @@ class CentralMokshaHub(MokshaHub):
             for stream in self.data_streams:
                 log.debug("Stopping data stream %s" % stream)
                 stream.stop()
+        if self.consumers:
+            for consumer in self.consumers:
+                log.debug("Stopping consumer %s" % consumer)
+                consumer.stop()
 
     def consume_amqp_message(self, message):
         self.message_accept(message)
