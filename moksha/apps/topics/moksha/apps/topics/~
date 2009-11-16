@@ -1,0 +1,14 @@
+import logging
+log = logging.getLogger('moksha.hub')
+
+from moksha.api.hub import Consumer
+
+class TopicsConsumer(Consumer):
+    topic = '#'
+    known_topics = []
+
+    def consume(self, message):
+        log.info("%r.consume(%r)" % (self, message))
+        # if we haven't seen this topic before
+        #    append it to known_topics
+        #    create a new entity for it
