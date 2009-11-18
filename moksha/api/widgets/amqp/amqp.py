@@ -114,7 +114,6 @@ class AMQPSocket(Widget):
         if (typeof moksha_amqp_conn == 'undefined') {
             document.domain = document.domain;
             $.getScript("${orbited_url}/static/Orbited.js", function() {
-                moksha.debug('Got Orbited');
                 Orbited.settings.port = ${orbited_port};
                 Orbited.settings.hostname = '${orbited_host}';
                 Orbited.settings.streaming = true;
@@ -141,17 +140,18 @@ class AMQPSocket(Widget):
                         name: 'local_queue'
                 });
 
-                ${onconnectedframe}
-
-                moksha_amqp_queue.start();
+                % if onconnectedframe:
+                    ${onconnectedframe}
+                    moksha_amqp_queue.start();
+                % endif
 
             });
 
         } else {
-            ## Utilize the existing AMQP connection
+            ## Utilize the existing Moksha AMQP socket connection
             ${onconnectedframe}
+            moksha_amqp_queue.start();
         }
-
       </script>
     """
     hidden = True
