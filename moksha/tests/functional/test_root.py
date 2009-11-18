@@ -54,4 +54,4 @@ class TestRootController(TestController):
     def test_tcpsocket(self):
         """ Ensure our TCP socket is getting injected """
         resp = self.app.get('/')
-        assert 'TCPSocket' in resp
+        assert 'TCPSocket' in resp or 'moksha_amqp_conn' in resp

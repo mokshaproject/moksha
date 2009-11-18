@@ -17,12 +17,12 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 
 import os
+import tg
 import moksha
 import logging
 import pkg_resources
 
 from tg.controllers import WSGIAppController
-from webob import Request
 from shove import Shove
 from pylons import config
 from inspect import isclass
@@ -33,7 +33,6 @@ from sqlalchemy import create_engine
 from feedcache.cache import Cache
 
 from moksha.exc import MokshaException
-from moksha.api.widgets.live import LiveWidget
 from moksha.lib.helpers import (defaultdict, get_moksha_config_path,
                                 get_main_app_config_path)
 from moksha.wsgiapp import MokshaAppDispatcher
@@ -49,8 +48,8 @@ class MokshaMiddleware(object):
     the WSGI Application or RootController of that application as defined in
     it's egg-info entry-points.
 
-    This middleware also sets up the `moksha.stomp` StackedObjectProxy, which
-    acts as a registry for Moksha LiveWidget topic callbacks.
+    This middleware also sets up the `moksha.livewidgets` StackedObjectProxy,
+    which acts as a registry for Moksha LiveWidget topic callbacks.
 
     """
     def __init__(self, application):
@@ -81,11 +80,19 @@ class MokshaMiddleware(object):
             log.error("Unable to initialize the Feed Storage")
 
     def __call__(self, environ, start_response):
-        self.register_stomp(environ)
+        self.register_livewidgets(environ)
         return self.mokshaapp(environ, start_response)
 
-    def register_stomp(self, environ):
-        environ['paste.registry'].register(moksha.stomp, {
+    def register_livewidgets(self, environ):
+        """ Register the `moksha.livewidgets` dictionary.
+
+        This is a per-request StackedObjectProxy that is used by the
+        LiveWidgets to register their own topic callbacks.  The Moksha Live
+        Socket then handles subscribing widgets to their appropriate topics,
+        decoding the incoming JSON data, and dispatching messages to them as
+        they arrive.
+        """
+        environ['paste.registry'].register(moksha.livewidgets, {
             'onopen': [],
             'onclose': [],
             'onerror': [],
@@ -159,6 +166,7 @@ class MokshaMiddleware(object):
                     }
 
     def load_widgets(self):
+        from moksha.api.widgets.live import LiveWidget
         log.info('Loading moksha widgets')
         for widget_entry in pkg_resources.iter_entry_points('moksha.widget'):
             log.info('Loading %s widget' % widget_entry.name)
@@ -344,10 +352,11 @@ class MokshaMiddleware(object):
         """
         for name, app in moksha._apps.items():
             sa_url = app.get('config', {}).get('sqlalchemy.url', None)
+            app_db = config.get('app_db', 'sqlite:///%s.db')
             if sa_url:
                 if app['config']['__file__'] == get_moksha_config_path():
                     # Moksha's apps don't specify their own SA url
-                    self.engines[name] = create_engine(config['app_db'] % name)
+                    self.engines[name] = create_engine(app_db % name)
                 else:
                     # App has specified its own engine url
                     self.engines[name] = create_engine(sa_url)
@@ -355,6 +364,8 @@ class MokshaMiddleware(object):
             # If a `model` module exists in the application, call it's
             # `init_model` method,and bind the engine to it's `metadata`.
             if app.get('model'):
+                if not sa_url:
+                    self.engines[name] = create_engine(app_db % name)
                 log.debug('Creating database engine for %s' % app['name'])
                 app['model'].init_model(self.engines[name])
                 app['model'].metadata.create_all(bind=self.engines[name])

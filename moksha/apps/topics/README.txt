@@ -1,0 +1,11 @@
+topics
+
+Building an RPM of this Stream
+------------------------------
+
+    $ paver rpm
+
+Remove, rebuild and re-install the RPM
+--------------------------------------
+
+    $ paver reinstall

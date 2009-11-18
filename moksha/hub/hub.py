@@ -18,7 +18,6 @@
 
 from moksha.hub.reactor import reactor
 
-import os
 import sys
 import signal
 import pkg_resources
@@ -26,7 +25,6 @@ import logging
 
 from tg import config
 from orbited import json
-from threading import Thread
 from paste.deploy import appconfig
 
 from moksha.lib.helpers import trace, defaultdict, get_moksha_config_path
@@ -96,6 +94,7 @@ class MokshaHub(StompHub, AMQPHub):
         This method will cause the specified `callback` to be executed with
         each message that goes through a given topic.
         """
+        log.debug('watch_topic(%s)' % locals())
         if len(self.topics[topic]) == 0:
             if self.stomp_broker:
                 self.subscribe(topic)
@@ -108,6 +107,7 @@ class MokshaHub(StompHub, AMQPHub):
             body = json.decode(message.body)
         except Exception, e:
             log.warning('Cannot decode message from JSON: %s' % e)
+            log.debug('Message: %r' % message.body)
             body = message.body
         if self.stomp_broker:
             StompHub.send_message(self, topic.encode('utf8'),
@@ -124,7 +124,6 @@ class MokshaHub(StompHub, AMQPHub):
         #except Exception, e:
         #    log.warning('Cannot decode message from JSON: %s' % e)
         #    body = message['body']
-
 
         # feed all of our consumers
         for callback in self.topics.get(topic, []):
@@ -151,16 +150,17 @@ class CentralMokshaHub(MokshaHub):
         self.__init_data_streams()
 
     def __init_amqp(self):
-        log.debug("Initializing local AMQP queue...")
-        self.server_queue_name = 'moksha_hub_' + self.session.name
-        self.queue_declare(queue=self.server_queue_name, exclusive=True)
-        self.exchange_bind(self.server_queue_name) 
-        self.local_queue_name = 'moksha_hub'
-        self.local_queue = self.session.incoming(self.local_queue_name)
-        self.message_subscribe(queue=self.server_queue_name,
-                               destination=self.local_queue_name)
-        self.local_queue.start()
-        self.local_queue.listen(self.consume_amqp_message)
+        if self.stomp_broker:
+            log.debug("Initializing local AMQP queue...")
+            self.server_queue_name = 'moksha_hub_' + self.session.name
+            self.queue_declare(queue=self.server_queue_name, exclusive=True)
+            self.exchange_bind(self.server_queue_name, binding_key='#')
+            self.local_queue_name = 'moksha_hub'
+            self.local_queue = self.session.incoming(self.local_queue_name)
+            self.message_subscribe(queue=self.server_queue_name,
+                                   destination=self.local_queue_name)
+            self.local_queue.start()
+            self.local_queue.listen(self.consume_amqp_message)
 
     def __init_consumers(self):
         """ Initialize all Moksha Consumer objects """
@@ -173,9 +173,11 @@ class CentralMokshaHub(MokshaHub):
 
     def __run_consumers(self):
         """ Instantiate the consumers """
+        self.consumers = []
         for topic in self.topics:
             for i, consumer in enumerate(self.topics[topic]):
                 c = consumer()
+                self.consumers.append(c)
                 self.topics[topic][i] = c.consume
 
     def __init_data_streams(self):
@@ -203,6 +205,10 @@ class CentralMokshaHub(MokshaHub):
             for stream in self.data_streams:
                 log.debug("Stopping data stream %s" % stream)
                 stream.stop()
+        if self.consumers:
+            for consumer in self.consumers:
+                log.debug("Stopping consumer %s" % consumer)
+                consumer.stop()
 
 
 def setup_logger(verbose):

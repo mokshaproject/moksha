@@ -18,14 +18,8 @@ You'll need the `virtualenv <http://pypi.python.org/pypi/virtualenv>`_ package.
 
 .. code-block:: bash
 
-    # yum -y install python-virtualenv python-memcached gcc
-
-The `start-moksha` script mentioned below should install all of the necessary
-dependencies.  However, it will attempt to compile a few things, such as lxml.  So, you may need to install some additional dependencies like `libxml2` and `libxslt` in order to build it.  If you're using yum, you can easily install all of the build requirements by doing:
-
-.. code-block:: bash
-
-    # yum-builddep -y python-lxml PyOpenSSL python-sqlite2
+    # yum -y install python-virtualenv gcc
+    # yum-builddep -y python-lxml pyOpenSSL python-sqlite2
 
 
 Getting the code
