@@ -33,7 +33,6 @@ from sqlalchemy import create_engine
 from feedcache.cache import Cache
 
 from moksha.exc import MokshaException
-from moksha.api.widgets.live import LiveWidget
 from moksha.lib.helpers import (defaultdict, get_moksha_config_path,
                                 get_main_app_config_path)
 from moksha.wsgiapp import MokshaAppDispatcher
@@ -167,6 +166,7 @@ class MokshaMiddleware(object):
                     }
 
     def load_widgets(self):
+        from moksha.api.widgets.live import LiveWidget
         log.info('Loading moksha widgets')
         for widget_entry in pkg_resources.iter_entry_points('moksha.widget'):
             log.info('Loading %s widget' % widget_entry.name)
