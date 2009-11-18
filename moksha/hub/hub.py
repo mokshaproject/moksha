@@ -100,6 +100,36 @@ class MokshaHub(StompHub, AMQPHub):
                 self.subscribe(topic)
         self.topics[topic].append(callback)
 
+    def consume_amqp_message(self, message):
+        self.message_accept(message)
+        topic = message.headers[0]['routing_key']
+        try:
+            body = json.decode(message.body)
+        except Exception, e:
+            log.warning('Cannot decode message from JSON: %s' % e)
+            log.debug('Message: %r' % message.body)
+            body = message.body
+        if self.stomp_broker:
+            StompHub.send_message(self, topic.encode('utf8'),
+                                  message.body.encode('utf8'))
+
+    def consume_stomp_message(self, message):
+        topic = message['headers'].get('destination')
+        if not topic:
+            return
+
+        # We can enable this if/when we need it...
+        #try:
+        #    body = json.decode(message['body'])
+        #except Exception, e:
+        #    log.warning('Cannot decode message from JSON: %s' % e)
+        #    body = message['body']
+
+        # feed all of our consumers
+        for callback in self.topics.get(topic, []):
+            reactor.callInThread(callback, message)
+
+
 class CentralMokshaHub(MokshaHub):
     """
     The Moksha Hub is responsible for initializing all of the Hooks,
@@ -179,35 +209,6 @@ class CentralMokshaHub(MokshaHub):
             for consumer in self.consumers:
                 log.debug("Stopping consumer %s" % consumer)
                 consumer.stop()
-
-    def consume_amqp_message(self, message):
-        self.message_accept(message)
-        topic = message.headers[0]['routing_key']
-        try:
-            body = json.decode(message.body)
-        except Exception, e:
-            log.warning('Cannot decode message from JSON: %s' % e)
-            log.debug('Message: %r' % message.body)
-            body = message.body
-        if self.stomp_broker:
-            StompHub.send_message(self, topic.encode('utf8'),
-                                  message.body.encode('utf8'))
-
-    def consume_stomp_message(self, message):
-        topic = message['headers'].get('destination')
-        if not topic:
-            return
-
-        # We can enable this if/when we need it...
-        #try:
-        #    body = json.decode(message['body'])
-        #except Exception, e:
-        #    log.warning('Cannot decode message from JSON: %s' % e)
-        #    body = message['body']
-
-        # feed all of our consumers
-        for callback in self.topics.get(topic, []):
-            reactor.callInThread(callback, message)
 
 
 def setup_logger(verbose):
