@@ -28,7 +28,7 @@ from paste.deploy.converters import asbool
 
 from moksha.api.widgets.orbited import orbited_host, orbited_port, orbited_url
 from moksha.api.widgets.orbited import orbited_js
-from moksha.lib.helpers import defaultdict
+from moksha.lib.helpers import defaultdict, listify
 from moksha.widgets.notify import moksha_notify
 from moksha.widgets.json import jquery_json_js
 
@@ -39,18 +39,15 @@ def amqp_subscribe(topic):
         or a list of topics.
     """
     sub = """
+        moksha.debug("Subscribing to the '%(topic)s' topic");
         moksha_amqp_queue.subscribe({
             exchange: 'amq.topic',
             remote_queue: moksha_amqp_remote_queue,
-            binding_key: '%s',
+            binding_key: '%(topic)s',
             callback: moksha_amqp_on_message,
         });
     """
-    if isinstance(topic, list):
-        sub = ''.join([sub % t for t in topic])
-    else:
-        sub = sub % topic
-    return sub
+    return ''.join([sub % {'topic': t} for t in listify(topic)])
 
 
 def amqp_unsubscribe(topic):
