@@ -85,7 +85,7 @@ class AMQPSocket(Widget):
             moksha_amqp_remote_queue = null;
             moksha_amqp_queue = null;
             moksha_amqp_on_message = function(msg) {
-                console.log('moksha_amqp_on_message(' + msg.body + ')');
+                moksha.debug('moksha_amqp_on_message(' + msg.body + ')');
                 var dest = msg.header.delivery_properties.routing_key;
                 var json = $.secureEvalJSON(msg.body);
                 if (moksha_callbacks[dest]) {
@@ -119,8 +119,12 @@ class AMQPSocket(Widget):
                     port: ${amqp_broker_port},
                     username: '${amqp_broker_user}',
                     password: '${amqp_broker_pass}',
-                    send_hook: function(data, frame) { ${send_hook} },
-                    recive_hook: function(data, frame) { ${recieve_hook} }
+                    % if send_hook:
+                        send_hook: function(data, frame) { ${send_hook} },
+                    % endif
+                    % if recieve_hook:
+                        recive_hook: function(data, frame) { ${recieve_hook} }
+                    % endif
                 });
                 moksha_amqp_conn.start();
 
