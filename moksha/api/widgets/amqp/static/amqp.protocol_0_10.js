@@ -608,6 +608,8 @@ amqp.protocol_0_10= {
 
                                              for(var i=0; i<_me._defered.length; i++)
                                                  _me._conn.send(_me._defered[i]);
+                                                 
+                                             _me._ready = true;
                                          },
                                          true
                                         );

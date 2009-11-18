@@ -305,7 +305,7 @@ extend(amqp.protocol, {
         if(sign)
             first_byte = ~first_byte
 
-        first_byte = first_byte << (size - 1);
+        first_byte = first_byte << ((size - 1) * 8);
 
         var result = first_byte;
         for (var i = 0; i < size-1; i++) {
@@ -313,7 +313,7 @@ extend(amqp.protocol, {
             var byte = stream.charCodeAt(byte_pos);
             if (sign)
                 byte = ~byte;
-            result += byte << i;
+            result += byte << (i * 8);
         }
 
         if (sign)
@@ -335,7 +335,7 @@ extend(amqp.protocol, {
         var result = 0;
         for (var i = 0; i < size; i++) {
             var byte_pos = size - (i + 1);
-            result += stream.charCodeAt(byte_pos) << i;
+            result += stream.charCodeAt(byte_pos) << (i * 8);
         }
 
         return result;

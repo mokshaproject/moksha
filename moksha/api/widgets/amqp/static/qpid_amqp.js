@@ -221,6 +221,10 @@ amqp.protocol.extend(amqp.Queue.prototype, {
             return true;
         };
         
+        // FIXME: we should only attach header and body callbacks
+        //        if we get a transfer message, and then
+        //        we should clean them up after the last segment
+        //        is seen
         this._session._conn.command_subscribe('message',
                                               'transfer',
                                               null,
