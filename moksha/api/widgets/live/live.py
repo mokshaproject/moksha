@@ -43,7 +43,7 @@ class LiveWidget(Widget):
 
     def __init__(self, id, *args, **kw):
         super(LiveWidget, self).__init__(*args, **kw)
-        self.backend = tg.config.get('moksha.livesocket.backend', 'amqp').lower()
+        self.backend = tg.config.get('moksha.livesocket.backend', 'stomp').lower()
 
     def update_params(self, d):
         """ Register this widgets message topic callbacks """
