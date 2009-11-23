@@ -8,8 +8,7 @@ class TopicsConsumer(Consumer):
     _topic_cache = {}
 
     def consume(self, message):
-        self.log.info("%r.consume(%r)" % (self, message))
-        self.log.info("%r entities " % self.DBSession.query(Entity).count())
+        #self.log.info("%r entities " % self.DBSession.query(Entity).count())
         topics = []
         commit = False
         for header in message.headers:
