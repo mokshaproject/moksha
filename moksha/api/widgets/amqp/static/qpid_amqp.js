@@ -33,6 +33,7 @@ amqp.protocol.extend(amqp, {
             this._session = options['_session'];
             this._flow_mode = options['flow_mode'];
             this._flow_credits = options['flow_credits'];
+            this._started = false;
             
             var c = options['channel'];
             if (c < 0)
@@ -159,6 +160,10 @@ amqp.protocol.extend(amqp.Queue.prototype, {
     },
     
     start: function() {
+        if (this._started)
+            return;
+        this._started = true;
+        
         this.set_flow_mode(this._flow_mode);
         this.add_flow_credits(this._flow_credits);
         
@@ -221,10 +226,6 @@ amqp.protocol.extend(amqp.Queue.prototype, {
             return true;
         };
         
-        // FIXME: we should only attach header and body callbacks
-        //        if we get a transfer message, and then
-        //        we should clean them up after the last segment
-        //        is seen
         this._session._conn.command_subscribe('message',
                                               'transfer',
                                               null,

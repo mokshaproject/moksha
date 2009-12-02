@@ -65,6 +65,25 @@ amqp.protocol_0_10= {
             throw "Can not guess the value of '" + value + "' not yet handled in guess_type";
         }
     },
+    
+    encode_body_segment: function (assembly, data, is_first_segment, is_last_segment, channel) {
+        var frame = new _module.Frame({assembly: assembly, 
+                                   payload: data,
+                                   parsed_data: {
+                                       frame_format_version: 0,
+                                       is_first_segment: is_first_segment,
+                                       is_last_segment: is_last_segment,
+                                       is_first_frame: true,
+                                       is_last_frame: true,
+                                       segment_type: 3, // control
+                                       track: 1,
+                                       channel: channel,
+                                    }
+                                   });
+        frame.encode();
+        return frame;
+    },
+    
     Connection: amqp.protocol.MetaClass({
         _defaults: {
             host: 'localhost',
@@ -314,7 +333,8 @@ amqp.protocol_0_10= {
             var segment_type = msg_type;
             var channel = 0;
             var track = msg_type;
-
+            var has_multiple_segments = message.has_multiple_segments();
+            var is_last_segment = !has_multiple_segments;
 
             // FIXME: get module version from the header info
             //        and work with segments and multiple frames
@@ -322,7 +342,7 @@ amqp.protocol_0_10= {
                 parsed_data: {
                     frame_format_version: 0,
                     is_first_segment: true,
-                    is_last_segment: true,
+                    is_last_segment: is_last_segment,
                     is_first_frame: true,
                     is_last_frame: true,
                     segment_type: segment_type, // control
@@ -337,9 +357,20 @@ amqp.protocol_0_10= {
 
             frame.encode();
             var data = frame.get_data();
+            var debug_frames = [frame];
+            if(has_multiple_segments) {
+                var seg_frames = message.get_segment_frames();
+                for (var i in seg_frames) {
+                    debug_frames.push(seg_frames[i]);
+                    var seg_data = seg_frames[i].get_data();
+                    data = data + seg_data;
+                }
+            }
+            
             this._raw_send(data);
-            if (this._options.send_hook)
-                this._options.send_hook(data, frame);
+            if (this._options.send_hook) {
+                this._options.send_hook(data, debug_frames);
+            }
         },
 
         start: function() {
@@ -1793,6 +1824,7 @@ var cls_connection = {
     msgcode: {},
     struct: {},
     structcode: {},
+    segments: [],
     code: 0x1,
     name: 'connection',
     _init: function(options) {
@@ -2633,6 +2665,7 @@ var cls_session = {
     msgcode: {},
     struct: {},
     structcode: {},
+    segments: [],
     code: 0x2,
     name: 'session',
     _init: function(options) {
@@ -2681,7 +2714,7 @@ cls_session.struct['header'].prototype = {
     code: 0,
     pack_size: 1,
     size: 1,
-    cls: amqp.protocol_0_10.cls.session,
+    cls: cls_session,
     fields: [],
     is_struct: true,
     decode: function(assembly) {
@@ -2714,6 +2747,9 @@ cls_session.struct['header'].prototype = {
         if(typeof(values) == 'undefined')
             values = this._value;
 
+        // we need to get the size of the struct
+        var struct_assembly = new amqp.protocol.Assembly({});
+
         var packing_flags = 0;
         for (var i in this.fields) {
             var name = this.fields[i][0];
@@ -2727,7 +2763,7 @@ cls_session.struct['header'].prototype = {
                         packing_flags += (1 << i);
                 } else {
                     packing_flags += (1 << i);
-                    new type(v, false).encode(assembly);
+                    new type(v, false).encode(struct_assembly);
                 }
             }
         }
@@ -2740,7 +2776,12 @@ cls_session.struct['header'].prototype = {
         for (var i=pf.length - 1; i >= 0; i--)
             header += pf[i];
 
-        assembly.prepend(header);
+        struct_assembly.prepend(header);
+        
+        var size = struct_assembly.get_size(false);
+        var enc_size = amqp.protocol.int_to_bytestr(size, 4);
+        struct_assembly.prepend(enc_size);
+        assembly.write(struct_assembly.get_data());
 
     }
 };
@@ -2763,7 +2804,7 @@ cls_session.struct['command_fragment'].prototype = {
     code: 0,
     pack_size: 0,
     size: 0,
-    cls: amqp.protocol_0_10.cls.session,
+    cls: cls_session,
     fields: [],
     is_struct: true,
     decode: function(assembly) {
@@ -2796,6 +2837,9 @@ cls_session.struct['command_fragment'].prototype = {
         if(typeof(values) == 'undefined')
             values = this._value;
 
+        // we need to get the size of the struct
+        var struct_assembly = new amqp.protocol.Assembly({});
+
         var packing_flags = 0;
         for (var i in this.fields) {
             var name = this.fields[i][0];
@@ -2809,7 +2853,7 @@ cls_session.struct['command_fragment'].prototype = {
                         packing_flags += (1 << i);
                 } else {
                     packing_flags += (1 << i);
-                    new type(v, false).encode(assembly);
+                    new type(v, false).encode(struct_assembly);
                 }
             }
         }
@@ -2822,7 +2866,12 @@ cls_session.struct['command_fragment'].prototype = {
         for (var i=pf.length - 1; i >= 0; i--)
             header += pf[i];
 
-        assembly.prepend(header);
+        struct_assembly.prepend(header);
+        
+        var size = struct_assembly.get_size(false);
+        var enc_size = amqp.protocol.int_to_bytestr(size, 4);
+        struct_assembly.prepend(enc_size);
+        assembly.write(struct_assembly.get_data());
 
     }
 };
@@ -3687,6 +3736,7 @@ var cls_execution = {
     msgcode: {},
     struct: {},
     structcode: {},
+    segments: [],
     code: 0x3,
     name: 'execution',
     _init: function(options) {
@@ -3729,6 +3779,7 @@ cls_execution.msg['sync'] = {
     cls: cls_execution,
     name: 'sync',
     cls_name: 'execution',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -3774,6 +3825,35 @@ cls_execution.msg['sync'] = {
             }
         }
 
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
+                }
+            }
+        }
+
         var header = String.fromCharCode(this.cls.code, this.code)
         // FIXME: session headers are version dependent so we should
         //        do this in a generate_session_header method
@@ -3807,6 +3887,7 @@ cls_execution.msg['result'] = {
     cls: cls_execution,
     name: 'result',
     cls_name: 'execution',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -3848,6 +3929,35 @@ cls_execution.msg['result'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -3893,6 +4003,7 @@ cls_execution.msg['exception'] = {
     cls: cls_execution,
     name: 'exception',
     cls_name: 'execution',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -3934,6 +4045,35 @@ cls_execution.msg['exception'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -4005,6 +4145,7 @@ var cls_message = {
     msgcode: {},
     struct: {},
     structcode: {},
+    segments: [],
     code: 0x4,
     name: 'message',
     _init: function(options) {
@@ -4053,7 +4194,7 @@ cls_message.struct['delivery_properties'].prototype = {
     code: 0x1,
     pack_size: 2,
     size: 4,
-    cls: amqp.protocol_0_10.cls.message,
+    cls: cls_message,
     fields: [],
     is_struct: true,
     decode: function(assembly) {
@@ -4086,6 +4227,9 @@ cls_message.struct['delivery_properties'].prototype = {
         if(typeof(values) == 'undefined')
             values = this._value;
 
+        // we need to get the size of the struct
+        var struct_assembly = new amqp.protocol.Assembly({});
+
         var packing_flags = 0;
         for (var i in this.fields) {
             var name = this.fields[i][0];
@@ -4099,7 +4243,7 @@ cls_message.struct['delivery_properties'].prototype = {
                         packing_flags += (1 << i);
                 } else {
                     packing_flags += (1 << i);
-                    new type(v, false).encode(assembly);
+                    new type(v, false).encode(struct_assembly);
                 }
             }
         }
@@ -4112,7 +4256,12 @@ cls_message.struct['delivery_properties'].prototype = {
         for (var i=pf.length - 1; i >= 0; i--)
             header += pf[i];
 
-        assembly.prepend(header);
+        struct_assembly.prepend(header);
+        
+        var size = struct_assembly.get_size(false);
+        var enc_size = amqp.protocol.int_to_bytestr(size, 4);
+        struct_assembly.prepend(enc_size);
+        assembly.write(struct_assembly.get_data());
 
     }
 };
@@ -4179,7 +4328,7 @@ cls_message.struct['fragment_properties'].prototype = {
     code: 0x2,
     pack_size: 2,
     size: 4,
-    cls: amqp.protocol_0_10.cls.message,
+    cls: cls_message,
     fields: [],
     is_struct: true,
     decode: function(assembly) {
@@ -4212,6 +4361,9 @@ cls_message.struct['fragment_properties'].prototype = {
         if(typeof(values) == 'undefined')
             values = this._value;
 
+        // we need to get the size of the struct
+        var struct_assembly = new amqp.protocol.Assembly({});
+
         var packing_flags = 0;
         for (var i in this.fields) {
             var name = this.fields[i][0];
@@ -4225,7 +4377,7 @@ cls_message.struct['fragment_properties'].prototype = {
                         packing_flags += (1 << i);
                 } else {
                     packing_flags += (1 << i);
-                    new type(v, false).encode(assembly);
+                    new type(v, false).encode(struct_assembly);
                 }
             }
         }
@@ -4238,7 +4390,12 @@ cls_message.struct['fragment_properties'].prototype = {
         for (var i=pf.length - 1; i >= 0; i--)
             header += pf[i];
 
-        assembly.prepend(header);
+        struct_assembly.prepend(header);
+        
+        var size = struct_assembly.get_size(false);
+        var enc_size = amqp.protocol.int_to_bytestr(size, 4);
+        struct_assembly.prepend(enc_size);
+        assembly.write(struct_assembly.get_data());
 
     }
 };
@@ -4269,7 +4426,7 @@ cls_message.struct['reply_to'].prototype = {
     code: 0,
     pack_size: 2,
     size: 2,
-    cls: amqp.protocol_0_10.cls.message,
+    cls: cls_message,
     fields: [],
     is_struct: true,
     decode: function(assembly) {
@@ -4302,6 +4459,9 @@ cls_message.struct['reply_to'].prototype = {
         if(typeof(values) == 'undefined')
             values = this._value;
 
+        // we need to get the size of the struct
+        var struct_assembly = new amqp.protocol.Assembly({});
+
         var packing_flags = 0;
         for (var i in this.fields) {
             var name = this.fields[i][0];
@@ -4315,7 +4475,7 @@ cls_message.struct['reply_to'].prototype = {
                         packing_flags += (1 << i);
                 } else {
                     packing_flags += (1 << i);
-                    new type(v, false).encode(assembly);
+                    new type(v, false).encode(struct_assembly);
                 }
             }
         }
@@ -4328,7 +4488,12 @@ cls_message.struct['reply_to'].prototype = {
         for (var i=pf.length - 1; i >= 0; i--)
             header += pf[i];
 
-        assembly.prepend(header);
+        struct_assembly.prepend(header);
+        
+        var size = struct_assembly.get_size(false);
+        var enc_size = amqp.protocol.int_to_bytestr(size, 4);
+        struct_assembly.prepend(enc_size);
+        assembly.write(struct_assembly.get_data());
 
     }
 };
@@ -4355,7 +4520,7 @@ cls_message.struct['message_properties'].prototype = {
     code: 0x3,
     pack_size: 2,
     size: 4,
-    cls: amqp.protocol_0_10.cls.message,
+    cls: cls_message,
     fields: [],
     is_struct: true,
     decode: function(assembly) {
@@ -4388,6 +4553,9 @@ cls_message.struct['message_properties'].prototype = {
         if(typeof(values) == 'undefined')
             values = this._value;
 
+        // we need to get the size of the struct
+        var struct_assembly = new amqp.protocol.Assembly({});
+
         var packing_flags = 0;
         for (var i in this.fields) {
             var name = this.fields[i][0];
@@ -4401,7 +4569,7 @@ cls_message.struct['message_properties'].prototype = {
                         packing_flags += (1 << i);
                 } else {
                     packing_flags += (1 << i);
-                    new type(v, false).encode(assembly);
+                    new type(v, false).encode(struct_assembly);
                 }
             }
         }
@@ -4414,7 +4582,12 @@ cls_message.struct['message_properties'].prototype = {
         for (var i=pf.length - 1; i >= 0; i--)
             header += pf[i];
 
-        assembly.prepend(header);
+        struct_assembly.prepend(header);
+        
+        var size = struct_assembly.get_size(false);
+        var enc_size = amqp.protocol.int_to_bytestr(size, 4);
+        struct_assembly.prepend(enc_size);
+        assembly.write(struct_assembly.get_data());
 
     }
 };
@@ -4463,6 +4636,7 @@ cls_message.msg['transfer'] = {
     cls: cls_message,
     name: 'transfer',
     cls_name: 'message',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -4504,6 +4678,35 @@ cls_message.msg['transfer'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -4546,6 +4749,44 @@ cls_message.msg['transfer'].fields.push(['accept_mode', _module.type.uint8, true
 cls_message.msg['transfer'].fields.push(['acquire_mode', _module.type.uint8, true, 4]);
 
 
+cls_message_msg_transfer_seg_header={'name': '_header',
+                                              'encode': function(assembly, data, is_first_segment, is_last_segment, channel) {
+        
+        var payload_assembly = new amqp.protocol.Assembly({});
+        for(var id in data) {
+            var s = cls_message.struct[id];
+            if(s)
+                new s(data[id]).encode(payload_assembly);
+        }
+        
+        // find the size of our data structure
+        var payload_data = payload_assembly.get_data();
+        
+        var frame = new _module.Frame({assembly: assembly, 
+                                   payload: payload_data,
+                                   parsed_data: {
+                                       frame_format_version: 0,
+                                       is_first_segment: is_first_segment,
+                                       is_last_segment: is_last_segment,
+                                       is_first_frame: true,
+                                       is_last_frame: true,
+                                       segment_type: 2, // control
+                                       track: 1,
+                                       channel: channel,
+                                    }
+                                   });
+        frame.encode();
+        return frame;
+    },
+                                             }
+cls_message.msg['transfer'].segments.push(cls_message_msg_transfer_seg_header);
+
+
+cls_message.msg['transfer'].segments.push({'name': '_body',
+                                                   'encode': _module.encode_body_segment
+                               });
+
+
 cls_message.msg['accept'] = {
     masks: [1, 2, 4, 8, 16, 32, 64, 128],
     fields: [],
@@ -4553,6 +4794,7 @@ cls_message.msg['accept'] = {
     cls: cls_message,
     name: 'accept',
     cls_name: 'message',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -4598,6 +4840,35 @@ cls_message.msg['accept'] = {
             }
         }
 
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
+                }
+            }
+        }
+
         var header = String.fromCharCode(this.cls.code, this.code)
         // FIXME: session headers are version dependent so we should
         //        do this in a generate_session_header method
@@ -4635,6 +4906,7 @@ cls_message.msg['reject'] = {
     cls: cls_message,
     name: 'reject',
     cls_name: 'message',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -4676,6 +4948,35 @@ cls_message.msg['reject'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -4725,6 +5026,7 @@ cls_message.msg['release'] = {
     cls: cls_message,
     name: 'release',
     cls_name: 'message',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -4770,6 +5072,35 @@ cls_message.msg['release'] = {
             }
         }
 
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
+                }
+            }
+        }
+
         var header = String.fromCharCode(this.cls.code, this.code)
         // FIXME: session headers are version dependent so we should
         //        do this in a generate_session_header method
@@ -4811,6 +5142,7 @@ cls_message.msg['acquire'] = {
     cls: cls_message,
     name: 'acquire',
     cls_name: 'message',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -4852,6 +5184,35 @@ cls_message.msg['acquire'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -4899,7 +5260,7 @@ cls_message.struct['acquired'].prototype = {
     code: 0x4,
     pack_size: 2,
     size: 4,
-    cls: amqp.protocol_0_10.cls.message,
+    cls: cls_message,
     fields: [],
     is_struct: true,
     decode: function(assembly) {
@@ -4932,6 +5293,9 @@ cls_message.struct['acquired'].prototype = {
         if(typeof(values) == 'undefined')
             values = this._value;
 
+        // we need to get the size of the struct
+        var struct_assembly = new amqp.protocol.Assembly({});
+
         var packing_flags = 0;
         for (var i in this.fields) {
             var name = this.fields[i][0];
@@ -4945,7 +5309,7 @@ cls_message.struct['acquired'].prototype = {
                         packing_flags += (1 << i);
                 } else {
                     packing_flags += (1 << i);
-                    new type(v, false).encode(assembly);
+                    new type(v, false).encode(struct_assembly);
                 }
             }
         }
@@ -4958,7 +5322,12 @@ cls_message.struct['acquired'].prototype = {
         for (var i=pf.length - 1; i >= 0; i--)
             header += pf[i];
 
-        assembly.prepend(header);
+        struct_assembly.prepend(header);
+        
+        var size = struct_assembly.get_size(false);
+        var enc_size = amqp.protocol.int_to_bytestr(size, 4);
+        struct_assembly.prepend(enc_size);
+        assembly.write(struct_assembly.get_data());
 
     }
 };
@@ -4975,6 +5344,7 @@ cls_message.msg['resume'] = {
     cls: cls_message,
     name: 'resume',
     cls_name: 'message',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -5016,6 +5386,35 @@ cls_message.msg['resume'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -5067,7 +5466,7 @@ cls_message.struct['message_resume_result'].prototype = {
     code: 0x5,
     pack_size: 2,
     size: 4,
-    cls: amqp.protocol_0_10.cls.message,
+    cls: cls_message,
     fields: [],
     is_struct: true,
     decode: function(assembly) {
@@ -5100,6 +5499,9 @@ cls_message.struct['message_resume_result'].prototype = {
         if(typeof(values) == 'undefined')
             values = this._value;
 
+        // we need to get the size of the struct
+        var struct_assembly = new amqp.protocol.Assembly({});
+
         var packing_flags = 0;
         for (var i in this.fields) {
             var name = this.fields[i][0];
@@ -5113,7 +5515,7 @@ cls_message.struct['message_resume_result'].prototype = {
                         packing_flags += (1 << i);
                 } else {
                     packing_flags += (1 << i);
-                    new type(v, false).encode(assembly);
+                    new type(v, false).encode(struct_assembly);
                 }
             }
         }
@@ -5126,7 +5528,12 @@ cls_message.struct['message_resume_result'].prototype = {
         for (var i=pf.length - 1; i >= 0; i--)
             header += pf[i];
 
-        assembly.prepend(header);
+        struct_assembly.prepend(header);
+        
+        var size = struct_assembly.get_size(false);
+        var enc_size = amqp.protocol.int_to_bytestr(size, 4);
+        struct_assembly.prepend(enc_size);
+        assembly.write(struct_assembly.get_data());
 
     }
 };
@@ -5143,6 +5550,7 @@ cls_message.msg['subscribe'] = {
     cls: cls_message,
     name: 'subscribe',
     cls_name: 'message',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -5184,6 +5592,35 @@ cls_message.msg['subscribe'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -5253,6 +5690,7 @@ cls_message.msg['cancel'] = {
     cls: cls_message,
     name: 'cancel',
     cls_name: 'message',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -5298,6 +5736,35 @@ cls_message.msg['cancel'] = {
             }
         }
 
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
+                }
+            }
+        }
+
         var header = String.fromCharCode(this.cls.code, this.code)
         // FIXME: session headers are version dependent so we should
         //        do this in a generate_session_header method
@@ -5335,6 +5802,7 @@ cls_message.msg['set_flow_mode'] = {
     cls: cls_message,
     name: 'set_flow_mode',
     cls_name: 'message',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -5376,6 +5844,35 @@ cls_message.msg['set_flow_mode'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -5421,6 +5918,7 @@ cls_message.msg['flow'] = {
     cls: cls_message,
     name: 'flow',
     cls_name: 'message',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -5462,6 +5960,35 @@ cls_message.msg['flow'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -5511,6 +6038,7 @@ cls_message.msg['flush'] = {
     cls: cls_message,
     name: 'flush',
     cls_name: 'message',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -5556,6 +6084,35 @@ cls_message.msg['flush'] = {
             }
         }
 
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
+                }
+            }
+        }
+
         var header = String.fromCharCode(this.cls.code, this.code)
         // FIXME: session headers are version dependent so we should
         //        do this in a generate_session_header method
@@ -5593,6 +6150,7 @@ cls_message.msg['stop'] = {
     cls: cls_message,
     name: 'stop',
     cls_name: 'message',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -5634,6 +6192,35 @@ cls_message.msg['stop'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -5681,6 +6268,7 @@ var cls_tx = {
     msgcode: {},
     struct: {},
     structcode: {},
+    segments: [],
     code: 0x5,
     name: 'tx',
     _init: function(options) {
@@ -5723,6 +6311,7 @@ cls_tx.msg['select'] = {
     cls: cls_tx,
     name: 'select',
     cls_name: 'tx',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -5764,6 +6353,35 @@ cls_tx.msg['select'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -5801,6 +6419,7 @@ cls_tx.msg['commit'] = {
     cls: cls_tx,
     name: 'commit',
     cls_name: 'tx',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -5846,6 +6465,35 @@ cls_tx.msg['commit'] = {
             }
         }
 
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
+                }
+            }
+        }
+
         var header = String.fromCharCode(this.cls.code, this.code)
         // FIXME: session headers are version dependent so we should
         //        do this in a generate_session_header method
@@ -5879,6 +6527,7 @@ cls_tx.msg['rollback'] = {
     cls: cls_tx,
     name: 'rollback',
     cls_name: 'tx',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -5920,6 +6569,35 @@ cls_tx.msg['rollback'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -5963,6 +6641,7 @@ var cls_dtx = {
     msgcode: {},
     struct: {},
     structcode: {},
+    segments: [],
     code: 0x6,
     name: 'dtx',
     _init: function(options) {
@@ -6011,7 +6690,7 @@ cls_dtx.struct['xa_result'].prototype = {
     code: 0x1,
     pack_size: 2,
     size: 4,
-    cls: amqp.protocol_0_10.cls.dtx,
+    cls: cls_dtx,
     fields: [],
     is_struct: true,
     decode: function(assembly) {
@@ -6044,6 +6723,9 @@ cls_dtx.struct['xa_result'].prototype = {
         if(typeof(values) == 'undefined')
             values = this._value;
 
+        // we need to get the size of the struct
+        var struct_assembly = new amqp.protocol.Assembly({});
+
         var packing_flags = 0;
         for (var i in this.fields) {
             var name = this.fields[i][0];
@@ -6057,7 +6739,7 @@ cls_dtx.struct['xa_result'].prototype = {
                         packing_flags += (1 << i);
                 } else {
                     packing_flags += (1 << i);
-                    new type(v, false).encode(assembly);
+                    new type(v, false).encode(struct_assembly);
                 }
             }
         }
@@ -6070,7 +6752,12 @@ cls_dtx.struct['xa_result'].prototype = {
         for (var i=pf.length - 1; i >= 0; i--)
             header += pf[i];
 
-        assembly.prepend(header);
+        struct_assembly.prepend(header);
+        
+        var size = struct_assembly.get_size(false);
+        var enc_size = amqp.protocol.int_to_bytestr(size, 4);
+        struct_assembly.prepend(enc_size);
+        assembly.write(struct_assembly.get_data());
 
     }
 };
@@ -6093,7 +6780,7 @@ cls_dtx.struct['xid'].prototype = {
     code: 0x4,
     pack_size: 2,
     size: 4,
-    cls: amqp.protocol_0_10.cls.dtx,
+    cls: cls_dtx,
     fields: [],
     is_struct: true,
     decode: function(assembly) {
@@ -6126,6 +6813,9 @@ cls_dtx.struct['xid'].prototype = {
         if(typeof(values) == 'undefined')
             values = this._value;
 
+        // we need to get the size of the struct
+        var struct_assembly = new amqp.protocol.Assembly({});
+
         var packing_flags = 0;
         for (var i in this.fields) {
             var name = this.fields[i][0];
@@ -6139,7 +6829,7 @@ cls_dtx.struct['xid'].prototype = {
                         packing_flags += (1 << i);
                 } else {
                     packing_flags += (1 << i);
-                    new type(v, false).encode(assembly);
+                    new type(v, false).encode(struct_assembly);
                 }
             }
         }
@@ -6152,7 +6842,12 @@ cls_dtx.struct['xid'].prototype = {
         for (var i=pf.length - 1; i >= 0; i--)
             header += pf[i];
 
-        assembly.prepend(header);
+        struct_assembly.prepend(header);
+        
+        var size = struct_assembly.get_size(false);
+        var enc_size = amqp.protocol.int_to_bytestr(size, 4);
+        struct_assembly.prepend(enc_size);
+        assembly.write(struct_assembly.get_data());
 
     }
 };
@@ -6177,6 +6872,7 @@ cls_dtx.msg['select'] = {
     cls: cls_dtx,
     name: 'select',
     cls_name: 'dtx',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -6218,6 +6914,35 @@ cls_dtx.msg['select'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -6255,6 +6980,7 @@ cls_dtx.msg['start'] = {
     cls: cls_dtx,
     name: 'start',
     cls_name: 'dtx',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -6296,6 +7022,35 @@ cls_dtx.msg['start'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -6345,6 +7100,7 @@ cls_dtx.msg['end'] = {
     cls: cls_dtx,
     name: 'end',
     cls_name: 'dtx',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -6386,6 +7142,35 @@ cls_dtx.msg['end'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -6435,6 +7220,7 @@ cls_dtx.msg['commit'] = {
     cls: cls_dtx,
     name: 'commit',
     cls_name: 'dtx',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -6476,6 +7262,35 @@ cls_dtx.msg['commit'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -6521,6 +7336,7 @@ cls_dtx.msg['forget'] = {
     cls: cls_dtx,
     name: 'forget',
     cls_name: 'dtx',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -6566,6 +7382,35 @@ cls_dtx.msg['forget'] = {
             }
         }
 
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
+                }
+            }
+        }
+
         var header = String.fromCharCode(this.cls.code, this.code)
         // FIXME: session headers are version dependent so we should
         //        do this in a generate_session_header method
@@ -6603,6 +7448,7 @@ cls_dtx.msg['get_timeout'] = {
     cls: cls_dtx,
     name: 'get_timeout',
     cls_name: 'dtx',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -6644,6 +7490,35 @@ cls_dtx.msg['get_timeout'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -6691,7 +7566,7 @@ cls_dtx.struct['get_timeout_result'].prototype = {
     code: 0x2,
     pack_size: 2,
     size: 4,
-    cls: amqp.protocol_0_10.cls.dtx,
+    cls: cls_dtx,
     fields: [],
     is_struct: true,
     decode: function(assembly) {
@@ -6724,6 +7599,9 @@ cls_dtx.struct['get_timeout_result'].prototype = {
         if(typeof(values) == 'undefined')
             values = this._value;
 
+        // we need to get the size of the struct
+        var struct_assembly = new amqp.protocol.Assembly({});
+
         var packing_flags = 0;
         for (var i in this.fields) {
             var name = this.fields[i][0];
@@ -6737,7 +7615,7 @@ cls_dtx.struct['get_timeout_result'].prototype = {
                         packing_flags += (1 << i);
                 } else {
                     packing_flags += (1 << i);
-                    new type(v, false).encode(assembly);
+                    new type(v, false).encode(struct_assembly);
                 }
             }
         }
@@ -6750,7 +7628,12 @@ cls_dtx.struct['get_timeout_result'].prototype = {
         for (var i=pf.length - 1; i >= 0; i--)
             header += pf[i];
 
-        assembly.prepend(header);
+        struct_assembly.prepend(header);
+        
+        var size = struct_assembly.get_size(false);
+        var enc_size = amqp.protocol.int_to_bytestr(size, 4);
+        struct_assembly.prepend(enc_size);
+        assembly.write(struct_assembly.get_data());
 
     }
 };
@@ -6767,6 +7650,7 @@ cls_dtx.msg['prepare'] = {
     cls: cls_dtx,
     name: 'prepare',
     cls_name: 'dtx',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -6808,6 +7692,35 @@ cls_dtx.msg['prepare'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -6849,6 +7762,7 @@ cls_dtx.msg['recover'] = {
     cls: cls_dtx,
     name: 'recover',
     cls_name: 'dtx',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -6890,6 +7804,35 @@ cls_dtx.msg['recover'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -6933,7 +7876,7 @@ cls_dtx.struct['recover_result'].prototype = {
     code: 0x3,
     pack_size: 2,
     size: 4,
-    cls: amqp.protocol_0_10.cls.dtx,
+    cls: cls_dtx,
     fields: [],
     is_struct: true,
     decode: function(assembly) {
@@ -6966,6 +7909,9 @@ cls_dtx.struct['recover_result'].prototype = {
         if(typeof(values) == 'undefined')
             values = this._value;
 
+        // we need to get the size of the struct
+        var struct_assembly = new amqp.protocol.Assembly({});
+
         var packing_flags = 0;
         for (var i in this.fields) {
             var name = this.fields[i][0];
@@ -6979,7 +7925,7 @@ cls_dtx.struct['recover_result'].prototype = {
                         packing_flags += (1 << i);
                 } else {
                     packing_flags += (1 << i);
-                    new type(v, false).encode(assembly);
+                    new type(v, false).encode(struct_assembly);
                 }
             }
         }
@@ -6992,7 +7938,12 @@ cls_dtx.struct['recover_result'].prototype = {
         for (var i=pf.length - 1; i >= 0; i--)
             header += pf[i];
 
-        assembly.prepend(header);
+        struct_assembly.prepend(header);
+        
+        var size = struct_assembly.get_size(false);
+        var enc_size = amqp.protocol.int_to_bytestr(size, 4);
+        struct_assembly.prepend(enc_size);
+        assembly.write(struct_assembly.get_data());
 
     }
 };
@@ -7009,6 +7960,7 @@ cls_dtx.msg['rollback'] = {
     cls: cls_dtx,
     name: 'rollback',
     cls_name: 'dtx',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -7050,6 +8002,35 @@ cls_dtx.msg['rollback'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -7091,6 +8072,7 @@ cls_dtx.msg['set_timeout'] = {
     cls: cls_dtx,
     name: 'set_timeout',
     cls_name: 'dtx',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -7132,6 +8114,35 @@ cls_dtx.msg['set_timeout'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -7183,6 +8194,7 @@ var cls_exchange = {
     msgcode: {},
     struct: {},
     structcode: {},
+    segments: [],
     code: 0x7,
     name: 'exchange',
     _init: function(options) {
@@ -7225,6 +8237,7 @@ cls_exchange.msg['declare'] = {
     cls: cls_exchange,
     name: 'declare',
     cls_name: 'exchange',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -7266,6 +8279,35 @@ cls_exchange.msg['declare'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -7331,6 +8373,7 @@ cls_exchange.msg['delete'] = {
     cls: cls_exchange,
     name: 'delete',
     cls_name: 'exchange',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -7376,6 +8419,35 @@ cls_exchange.msg['delete'] = {
             }
         }
 
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
+                }
+            }
+        }
+
         var header = String.fromCharCode(this.cls.code, this.code)
         // FIXME: session headers are version dependent so we should
         //        do this in a generate_session_header method
@@ -7417,6 +8489,7 @@ cls_exchange.msg['query'] = {
     cls: cls_exchange,
     name: 'query',
     cls_name: 'exchange',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -7458,6 +8531,35 @@ cls_exchange.msg['query'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -7505,7 +8607,7 @@ cls_exchange.struct['exchange_query_result'].prototype = {
     code: 0x1,
     pack_size: 2,
     size: 4,
-    cls: amqp.protocol_0_10.cls.exchange,
+    cls: cls_exchange,
     fields: [],
     is_struct: true,
     decode: function(assembly) {
@@ -7538,6 +8640,9 @@ cls_exchange.struct['exchange_query_result'].prototype = {
         if(typeof(values) == 'undefined')
             values = this._value;
 
+        // we need to get the size of the struct
+        var struct_assembly = new amqp.protocol.Assembly({});
+
         var packing_flags = 0;
         for (var i in this.fields) {
             var name = this.fields[i][0];
@@ -7551,7 +8656,7 @@ cls_exchange.struct['exchange_query_result'].prototype = {
                         packing_flags += (1 << i);
                 } else {
                     packing_flags += (1 << i);
-                    new type(v, false).encode(assembly);
+                    new type(v, false).encode(struct_assembly);
                 }
             }
         }
@@ -7564,7 +8669,12 @@ cls_exchange.struct['exchange_query_result'].prototype = {
         for (var i=pf.length - 1; i >= 0; i--)
             header += pf[i];
 
-        assembly.prepend(header);
+        struct_assembly.prepend(header);
+        
+        var size = struct_assembly.get_size(false);
+        var enc_size = amqp.protocol.int_to_bytestr(size, 4);
+        struct_assembly.prepend(enc_size);
+        assembly.write(struct_assembly.get_data());
 
     }
 };
@@ -7593,6 +8703,7 @@ cls_exchange.msg['bind'] = {
     cls: cls_exchange,
     name: 'bind',
     cls_name: 'exchange',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -7634,6 +8745,35 @@ cls_exchange.msg['bind'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -7687,6 +8827,7 @@ cls_exchange.msg['unbind'] = {
     cls: cls_exchange,
     name: 'unbind',
     cls_name: 'exchange',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -7728,6 +8869,35 @@ cls_exchange.msg['unbind'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -7777,6 +8947,7 @@ cls_exchange.msg['bound'] = {
     cls: cls_exchange,
     name: 'bound',
     cls_name: 'exchange',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -7818,6 +8989,35 @@ cls_exchange.msg['bound'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -7877,7 +9077,7 @@ cls_exchange.struct['exchange_bound_result'].prototype = {
     code: 0x2,
     pack_size: 2,
     size: 4,
-    cls: amqp.protocol_0_10.cls.exchange,
+    cls: cls_exchange,
     fields: [],
     is_struct: true,
     decode: function(assembly) {
@@ -7910,6 +9110,9 @@ cls_exchange.struct['exchange_bound_result'].prototype = {
         if(typeof(values) == 'undefined')
             values = this._value;
 
+        // we need to get the size of the struct
+        var struct_assembly = new amqp.protocol.Assembly({});
+
         var packing_flags = 0;
         for (var i in this.fields) {
             var name = this.fields[i][0];
@@ -7923,7 +9126,7 @@ cls_exchange.struct['exchange_bound_result'].prototype = {
                         packing_flags += (1 << i);
                 } else {
                     packing_flags += (1 << i);
-                    new type(v, false).encode(assembly);
+                    new type(v, false).encode(struct_assembly);
                 }
             }
         }
@@ -7936,7 +9139,12 @@ cls_exchange.struct['exchange_bound_result'].prototype = {
         for (var i=pf.length - 1; i >= 0; i--)
             header += pf[i];
 
-        assembly.prepend(header);
+        struct_assembly.prepend(header);
+        
+        var size = struct_assembly.get_size(false);
+        var enc_size = amqp.protocol.int_to_bytestr(size, 4);
+        struct_assembly.prepend(enc_size);
+        assembly.write(struct_assembly.get_data());
 
     }
 };
@@ -7975,6 +9183,7 @@ var cls_queue = {
     msgcode: {},
     struct: {},
     structcode: {},
+    segments: [],
     code: 0x8,
     name: 'queue',
     _init: function(options) {
@@ -8017,6 +9226,7 @@ cls_queue.msg['declare'] = {
     cls: cls_queue,
     name: 'declare',
     cls_name: 'queue',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -8058,6 +9268,35 @@ cls_queue.msg['declare'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -8123,6 +9362,7 @@ cls_queue.msg['delete'] = {
     cls: cls_queue,
     name: 'delete',
     cls_name: 'queue',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -8164,6 +9404,35 @@ cls_queue.msg['delete'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -8213,6 +9482,7 @@ cls_queue.msg['purge'] = {
     cls: cls_queue,
     name: 'purge',
     cls_name: 'queue',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -8258,6 +9528,35 @@ cls_queue.msg['purge'] = {
             }
         }
 
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
+                }
+            }
+        }
+
         var header = String.fromCharCode(this.cls.code, this.code)
         // FIXME: session headers are version dependent so we should
         //        do this in a generate_session_header method
@@ -8295,6 +9594,7 @@ cls_queue.msg['query'] = {
     cls: cls_queue,
     name: 'query',
     cls_name: 'queue',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -8336,6 +9636,35 @@ cls_queue.msg['query'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -8383,7 +9712,7 @@ cls_queue.struct['queue_query_result'].prototype = {
     code: 0x1,
     pack_size: 2,
     size: 4,
-    cls: amqp.protocol_0_10.cls.queue,
+    cls: cls_queue,
     fields: [],
     is_struct: true,
     decode: function(assembly) {
@@ -8416,6 +9745,9 @@ cls_queue.struct['queue_query_result'].prototype = {
         if(typeof(values) == 'undefined')
             values = this._value;
 
+        // we need to get the size of the struct
+        var struct_assembly = new amqp.protocol.Assembly({});
+
         var packing_flags = 0;
         for (var i in this.fields) {
             var name = this.fields[i][0];
@@ -8429,7 +9761,7 @@ cls_queue.struct['queue_query_result'].prototype = {
                         packing_flags += (1 << i);
                 } else {
                     packing_flags += (1 << i);
-                    new type(v, false).encode(assembly);
+                    new type(v, false).encode(struct_assembly);
                 }
             }
         }
@@ -8442,7 +9774,12 @@ cls_queue.struct['queue_query_result'].prototype = {
         for (var i=pf.length - 1; i >= 0; i--)
             header += pf[i];
 
-        assembly.prepend(header);
+        struct_assembly.prepend(header);
+        
+        var size = struct_assembly.get_size(false);
+        var enc_size = amqp.protocol.int_to_bytestr(size, 4);
+        struct_assembly.prepend(enc_size);
+        assembly.write(struct_assembly.get_data());
 
     }
 };
@@ -8493,6 +9830,7 @@ var cls_file = {
     msgcode: {},
     struct: {},
     structcode: {},
+    segments: [],
     code: 0x9,
     name: 'file',
     _init: function(options) {
@@ -8541,7 +9879,7 @@ cls_file.struct['file_properties'].prototype = {
     code: 0x1,
     pack_size: 2,
     size: 4,
-    cls: amqp.protocol_0_10.cls.file,
+    cls: cls_file,
     fields: [],
     is_struct: true,
     decode: function(assembly) {
@@ -8574,6 +9912,9 @@ cls_file.struct['file_properties'].prototype = {
         if(typeof(values) == 'undefined')
             values = this._value;
 
+        // we need to get the size of the struct
+        var struct_assembly = new amqp.protocol.Assembly({});
+
         var packing_flags = 0;
         for (var i in this.fields) {
             var name = this.fields[i][0];
@@ -8587,7 +9928,7 @@ cls_file.struct['file_properties'].prototype = {
                         packing_flags += (1 << i);
                 } else {
                     packing_flags += (1 << i);
-                    new type(v, false).encode(assembly);
+                    new type(v, false).encode(struct_assembly);
                 }
             }
         }
@@ -8600,7 +9941,12 @@ cls_file.struct['file_properties'].prototype = {
         for (var i=pf.length - 1; i >= 0; i--)
             header += pf[i];
 
-        assembly.prepend(header);
+        struct_assembly.prepend(header);
+        
+        var size = struct_assembly.get_size(false);
+        var enc_size = amqp.protocol.int_to_bytestr(size, 4);
+        struct_assembly.prepend(enc_size);
+        assembly.write(struct_assembly.get_data());
 
     }
 };
@@ -8649,6 +9995,7 @@ cls_file.msg['qos'] = {
     cls: cls_file,
     name: 'qos',
     cls_name: 'file',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -8690,6 +10037,35 @@ cls_file.msg['qos'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -8739,6 +10115,7 @@ cls_file.msg['qos_ok'] = {
     cls: cls_file,
     name: 'qos_ok',
     cls_name: 'file',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -8784,6 +10161,35 @@ cls_file.msg['qos_ok'] = {
             }
         }
 
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
+                }
+            }
+        }
+
         var header = String.fromCharCode(this.cls.code, this.code)
         // FIXME: session headers are version dependent so we should
         //        do this in a generate_session_header method
@@ -8817,6 +10223,7 @@ cls_file.msg['consume'] = {
     cls: cls_file,
     name: 'consume',
     cls_name: 'file',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -8858,6 +10265,35 @@ cls_file.msg['consume'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -8923,6 +10359,7 @@ cls_file.msg['consume_ok'] = {
     cls: cls_file,
     name: 'consume_ok',
     cls_name: 'file',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -8964,6 +10401,35 @@ cls_file.msg['consume_ok'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -9005,6 +10471,7 @@ cls_file.msg['cancel'] = {
     cls: cls_file,
     name: 'cancel',
     cls_name: 'file',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -9050,6 +10517,35 @@ cls_file.msg['cancel'] = {
             }
         }
 
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
+                }
+            }
+        }
+
         var header = String.fromCharCode(this.cls.code, this.code)
         // FIXME: session headers are version dependent so we should
         //        do this in a generate_session_header method
@@ -9087,6 +10583,7 @@ cls_file.msg['open'] = {
     cls: cls_file,
     name: 'open',
     cls_name: 'file',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -9128,6 +10625,35 @@ cls_file.msg['open'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -9173,6 +10699,7 @@ cls_file.msg['open_ok'] = {
     cls: cls_file,
     name: 'open_ok',
     cls_name: 'file',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -9214,6 +10741,35 @@ cls_file.msg['open_ok'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -9255,6 +10811,7 @@ cls_file.msg['stage'] = {
     cls: cls_file,
     name: 'stage',
     cls_name: 'file',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -9300,6 +10857,35 @@ cls_file.msg['stage'] = {
             }
         }
 
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
+                }
+            }
+        }
+
         var header = String.fromCharCode(this.cls.code, this.code)
         // FIXME: session headers are version dependent so we should
         //        do this in a generate_session_header method
@@ -9326,6 +10912,44 @@ cls_file.msg['stage'] = {
 
 cls_file.msgcode[0x8] = cls_file.msg['stage'];
 
+cls_file_msg_stage_seg_header={'name': '_header',
+                                              'encode': function(assembly, data, is_first_segment, is_last_segment, channel) {
+        
+        var payload_assembly = new amqp.protocol.Assembly({});
+        for(var id in data) {
+            var s = cls_file.struct[id];
+            if(s)
+                new s(data[id]).encode(payload_assembly);
+        }
+        
+        // find the size of our data structure
+        var payload_data = payload_assembly.get_data();
+        
+        var frame = new _module.Frame({assembly: assembly, 
+                                   payload: payload_data,
+                                   parsed_data: {
+                                       frame_format_version: 0,
+                                       is_first_segment: is_first_segment,
+                                       is_last_segment: is_last_segment,
+                                       is_first_frame: true,
+                                       is_last_frame: true,
+                                       segment_type: 2, // control
+                                       track: 1,
+                                       channel: channel,
+                                    }
+                                   });
+        frame.encode();
+        return frame;
+    },
+                                             }
+cls_file.msg['stage'].segments.push(cls_file_msg_stage_seg_header);
+
+
+cls_file.msg['stage'].segments.push({'name': '_body',
+                                                   'encode': _module.encode_body_segment
+                               });
+
+
 cls_file.msg['publish'] = {
     masks: [1, 2, 4, 8, 16, 32, 64, 128],
     fields: [],
@@ -9333,6 +10957,7 @@ cls_file.msg['publish'] = {
     cls: cls_file,
     name: 'publish',
     cls_name: 'file',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -9374,6 +10999,35 @@ cls_file.msg['publish'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -9431,6 +11085,7 @@ cls_file.msg['return'] = {
     cls: cls_file,
     name: 'return',
     cls_name: 'file',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -9472,6 +11127,35 @@ cls_file.msg['return'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -9518,6 +11202,44 @@ cls_file.msg['return'].fields.push(['exchange', _module.type.str8, false, 4]);
 cls_file.msg['return'].fields.push(['routing_key', _module.type.str8, false, 8]);
 
 
+cls_file_msg_return_seg_header={'name': '_header',
+                                              'encode': function(assembly, data, is_first_segment, is_last_segment, channel) {
+        
+        var payload_assembly = new amqp.protocol.Assembly({});
+        for(var id in data) {
+            var s = cls_file.struct[id];
+            if(s)
+                new s(data[id]).encode(payload_assembly);
+        }
+        
+        // find the size of our data structure
+        var payload_data = payload_assembly.get_data();
+        
+        var frame = new _module.Frame({assembly: assembly, 
+                                   payload: payload_data,
+                                   parsed_data: {
+                                       frame_format_version: 0,
+                                       is_first_segment: is_first_segment,
+                                       is_last_segment: is_last_segment,
+                                       is_first_frame: true,
+                                       is_last_frame: true,
+                                       segment_type: 2, // control
+                                       track: 1,
+                                       channel: channel,
+                                    }
+                                   });
+        frame.encode();
+        return frame;
+    },
+                                             }
+cls_file.msg['return'].segments.push(cls_file_msg_return_seg_header);
+
+
+cls_file.msg['return'].segments.push({'name': '_body',
+                                                   'encode': _module.encode_body_segment
+                               });
+
+
 cls_file.msg['deliver'] = {
     masks: [1, 2, 4, 8, 16, 32, 64, 128],
     fields: [],
@@ -9525,6 +11247,7 @@ cls_file.msg['deliver'] = {
     cls: cls_file,
     name: 'deliver',
     cls_name: 'file',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -9566,6 +11289,35 @@ cls_file.msg['deliver'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -9627,6 +11379,7 @@ cls_file.msg['ack'] = {
     cls: cls_file,
     name: 'ack',
     cls_name: 'file',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -9672,6 +11425,35 @@ cls_file.msg['ack'] = {
             }
         }
 
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
+                }
+            }
+        }
+
         var header = String.fromCharCode(this.cls.code, this.code)
         // FIXME: session headers are version dependent so we should
         //        do this in a generate_session_header method
@@ -9713,6 +11495,7 @@ cls_file.msg['reject'] = {
     cls: cls_file,
     name: 'reject',
     cls_name: 'file',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -9754,6 +11537,35 @@ cls_file.msg['reject'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -9805,6 +11617,7 @@ var cls_stream = {
     msgcode: {},
     struct: {},
     structcode: {},
+    segments: [],
     code: 0xa,
     name: 'stream',
     _init: function(options) {
@@ -9853,7 +11666,7 @@ cls_stream.struct['stream_properties'].prototype = {
     code: 0x1,
     pack_size: 2,
     size: 4,
-    cls: amqp.protocol_0_10.cls.stream,
+    cls: cls_stream,
     fields: [],
     is_struct: true,
     decode: function(assembly) {
@@ -9886,6 +11699,9 @@ cls_stream.struct['stream_properties'].prototype = {
         if(typeof(values) == 'undefined')
             values = this._value;
 
+        // we need to get the size of the struct
+        var struct_assembly = new amqp.protocol.Assembly({});
+
         var packing_flags = 0;
         for (var i in this.fields) {
             var name = this.fields[i][0];
@@ -9899,7 +11715,7 @@ cls_stream.struct['stream_properties'].prototype = {
                         packing_flags += (1 << i);
                 } else {
                     packing_flags += (1 << i);
-                    new type(v, false).encode(assembly);
+                    new type(v, false).encode(struct_assembly);
                 }
             }
         }
@@ -9912,7 +11728,12 @@ cls_stream.struct['stream_properties'].prototype = {
         for (var i=pf.length - 1; i >= 0; i--)
             header += pf[i];
 
-        assembly.prepend(header);
+        struct_assembly.prepend(header);
+        
+        var size = struct_assembly.get_size(false);
+        var enc_size = amqp.protocol.int_to_bytestr(size, 4);
+        struct_assembly.prepend(enc_size);
+        assembly.write(struct_assembly.get_data());
 
     }
 };
@@ -9945,6 +11766,7 @@ cls_stream.msg['qos'] = {
     cls: cls_stream,
     name: 'qos',
     cls_name: 'stream',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -9986,6 +11808,35 @@ cls_stream.msg['qos'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -10039,6 +11890,7 @@ cls_stream.msg['qos_ok'] = {
     cls: cls_stream,
     name: 'qos_ok',
     cls_name: 'stream',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -10084,6 +11936,35 @@ cls_stream.msg['qos_ok'] = {
             }
         }
 
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
+                }
+            }
+        }
+
         var header = String.fromCharCode(this.cls.code, this.code)
         // FIXME: session headers are version dependent so we should
         //        do this in a generate_session_header method
@@ -10117,6 +11998,7 @@ cls_stream.msg['consume'] = {
     cls: cls_stream,
     name: 'consume',
     cls_name: 'stream',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -10158,6 +12040,35 @@ cls_stream.msg['consume'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -10219,6 +12130,7 @@ cls_stream.msg['consume_ok'] = {
     cls: cls_stream,
     name: 'consume_ok',
     cls_name: 'stream',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -10260,6 +12172,35 @@ cls_stream.msg['consume_ok'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -10301,6 +12242,7 @@ cls_stream.msg['cancel'] = {
     cls: cls_stream,
     name: 'cancel',
     cls_name: 'stream',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -10346,6 +12288,35 @@ cls_stream.msg['cancel'] = {
             }
         }
 
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
+                }
+            }
+        }
+
         var header = String.fromCharCode(this.cls.code, this.code)
         // FIXME: session headers are version dependent so we should
         //        do this in a generate_session_header method
@@ -10383,6 +12354,7 @@ cls_stream.msg['publish'] = {
     cls: cls_stream,
     name: 'publish',
     cls_name: 'stream',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -10424,6 +12396,35 @@ cls_stream.msg['publish'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -10470,6 +12471,44 @@ cls_stream.msg['publish'].fields.push(['mandatory', _module.type.bit, false, 4])
 cls_stream.msg['publish'].fields.push(['immediate', _module.type.bit, false, 8]);
 
 
+cls_stream_msg_publish_seg_header={'name': '_header',
+                                              'encode': function(assembly, data, is_first_segment, is_last_segment, channel) {
+        
+        var payload_assembly = new amqp.protocol.Assembly({});
+        for(var id in data) {
+            var s = cls_stream.struct[id];
+            if(s)
+                new s(data[id]).encode(payload_assembly);
+        }
+        
+        // find the size of our data structure
+        var payload_data = payload_assembly.get_data();
+        
+        var frame = new _module.Frame({assembly: assembly, 
+                                   payload: payload_data,
+                                   parsed_data: {
+                                       frame_format_version: 0,
+                                       is_first_segment: is_first_segment,
+                                       is_last_segment: is_last_segment,
+                                       is_first_frame: true,
+                                       is_last_frame: true,
+                                       segment_type: 2, // control
+                                       track: 1,
+                                       channel: channel,
+                                    }
+                                   });
+        frame.encode();
+        return frame;
+    },
+                                             }
+cls_stream.msg['publish'].segments.push(cls_stream_msg_publish_seg_header);
+
+
+cls_stream.msg['publish'].segments.push({'name': '_body',
+                                                   'encode': _module.encode_body_segment
+                               });
+
+
 cls_stream.msg['return'] = {
     masks: [1, 2, 4, 8, 16, 32, 64, 128],
     fields: [],
@@ -10477,6 +12516,7 @@ cls_stream.msg['return'] = {
     cls: cls_stream,
     name: 'return',
     cls_name: 'stream',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -10518,6 +12558,35 @@ cls_stream.msg['return'] = {
                 } else {
                     packing_flags += (1 << i);
                     new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
                 }
             }
         }
@@ -10564,6 +12633,44 @@ cls_stream.msg['return'].fields.push(['exchange', _module.type.str8, false, 4]);
 cls_stream.msg['return'].fields.push(['routing_key', _module.type.str8, false, 8]);
 
 
+cls_stream_msg_return_seg_header={'name': '_header',
+                                              'encode': function(assembly, data, is_first_segment, is_last_segment, channel) {
+        
+        var payload_assembly = new amqp.protocol.Assembly({});
+        for(var id in data) {
+            var s = cls_stream.struct[id];
+            if(s)
+                new s(data[id]).encode(payload_assembly);
+        }
+        
+        // find the size of our data structure
+        var payload_data = payload_assembly.get_data();
+        
+        var frame = new _module.Frame({assembly: assembly, 
+                                   payload: payload_data,
+                                   parsed_data: {
+                                       frame_format_version: 0,
+                                       is_first_segment: is_first_segment,
+                                       is_last_segment: is_last_segment,
+                                       is_first_frame: true,
+                                       is_last_frame: true,
+                                       segment_type: 2, // control
+                                       track: 1,
+                                       channel: channel,
+                                    }
+                                   });
+        frame.encode();
+        return frame;
+    },
+                                             }
+cls_stream.msg['return'].segments.push(cls_stream_msg_return_seg_header);
+
+
+cls_stream.msg['return'].segments.push({'name': '_body',
+                                                   'encode': _module.encode_body_segment
+                               });
+
+
 cls_stream.msg['deliver'] = {
     masks: [1, 2, 4, 8, 16, 32, 64, 128],
     fields: [],
@@ -10571,6 +12678,7 @@ cls_stream.msg['deliver'] = {
     cls: cls_stream,
     name: 'deliver',
     cls_name: 'stream',
+    segments: [],
     type: 1,
     decode: function(assembly) {
         var result = {};
@@ -10616,6 +12724,35 @@ cls_stream.msg['deliver'] = {
             }
         }
 
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding            
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+            
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = seg.encode(segment_assembly, v, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
+                }
+            }
+        }
+
         var header = String.fromCharCode(this.cls.code, this.code)
         // FIXME: session headers are version dependent so we should
         //        do this in a generate_session_header method
@@ -10656,6 +12793,44 @@ cls_stream.msg['deliver'].fields.push(['exchange', _module.type.str8, false, 4])
 
 // None
 cls_stream.msg['deliver'].fields.push(['queue', _module.type.str8, true, 8]);
+
+
+cls_stream_msg_deliver_seg_header={'name': '_header',
+                                              'encode': function(assembly, data, is_first_segment, is_last_segment, channel) {
+        
+        var payload_assembly = new amqp.protocol.Assembly({});
+        for(var id in data) {
+            var s = cls_stream.struct[id];
+            if(s)
+                new s(data[id]).encode(payload_assembly);
+        }
+        
+        // find the size of our data structure
+        var payload_data = payload_assembly.get_data();
+        
+        var frame = new _module.Frame({assembly: assembly, 
+                                   payload: payload_data,
+                                   parsed_data: {
+                                       frame_format_version: 0,
+                                       is_first_segment: is_first_segment,
+                                       is_last_segment: is_last_segment,
+                                       is_first_frame: true,
+                                       is_last_frame: true,
+                                       segment_type: 2, // control
+                                       track: 1,
+                                       channel: channel,
+                                    }
+                                   });
+        frame.encode();
+        return frame;
+    },
+                                             }
+cls_stream.msg['deliver'].segments.push(cls_stream_msg_deliver_seg_header);
+
+
+cls_stream.msg['deliver'].segments.push({'name': '_body',
+                                                   'encode': _module.encode_body_segment
+                               });
 
 
 amqp.protocol_0_10.cls['stream'] = amqp.protocol.MetaClass(cls_stream);

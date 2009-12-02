@@ -109,6 +109,7 @@ amqp.protocol = {
     Assembly:MetaClass({
         _defaults: {
             data: '',
+            metadata:{}
         },
 
         _init: function(options) {
@@ -167,6 +168,14 @@ amqp.protocol = {
         get_data: function() {
             return this._options.data;
         },
+        
+        set_metadata: function(key, value) {
+            this._options.metadata[key] = value;
+        },
+        
+        get_metadata: function(key) {
+            return this._options.metadata[key];
+        },
 
         get_size: function(from_current_pos) {
             var length = this._options.data.length;
@@ -212,6 +221,7 @@ amqp.protocol = {
                 this._options.parsed_data = {}
 
             this._options.assembly = new amqp.protocol.Assembly();
+            this._has_multiple_segments = false;
         },
 
         get: function (key) {
@@ -252,9 +262,17 @@ amqp.protocol = {
         encode: function() {
             var o = this._options;
             o.template.encode(o.assembly, o.parsed_data);
+            if (o.assembly.get_metadata('has_multiple_segments'))
+                this._has_multiple_segments = true;
         },
-
-
+        
+        has_multiple_segments: function() {
+            return this._has_multiple_segments;
+        },
+        
+        get_segment_frames: function() {
+            return this._options.assembly.get_metadata('segment_frames')
+        }
     }),
 }
 
