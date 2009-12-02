@@ -27,7 +27,7 @@ MEM_TOTAL = -2
 
 class MokshaMetricsDataStream(PollingDataStream):
     frequency = 3
-    procs = ('orbited', 'paster', 'moksha', 'httpd')
+    procs = ('orbited', 'paster', 'moksha', 'httpd', 'qpidd')
     cpu_usage = defaultdict(list)
     programs = None
     pids = {}
