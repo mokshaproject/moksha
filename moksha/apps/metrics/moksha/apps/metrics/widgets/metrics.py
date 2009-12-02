@@ -91,13 +91,17 @@ class MokshaMessageMetricsWidget(LiveFlotWidget):
                 for (var i = 0; i < NUM_MESSAGES; i++) {
                     var start = new Date();
                     start_time = start.getTime();
-                    stomp.send(start.getTime() + '', 'moksha_message_metrics',
-                               {topic: '${topic}'});
+                    moksha.send_message('moksha_message_metrics', {
+                            data: start.getTime() + '',
+                            topic: '${topic}'
+                    });
                     $('#metrics_sent_progress').progressbar('option', 'value', i+1)
                     $('#metrics_msg_sent').text(i + 1 + '');
                 }
-                stomp.send('done', 'moksha_message_metrics',
-                           {topic: '${topic}'});
+                moksha.send_message('moksha_message_metrics', {
+                        data: 'done',
+                        topic: '${topic}'
+                });
             }
 
         </script>
