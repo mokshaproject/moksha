@@ -86,7 +86,7 @@ class MokshaHub(StompHub, AMQPHub):
         else:
             topics = topic
         for topic in topics:
-            if jsonify and not isinstance(message, basestring):
+            if jsonify:
                 message = json.encode(message)
             if self.amqp_broker:
                 AMQPHub.send_message(self, topic, message, routing_key=topic)
