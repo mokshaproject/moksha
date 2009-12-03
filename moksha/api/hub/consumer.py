@@ -68,7 +68,6 @@ class Consumer(object):
             self.engine = create_app_engine(app)
             self.DBSession = sessionmaker(bind=self.engine)()
 
-
     def _consume_json(self, message):
         """ Convert our AMQP messages into a consistent dictionary format.
 
@@ -80,7 +79,9 @@ class Consumer(object):
         because the current AMQP.js bindings do not allow the client to change them.
         Thus, we need to throw any topic/queue details into the JSON body itself.
         """
-        self.consume(json.decode(message.body))
+        body = json.decode(message.body)
+        body['raw'] = message
+        self.consume(body)
 
     def _consume(self, message):
         self.consume(message.body)
