@@ -64,7 +64,7 @@ class TestLiveWidgetQuickstart(QuickstartTester):
     def test_livewidget(self):
         """ Ensure our LiveWidget is available """
         resp = self.app.get('/widgets/mokshatest')
-        assert 'Hello world.' in resp, resp
+        assert 'Welcome' in resp, resp
 
     def test_livewidget_entry_point(self):
         """ Ensure our widget is available on the `moksha.widget` entry-point """
