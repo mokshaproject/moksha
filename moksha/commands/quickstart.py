@@ -140,11 +140,11 @@ Example usage::
         cmd_args.append("controller=%s" % self.controller)
         cmd_args.append("stream=%s" % self.stream)
         cmd_args.append("package=%s" % self.package)
-        cmd_args.append("widget_name=%s" % self.name.title() + 'Widget')
-        cmd_args.append("stream_name=%s" % self.name.title() + 'Stream')
-        cmd_args.append("consumer_name=%s" % self.name.title() + 'Consumer')
-        cmd_args.append("connector_name=%s" % self.name.title() + 'Connector')
-        cmd_args.append("controller_name=%s" % self.name.title() + 'Controller')
+        cmd_args.append("widget_name=%s" % self.package.title() + 'Widget')
+        cmd_args.append("stream_name=%s" % self.package.title() + 'Stream')
+        cmd_args.append("consumer_name=%s" % self.package.title() + 'Consumer')
+        cmd_args.append("connector_name=%s" % self.package.title() + 'Connector')
+        cmd_args.append("controller_name=%s" % self.package.title() + 'Controller')
         command.run(cmd_args)
 
         #if not self.dry_run:
