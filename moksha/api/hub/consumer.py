@@ -103,10 +103,8 @@ class Consumer(object):
         raise NotImplementedError
 
     def send_message(self, topic, message):
-        if self.jsonify:
-            message = json.encode(message)
         try:
-            self.hub.send_message(topic, message)
+            self.hub.send_message(topic, message, jsonify=self.jsonify)
         except Exception, e:
             log.error('Cannot send message: %s' % e)
 
