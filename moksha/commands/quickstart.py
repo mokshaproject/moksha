@@ -40,7 +40,7 @@ Example usage::
     consumer = False
     stream = False
 
-    topic = 'moksha.topics.test'
+    topic = 'moksha.test'
 
     parser = command.Command.standard_parser(quiet=True)
     parser = optparse.OptionParser(
