@@ -115,16 +115,16 @@ class AMQPSocket(Widget):
                 Orbited.settings.hostname = '${orbited_host}';
                 Orbited.settings.streaming = true;
                 moksha_amqp_conn = new amqp.Connection({
-                    host: '${amqp_broker_host}',
-                    port: ${amqp_broker_port},
-                    username: '${amqp_broker_user}',
-                    password: '${amqp_broker_pass}',
                     % if send_hook:
                         send_hook: function(data, frame) { ${send_hook} },
                     % endif
                     % if recieve_hook:
-                        recive_hook: function(data, frame) { ${recieve_hook} }
+                        recive_hook: function(data, frame) { ${recieve_hook} },
                     % endif
+                    host: '${amqp_broker_host}',
+                    port: ${amqp_broker_port},
+                    username: '${amqp_broker_user}',
+                    password: '${amqp_broker_pass}',
                 });
                 moksha_amqp_conn.start();
 
