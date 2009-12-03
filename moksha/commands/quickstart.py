@@ -58,8 +58,8 @@ Example usage::
     parser.add_option("-C", "--controller",
             help='Create an example Moksha Controller',
             action="store_true", dest="controller")
-    parser.add_option("-s", "--stream",
-            help='Create an example Moksha DataStream',
+    parser.add_option("-P", "--producer",
+            help='Create an example Moksha Producer',
             action="store_true", dest="stream")
     parser.add_option("-p", "--package",
             help="package name for the code",
