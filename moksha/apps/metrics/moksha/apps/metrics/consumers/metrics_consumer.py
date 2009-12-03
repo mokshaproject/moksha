@@ -13,24 +13,21 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+Moksha Metrics Consumer
+=======================
 
-import logging
+.. moduleauthor:: Luke Macken <lmacken@redhat.com>
+"""
 
-from orbited import json
 from moksha.api.hub import Consumer
-
-log = logging.getLogger('moksha.hub')
 
 class MokshaMessageMetricsConsumer(Consumer):
     """
     This consumer listens to all messages on the `moksha_message_metrics`
-    topic, and relays the messgae to the message['headers']['topic']
+    topic, and relays the message to the message.body['topic'] topic.
     """
     topic = 'moksha_message_metrics'
 
     def consume(self, message):
-        topic = message['headers'].get('topic')
-        if topic:
-            self.send_message(topic, json.encode(message['body']))
-        else:
-            log.error('No `topic` specified in moksha_message_metrics message')
+        self.send_message(message['topic'], message['data'])
