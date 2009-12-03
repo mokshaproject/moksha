@@ -153,7 +153,9 @@ class StompWidget(Widget):
         self.notify = asbool(config.get('moksha.socket.notify', False))
         self.orbited_host = config.get('orbited_host', 'localhost')
         self.orbited_port = config.get('orbited_port', 9000)
-        self.orbited_url = 'http://%s:%s' % (self.orbited_host, self.orbited_port)
+        self.orbited_scheme = config.get('orbited_scheme', 'http')
+        self.orbited_url = '%s://%s:%s' % (self.orbited_scheme,
+                self.orbited_host, self.orbited_port)
         self.orbited_js = JSLink(link=self.orbited_url + '/static/Orbited.js')
         self.stomp_host = config.get('stomp_host', 'localhost')
         self.stomp_port = config.get('stomp_port', 61613)

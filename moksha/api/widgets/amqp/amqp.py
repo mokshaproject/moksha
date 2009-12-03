@@ -161,7 +161,9 @@ class AMQPSocket(Widget):
         self.notify = asbool(config.get('moksha.socket.notify', False))
         self.orbited_host = config.get('orbited_host', 'localhost')
         self.orbited_port = config.get('orbited_port', 9000)
-        self.orbited_url = 'http://%s:%s' % (self.orbited_host, self.orbited_port)
+        self.orbited_scheme = config.get('orbited_scheme', 'http')
+        self.orbited_url = '%s://%s:%s' % (self.orbited_scheme,
+                self.orbited_host, self.orbited_port)
         self.orbited_js = JSLink(link=self.orbited_url + '/static/Orbited.js')
         self.amqp_broker_host = config.get('amqp_broker_host', 'localhost')
         self.amqp_broker_port = config.get('amqp_broker_port', 5672)
