@@ -97,7 +97,7 @@ Example usage::
                     "Enter package name [%s]: " % package).strip() or package
 
         self.name = pkg_resources.safe_name(self.name).replace('-', '_')
-        self.rpm_name = self.name.replace('.', '_')
+        self.rpm_name = self.package.replace('.', '-')
 
         env = pkg_resources.Environment()
         if self.name.lower() in env:
