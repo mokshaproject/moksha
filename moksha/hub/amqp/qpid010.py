@@ -21,6 +21,7 @@ import logging
 from qpid.util import connect, URL, ssl
 from qpid.datatypes import Message, uuid4, RangedSet
 from qpid.connection import Connection
+from qpid.session import SessionClosed
 
 from moksha.hub.amqp.base import BaseAMQPHub
 
@@ -87,7 +88,11 @@ class QpidAMQPHub(BaseAMQPHub):
                                               destination=destination)
 
     def message_accept(self, message):
-        self.session.message_accept(RangedSet(message.id))
+        try:
+            self.session.message_accept(RangedSet(message.id))
+        except SessionClosed:
+            log.debug("Accepted message on closed session: %s" % message.id)
+            pass
 
     def close(self):
         self.session.close(timeout=2)
