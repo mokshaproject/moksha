@@ -28,13 +28,17 @@ loaded, and receives each message for the specified topic through the
 
 import logging
 log = logging.getLogger('moksha.hub')
+
 from moksha.hub.hub import MokshaHub
-from moksha.lib.helpers import listify, create_app_engine
+from moksha.lib.helpers import listify, create_app_engine, json
 from sqlalchemy.orm import sessionmaker
 
 class Consumer(object):
     """ A message consumer """
     topic = None
+
+    # Automatically decode JSON data
+    jsonify = True
 
     def __init__(self):
         self.hub = MokshaHub()
@@ -50,7 +54,10 @@ class Consumer(object):
                 self.hub.message_subscribe(queue=server_queue_name,
                                        destination=local_queue_name)
                 self.hub.local_queue.start()
-                self.hub.local_queue.listen(self.consume)
+                if self.jsonify:
+                    self.hub.local_queue.listen(self._consume_json)
+                else:
+                    self.hub.local_queue.listen(self._consume)
 
         # If the consumer specifies an 'app', then setup `self.engine` to
         # be a SQLAlchemy engine, along with a configured DBSession
@@ -61,10 +68,29 @@ class Consumer(object):
             self.engine = create_app_engine(app)
             self.DBSession = sessionmaker(bind=self.engine)()
 
+
+    def _consume_json(self, message):
+        """ Convert our AMQP messages into a consistent dictionary format.
+
+        This method exists because our STOMP & AMQP message brokers consume
+        messages in different formats.  This causes our messaging abstraction
+        to leak into the consumers themselves.
+
+        :Note: We do not pass the message headers to the consumer (in this AMQP consumer)
+        because the current AMQP.js bindings do not allow the client to change them.
+        Thus, we need to throw any topic/queue details into the JSON body itself.
+        """
+        self.consume(json.decode(message.body))
+
+    def _consume(self, message):
+        self.consume(message.body)
+
     def consume(self, message):
         raise NotImplementedError
 
     def send_message(self, topic, message):
+        if self.jsonify:
+            message = json.encode(message)
         try:
             self.hub.send_message(topic, message)
         except Exception, e:
