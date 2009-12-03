@@ -113,13 +113,12 @@ class MokshaHub(StompHub, AMQPHub):
 
     def consume_amqp_message(self, message):
         self.message_accept(message)
-        topic = message.headers[0]['routing_key']
         try:
-            body = json.decode(message.body)
-        except Exception, e:
-            log.warning('Cannot decode message from JSON: %s' % e)
-            log.debug('Message: %r' % message.body)
-            body = message.body
+            topic = message.get('delivery_properties').routing_key
+        except AttributeError:
+            # If we receive an AMQP message without a toipc, don't proxy it to STOMP
+            return
+
         if self.stomp_broker:
             StompHub.send_message(self, topic.encode('utf8'),
                                   message.body.encode('utf8'))
