@@ -91,6 +91,11 @@ class MokshaMessageMetricsWidget(LiveFlotWidget):
                 for (var i = 0; i < NUM_MESSAGES; i++) {
                     var start = new Date();
                     start_time = start.getTime();
+                    /* Eventually, once our AMQP bindings don't explode, send
+                       the messages directly to the AMQP queue, instead of going
+                       through a consumer.  it would be nice to benchmark both.
+                    moksha.send_message('${topic}', start.getTime() + '');
+                       */
                     moksha.send_message('moksha_message_metrics', {
                             data: start.getTime() + '',
                             topic: '${topic}'
