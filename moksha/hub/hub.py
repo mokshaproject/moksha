@@ -48,6 +48,10 @@ class MokshaHub(StompHub, AMQPHub):
             self.amqp_broker = config.get('amqp_broker', None)
             self.stomp_broker = config.get('stomp_broker', None)
 
+        if self.amqp_broker and self.stomp_broker:
+            log.warning("Running with both a STOMP and AMQP broker. "
+                        "This mode is experimental and may or may not work")
+
         if not self.topics:
             self.topics = defaultdict(list)
 
@@ -59,7 +63,6 @@ class MokshaHub(StompHub, AMQPHub):
                     self.topics[topic].append(callback)
 
         if self.amqp_broker:
-            log.info('Initializing AMQP support')
             AMQPHub.__init__(self, self.amqp_broker)
 
         if self.stomp_broker:

@@ -45,6 +45,7 @@ class QpidAMQPHub(BaseAMQPHub):
                                      username=self.user,
                                      password=self.password)
         self.connection.start()
+        log.info("Connected to AMQP Broker %s" % self.host)
         self.session = self.connection.session(str(uuid4()))
 
     def set_broker(self, broker):
