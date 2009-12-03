@@ -236,7 +236,14 @@ def setup_logger(verbose):
 def main():
     """ The main MokshaHub method """
     setup_logger('-v' in sys.argv or '--verbose' in sys.argv)
-    cfg = appconfig('config:' + get_moksha_config_path())
+    config_path = get_moksha_config_path()
+    if not config_path: 
+        print """
+            Cannot find Moksha configuration!  Place a development.ini or production.ini
+            in /etc/moksha or in the current directory.
+        """
+        return
+    cfg = appconfig('config:' + config_path)
     config.update(cfg)
 
     hub = CentralMokshaHub()
