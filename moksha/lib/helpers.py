@@ -20,11 +20,11 @@ import time
 import pylons
 import urllib
 import uuid
-import simplejson as json
 import re
 import os
 import logging
 import warnings
+from orbited import json
 
 from tw.api import js_callback
 from pytz import timezone, utc
@@ -59,7 +59,7 @@ def _update_params(params, d):
             # by the passed params
             if isinstance(value, dict):
                 value = _update_params(value, d)
-                value = json.dumps(value)
+                value = json.encode(value)
             elif isinstance(value, list):
                 value = value
 
@@ -327,7 +327,7 @@ class App(ConfigWrapper):
         qs = self._create_query_string(p)
         results.update({'label': self.label, 'url': self.url,
                 'params': p,
-                'json_params': json.dumps(p),
+                'json_params': json.encode(p),
                 'query_string': qs,
                 'content_id': self.content_id + '-' + results['id'],
                 'css_class': css_class})
