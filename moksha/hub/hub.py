@@ -27,7 +27,7 @@ from tg import config
 from orbited import json
 from paste.deploy import appconfig
 
-from moksha.lib.helpers import trace, defaultdict, get_moksha_config_path
+from moksha.lib.helpers import trace, defaultdict, get_moksha_config_path, get_moksha_appconfig
 from moksha.hub.amqp import AMQPHub
 from moksha.hub.stomp import StompHub
 
@@ -38,8 +38,16 @@ class MokshaHub(StompHub, AMQPHub):
     topics = None # {topic_name: [callback,]}
 
     def __init__(self, topics=None):
+        global config
         self.amqp_broker = config.get('amqp_broker', None)
         self.stomp_broker = config.get('stomp_broker', None)
+
+        # If we're running outside of middleware and hub, load config
+        if not self.amqp_broker and not self.stomp_broker:
+            config = get_moksha_appconfig()
+            self.amqp_broker = config.get('amqp_broker', None)
+            self.stomp_broker = config.get('stomp_broker', None)
+
         if not self.topics:
             self.topics = defaultdict(list)
 
