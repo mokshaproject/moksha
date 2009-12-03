@@ -79,7 +79,11 @@ class Consumer(object):
         because the current AMQP.js bindings do not allow the client to change them.
         Thus, we need to throw any topic/queue details into the JSON body itself.
         """
-        body = json.decode(message.body)
+        try:
+            body = json.decode(message.body)
+        except:
+            log.debug("Unable to decode message body to JSON: %r" % message.body)
+            body = message.body
         topic = None
         try:
             topic = message.headers[0].routing_key
