@@ -789,7 +789,6 @@ moksha = {
     },
 
     send_message: function(topic, body) {
-        moksha.debug('moksha.send_message(' + topic + ', ' + body + ')');
         if (typeof(moksha_amqp_session) != 'undefined') {
             moksha_amqp_session.Message('transfer', {
                 accept_mode: 1,
