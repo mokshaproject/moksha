@@ -53,6 +53,7 @@ class StompHub(MessagingHub, ReconnectingClientFactory):
         for frame in self._frames:
             log.debug('Flushing queued frame')
             self.proto.transport.write(frame.pack())
+        self._frames = []
 
     def clientConnectionLost(self, connector, reason):
         log.info('Lost connection.  Reason: %s' % reason)
