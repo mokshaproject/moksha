@@ -127,19 +127,16 @@ class MokshaHub(StompHub, AMQPHub):
             log.debug("Got message without a topic: %r" % message)
             return
 
+        # FIXME: only do this if the consumer wants it `jsonified`
         try:
             body = json.decode(message['body'])
         except Exception, e:
             log.warning('Cannot decode message from JSON: %s' % e)
             body = {}
 
-        # Feed our consumers with dictionaries of the JSON bodies, but
-        # also make the native AMQP or STOMP message objects available.
-        body['raw'] = message
-
         # feed all of our consumers
         for callback in self.topics.get(topic, []):
-            reactor.callInThread(callback, body)
+            reactor.callInThread(callback, {'body': body, 'topic': topic})
 
 
 class CentralMokshaHub(MokshaHub):

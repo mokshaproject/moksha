@@ -80,11 +80,20 @@ class Consumer(object):
         Thus, we need to throw any topic/queue details into the JSON body itself.
         """
         body = json.decode(message.body)
-        body['raw'] = message
-        self.consume(body)
+        topic = None
+        try:
+            topic = message.headers[0].routing_key
+        except TypeError:
+            # We didn't get a JSON dictionary
+            pass
+        except AttributeError:
+            # We didn't get headers or a routing key?
+            pass
+
+        self.consume({'body': body, 'topic': topic})
 
     def _consume(self, message):
-        self.consume(message.body)
+        self.consume(message)
 
     def consume(self, message):
         raise NotImplementedError
