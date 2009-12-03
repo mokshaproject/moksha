@@ -179,8 +179,8 @@ class CentralMokshaHub(MokshaHub):
         log.info('Loading Moksha Consumers')
         for consumer in pkg_resources.iter_entry_points('moksha.consumer'):
             c_class = consumer.load()
-            log.debug("%s consumer is watching the %r topic" % (
-                      c_class.__name__, c_class.topic))
+            log.info("%s consumer is watching the %r topic" % (
+                     c_class.__name__, c_class.topic))
             self.topics[c_class.topic].append(c_class)
 
     def __run_consumers(self):
