@@ -30,4 +30,4 @@ class MokshaMessageMetricsConsumer(Consumer):
     topic = 'moksha_message_metrics'
 
     def consume(self, message):
-        self.send_message(message['topic'], message['data'])
+        self.send_message(message['body']['topic'], message['body']['data'])
