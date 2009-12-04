@@ -86,7 +86,13 @@ class AMQPSocket(Widget):
             moksha_amqp_queue = null;
             moksha_amqp_on_message = function(msg) {
                 var dest = msg.header.delivery_properties.routing_key;
-                var json = $.secureEvalJSON(msg.body);
+                var json = null;
+                try {
+                    var json = $.secureEvalJSON(msg.body);
+                } catch(err) {
+                    moksha.error("Unable to decode JSON message body");
+                    moksha.debug(msg);
+                }
                 if (moksha_callbacks[dest]) {
                     for (var i=0; i < moksha_callbacks[dest].length; i++) {
                         moksha_callbacks[dest][i](json, msg);
