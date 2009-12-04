@@ -194,11 +194,12 @@ class CentralMokshaHub(MokshaHub):
     def __init_data_streams(self):
         """ Initialize all data streams """
         self.data_streams = []
-        for stream in pkg_resources.iter_entry_points('moksha.stream'):
-            stream_class = stream.load()
-            log.info('Loading %s data stream' % stream_class.__name__)
-            stream_obj = stream_class()
-            self.data_streams.append(stream_obj)
+        for entry in ('moksha.producer', 'moksha.stream'):
+            for stream in pkg_resources.iter_entry_points(entry):
+                stream_class = stream.load()
+                log.info('Loading %s producer' % stream_class.__name__)
+                stream_obj = stream_class()
+                self.data_streams.append(stream_obj)
 
     @trace
     def create_topic(self, topic):
