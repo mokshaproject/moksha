@@ -150,7 +150,7 @@ class MokshaMiddleware(object):
                                    [app_entry.name])
                 moksha._apps[app_entry.name]['model'] = model
             except ImportError, e:
-                log.error(e)
+                log.debug(e)
 
     def load_wsgi_applications(self):
         log.info('Loading moksha WSGI applications')
