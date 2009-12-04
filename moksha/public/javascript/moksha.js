@@ -804,6 +804,13 @@ moksha = {
         } else {
             stomp.send($.toJSON(body), topic)
         }
+    },
+
+    on_enter: function(e, callback) {
+        var key = e.keyCode || e.which;
+        if (key == 13) {
+            callback(e);
+        }
     }
 
 }
