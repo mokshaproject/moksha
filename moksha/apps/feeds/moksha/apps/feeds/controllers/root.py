@@ -29,16 +29,19 @@ from orbited import json
 
 from moksha.lib.base import Controller
 from moksha.lib.helpers import to_unicode
-from moksha.widgets.feedtree import feed_entries_tree, moksha_feedreader
+from moksha.widgets.feeds import feed_entries_tree, moksha_feedreader
+
+from tg import expose, validate
+from formencode import validators
 
 log = logging.getLogger('moksha.hub')
 
 class FeedController(Controller):
 
-    @expose('mako:moksha.templates.widget')
-    def index(self, *args, **kw):
-        tmpl_context.widget = moksha_feedreader
-        return dict(options={})
+    @expose('mako:moksha.apps.mokshafeeds.templates.index')
+    @validate({'name': validators.UnicodeString()})
+    def index(self, name='world', *args, **kw):
+        return dict(name=name)
 
     @expose()
     def init_tree(self, key, fresh=False, **kw):
@@ -56,15 +59,17 @@ class FeedController(Controller):
             if not feed:
                 raise Exception('None feed?!')
             if fresh:
+                print "Getting fresh data"
                 feed_data = moksha.feed_cache.fetch(feed)
             else:
+                print "Getting cached data"
                 timestamp, feed_data = moksha.feed_storage[feed]
             if not feed_data:
                 log.debug("no feed_data, refetching")
-                feed_data = moksha.feed_cache.fetch(feed)
-                if not feed_data:
-                    log.debug("NO FEED DATA AFTER FRESH FETCH!!!!")
-                    continue
+                #feed_data = moksha.feed_cache.fetch(feed)
+                #if not feed_data:
+                #    log.debug("NO FEED DATA AFTER FRESH FETCH!!!!")
+                continue
             channel = feed_data.get('channel')
             if not channel:
                 continue

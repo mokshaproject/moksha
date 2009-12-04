@@ -1,0 +1,2 @@
+recursive-include moksha/*/feeds/templates *
+recursive-include moksha/*/feeds/static *

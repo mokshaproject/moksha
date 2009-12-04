@@ -1,4 +1,7 @@
 <div id="${id}" class="moksha-feedreader">
+  <script>
+    moksha_feed_topic = '${topic}';
+  </script>
   <div id="LeftPane">
     ${c.feed_tree()}
   </div>

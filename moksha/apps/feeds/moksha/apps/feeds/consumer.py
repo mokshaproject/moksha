@@ -26,36 +26,31 @@ entries for a specific feed, and will send the data to the specified ``topic``.
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
 """
 
-import logging
-
 from tg import config
 from shove import Shove
-from orbited import json
 
 from moksha.api.hub import Consumer
 from moksha.lib.helpers import to_unicode
 
-log = logging.getLogger('moksha.hub')
-
 class MokshaFeedConsumer(Consumer):
 
-    topic = 'feeds'
+    topic = 'moksha.feeds'
 
     def __init__(self):
         super(MokshaFeedConsumer, self).__init__()
         self.feed_storage = Shove(config['feed_cache'], compress=True)
 
     def consume(self, message):
-        log.debug('MokshaFeedConsumer.consume(%s)' % message)
-        action = message['headers'].get('action')
+        self.log.debug('MokshaFeedConsumer.consume(%s)' % message)
+        action = message['body'].get('action')
         if action and hasattr(self, action):
-            getattr(self, action)(message)
+            getattr(self, action)(message['body'])
         else:
             # new feed found?
             pass
 
     def get_feed(self, message):
-        url = message['body']
+        url = message['key']
         feed = self.feed_storage[url][1]
         entries = []
         for entry in feed['entries']:
@@ -66,12 +61,16 @@ class MokshaFeedConsumer(Consumer):
                 'rootVisible': False,
                 'key': "%s::%s" % (url, entry.get('title', '').replace(' ','')),
                 })
-        self.send_message(message['headers']['topic'],
-                json.encode({'entries': entries, 'key': url,
-                             'action': 'get_feed'}))
+        print "Sending response! back to %s" % message['topic']
+        print len(entries)
+        self.send_message(message['topic'], {
+                'entries': entries,
+                'key': url,
+                'action': 'get_feed'
+                })
 
     def get_entry(self, message, **kw):
-        key = message['body']
+        key = message['key']
         if '::' in key:
             url, title = key.split('::')
             for entry in self.feed_storage[url][1]['entries']:
@@ -84,9 +83,10 @@ class MokshaFeedConsumer(Consumer):
                     <blockquote><h3><a href="%s">%s</a></h3><br/>%s</blockquote>
                 """ % (entry.get('link', url), entry['title'], content)
                 if entry['title'].replace(' ', '') == to_unicode(title):
-                    self.send_message(message['headers']['topic'],
-                            json.encode({'content': content,
-                                         'action': 'get_entry'}))
+                    self.send_message(message['topic'], {
+                            'content': content,
+                            'action': 'get_entry'
+                            })
                     return
             raise Exception("Cannot find entry by title: %s" % title)
         else:
