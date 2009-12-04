@@ -2,8 +2,11 @@ from moksha.api.widgets.live import LiveWidget
 
 class {{widget_name}}(LiveWidget):
     topic = '{{topic}}'
-    params = ['id']
-    onmessage = "$('<div/>').text(json.message).appendTo('#${id}');"
+    params = ['id', 'topic']
+    onmessage = """
+        $('#chat_${id}').val(json.name + ': ' + json.message +
+                             $('#chat_${id}').val())
+    """
     template = 'mako:moksha.widgets.{{package}}.templates.widget'
 
     def update_params(self, d):
