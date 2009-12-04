@@ -112,7 +112,13 @@ class StompWidget(Widget):
                     };
                     stomp.onmessageframe = function(f){
                         var dest = f.headers.destination;
-                        var json = $.secureEvalJSON(f.body);
+                        var json = null;
+                        try {
+                            var json = $.secureEvalJSON(f.body);
+                        } catch(err) {
+                            moksha.error("Unable to decode JSON message body");
+                            moksha.debug(msg);
+                        }
                         if (moksha_callbacks[dest]) {
                             for (var i=0; i < moksha_callbacks[dest].length; i++) {
                                 moksha_callbacks[dest][i](json, f);
