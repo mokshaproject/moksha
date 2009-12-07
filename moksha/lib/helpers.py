@@ -763,7 +763,7 @@ def in_full_moksha_stack():
 
 def get_main_app_config_path():
     """
-    :returns: The path to the main applications configuratoin file
+    :returns: The path to the main applications configuration file
     """
     try:
         return pylons.config['__file__']
@@ -780,7 +780,7 @@ def get_moksha_config_path():
         return get_main_app_config_path()
     else:
         for config_file in ('production.ini', 'development.ini'):
-            for config_path in ('/etc/moksha/', __file__ + '/../../../'):
+            for config_path in ('.', '/etc/moksha/', __file__ + '/../../../'):
                 cfg = os.path.join(os.path.abspath(config_path), config_file)
                 if os.path.isfile(cfg):
                     return cfg
