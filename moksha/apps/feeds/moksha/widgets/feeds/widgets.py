@@ -143,8 +143,8 @@ class MokshaFeedReaderWidget(LiveWidget):
     container_options = {
             'top': 50,
             'left': 50,
-            'height': 400,
-            'width': 300,
+            'height': 600,
+            'width': 890,
             'icon': 'browser.png',
             }
     onmessage = """
