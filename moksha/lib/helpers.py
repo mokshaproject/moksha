@@ -779,8 +779,8 @@ def get_moksha_config_path():
     if in_full_moksha_stack():
         return get_main_app_config_path()
     else:
-        for config_file in ('production.ini', 'development.ini'):
-            for config_path in ('.', '/etc/moksha/', __file__ + '/../../../'):
+        for config_path in ('.', '/etc/moksha/', __file__ + '/../../../'):
+            for config_file in ('production.ini', 'development.ini'):
                 cfg = os.path.join(os.path.abspath(config_path), config_file)
                 if os.path.isfile(cfg):
                     return cfg
