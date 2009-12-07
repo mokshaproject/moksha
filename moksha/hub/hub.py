@@ -26,6 +26,7 @@ import logging
 from tg import config
 from orbited import json
 from paste.deploy import appconfig
+from twisted.internet.error import ReactorNotRunning
 
 from moksha.lib.helpers import trace, defaultdict, get_moksha_config_path, get_moksha_appconfig
 from moksha.hub.amqp import AMQPHub
@@ -253,7 +254,10 @@ def main():
         from moksha.hub.reactor import reactor
         if signum in [signal.SIGHUP, signal.SIGINT]:
             hub.stop()
-            reactor.stop()
+            try:
+                reactor.stop()
+            except ReactorNotRunning:
+                pass
 
     signal.signal(signal.SIGHUP, handle_signal)
     signal.signal(signal.SIGINT, handle_signal)
