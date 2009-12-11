@@ -61,8 +61,6 @@ class MokshaFeedConsumer(Consumer):
                 'rootVisible': False,
                 'key': "%s::%s" % (url, entry.get('title', '').replace(' ','')),
                 })
-        print "Sending response! back to %s" % message['topic']
-        print len(entries)
         self.send_message(message['topic'], {
                 'entries': entries,
                 'key': url,
