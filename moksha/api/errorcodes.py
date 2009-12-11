@@ -29,7 +29,7 @@ login_err = ErrEnum ('login_err',
                       ('The username or password you entered is not valid. Please '
                        'try again.')
                      ),
-                     ('UNKOWN_AUTH_ERROR',
+                     ('UNKNOWN_AUTH_ERROR',
                       ('An unknown error occurred while trying to log you in. '
                        'Please try again later or notify an admin if the problem '
                        'persists')
