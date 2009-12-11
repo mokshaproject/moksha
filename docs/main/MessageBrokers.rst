@@ -23,14 +23,20 @@ well.
 -------------------------
 
 Plugging an `AMQP <http://amqp.org>`_ broker into Moksha is trivial.  Simply
-add an `amqp_broker` to your configuration:
+add an `amqp_broker` to your configuration, and change the live socket backend:
 
 .. code-block:: none
 
     amqp_broker = guest/guest@localhost
+    moksha.livesocket.backend = amqp
+
+.. note::
+
+   It's probably best to comment out the `stomp_broker` when you enable AMQP
+   support.  You can have both, but Moksha will enter a bridged mode that
+   may or may not work as expected.
 
 The :class:`MokshaHub` will then automatically connect up to your AMQP broker and proxy messages to the STOMP broker and Moksha Consumers.
-
 
 AMQP support in Moksha has been tested with `Qpid <http://qpid.apache.org>`_.
 
