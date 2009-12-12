@@ -16,12 +16,19 @@
 #
 # Authors: Luke Macken <lmacken@redhat.com>
 
-from moksha.hub.reactor import reactor
 
+import os
 import sys
+
+# Look in the current directory for egg-info
+if os.getcwd() not in sys.path:
+    sys.path.insert(0, os.getcwd())
+
 import signal
 import pkg_resources
 import logging
+
+from moksha.hub.reactor import reactor
 
 from tg import config
 from orbited import json
