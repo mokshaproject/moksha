@@ -70,8 +70,11 @@ def reinstall():
 def install():
     """Overrides install to make sure that our setup.py is generated."""
     conf_d = path('etc') / 'moksha' / 'conf.d' / options.name
-    os.makedirs(path(options.install.root) / conf_d)
-    for cfg in path('.').glob('*.ini'):
-        if os.path.exists(cfg):
-            dest = path(options.install.root) / conf_d / cfg[2:]
-            sh('cp %s %s' % (cfg, dest))
+    if hasattr(options.install, 'root'):
+        os.makedirs(path(options.install.root) / conf_d)
+        for cfg in path('.').glob('*.ini'):
+            if os.path.exists(cfg):
+                dest = path(options.install.root) / conf_d / cfg[2:]
+                sh('cp %s %s' % (cfg, dest))
+    else:
+        print "No `options.install.root`; not installing `ini` config files"
