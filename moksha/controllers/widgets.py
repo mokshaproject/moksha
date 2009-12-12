@@ -19,6 +19,7 @@
 import moksha
 import logging
 
+from urllib import urlencode
 from tg import expose, tmpl_context, flash, redirect, validate
 from formencode import validators
 
@@ -38,9 +39,10 @@ class WidgetController(Controller):
         'chrome': validators.StringBool(),
         'source': validators.UnicodeString(),
         'module': validators.StringBool(),
+        'iframe': validators.StringBool(),
     })
     def default(self, widget, chrome=False, live=False, source=False,
-                module=False, **kw):
+                module=False, iframe=False, **kw):
         """ Display a single widget.
 
         :chrome: Display in a Moksha Container
@@ -71,6 +73,11 @@ class WidgetController(Controller):
                                                '?module=%s' % module,
                                                height='425px')
             options['id'] += source + '_source'
+            options['view_source'] = False
+        if iframe:
+            options['content'] = iframe_widget(url='/widgets/' + widget +
+                                               '?' + urlencode(kw),
+                                               height='425px')
             options['view_source'] = False
         return dict(options=options)
 
