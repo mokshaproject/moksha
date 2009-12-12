@@ -9,15 +9,10 @@
                     <div class="content">
                       ${content}
                     % if view_source:
-                      <a href="#" onclick="$('#footer')
-                          .append($('<div/>')
-                          .attr('id', '${id}_loader'));
-                          $.ajax({
+                      <a href="#" onclick="$.ajax({
                               url: moksha.url('/widgets/code_widget?chrome=True&source=${widget_name}'),
                               success: function(r, s) {
-                                  var $panel = $('#${id}_loader');
-                                  var $stripped = moksha.filter_resources(r);
-                                  $panel.html($stripped);
+                                  $('body').append(moksha.filter_resources(r));
                               }
                           });
                           return false;">View Source</a>
