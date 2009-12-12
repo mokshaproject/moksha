@@ -43,12 +43,15 @@ jquery_mbmenu_min_js = JSLink(modname=modname,
                               filename='static/mbMenu.min.js',
                               javascript=[jquery_js])
 
+mbmenu_css_1 = CSSLink(modname=modname, filename='static/css/menu1.css',
+                       media='screen')
+mbmenu_css = CSSLink(modname=modname, filename='static/css/menu.css',
+                     media='screen')
 
 class MokshaMenuBase(Widget):
     template = "mako:moksha.apps.menus.templates.mbmenu"
     javascript = [jquery_mbmenu_min_js]
-    css = [CSSLink(modname=modname, filename='static/css/menu1.css',
-                   media='screen')]
+    css = [mbmenu_css_1]
     params = ['callback', 'rootMenuSelector', 'menuSelector', 'id', 'menus',
               'additionalData', 'iconPath', 'menuWidth', 'openOnRight',
               'hasImages', 'fadeTime', 'adjustLeft', 'adjustTop', 'opacity',
