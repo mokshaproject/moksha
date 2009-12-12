@@ -23,7 +23,7 @@ if [ ! $VIRTUAL_ENV ]; then
         #echo "Installing Moksha"
         echo "Installing Moksha"
         #rm -fr dist
-        python setup.py develop
+        python setup.py install
         #python setup.py bdist_egg
         #easy_install -Z dist/*.egg
 
@@ -56,7 +56,7 @@ if [ ! $VIRTUAL_ENV ]; then
         #rm -fr dist
         #python setup.py bdist_egg
         #easy_install -Z dist/*.egg
-        python setup.py develop
+        python setup.py install
     fi
 fi
 
