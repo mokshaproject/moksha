@@ -20,3 +20,4 @@ moksha/apps/*/build
 moksha/apps/*/*egg-info
 tg2-bootstrap.py
 *.cachegrind
+dist
