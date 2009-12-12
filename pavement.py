@@ -25,6 +25,9 @@ from paver.setuputils import find_packages, find_package_data
 import paver.misctasks
 import paver.virtual
 
+from paver.setuputils import install_distutils_tasks
+install_distutils_tasks()
+
 VERSION = '0.4.2'
 
 HEADER = """This file is part of Moksha.
