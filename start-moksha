@@ -49,18 +49,12 @@ if [ ! $VIRTUAL_ENV ]; then
         #pushd moksha/widgetbrowser; python setup.py develop; popd
     else
         source tg2env/bin/activate
-
-        # `install` instead of `develop` to avoid weird directory vs. egg
-        # namespace issues
-        #echo "Installing Moksha"
-        #rm -fr dist
-        #python setup.py bdist_egg
-        #easy_install -Z dist/*.egg
-        python setup.py install
     fi
 fi
 
 echo "Starting Moksha..."
+
+python setup.py develop
 
 echo "Starting the WSGI stack..."
 paster serve development.ini &
