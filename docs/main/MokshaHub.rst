@@ -10,9 +10,10 @@ applications to send messages to a given topic.
 
 .. code-block:: python
 
-    from moksha.hub import MokshaHub
+    from moksha.api.hub import MokshaHub, reactor
     hub = MokshaHub()
     hub.send_message('topic', 'message')
+    reactor.run()
     hub.close()
 
 Behind the scenes, the :class:`MokshaHub` will automatically connect up to

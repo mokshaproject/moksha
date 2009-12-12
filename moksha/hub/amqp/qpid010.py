@@ -16,13 +16,12 @@
 #
 # Authors: Luke Macken <lmacken@redhat.com>
 
-import qpid
 import logging
 
 from qpid.util import connect, URL, ssl
-from qpid.queue import Empty
 from qpid.datatypes import Message, uuid4, RangedSet
 from qpid.connection import Connection
+from qpid.session import SessionClosed
 
 from moksha.hub.amqp.base import BaseAMQPHub
 
@@ -46,6 +45,7 @@ class QpidAMQPHub(BaseAMQPHub):
                                      username=self.user,
                                      password=self.password)
         self.connection.start()
+        log.info("Connected to AMQP Broker %s" % self.host)
         self.session = self.connection.session(str(uuid4()))
 
     def set_broker(self, broker):
@@ -61,12 +61,12 @@ class QpidAMQPHub(BaseAMQPHub):
             default_port = 5672
         self.port = self.url.port or default_port
 
-    def send_message(self, topic, message, exchange='amq.fanout', **headers):
+    def send_message(self, topic, message, exchange='amq.topic', **headers):
         props = self.session.delivery_properties(**headers)
         msg = Message(props, message)
         self.session.message_transfer(destination=exchange, message=msg)
 
-    def subscribe_queue(server_queue_name, local_queue_name):
+    def subscribe_queue(self, server_queue_name, local_queue_name):
         queue = self.session.incoming(local_queue_name)
         self.session.message_subscribe(queue=server_queue_name,
                                        destination=local_queue_name)
@@ -80,7 +80,7 @@ class QpidAMQPHub(BaseAMQPHub):
                                    arguments={'qpid.max_count': 0,
                                               'qpid.max_size': 0}, **kw)
 
-    def exchange_bind(self, queue, exchange='amq.fanout', binding_key=None):
+    def exchange_bind(self, queue, exchange='amq.topic', binding_key=None):
         self.session.exchange_bind(exchange=exchange, queue=queue,
                                    binding_key=binding_key)
 
@@ -89,7 +89,11 @@ class QpidAMQPHub(BaseAMQPHub):
                                               destination=destination)
 
     def message_accept(self, message):
-        self.session.message_accept(RangedSet(message.id))
+        try:
+            self.session.message_accept(RangedSet(message.id))
+        except SessionClosed:
+            log.debug("Accepted message on closed session: %s" % message.id)
+            pass
 
     def close(self):
         self.session.close(timeout=2)

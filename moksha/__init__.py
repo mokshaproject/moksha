@@ -36,8 +36,8 @@ wsgiapps = None
 # All loaded moksha menus
 menus = None
 
-# Per-request stomp callbacks registered by rendered widget
-stomp = StackedObjectProxy(name="stomp")
+# Per-request topic callbacks registered by rendered live widgets
+livewidgets = StackedObjectProxy(name="livewidgets")
 
 def get_widget(name):
     """ Get a widget instance by name """

@@ -62,7 +62,7 @@ class MokshaAjaxFeedEntriesTree(Dynatree):
     onActivate = js_callback("""function(dtnode) { $('#BottomPane').load('/apps/feeds/get_entry?key=' + dtnode.data.key); }""")
 
 
-class MokshaLiveFeedTree(Dynatree, LiveWidget):
+class MokshaLiveFeedTree(Dynatree):
     title = 'Moksha Live Feed Tree'
     rootVisible = True
     persist = True
@@ -71,28 +71,17 @@ class MokshaLiveFeedTree(Dynatree, LiveWidget):
             'url': '/apps/feeds/init_tree',
             'data': {'key': 'root'}
     }
-    onActivate = js_callback("function(dtnode) { stomp.send(dtnode.data.key, 'feeds', {topic: moksha_feed_topic, action: 'get_feed'}); }")
+    onActivate = js_callback("function(dtnode) { moksha.send_message('moksha.feeds', {action: 'get_feed', 'key': dtnode.data.key, topic: moksha_feed_topic}); }")
 
-    onmessage = """
-      if (json.action == 'get_feed') {
-          var tree = $("#moksha_feedreader_feed_entries_tree").dynatree("getRoot");
-          tree.removeChildren();
-          tree.append(json.entries);
-      } else if (json.action == 'get_entry') {
-          $('#BottomPane').html(json.content);
-      } else if (json.action == 'new_entry') {
-          /* TODO */
-      }
-    """
 
-    def __init__(self, *args, **kw):
-        Dynatree.__init__(self, *args, **kw)
-        self.template += """
-            <script>
-                var moksha_feed_topic = "${topic}";
-            </script>
-        """
-        LiveWidget.__init__(self, *args, **kw)
+    #def __init__(self, *args, **kw):
+    #    Dynatree.__init__(self, *args, **kw)
+    #    self.template += """
+    #        <script>
+    #            var moksha_feed_topic = "${topic}";
+    #        </script>
+    #    """
+    #    #LiveWidget.__init__(self, *args, **kw)
 
     def update_params(self, d):
         # the unique queue to use over our stomp TCPSocket
@@ -114,8 +103,11 @@ class MokshaLiveFeedEntriesTree(Dynatree):
     persist = True
     onActivate = js_callback("""
         function(dtnode) {
-            stomp.send(dtnode.data.key, 'feeds',
-                       {topic: moksha_feed_topic, action: 'get_entry'});
+            moksha.send_message('moksha.feeds', {
+                'action': 'get_entry',
+                'key': dtnode.data.key,
+                 topic: moksha_feed_topic
+             });
 
             /* Unsubscribe from current feed, subscribe to new one */
         }
@@ -140,21 +132,36 @@ splitter_css = CSSLink(filename='static/main.css',
                        modname=__name__)
 
 
-class MokshaFeedReaderWidget(Widget):
+class MokshaFeedReaderWidget(LiveWidget):
     name = 'Moksha Feed Reader'
-    template = 'mako:moksha.widgets.feedtree.templates.feedreader'
+    params = ['topic']
+    topic = 'moksha.feeds' # will get replaced by a unique uuid at render-time
+    template = 'mako:moksha.widgets.feeds.templates.feedreader'
     children = [feed_tree, feed_entries_tree]
     javascript = [splitter_js]
     css = [splitter_css]
     container_options = {
-            'top': 80,
-            'left': 80,
+            'top': 50,
+            'left': 50,
             'height': 600,
-            'width': 900,
+            'width': 890,
             'icon': 'browser.png',
             }
+    onmessage = """
+      if (json.action == 'get_feed') {
+          var tree = $("#moksha_feedreader_feed_entries_tree").dynatree("getRoot");
+          tree.removeChildren();
+          tree.append(json.entries);
+      } else if (json.action == 'get_entry') {
+          $('#BottomPane').html(json.content);
+      } else if (json.action == 'new_entry') {
+          /* TODO */
+          moksha.debug('new_entry!');
+      }
+    """
 
     def update_params(self, d):
+        d['topic'] = str(uuid4()) 
         super(MokshaFeedReaderWidget, self).update_params(d)
         self.add_call(jQuery('#' + d.id).splitter({
             'splitVertical': True,

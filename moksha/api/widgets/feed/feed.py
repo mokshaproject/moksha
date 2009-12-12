@@ -52,6 +52,8 @@ class Feed(Widget):
         """ If we're instantiated with a specific view, then use the 
         appropriate template 
         Available views: home, canvas, profile
+
+        :deprecated: This is old, and will be going away soon
         """
         view = kw.get('view', False)
         if not view:
@@ -95,8 +97,11 @@ class Feed(Widget):
                 break
             yield entry
 
-    def get_entries(self):
-        return [entry for entry in self.iterentries()]
+    def get_entries(self, url=None):
+        d = {}
+        if url:
+            d['url'] = url
+        return [entry for entry in self.iterentries(d=d)]
 
     def num_entries(self):
         return len(self.get_entries())

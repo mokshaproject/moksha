@@ -20,11 +20,11 @@ import time
 import pylons
 import urllib
 import uuid
-import simplejson as json
 import re
 import os
 import logging
 import warnings
+from orbited import json
 
 from tw.api import js_callback
 from pytz import timezone, utc
@@ -59,7 +59,7 @@ def _update_params(params, d):
             # by the passed params
             if isinstance(value, dict):
                 value = _update_params(value, d)
-                value = json.dumps(value)
+                value = json.encode(value)
             elif isinstance(value, list):
                 value = value
 
@@ -327,7 +327,7 @@ class App(ConfigWrapper):
         qs = self._create_query_string(p)
         results.update({'label': self.label, 'url': self.url,
                 'params': p,
-                'json_params': json.dumps(p),
+                'json_params': json.encode(p),
                 'query_string': qs,
                 'content_id': self.content_id + '-' + results['id'],
                 'css_class': css_class})
@@ -763,7 +763,7 @@ def in_full_moksha_stack():
 
 def get_main_app_config_path():
     """
-    :returns: The path to the main applications configuratoin file
+    :returns: The path to the main applications configuration file
     """
     try:
         return pylons.config['__file__']
@@ -779,8 +779,8 @@ def get_moksha_config_path():
     if in_full_moksha_stack():
         return get_main_app_config_path()
     else:
-        for config_file in ('production.ini', 'development.ini'):
-            for config_path in ('/etc/moksha/', __file__ + '/../../../'):
+        for config_path in ('.', '/etc/moksha/', __file__ + '/../../../'):
+            for config_file in ('production.ini', 'development.ini'):
                 cfg = os.path.join(os.path.abspath(config_path), config_file)
                 if os.path.isfile(cfg):
                     return cfg
@@ -795,6 +795,18 @@ def get_moksha_dev_config():
     if os.path.isfile(cfg):
         return cfg
     log.warn("Cannot find %r" % cfg)
+
+
+def get_moksha_appconfig():
+    """ Return the appconfig of Moksha """
+    from paste.deploy import appconfig
+    return appconfig('config:' + get_moksha_config_path())
+
+
+def create_app_engine(app):
+    """ Create a new SQLAlchemy engine for a given app """
+    from sqlalchemy import create_engine
+    return create_engine(pylons.config.get('app_db', 'sqlite:///%s.db') % app)
 
 
 def to_unicode(obj, encoding='utf-8'):
@@ -1039,3 +1051,7 @@ def get_num_cpus():
 
 def deprecation(message):
     warnings.warn(message, DeprecationWarning)
+
+
+def listify(something):
+    return not isinstance(something, list) and [something] or something

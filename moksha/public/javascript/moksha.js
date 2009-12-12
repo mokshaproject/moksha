@@ -780,7 +780,33 @@ moksha = {
             }
         });
         return false;
+    },
+
+    send_message: function(topic, body) {
+        if (typeof(moksha_amqp_session) != 'undefined') {
+            moksha_amqp_session.Message('transfer', {
+                accept_mode: 1,
+                acquire_mode: 1, 
+                destination: 'amq.topic',
+                _body: $.toJSON(body),
+                _header: {
+                    delivery_properties: {
+                        routing_key: topic,
+                    }
+                }
+            });
+        } else {
+            stomp.send($.toJSON(body), topic)
+        }
+    },
+
+    on_enter: function(e, callback) {
+        var key = e.keyCode || e.which;
+        if (key == 13) {
+            callback(e);
+        }
     }
+
 }
 
 })();

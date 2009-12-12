@@ -21,7 +21,7 @@ from tw.api import Widget, JSLink, js_callback
 
 orbited_host = config.get('orbited_host', 'localhost')
 orbited_port = config.get('orbited_port', 9000)
-orbited_url = 'http://%s:%s' % (orbited_host, orbited_port)
+orbited_url = '%s://%s:%s' % (config.get('orbited_scheme', 'http'), orbited_host, orbited_port)
 orbited_js = JSLink(link=orbited_url + '/static/Orbited.js')
 
 class OrbitedWidget(Widget):

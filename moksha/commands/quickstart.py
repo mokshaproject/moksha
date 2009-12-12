@@ -40,7 +40,7 @@ Example usage::
     consumer = False
     stream = False
 
-    topic = 'moksha.topics.test'
+    topic = 'moksha.test'
 
     parser = command.Command.standard_parser(quiet=True)
     parser = optparse.OptionParser(
@@ -58,8 +58,8 @@ Example usage::
     parser.add_option("-C", "--controller",
             help='Create an example Moksha Controller',
             action="store_true", dest="controller")
-    parser.add_option("-s", "--stream",
-            help='Create an example Moksha DataStream',
+    parser.add_option("-P", "--producer",
+            help='Create an example Moksha Producer',
             action="store_true", dest="stream")
     parser.add_option("-p", "--package",
             help="package name for the code",
@@ -97,7 +97,7 @@ Example usage::
                     "Enter package name [%s]: " % package).strip() or package
 
         self.name = pkg_resources.safe_name(self.name).replace('-', '_')
-        self.rpm_name = self.name.replace('.', '_')
+        self.rpm_name = self.package.replace('.', '-')
 
         env = pkg_resources.Environment()
         if self.name.lower() in env:
@@ -140,11 +140,11 @@ Example usage::
         cmd_args.append("controller=%s" % self.controller)
         cmd_args.append("stream=%s" % self.stream)
         cmd_args.append("package=%s" % self.package)
-        cmd_args.append("widget_name=%s" % self.name.title() + 'Widget')
-        cmd_args.append("stream_name=%s" % self.name.title() + 'Stream')
-        cmd_args.append("consumer_name=%s" % self.name.title() + 'Consumer')
-        cmd_args.append("connector_name=%s" % self.name.title() + 'Connector')
-        cmd_args.append("controller_name=%s" % self.name.title() + 'Controller')
+        cmd_args.append("widget_name=%s" % self.package.title() + 'Widget')
+        cmd_args.append("stream_name=%s" % self.package.title() + 'Stream')
+        cmd_args.append("consumer_name=%s" % self.package.title() + 'Consumer')
+        cmd_args.append("connector_name=%s" % self.package.title() + 'Connector')
+        cmd_args.append("controller_name=%s" % self.package.title() + 'Controller')
         command.run(cmd_args)
 
         #if not self.dry_run:

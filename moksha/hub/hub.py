@@ -18,7 +18,6 @@
 
 from moksha.hub.reactor import reactor
 
-import os
 import sys
 import signal
 import pkg_resources
@@ -26,10 +25,10 @@ import logging
 
 from tg import config
 from orbited import json
-from threading import Thread
 from paste.deploy import appconfig
+from twisted.internet.error import ReactorNotRunning
 
-from moksha.lib.helpers import trace, defaultdict, get_moksha_config_path
+from moksha.lib.helpers import trace, defaultdict, get_moksha_config_path, get_moksha_appconfig
 from moksha.hub.amqp import AMQPHub
 from moksha.hub.stomp import StompHub
 
@@ -40,8 +39,20 @@ class MokshaHub(StompHub, AMQPHub):
     topics = None # {topic_name: [callback,]}
 
     def __init__(self, topics=None):
+        global config
         self.amqp_broker = config.get('amqp_broker', None)
         self.stomp_broker = config.get('stomp_broker', None)
+
+        # If we're running outside of middleware and hub, load config
+        if not self.amqp_broker and not self.stomp_broker:
+            config = get_moksha_appconfig()
+            self.amqp_broker = config.get('amqp_broker', None)
+            self.stomp_broker = config.get('stomp_broker', None)
+
+        if self.amqp_broker and self.stomp_broker:
+            log.warning("Running with both a STOMP and AMQP broker. "
+                        "This mode is experimental and may or may not work")
+
         if not self.topics:
             self.topics = defaultdict(list)
 
@@ -53,7 +64,6 @@ class MokshaHub(StompHub, AMQPHub):
                     self.topics[topic].append(callback)
 
         if self.amqp_broker:
-            log.info('Initializing AMQP support')
             AMQPHub.__init__(self, self.amqp_broker)
 
         if self.stomp_broker:
@@ -77,7 +87,7 @@ class MokshaHub(StompHub, AMQPHub):
         else:
             topics = topic
         for topic in topics:
-            if jsonify and not isinstance(message, basestring):
+            if jsonify:
                 message = json.encode(message)
             if self.amqp_broker:
                 AMQPHub.send_message(self, topic, message, routing_key=topic)
@@ -96,6 +106,7 @@ class MokshaHub(StompHub, AMQPHub):
         This method will cause the specified `callback` to be executed with
         each message that goes through a given topic.
         """
+        log.debug('watch_topic(%s)' % locals())
         if len(self.topics[topic]) == 0:
             if self.stomp_broker:
                 self.subscribe(topic)
@@ -103,12 +114,12 @@ class MokshaHub(StompHub, AMQPHub):
 
     def consume_amqp_message(self, message):
         self.message_accept(message)
-        topic = message.headers[0]['routing_key']
         try:
-            body = json.decode(message.body)
-        except Exception, e:
-            log.warning('Cannot decode message from JSON: %s' % e)
-            body = message.body
+            topic = message.get('delivery_properties').routing_key
+        except AttributeError:
+            # If we receive an AMQP message without a toipc, don't proxy it to STOMP
+            return
+
         if self.stomp_broker:
             StompHub.send_message(self, topic.encode('utf8'),
                                   message.body.encode('utf8'))
@@ -116,19 +127,19 @@ class MokshaHub(StompHub, AMQPHub):
     def consume_stomp_message(self, message):
         topic = message['headers'].get('destination')
         if not topic:
+            log.debug("Got message without a topic: %r" % message)
             return
 
-        # We can enable this if/when we need it...
-        #try:
-        #    body = json.decode(message['body'])
-        #except Exception, e:
-        #    log.warning('Cannot decode message from JSON: %s' % e)
-        #    body = message['body']
-
+        # FIXME: only do this if the consumer wants it `jsonified`
+        try:
+            body = json.decode(message['body'])
+        except Exception, e:
+            log.warning('Cannot decode message from JSON: %s' % e)
+            body = {}
 
         # feed all of our consumers
         for callback in self.topics.get(topic, []):
-            reactor.callInThread(callback, message)
+            reactor.callInThread(callback, {'body': body, 'topic': topic})
 
 
 class CentralMokshaHub(MokshaHub):
@@ -151,41 +162,45 @@ class CentralMokshaHub(MokshaHub):
         self.__init_data_streams()
 
     def __init_amqp(self):
-        log.debug("Initializing local AMQP queue...")
-        self.server_queue_name = 'moksha_hub_' + self.session.name
-        self.queue_declare(queue=self.server_queue_name, exclusive=True)
-        self.exchange_bind(self.server_queue_name) 
-        self.local_queue_name = 'moksha_hub'
-        self.local_queue = self.session.incoming(self.local_queue_name)
-        self.message_subscribe(queue=self.server_queue_name,
-                               destination=self.local_queue_name)
-        self.local_queue.start()
-        self.local_queue.listen(self.consume_amqp_message)
+        if self.stomp_broker:
+            log.debug("Initializing local AMQP queue...")
+            self.server_queue_name = 'moksha_hub_' + self.session.name
+            self.queue_declare(queue=self.server_queue_name, exclusive=True)
+            self.exchange_bind(self.server_queue_name, binding_key='#')
+            self.local_queue_name = 'moksha_hub'
+            self.local_queue = self.session.incoming(self.local_queue_name)
+            self.message_subscribe(queue=self.server_queue_name,
+                                   destination=self.local_queue_name)
+            self.local_queue.start()
+            self.local_queue.listen(self.consume_amqp_message)
 
     def __init_consumers(self):
         """ Initialize all Moksha Consumer objects """
         log.info('Loading Moksha Consumers')
         for consumer in pkg_resources.iter_entry_points('moksha.consumer'):
             c_class = consumer.load()
-            log.debug("%s consumer is watching the %r topic" % (
-                      c_class.__name__, c_class.topic))
+            log.info("%s consumer is watching the %r topic" % (
+                     c_class.__name__, c_class.topic))
             self.topics[c_class.topic].append(c_class)
 
     def __run_consumers(self):
         """ Instantiate the consumers """
+        self.consumers = []
         for topic in self.topics:
             for i, consumer in enumerate(self.topics[topic]):
                 c = consumer()
+                self.consumers.append(c)
                 self.topics[topic][i] = c.consume
 
     def __init_data_streams(self):
         """ Initialize all data streams """
         self.data_streams = []
-        for stream in pkg_resources.iter_entry_points('moksha.stream'):
-            stream_class = stream.load()
-            log.info('Loading %s data stream' % stream_class.__name__)
-            stream_obj = stream_class()
-            self.data_streams.append(stream_obj)
+        for entry in ('moksha.producer', 'moksha.stream'):
+            for stream in pkg_resources.iter_entry_points(entry):
+                stream_class = stream.load()
+                log.info('Loading %s producer' % stream_class.__name__)
+                stream_obj = stream_class()
+                self.data_streams.append(stream_obj)
 
     @trace
     def create_topic(self, topic):
@@ -203,6 +218,10 @@ class CentralMokshaHub(MokshaHub):
             for stream in self.data_streams:
                 log.debug("Stopping data stream %s" % stream)
                 stream.stop()
+        if self.consumers:
+            for consumer in self.consumers:
+                log.debug("Stopping consumer %s" % consumer)
+                consumer.stop()
 
 
 def setup_logger(verbose):
@@ -219,7 +238,14 @@ def setup_logger(verbose):
 def main():
     """ The main MokshaHub method """
     setup_logger('-v' in sys.argv or '--verbose' in sys.argv)
-    cfg = appconfig('config:' + get_moksha_config_path())
+    config_path = get_moksha_config_path()
+    if not config_path: 
+        print """
+            Cannot find Moksha configuration!  Place a development.ini or production.ini
+            in /etc/moksha or in the current directory.
+        """
+        return
+    cfg = appconfig('config:' + config_path)
     config.update(cfg)
 
     hub = CentralMokshaHub()
@@ -228,7 +254,10 @@ def main():
         from moksha.hub.reactor import reactor
         if signum in [signal.SIGHUP, signal.SIGINT]:
             hub.stop()
-            reactor.stop()
+            try:
+                reactor.stop()
+            except ReactorNotRunning:
+                pass
 
     signal.signal(signal.SIGHUP, handle_signal)
     signal.signal(signal.SIGINT, handle_signal)

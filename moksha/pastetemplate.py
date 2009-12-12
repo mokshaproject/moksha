@@ -43,7 +43,7 @@ class MokshaLiveWidgetTemplate(Template):
     egg_plugins = ['Moksha']
     vars = [
             var('topic', 'The moksha topic to utilize',
-                default='moksha.topics.test'),
+                default='moksha.test'),
             var('livewidget', 'Include an example live widget', default=False),
             var('widget_name', 'The name of the widget', default=None),
     ]
@@ -51,7 +51,7 @@ class MokshaLiveWidgetTemplate(Template):
     def pre(self, command, output_dir, vars):
         """Called before template is applied."""
         if 'widget_name' not in vars:
-            vars['widget_name'] = vars['project'].title() + 'Widget'
+            vars['widget_name'] = vars['package'].title() + 'Widget'
 
 class MokshaStreamTemplate(Template):
     summary = 'Moksha Stream Quickstart Template'
@@ -59,7 +59,7 @@ class MokshaStreamTemplate(Template):
     template_renderer = staticmethod(paste_script_template_renderer)
     vars = [
             var('topic', 'The moksha topic to utilize',
-                default='moksha.topics.test'),
+                default='moksha.test'),
     ]
 
     def pre(self, command, output_dir, vars):
@@ -78,7 +78,7 @@ class MokshaConsumerTemplate(Template):
     template_renderer = staticmethod(paste_script_template_renderer)
     vars = [
             var('topic', 'The moksha topic to utilize',
-                default='moksha.topics.test'),
+                default='moksha.test'),
     ]
 
     def pre(self, command, output_dir, vars):

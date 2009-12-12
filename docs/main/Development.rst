@@ -45,6 +45,14 @@ Restart apache and load the front page
    $ paver restart_httpd
 
 
+Restart the Moksha Hub
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   $ paver restart_hub
+
+
 Generating documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -64,7 +72,7 @@ Rebuilding and reinstall *everything*, restart apache, and run the test suite
 
 .. code-block:: bash
 
-   $ paver reinstall reinstall_apps restart_httpd test
+   $ paver reinstall reinstall_apps restart_httpd restart_hub test
 
 .. note::
 

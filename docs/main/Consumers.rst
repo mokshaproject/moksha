@@ -11,10 +11,15 @@ Creating
     from moksha.api.hub import Consumer
 
     class FeedConsumer(Consumer):
-        topic = 'feeds'
+
+        # The topic to listen to.
+        topic = 'moksha.feeds'
+
+        # Automatically decode message as JSON, and encode when using self.send_message
+        jsonify = True
 
         def consume(self, message):
-            print message['headers']
+            print message['topic']
             print message['body']
 
 .. note::
@@ -22,6 +27,13 @@ Creating
    The :class:`MokshaHub` currently executes each consumer in their own
    Thread, so be sure to employ thread-safety precausions when implementing
    your :class:`Consumer`.
+
+.. note::
+
+   If your using AMQP, your `topic` can using wildcards.
+   http://www.rabbitmq.com/faq.html#wildcards-in-topic-exchanges
+
+   Wildcard topics do not work using STOMP.
 
 Installing
 ----------

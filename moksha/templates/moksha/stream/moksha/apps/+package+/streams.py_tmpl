@@ -1,11 +1,8 @@
-#import logging
-#log = logging.getLogger('moksha.hub')
-
 from datetime import timedelta, datetime
-from moksha.api.streams import PollingDataStream
+from moksha.api.hub.producer import PollingProducer
 
-class {{stream_name}}(PollingDataStream):
-    frequency = timedelta(seconds=3)
+class {{stream_name}}(PollingProducer):
+    frequency = timedelta(seconds=5)
     topic = '{{topic}}'
     i = 0
 

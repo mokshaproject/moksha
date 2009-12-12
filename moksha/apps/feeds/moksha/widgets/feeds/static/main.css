@@ -66,8 +66,8 @@ html, body
 	min-width: 250px;	/* Splitter can't be too thin ... */
 	min-height: 525px;	/* ... or too flat */
     max-height: 525px;
-	height: 100%;
-    width: 100%;
+	height: 600px;
+    width: 850px;
 }
 #LeftPane {
 	background: #ddf;

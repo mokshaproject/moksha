@@ -27,7 +27,7 @@ MEM_TOTAL = -2
 
 class MokshaMetricsDataStream(PollingDataStream):
     frequency = 3
-    procs = ('orbited', 'paster', 'moksha', 'httpd')
+    procs = ('orbited', 'paster', 'moksha', 'httpd', 'qpidd')
     cpu_usage = defaultdict(list)
     programs = None
     pids = {}
@@ -116,7 +116,11 @@ class MokshaMetricsDataStream(PollingDataStream):
             for pid in _pids[:20]:
                 cmd += ['-p %s' % pid]
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-            stdout, stderr = p.communicate()
+            try:
+                stdout, stderr = p.communicate()
+            except IOError:
+                self.log.warning("Unable to communicate with `top` subprocess")
+                return
             stdout = stdout.strip().split('\n')
             for i, line in enumerate(stdout):
                 if line.lstrip().startswith('PID'):

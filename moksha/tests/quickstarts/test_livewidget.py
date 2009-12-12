@@ -59,12 +59,12 @@ class TestLiveWidgetQuickstart(QuickstartTester):
     def test_tcpsocket(self):
         """ Ensure our Orbited TCPSocket is getting injected """
         resp = self.app.get('/')
-        assert 'TCPSocket' in resp
+        assert 'TCPSocket' in resp or 'moksha_amqp_conn' in resp
 
     def test_livewidget(self):
         """ Ensure our LiveWidget is available """
         resp = self.app.get('/widgets/mokshatest')
-        assert 'Hello world.' in resp, resp
+        assert 'Welcome' in resp, resp
 
     def test_livewidget_entry_point(self):
         """ Ensure our widget is available on the `moksha.widget` entry-point """
