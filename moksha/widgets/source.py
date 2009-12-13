@@ -13,7 +13,6 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 """
 :mod:`moksha.widgets.source` -- Source Code Widget
 ==================================================
@@ -28,6 +27,7 @@ import moksha
 import inspect
 
 from tw.api import Widget
+from twisted.python.reflect import namedAny
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
@@ -36,26 +36,34 @@ class SourceCodeWidget(Widget):
     params = {
         'widget': 'The name of the widget',
         'module': 'Whether to display the entire module',
-        'code': 'The actual source code',
+        'source': 'Optional source code',
+        'code': 'The actual rendered source code',
+        'title': ' An optional title for the document',
     }
     template = "${code}"
     engine_name = 'mako'
-    container_options = {'width': 600, 'height': 500, 'title': 'View Source',
-                         'icon': 'comment.png', 'top': 80, 'left': 250}
+    container_options = {'width': 625, 'height': 675, 'title': 'View Source',
+                         'icon': 'comment.png', 'top': 50, 'left': 300}
     hidden = True
     module = False
+    title = None
 
     def update_params(self, d):
         super(SourceCodeWidget, self).update_params(d)
-        d.widget = moksha.get_widget(d.widget)
         title = d.widget.__class__.__name__
-        if d.module:
-            obj = __import__(d.widget.__module__, globals(), locals(),
-                             [d.widget.__module__])
-        else:
-            obj = d.widget.__class__
-        source = inspect.getsource(obj)
-        d.code = highlight(source, PythonLexer(),
-                           HtmlFormatter(full=True))
+        if not d.source:
+            try:
+                d.widget = moksha.get_widget(d.widget)
+            except Exception, e:
+                d.widget = namedAny(d.widget)
+            if d.module:
+                obj = namedAny(d.widget.__module__)
+            else:
+                obj = d.widget.__class__
+            d.source = inspect.getsource(obj)
+        html_args = {'full': True}
+        if d.title:
+            html_args['title'] = d.title
+        d.code = highlight(d.source, PythonLexer(), HtmlFormatter(**html_args))
 
 code_widget = SourceCodeWidget('code_widget')

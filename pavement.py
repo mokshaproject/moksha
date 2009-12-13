@@ -25,6 +25,9 @@ from paver.setuputils import find_packages, find_package_data
 import paver.misctasks
 import paver.virtual
 
+from paver.setuputils import install_distutils_tasks
+install_distutils_tasks()
+
 VERSION = '0.4.4'
 
 HEADER = """This file is part of Moksha.
@@ -198,6 +201,10 @@ def restart_hub():
     sh('sudo /sbin/service moksha-hub restart')
 
 @task
+def restart_orbited():
+    sh('sudo /sbin/service orbited restart')
+
+@task
 def reinstall_apps():
     for app in os.listdir('moksha/apps'):
         app_dir = path('moksha') / 'apps' / app
@@ -243,3 +250,9 @@ def smock(options):
 @needs(['paver.doctools.html'])
 def html():
     pass
+
+@task
+@needs(['reinstall', 'reinstall_apps', 'test', 'restart_httpd', 'restart_hub', 'restart_orbited'])
+def all():
+    pass
+magic = all

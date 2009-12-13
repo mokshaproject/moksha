@@ -763,26 +763,20 @@ moksha = {
     },
 
     view_source: function(widget) {
-        $('#footer').append($('<div/>').attr('id', widget + '_loader'));
         $.ajax({
             url: '/widgets/code_widget?chrome=True&source='+widget,
             success: function(r, s) {
-                var $panel = $('#' + widget + '_loader');
-                var $stripped = moksha.filter_resources(r);
-                $panel.html($stripped);
+                $('body').append(moksha.filter_resources(r));
             }
         });
         return false;
     },
 
     view_module_source: function(widget) {
-        $('#footer').append($('<div/>').attr('id', widget + '_loader'));
         $.ajax({
             url: '/widgets/code_widget?chrome=True&module=True&source='+widget,
             success: function(r, s) {
-                var $panel = $('#' + widget + '_loader');
-                var $stripped = moksha.filter_resources(r);
-                $panel.html($stripped);
+                $('body').append(moksha.filter_resources(r));
             }
         });
         return false;

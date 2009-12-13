@@ -16,6 +16,7 @@
 #
 # Authors: Luke Macken <lmacken@redhat.com>
 
+import uuid
 from tw.api import Widget, JSLink, CSSLink, js_callback
 from tw.jquery import jquery_js, jQuery
 
@@ -88,6 +89,8 @@ class MokshaContainer(Widget):
             if d.get(button, True):
                 d.buttons += '%s,' % button[:1]
         d.buttons = d.buttons[:-1]
+
+        d.id = str(uuid.uuid4())
 
         self.add_call(jQuery('#%s' % d.id).buildContainers({
             'elementsPath': '/toscawidgets/resources/moksha.widgets.container.container/static/css/elements/',

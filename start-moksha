@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 # Moksha initialization script
 
 if [ ! $VIRTUAL_ENV ]; then
@@ -16,7 +16,34 @@ if [ ! $VIRTUAL_ENV ]; then
         easy_install -U SQLAlchemy
         easy_install Paver
         easy_install Twisted
+        easy_install pysqlite
         easy_install -U ToscaWidgets
+
+        # `install` instead of `develop` to avoid weird directory vs. egg
+        # namespace issues
+        #echo "Installing Moksha"
+        echo "Installing Moksha"
+        #rm -fr dist
+        python setup.py install
+        #python setup.py bdist_egg
+        #easy_install -Z dist/*.egg
+
+        # Install all demo apps
+        pushd moksha/apps
+        for app in `ls`; do
+            if [ -d $app ]; then
+                echo "Going to app: $app"
+                cd $app
+                if [ -f pavement.py ]; then
+                    echo "Installing Moksha $app app..."
+                    rm -fr dist
+                    paver bdist_egg
+                    easy_install -Z dist/*.egg
+                fi
+                cd ..
+            fi
+        done
+        popd
 
         #./pip.py install -E tg2env -r normal-reqs.txt --extra-index-url=http://www.turbogears.org/2.0/downloads/current/index
         #easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
@@ -26,9 +53,9 @@ if [ ! $VIRTUAL_ENV ]; then
     fi
 fi
 
-python setup.py develop
-
 echo "Starting Moksha..."
+
+python setup.py develop
 
 echo "Starting the WSGI stack..."
 paster serve development.ini &

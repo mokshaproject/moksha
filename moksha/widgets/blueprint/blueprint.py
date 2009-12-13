@@ -56,3 +56,11 @@ blueprint_plugin_rtl_css = CSSLink(modname=modname,
         filename='static/plugins/rtl/screen.css',
         media='screen, projection')
 
+# Blueprint Silk Sprite
+# * Silk Sprite is Based on the Silk Icon Set by Mark James [famfamfam.com] 
+# * Compiled & Adapted for Blueprint by Don Albrecht [ajaxbestiary.com]
+# * Usage released under a creative commons Attribution 2.5 license
+#   http://creativecommons.org/licenses/by/2.5/
+blueprint_sprites_css = CSSLink(modname=modname,
+        filename='static/plugins/sprites/sprite.css',
+        media='screen')
