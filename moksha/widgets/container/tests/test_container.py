@@ -23,7 +23,8 @@ class TestContainer:
         self.w = MokshaContainer('test')
 
     def test_render_widget(self):
-        assert '<div id="test" ' in self.w()
+        assert 'Moksha Container' in self.w()
+
 
     def test_widget_content(self):
         """ Ensure we can render a container with another widget """
