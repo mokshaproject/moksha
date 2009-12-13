@@ -41,6 +41,8 @@ setup(
         "Paver",
         "tw.forms",
         "pytz",
+        "Catwalk",
+        "Babel"
         #"WidgetBrowser", # not in PyPi yet
     ],
     packages=find_packages(exclude=['ez_setup']),
