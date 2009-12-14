@@ -22,10 +22,6 @@ import simplejson as json
 import urllib
 
 from webob import Request, Response
-from pylons import config
-from pylons.i18n import ugettext
-
-from moksha.exc import ApplicationNotFound, MokshaException
 from pprint import pformat
 
 
@@ -178,7 +174,6 @@ def _get_connector(name, request=None):
             if conn_entry.name == name:
                 conn_class = conn_entry.load()
                 conn_class.register()
-                conn_path = conn_entry.dist.location
                 c = {'connector_class': conn_class}
 
     if not request:
