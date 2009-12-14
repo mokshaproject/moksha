@@ -170,7 +170,16 @@ class MokshaConnectorMiddleware(object):
 
 def _get_connector(name, request=None):
     # TODO: having a connection pool might be nice
-    c = MokshaConnectorMiddleware._connectors[name]
+    if name in MokshaConnectorMiddleware._connectors:
+        c = MokshaConnectorMiddleware._connectors[name]
+    else:
+        # Look for it on the entry-point
+        for conn_entry in pkg_resources.iter_entry_points('moksha.connector'):
+            if conn_entry.name == name:
+                conn_class = conn_entry.load()
+                conn_class.register()
+                conn_path = conn_entry.dist.location
+                c = {'connector_class': conn_class}
 
     if not request:
         from pylons import request
