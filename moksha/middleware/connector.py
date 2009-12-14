@@ -166,17 +166,23 @@ class MokshaConnectorMiddleware(object):
 
 def _get_connector(name, request=None):
     # TODO: having a connection pool might be nice
+    cls = None
     if name in MokshaConnectorMiddleware._connectors:
-        c = MokshaConnectorMiddleware._connectors[name]
+        cls = MokshaConnectorMiddleware._connectors[name]['connector_class']
     else:
         # Look for it on the entry-point
         for conn_entry in pkg_resources.iter_entry_points('moksha.connector'):
             if conn_entry.name == name:
                 conn_class = conn_entry.load()
                 conn_class.register()
-                c = {'connector_class': conn_class}
+                cls = conn_class
 
-    if not request:
+    if request is None:
         from pylons import request
 
-    return c['connector_class'](request.environ, request)
+    if cls:
+        try:
+            return cls(request.environ, request)
+        except TypeError:
+            # Called outside of the WSGI stack
+            return cls(None, None)
