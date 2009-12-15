@@ -1,37 +1,45 @@
+# -*- coding: utf-8 -*-
 # This file is part of Moksha.
-# Copyright (C) 2008-2009  Red Hat, Inc.
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
+# Moksha is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-# This program is distributed in the hope that it will be useful,
+# Moksha is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
+# GNU General Public License for more details.
 #
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License
+# along with Moksha.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Authors: Luke Macken <lmacken@redhat.com>
+# Copyright 2008-2009, Red Hat, Inc.
+"""
+:mod:`moksha.apps.knowledge.model` -- The Moksha Polymorphic Vertical Adjacency Tree Model
+==========================================================================================
+
+.. moduleauthor:: Luke Macken <lmacken@redhat.com>
+"""
+
+from sqlalchemy import *
+from sqlalchemy.orm import *
+from sqlalchemy.orm.collections import attribute_mapped_collection
 
 from datetime import datetime
 from sqlalchemy import *
 from sqlalchemy.orm import relation, comparable_property
 from sqlalchemy.orm.collections import attribute_mapped_collection
-from moksha.model.hook import MokshaHookMapperExtension
-from moksha.model import metadata, DBSession, DeclarativeBase
 from vertical import PolymorphicVerticalProperty, VerticalPropertyDictMixin
 
-moksha_mapper_extension = MokshaHookMapperExtension()
+from moksha.model import metadata, DeclarativeBase, DBSession
+
 
 class Fact(PolymorphicVerticalProperty, DeclarativeBase):
     """ A polymorphic-valued vertical table property """
-    __tablename__ = 'facts'
-    #__mapper_args__ = {'extension': moksha_mapper_extension}
+    __tablename__ = 'moksha_facts'
 
-    id = Column(Integer, ForeignKey('entities.id'), primary_key=True)
+    id = Column(Integer, ForeignKey('moksha_entities.id'), primary_key=True)
     key = Column(Unicode(64), primary_key=True)
     type_ = Column(Unicode(16), default=None)
     int_value = Column(Integer, default=None)
@@ -59,7 +67,7 @@ with_characteristic = lambda key, value: and_(Fact.key==key, Fact.value==value)
 
 
 class Entity(VerticalPropertyDictMixin, DeclarativeBase):
-    """ An entity.
+    """ An polymorphic entity.
 
     Entity facts are available via the 'facts' property or by using
     dict-like accessors on an Entity instance::
@@ -68,23 +76,31 @@ class Entity(VerticalPropertyDictMixin, DeclarativeBase):
       apple['color'] = 'red'
       # or, equivalently:
       apple.facts['color'] = Fact('color', 'red')
+
+    This Entity is also an adjacency tree.  Meaning, every entity
+    can have a `parent` and zero or more `children`.
     """
-    __tablename__ = 'entities'
-    #__mapper_args__ = {'extension': moksha_mapper_extension}
+    __tablename__ = 'moksha_entities'
     _property_type = Fact
     _property_mapping = 'facts'
 
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    name = Column(Unicode(100))
+    #id = Column(Integer, autoincrement=True, primary_key=True)
+    name = Column(UnicodeText)
 
     facts = relation(Fact, backref='entity',
                      collection_class=attribute_mapped_collection('key'))
 
+    # Adjacency tree properties
+    id = Column(Integer, Sequence('moksha_tree_id_seq', optional=True), primary_key=True)
+    parent_id = Column(Integer, ForeignKey('moksha_entities.id'), nullable=True)
+
+    children = relation('Entity', cascade="all",
+                        backref=backref("parent", remote_side="Entity.id"),
+                        collection_class=attribute_mapped_collection('name'),
+                        lazy=False, join_depth=3)
+
     def __init__(self, name):
         self.name = name
-
-    def __repr__(self):
-        return '<%s %r>' % (self.__class__.__name__, self.name)
 
     @classmethod
     def by_name(cls, name):
@@ -93,3 +109,26 @@ class Entity(VerticalPropertyDictMixin, DeclarativeBase):
         """
         return DBSession.query(cls).filter(cls.name==name).first()
 
+    # Adjacency-tree methods
+    def append(self, node):
+        if isinstance(node, basestring):
+            node = Entity(node)
+        node.parent = self
+        self.children[node.name] = node
+
+    def __repr__(self):
+        return self._getstring(0, False)
+
+    def __str__(self):
+        return self._getstring(0, False)
+
+    def _getstring(self, level, expand = False):
+        s = ('  ' * level) + "%s (%s,%s, %d)" % (
+            self.name, self.id,self.parent_id,id(self)) + '\n'
+        if expand:
+            s += ''.join([n._getstring(level+1, True)
+                          for n in self.children.values()])
+        return s
+
+    def print_nodes(self):
+        return self._getstring(0, True)

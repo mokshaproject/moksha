@@ -175,8 +175,10 @@ def license():
 
 @task
 def test():
+    print "Running Moksha test suite..."
     sh("nosetests")
     cwd = os.getcwd()
+    print "Running MokshaJQPlotDemo test suite..."
     os.chdir(path('moksha') / 'apps' / 'demo' / 'MokshaJQPlotDemo')
     sh('nosetests')
 
