@@ -37,6 +37,7 @@ class TestEntity(ModelTest):
         self.obj[u'age'] = 24
         self.obj[u'dob'] = datetime(1984, 11, 02)
         self.obj[u'l33t'] = True
+        self.obj[u'json'] = {'foo':'bar'}
 
     def test_entity_creation_name(self):
         eq_(self.obj.name, u'lmacken')
@@ -83,6 +84,19 @@ class TestEntity(ModelTest):
         DBSession.add(self.obj)
         assert (DBSession.query(Fact).
                 filter(with_characteristic(u'l33t', True))).one()
+
+    def test_child_entities(self):
+        child = Entity(u'child1')
+        DBSession.add(child)
+        self.obj.append(child)
+        DBSession.flush()
+        me = Entity.by_name(u'lmacken')
+        assert_true('child1' in me.children)
+        eq_(self.obj.children['child1'].parent, me)
+
+    def test_entity_json_fact(self):
+        me = Entity.by_name(u'lmacken')
+        eq_(me[u'json'], {'foo': 'bar'})
 
     """
     TODO: add hooks that send AMQP messages?
