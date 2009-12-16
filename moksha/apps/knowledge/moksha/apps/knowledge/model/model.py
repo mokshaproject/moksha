@@ -84,14 +84,14 @@ class Entity(VerticalPropertyDictMixin, DeclarativeBase):
     _property_type = Fact
     _property_mapping = 'facts'
 
-    #id = Column(Integer, autoincrement=True, primary_key=True)
-    name = Column(UnicodeText)
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    name = Column(UnicodeText, nullable=False)
 
     facts = relation(Fact, backref='entity',
                      collection_class=attribute_mapped_collection('key'))
 
     # Adjacency tree properties
-    id = Column(Integer, Sequence('moksha_tree_id_seq', optional=True), primary_key=True)
+    #id = Column(Integer, Sequence('moksha_tree_id_seq', optional=True), primary_key=True)
     parent_id = Column(Integer, ForeignKey('moksha_entities.id'), nullable=True)
 
     children = relation('Entity', cascade="all",
@@ -99,7 +99,7 @@ class Entity(VerticalPropertyDictMixin, DeclarativeBase):
                         collection_class=attribute_mapped_collection('name'),
                         lazy=False, join_depth=3)
 
-    def __init__(self, name):
+    def __init__(self, name=None):
         self.name = name
 
     @classmethod

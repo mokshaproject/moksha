@@ -22,13 +22,11 @@ options(
         namespace_packages=[
             'moksha',
             'moksha.apps',
-            
         ],
         install_requires=["Moksha"],
-        entry_points={
-            'moksha.application': (
-                'moksha.apps.knowledge = moksha.apps.knowledge.controllers.root:RootController'
-            ),
-        }
+        entry_points="""
+            [moksha.application]
+            moksha.apps.knowledge = moksha.apps.knowledge.controllers.root:RootController
+        """,
     ),
 )
