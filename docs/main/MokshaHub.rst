@@ -31,6 +31,7 @@ started by the `start-moksha` script.
 
 The :class:`CentralMokshaHub` currently handles the following tasks:
 
-* Consumes all messages from STOMP and AMQP brokers
 * Feeds `Consumers` new messages for specific topics
-* Runs all of the `DataStreams`
+* Runs all of the :doc:`Producers`
+
+.. image:: ../_static/moksha-hub.png
