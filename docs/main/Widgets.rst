@@ -7,9 +7,10 @@ integrated into TurboGears2, and thus Moksha, out of the box.  Along with their
 official documentation, you can also find great ToscaWidgets tutorials in the
 `TurboGears2 <http://www.turbogears.org/2.0/docs/toc.html>`_ docs.
 
- * `ToscaWidgets <http://toscawidgets.org>`_
- * `Writing Widget Demos <http://toscawidgets.org/documentation/WidgetBrowser>`_
- * `TurboGears2 Documentation <http://www.turbogears.org/2.0/docs/toc.html>`_
+.. image:: ../_static/widget.png
+
+Moksha Widget Docs
+------------------
 
 .. toctree::
 
@@ -19,6 +20,15 @@ official documentation, you can also find great ToscaWidgets tutorials in the
    LiveWidget
    MokshaContainerWidgets
 
+
 .. seealso::
 
    :doc:`MokshaLabs`
+
+External Documentation
+----------------------
+* `ToscaWidgets <http://toscawidgets.org>`_
+* `Writing Widget Demos <http://toscawidgets.org/documentation/WidgetBrowser>`_
+* `TurboGears2 Documentation <http://www.turbogears.org/2.0/docs/toc.html>`_
+
+

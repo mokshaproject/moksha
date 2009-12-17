@@ -7,6 +7,8 @@ your widget to a given message `topic`, or list of topics.  When the widget
 receives a new message, the `onmessage` JavaScript callback will be run by the
 client with JSON data in the `json` variable.
 
+.. image:: ../_static/live_widgets.png
+
 A basic LiveWidget
 ------------------
 
@@ -68,3 +70,9 @@ uses a little bit of jQuery to add and remove feed entries from a list.
             });
         """
         feed = Feed()
+
+Live Widget Interaction
+-----------------------
+
+.. image:: ../_static/live_widget_interaction.png
+
