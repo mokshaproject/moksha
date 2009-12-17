@@ -111,12 +111,12 @@ that your global resources are always injected.
     </body>
     </html>
 
-Create the Moksha Data Stream
------------------------------
+Create the Moksha Data Producer
+-------------------------------
 
 In the original example, the JQPlotWidget would query a controller every 2
 seconds, which returns JSON data.  Since Moksha is event driven, we will create
-a Moksha :doc:`DataStreams` that will wake up every 2 seconds and send new data
+a Moksha :doc:`Producers` that will wake up every 2 seconds and send new data
 to the message bus for a couple of given :doc:`Topics`.  This makes it so our widgets
 can simply subscribe to their corresponding topics, and patiently wait for new
 data to arrive.

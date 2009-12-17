@@ -6,7 +6,7 @@ Messaging
 
    Topics
    Consumers
-   DataStreams
+   Producers
    LiveWidget
    MokshaHub
    MessageBrokers

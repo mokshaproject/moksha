@@ -10,8 +10,8 @@ The Producers contain a connection to the MokshaHub via the `self.hub` object.
 It also provides a `send_message(topic, message)` method that will send your
 message to the hub.
 
-Polling Data Streams
---------------------
+Polling Producers
+------------------
 
 The :class:`PollingProducer` will automatically wake up at a given `frequency`
 (which can be a `datetime.timedelta` object, or the number of a seconds), and
@@ -34,10 +34,10 @@ seconds, and sends a 'Hello World!' message to the 'hello' `topic`.
 Installing
 ----------
 
-To install your `Producer`, simply add it to the `[moksha.stream]` entry-point
+To install your `Producer`, simply add it to the `[moksha.producer]` entry-point
 in your `setup.py`, like so:
 
 .. code-block:: python
 
     [moksha.producer]
-    hello = myproject.streams.hello:HelloWorldProducer
+    hello = myproject.producers:HelloWorldProducer

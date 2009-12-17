@@ -17,7 +17,7 @@ Moksha provides templates for easily creating basic components.
      -c, --connector       Create an example Moksha Connector
      -u, --consumer        Create an example Moksha Consumer
      -C, --controller      Create an example Moksha Controller
-     -s, --stream          Create an example Moksha DataStream
+     -P, --producer Create an example Moksha Producer
      -p PACKAGE, --package=PACKAGE
                            package name for the code
      -t TOPIC, --topic=TOPIC
@@ -34,7 +34,7 @@ Creating a new moksha app with all components
 
 .. code-block:: bash
 
-   $ paster moksha --livewidget --stream --consumer --controller
+   $ paster moksha --livewidget --producer --consumer --controller
 
 
 Creating and installing an RPM for your new package

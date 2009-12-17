@@ -76,4 +76,4 @@ receives, stores, and routes messages using the AMQP protocol.
 `Twisted <http://twistedmatrix.com>`_
 -------------------------------------
 
-Twisted is an event-driven networking engine written in Python.  It is the core engine for the :doc:`MokshaHub`, which reacts to incoming messages, as well as runs our :doc:`DataStreams`.
+Twisted is an event-driven networking engine written in Python.  It is the core engine for the :doc:`MokshaHub`, which reacts to incoming messages, as well as runs our :doc:`Producers`.

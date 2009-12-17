@@ -88,7 +88,7 @@ process incoming data.  One could then easily build state-machines, inference
 engines, or even forward/backward-chaning rule-driven expert systems.
 
 Moksha also provides a simple yet powerful API for creating
-:doc:`DataStreamers` that can do basically anything at anytime.  It allows for
+:doc:`Producers` that can do basically anything at anytime.  It allows for
 the easy scripting of periodic tasks such as fetching data, polling resources,
 warming caches, sending notifications, analyzing databases, etc.  For example,
 Moksha provides a :doc:`FeedStream`, that automatically handles fetching,
