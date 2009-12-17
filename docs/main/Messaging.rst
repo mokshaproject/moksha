@@ -10,3 +10,4 @@ Messaging
    LiveWidget
    MokshaHub
    MessageBrokers
+   MessagingScenarios
