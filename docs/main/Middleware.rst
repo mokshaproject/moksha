@@ -12,10 +12,10 @@ It currently provides the following functionality
     * Handles dispatching moksha applications, which can be any WSGI app or Controller.
     * Handles dispatching to individual widgets, which are simply `ToscaWidgets <http://toscawidgets.org>`_
     * Sets up `SQLAlchemy` database engines for each application
-    * Initializes applications data models
     * Loads all application configuration
+    * Initializes the :doc:`LiveWidget` callback registry
+    * Initializes applications data models
     * Sets up the moksha resource connectors
-    * Sets up the stomp callback registry
 
 Using the MokshaMiddleware
 --------------------------
@@ -53,23 +53,4 @@ Not only can Moksha be inserted into any existing `WSGI <http://wsgi.org>`_-comp
 but on it's own offers a comprehensive top-to-bottom middleware stack that
 provides a vast plethora of additional functionality.
 
-===============================     ===============
-Middleware Function                 Module
-===============================     ===============
-Profiling                           repoze.profile
-Resource compression                repoze.squeeze
-                 **TG2 Middleware**
----------------------------------------------------
-Application routing/dispatching     Routes
-Session management                  Beaker
-Caching layer                       Beaker
-Widget resource injection           ToscaWidgets
-Authentication                      repoze.who
-Authorization                       repoze.what
-Transaction management              repoze.tm2
-Error handling & Debugging          WebError
-Registry manager                    Paste
-                 **Moksha Middleware**
----------------------------------------------------
-Your application
-===============================     ===============
+.. image:: ../_static/moksha-middleware.png
