@@ -58,7 +58,7 @@ Messaging
    main/MessageBrokers
    main/Topics
    main/Consumers
-   main/DataStreams
+   main/Producers
    main/MokshaHub
 
 Widgets
