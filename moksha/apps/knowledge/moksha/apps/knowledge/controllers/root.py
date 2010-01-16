@@ -17,7 +17,7 @@ from moksha import model
 #from moksha.model import DBSession, metadata
 from moksha.lib.base import Controller
 from moksha.lib.helpers import defaultdict
-from moksha.apps.knowledge.model import Fact, Entity, with_characteristic, DBSession
+from moksha.apps.knowledge.model import Fact, Entity, with_characteristic, DBSession, metadata
 
 #class EntityForm(TableForm):
 #    class fields(WidgetsList):
