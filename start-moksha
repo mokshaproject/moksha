@@ -19,6 +19,7 @@ if [ ! $VIRTUAL_ENV ]; then
         easy_install pysqlite
         easy_install -U ToscaWidgets
         easy_install -U SQLAlchemy
+        easy_install -U FormEncode
 
         # `install` instead of `develop` to avoid weird directory vs. egg
         # namespace issues
