@@ -41,7 +41,7 @@ setup(
         "Paver",
         "tw.forms",
         "pytz",
-        "Catwalk",
+        #"Catwalk",
         "Babel"
         #"WidgetBrowser", # not in PyPi yet
     ],

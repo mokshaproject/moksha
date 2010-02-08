@@ -3,7 +3,7 @@
 
 from tg import expose, flash, require, url, request, redirect
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
-from catwalk.tg2 import Catwalk
+#from catwalk.tg2 import Catwalk
 from repoze.what import predicates
 
 from tg2app.lib.base import BaseController
@@ -31,7 +31,7 @@ class RootController(BaseController):
     """
     secc = SecureController()
 
-    admin = Catwalk(model, DBSession)
+    #admin = Catwalk(model, DBSession)
 
     error = ErrorController()
 
