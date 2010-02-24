@@ -4,11 +4,16 @@
 if [ ! $VIRTUAL_ENV ]; then
     if [ ! -d tg2env ]; then
         echo "Initializing a TurboGears2 virtual environment"
-        if [ ! -f tg2-bootstrap.py ]; then
-            curl -O http://www.turbogears.org/2.0/downloads/2.0final/tg2-bootstrap.py
-        fi
-        python tg2-bootstrap.py --no-site-packages tg2env
+        #if [ ! -f tg2-bootstrap.py ]; then
+        #    curl -O http://www.turbogears.org/2.0/downloads/2.0final/tg2-bootstrap.py
+        #fi
+        #python tg2-bootstrap.py --no-site-packages tg2env
+
+        virtualenv --no-site-packages tg2env
         source tg2env/bin/activate
+
+        #easy_install -i http://www.turbogears.org/2.1/downloads/current/index tg.devtools
+        easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
 
         # Hack around Shove's hard SQLAlchemy requirement :(
         easy_install -U Shove
