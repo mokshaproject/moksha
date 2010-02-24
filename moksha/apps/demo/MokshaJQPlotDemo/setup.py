@@ -15,7 +15,7 @@ setup(
     #url='',
     install_requires=[
         "TurboGears2 >= 2.0b7",
-        "Catwalk >= 2.0.2",
+        #"Catwalk >= 2.0.2",
         "Babel >=0.9.4",
         "ToscaWidgets>=0.9.8dev",
         "zope.sqlalchemy >= 0.4 ",
