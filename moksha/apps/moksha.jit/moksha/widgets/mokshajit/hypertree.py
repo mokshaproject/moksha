@@ -1,7 +1,7 @@
 # This file is part of Moksha.
 #
-# Copyright (C) 2008-2009  Red Hat, Inc.
-# Copyright (C) 2008-2009  Luke Macken <lmacken@redhat.com>
+# Copyright (C) 2008-2010  Red Hat, Inc.
+# Copyright (C) 2008-2010  Luke Macken <lmacken@redhat.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as

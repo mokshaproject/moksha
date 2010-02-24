@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Moksha.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright 2008-2009, Red Hat, Inc.
+# Copyright 2008-2010, Red Hat, Inc.
 """
 :mod:`moksha.apps.knowledge.model` -- The Moksha Polymorphic Vertical Adjacency Tree Model
 ==========================================================================================

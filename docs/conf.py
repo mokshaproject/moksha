@@ -37,7 +37,7 @@ master_doc = 'index'
 
 # General substitutions.
 project = 'Moksha'
-copyright = '2008-2009, Red Hat, Inc'
+copyright = '2008-2010, Red Hat, Inc'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
