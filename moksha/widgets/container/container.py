@@ -23,7 +23,9 @@ from tw.jquery import jquery_js, jQuery
 from moksha.api.widgets.live import LiveWidget
 from moksha.api.widgets.live import subscribe_topics, unsubscribe_topics
 
-container_js = JSLink(filename='static/js/mbContainer.min.js', modname=__name__)
+container_js = JSLink(filename='static/js/mbContainer.min.js',
+                      javascript=[jquery_js],
+                      modname=__name__)
 container_css = CSSLink(filename='static/css/mbContainer.css', modname=__name__)
 
 class MokshaContainer(Widget):
