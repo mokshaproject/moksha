@@ -66,5 +66,11 @@ def setup_config(command, filename, section, vars):
     model.DBSession.add(u1)
     model.DBSession.flush()
 
+    # Create some knowledge
+    #from moksha.apps.knowledge.model import Entity
+    #snake = Entity(u'Python')
+    #snake[u'type'] = 'snake'
+    #model.DBSession.add(snake)
+
     transaction.commit()
     print "Successfully setup"
