@@ -31,19 +31,17 @@ setup(
         #"Shove",
         "feedcache",
         "feedparser",
-        "tw.jquery>=0.9.4.1",
-        #"repoze.squeeze", # Not hard requirements
-        #"repoze.profile", # Not hard requirements
+        "tw.jquery==dev",
         "orbited",
-        #"Twisted",
+        "Twisted",
         "stomper",
         "Sphinx",
         "Paver",
         "tw.forms",
         "pytz",
-        #"Catwalk",
         "Babel"
-        #"WidgetBrowser", # not in PyPi yet
+        #"repoze.squeeze", # Not hard requirements
+        #"repoze.profile", # Not hard requirements
     ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
