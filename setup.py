@@ -31,7 +31,7 @@ setup(
         #"Shove",
         "feedcache",
         "feedparser",
-        "tw.jquery==dev",
+        "tw.jquery",
         "orbited",
         "Twisted",
         "stomper",
