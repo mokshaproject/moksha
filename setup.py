@@ -39,7 +39,8 @@ setup(
         "Paver",
         "tw.forms",
         "pytz",
-        "Babel"
+        "Babel",
+        "pyOpenSSL",
         #"repoze.squeeze", # Not hard requirements
         #"repoze.profile", # Not hard requirements
     ],
