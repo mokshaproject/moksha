@@ -145,12 +145,14 @@ class MokshaMiddleware(object):
                     'model': None,
                     })
             try:
-                model = __import__('%s.model' % app_entry.name,
-                                   globals(), locals(),
+                # Try to import the 'model' module alongside its 'controllers'
+                module = '.'.join(app_class.__module__.split('.')[:-2] +
+                                  ['model'])
+                model = __import__(module, globals(), locals(),
                                    [app_entry.name])
                 moksha._apps[app_entry.name]['model'] = model
             except ImportError, e:
-                log.debug(e)
+                log.debug("Cannot find application model: %r" % module)
 
     def load_wsgi_applications(self):
         log.info('Loading moksha WSGI applications')
