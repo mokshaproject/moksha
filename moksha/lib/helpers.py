@@ -968,7 +968,7 @@ class DateTimeDisplay(object):
 
     """
     def __init__(self, timestamp, format='%Y-%m-%d %H:%M:%S'):
-        if '.' in timestamp:
+        if isinstance(timestamp, basestring) and '.' in timestamp:
             timestamp = timestamp.split('.')[0]
         self.timestamp = timestamp
         if isinstance(timestamp, datetime):
