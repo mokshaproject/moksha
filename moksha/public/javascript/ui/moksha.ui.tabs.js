@@ -150,6 +150,7 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
 
                 }
                 $panel.data('moksha_container_level', o.container_level);
+                $panel.addClass('moksha-ui-navcontainer');
                 self.panels = self.panels.add( $panel );
             }
             // invalid tab href
