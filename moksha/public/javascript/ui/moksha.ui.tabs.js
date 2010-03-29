@@ -482,7 +482,6 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
         $li.addClass('ui-state-default ui-corner-top').data('destroy.tabs', true);
 
         // try to find an existing element before creating a new one
-        // J5: Check if they correctly select the panel inside the element
         var $panel = $('#' + id, this.list);
         if (!$panel.length) {
             $panel = $(o.panelTemplate).attr('id', id).data('destroy.tabs', true);
@@ -601,7 +600,7 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
             return $inner.length && $inner.is(':not(img)') && $inner || $parent;
         };
         var cleanup = function() {
-            self.anchors.filter('.' + o.loadingClass).removeClass(o.loadingClass)
+            self.anchors.filter('.ui-tabs-loading').removeClass('ui-tabs-loading')
                         .each(function() {
                             if (o.spinner)
                                 inner(this).parent().html(inner(this).data('label.tabs'));
@@ -640,7 +639,7 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
             this.xhr.abort();
             cleanup();
         }
-        //a.addClass(o.loadingClass);
+
         setTimeout(function() { // timeout is again required in IE, "wait" for id being restored
             self.xhr = moksha.html_load(moksha.url(url), {}, success_cb, self.$overlay_div)
         }, 0);
