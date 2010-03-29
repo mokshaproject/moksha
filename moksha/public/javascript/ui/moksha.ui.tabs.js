@@ -616,7 +616,7 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
 
         var success_cb = function(r, s) {
                 var id = $(a).data('dynamic_href.tabs')
-                var $panel = $(id + ':first', self.anchors);
+                var $panel = $(id + ':first', self.element);
                 var $stripped = moksha.filter_resources(r);
 
                 $panel.html($stripped);
