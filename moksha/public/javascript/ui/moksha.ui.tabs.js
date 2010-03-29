@@ -601,8 +601,9 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
         };
 
         if (o.spinner) {
-            var span = $('span', a);
-            span.data('label.tabs', span.html()).html(o.spinner);
+            var label = inner(a).html();
+            inner(a).wrapInner('<em></em>')
+                .find('em').data('label.tabs', label).html(o.spinner);
         }
 
         var success_cb = function(r, s) {
