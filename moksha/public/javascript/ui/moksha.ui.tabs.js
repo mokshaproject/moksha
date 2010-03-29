@@ -32,6 +32,7 @@
 $.widget("ui.mokshatabs", $.ui.tabs, {
     options: {
         staticLoadOnClick: false,
+        container_level: 0,
 
         // Ajax
         spinner: 'Loading&#8230;',
@@ -53,7 +54,7 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
     _findParentNav: function() {
         var parent = this.element.parent();
         var container_level = 0;
-        var nav_class = this.options.navContainerClass;
+        var nav_class = 'moksha-ui-navcontainer';
 
         while (parent.length && !container_level) {
             if (parent.hasClass(nav_class))
@@ -515,9 +516,9 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
     },
 
     // get the selected tab index give a location hash
-    hashToIndex: function(hash, level) {
-        var hash = location.hash;
-        var offset = 0;
+    hashToIndex: function(_hash, level) {
+        var hash = _hash;
+    	var offset = 0;
 
         //remove the has because we only care about the / delimiter
         if (hash[0] == "#")
