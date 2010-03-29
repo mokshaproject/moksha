@@ -599,19 +599,10 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
             var $parent = $(parent), $inner = $parent.find('*:last');
             return $inner.length && $inner.is(':not(img)') && $inner || $parent;
         };
-        var cleanup = function() {
-            self.anchors.filter('.ui-tabs-loading').removeClass('ui-tabs-loading')
-                        .each(function() {
-                            if (o.spinner)
-                                inner(this).parent().html(inner(this).data('label.tabs'));
-                        });
-            self.xhr = null;
-        };
 
         if (o.spinner) {
-            var label = inner(a).html();
-            inner(a).wrapInner('<em></em>')
-                .find('em').data('label.tabs', label).html(o.spinner);
+            var span = $('span', a);
+            span.data('label.tabs', span.html()).html(o.spinner);
         }
 
         var success_cb = function(r, s) {
@@ -620,7 +611,7 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
                 var $stripped = moksha.filter_resources(r);
 
                 $panel.html($stripped);
-                cleanup();
+                slef._cleanup();
 
                 if (o.cache)
                     $.data(a, 'cache.tabs', true); // if loaded once do not load them again
@@ -637,7 +628,7 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
         if (this.xhr) {
             // terminate pending requests from other tabs and restore tab label
             this.xhr.abort();
-            cleanup();
+            self._cleanup();
         }
 
         setTimeout(function() { // timeout is again required in IE, "wait" for id being restored
