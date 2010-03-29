@@ -614,7 +614,7 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
                 var $stripped = moksha.filter_resources(r);
 
                 $panel.html($stripped);
-                slef._cleanup();
+                self._cleanup();
 
                 if (o.cache)
                     $.data(a, 'cache.tabs', true); // if loaded once do not load them again
