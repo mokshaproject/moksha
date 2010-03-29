@@ -467,9 +467,6 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
 
         });
 
-        // disable click in any case
-        this.anchors.bind('click.tabs', function(){return false;});
-
     },
     add: function(url, label, index) {
         if (index == undefined)
