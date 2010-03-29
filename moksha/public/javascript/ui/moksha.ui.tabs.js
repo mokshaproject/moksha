@@ -29,15 +29,25 @@
 
 (function($) {
 
-$.widget("ui.mokshatabs", {
+$.widget("ui.mokshatabs", $.ui.tabs, {
+    options: {
+        staticLoadOnClick: false,
 
-    _init: function() {
-        this.options.event += '.tabs'; // namespace event
+        // Ajax
+        spinner: 'Loading&#8230;',
+        cache: false,
+        idPrefix: 'ui-tabs-',
+        ajaxOptions: {},
+        passPathRemainder:false,
 
+        // templates
+        tabTemplate: '<li><a href="#{href}"><span>#{label}</span></a></li>',
+    },
+    _create: function() {
         this._findParentNav();
 
         // create tabs
-        this.tabify(true);
+        this._tabify(true);
     },
 
     _findParentNav: function() {
@@ -72,57 +82,44 @@ $.widget("ui.mokshatabs", {
       return tab_link;
     },
 
-    setData: function(key, value) {
-        if ((/^selected/).test(key))
-            this.select(value);
-        else {
-            this.options[key] = value;
-            this.tabify();
-        }
-    },
-
-    length: function() {
-        return this.$tabs.length;
-    },
-
-    tabId: function(a) {
+    _tabId: function(a) {
         var panel = $(a).attr('panel');
 
         return panel && panel.replace(/\s/g, '_').replace(/[^A-Za-z0-9\-_:\.]/g, '')
             || this.options.idPrefix + $.data(a);
     },
 
-    ui: function(tab, panel) {
-        return {
-            options: this.options,
-            tab: tab,
-            panel: panel,
-            index: this.$tabs.index(tab)
-        };
-    },
-
-    tabify: function(init) {
-
+    _tabify: function(init) {
         var tab_id = this.element.attr('id') + '_tabs';
-        this.$lis = $('#' + tab_id + ' ul li:has(>a[href])', this.element);
+        this.list = this.element.find('ol,ul').eq(0);
+        this.lis = $('#' + tab_id + ' ul li:has(>a[href])', this.element);
 
-        this.$tabs = this.$lis.map(function() { return $('a', this)[0]; });
-
-        this.$panels = $([]);
+        this.anchors = this.lis.map(function() { return $('a', this)[0]; });
+        this.panels = $([]);
 
         var self = this, o = this.options;
 
         var first_non_static_tab = -1;
-        this.$tabs.each(function(i, a) {
-            // inline tab
-            if (a.hash && a.hash.replace('#', '')) { // Safari 2 reports '#' for an empty hash
-                self.$panels = self.$panels.add(a.hash);
-                if (first_non_static_tab == -1)
-                    first_non_static_tab = i;
-            // static link
-            } else if ($(a).hasClass('static_link') || o.staticLinkOnClick) {
-                var href = $(a).attr('href');
+        var fragmentId = /^#.+/; // Safari 2 reports '#' for an empty hash
+        this.anchors.each(function(i, a) {
+            var href = $(a).attr('href');
 
+            // For dynamically created HTML that contains a hash as href IE < 8 expands
+            // such href to the full page url with hash and then misinterprets tab as ajax.
+            // Same consideration applies for an added tab with a fragment identifier
+            // since a[href=#fragment-identifier] does unexpectedly not match.
+            // Thus normalize href attribute...
+            var hrefBase = href.split('#')[0], baseEl;
+            if (hrefBase && (hrefBase === location.toString().split('#')[0] ||
+                    (baseEl = $('base')[0]) && hrefBase === baseEl.href)) {
+                href = a.hash;
+                a.href = href;
+            }
+
+            // inline tab
+            if (fragmentId.test(href)) {
+                self.panels = self.panels.add(self._sanitizeSelector(href));
+            } else if ($(a).hasClass('static_link') || o.staticLinkOnClick) {
                 // static link on click assumes you have already validated
                 $.data(a, 'href.tabs', href);
                 $.data(a, 'load.tabs', href);
@@ -132,33 +129,31 @@ $.widget("ui.mokshatabs", {
                 }
 
             // remote tab
-            } else if ($(a).attr('href') != '#') { // prevent loading the page itself if href is just "#"
+            } else if (href != '#') { // prevent loading the page itself if href is just "#"
                 if (first_non_static_tab == -1)
                     first_non_static_tab = i;
 
-                var href = $(a).attr('href')
                 $.data(a, 'href.tabs', href); // required for restore on destroy
-                $.data(a, 'load.tabs', href); // mutable
-                var id = self.tabId(a);
+                $.data(a, 'load.tabs', href.replace(/#.*$/, '')); // mutable
+
+                var id = self._tabId(a);
 
                 $(a).data('dynamic_href.tabs', '#' + id);
                 a.href = self._generateTabLink(self._stripUUID(id), true);
 
                 var $panel = $('#' + id + ':first', self.element);
                 if (!$panel.length) {
-                    $panel = $(o.panelTemplate).attr('id', id).addClass(o.panelClass)
-                        .insertAfter( self.$panels[i - 1] || self.element );
+                    $panel = $(o.panelTemplate).attr('id', id).addClass('ui-tabs-panel ui-widget-content ui-corner-bottom')
+                        .insertAfter( self.panels[i - 1] || self.list );
                     $panel.data('destroy.tabs', true);
 
                 }
                 $panel.data('moksha_container_level', o.container_level);
-                $panel.addClass(o.navContainerClass);
-
-                self.$panels = self.$panels.add( $panel );
+                self.panels = self.panels.add( $panel );
             }
             // invalid tab href
             else
-                o.disabled.push(i + 1);
+                o.disabled.push(i);
         });
 
         var $overlay = $('.overlay', self.element)
@@ -174,8 +169,8 @@ $.widget("ui.mokshatabs", {
             $overlay.addClass('overlay')
 
             $overlay.append($('<div />').addClass('message'));
-            if (typeof(self.$panels[0]) != 'undefined')
-                $overlay.insertBefore(self.$panels[0]);
+            if (typeof(self.panels[0]) != 'undefined')
+                $overlay.insertBefore(self.panels[0]);
             else
                 $overlay.insertAfter(self.element);
 
@@ -187,14 +182,10 @@ $.widget("ui.mokshatabs", {
         if (init) {
 
             // attach necessary classes for styling if not present
-            this.element.addClass(o.navClass);
-            if (jQuery(this.element).effectivedirection() == 'rtl') {
-                this.element.addClass(o.navClass_rtl);
-            }
-            this.$panels.each(function() {
-                var $this = $(this);
-                $this.addClass(o.panelClass);
-            });
+            this.element.addClass('ui-tabs ui-widget ui-widget-content ui-corner-all');
+            this.list.addClass('ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all');
+            this.lis.addClass('ui-state-default ui-corner-top');
+            this.panels.addClass('ui-tabs-panel ui-widget-content ui-corner-bottom');
 
             // Selected tab
             // use "selected" option or try to retrieve:
@@ -209,7 +200,7 @@ $.widget("ui.mokshatabs", {
                         o.selected = index;
                         // prevent page scroll to fragment
                         if ($.browser.msie || $.browser.opera) { // && !o.remote
-                            var $toShow = $(this.$tabs[index]);
+                            var $toShow = $(this.anchors[index]);
                             var toShowId = $toShow.attr('id');
                                 $toShow.attr('id', '');
                                 setTimeout(function() {
@@ -225,12 +216,12 @@ $.widget("ui.mokshatabs", {
 
                 }
                 else if (o.cookie) {
-                    var index = parseInt($.cookie('ui-tabs' + $.data(self.element)),10);
-                    if (index && self.$tabs[index])
+                    var index = parseInt(self._cookie(),10);
+                    if (index && self.anchors[index])
                         o.selected = index;
                 }
-                else if (self.$lis.filter('.' + o.selectedClass).length)
-                    o.selected = self.$lis.index( self.$lis.filter('.' + o.selectedClass)[0] );
+                else if (self.lis.filter('.' + o.selectedClass).length)
+                    o.selected = self.lis.index( self.lis.filter('.' + o.selectedClass)[0] );
             }
             o.selected = o.selected === null || o.selected !== undefined ? o.selected : first_non_static_tab; // first non-static tab selected by default
 
@@ -238,342 +229,289 @@ $.widget("ui.mokshatabs", {
             // into account and update option properly.
             // A selected tab cannot become disabled.
             o.disabled = $.unique(o.disabled.concat(
-                $.map(this.$lis.filter('.' + o.disabledClass),
-                    function(n, i) { return self.$lis.index(n); } )
+                $.map(this.lis.filter('.ui-state-disabled'),
+                    function(n, i) { return self.lis.index(n); } )
             )).sort();
+
             if ($.inArray(o.selected, o.disabled) != -1)
                 o.disabled.splice($.inArray(o.selected, o.disabled), 1);
 
             // highlight selected tab
-            this.$panels.addClass(o.hideClass);
-            this.$lis.removeClass(o.selectedClass);
-            if (o.selected !== null) {
-
-                var l = this.$lis.eq(o.selected).addClass(o.selectedClass);
+            this.panels.addClass('ui-tabs-hide');
+            this.lis.removeClass('ui-tabs-selected ui-state-active');
+            if (o.selected >= 0 && this.anchors.length) {
+                this.panels.eq(o.selected).removeClass('ui-tabs-hide');
+                var l = this.lis.eq(o.selected).addClass('ui-tabs-selected ui-state-active');
 
                 var a = $('a', l)[0];
                 var title = $(a).attr('title');
                 if (title)
                     moksha.update_title(title, 1);
 
-                var $show = $($(a).data('dynamic_href.tabs') + ':first', self.element)
-                $show.show().removeClass(o.hideClass); // use show and remove class to show in any case no matter how it has been hidden before
+                //var $show = $($(a).data('dynamic_href.tabs') + ':first', self.element)
+                //$show.show().removeClass(o.hideClass); // use show and remove class to show in any case no matter how it has been hidden before
 
                 // seems to be expected behavior that the show callback is fired
-                var onShow = function() {
-                    $(self.element).triggerHandler('tabsshow',
-                        [self.fakeEvent('tabsshow'), self.ui(self.$tabs[o.selected], self.$panels[o.selected])], o.show);
-                };
+                self.element.queue("tabs", function() {
+                    self._trigger('show', null, self._ui(self.anchors[o.selected], self.panels[o.selected]));
+                });
 
-                // load if remote tab
-                if ($.data(this.$tabs[o.selected], 'load.tabs')) {
-                    this.load(o.selected, onShow);
-                // just trigger show event
-                } else
-                    onShow();
-
+                this.load(o.selected)
             }
 
             // clean up to avoid memory leaks in certain versions of IE 6
             $(window).bind('unload', function() {
-                self.$tabs.unbind('.tabs');
-                self.$lis = self.$tabs = self.$panels = null;
+                self.lis.add(self.anchors).unbind('.tabs');
+                self.lis = self.anchors = self.panels = null;
             });
 
+        }
+        // update selected after add/remove
+        else {
+            o.selected = this.lis.index(this.lis.filter('.ui-tabs-selected'));
+        }
+
+        // update collapsible
+        this.element[o.collapsible ? 'addClass' : 'removeClass']('ui-tabs-collapsible');
+
+        // set or update cookie after init and add/remove respectively
+        if (o.cookie) {
+            this._cookie(o.selected, o.cookie);
         }
 
         // disable tabs
-        for (var i = 0, li; li = this.$lis[i]; i++)
-            $(li)[$.inArray(i, o.disabled) != -1 && !$(li).hasClass(o.selectedClass) ? 'addClass' : 'removeClass'](o.disabledClass);
+        for (var i = 0, li; (li = this.lis[i]); i++) {
+            $(li)[$.inArray(i, o.disabled) != -1 &&
+                !$(li).hasClass('ui-tabs-selected') ? 'addClass' : 'removeClass']('ui-state-disabled');
+        }
 
         // reset cache if switching from cached to not cached
         if (o.cache === false)
-            this.$tabs.removeData('cache.tabs');
+            this.anchors.removeData('cache.tabs');
+
+        // remove all handlers before, tabify may run on existing tabs after add or option change
+        this.lis.add(this.anchors).unbind('.tabs');
+
+        if (o.event != 'mouseover') {
+            var addState = function(state, el) {
+                if (el.is(':not(.ui-state-disabled)')) {
+                    el.addClass('ui-state-' + state);
+                }
+            };
+            var removeState = function(state, el) {
+                el.removeClass('ui-state-' + state);
+            };
+            this.lis.bind('mouseover.tabs', function() {
+                addState('hover', $(this));
+            });
+            this.lis.bind('mouseout.tabs', function() {
+                removeState('hover', $(this));
+            });
+            this.anchors.bind('focus.tabs', function() {
+                addState('focus', $(this).closest('li'));
+            });
+            this.anchors.bind('blur.tabs', function() {
+                removeState('focus', $(this).closest('li'));
+            });
+        }
 
         // set up animations
-        var hideFx, showFx, baseFx = { 'min-width': 0, duration: 1 }, baseDuration = 'normal';
-        if (o.fx && o.fx.constructor == Array)
-            hideFx = o.fx[0] || baseFx, showFx = o.fx[1] || baseFx;
-        else
-            hideFx = showFx = o.fx || baseFx;
-
-        // reset some styles to maintain print style sheets etc.
-        var resetCSS = { display: '', overflow: '', height: '' };
-        if (!$.browser.msie) // not in IE to prevent ClearType font issue
-            resetCSS.opacity = '';
-
-        // Hide a tab, animation prevents browser scrolling to fragment,
-        // $show is optional.
-        function hideTab(clicked, $hide, $show) {
-            $hide.animate(hideFx, hideFx.duration || baseDuration, function() { //
-                $hide.addClass(o.hideClass).css(resetCSS); // maintain flexible height and accessibility in print etc.
-                if ($.browser.msie && hideFx.opacity)
-                    $hide[0].style.filter = '';
-                if ($show)
-                    showTab(clicked, $show, $hide);
-            });
+        var hideFx, showFx;
+        if (o.fx) {
+            if ($.isArray(o.fx)) {
+                hideFx = o.fx[0];
+                showFx = o.fx[1];
+            }
+            else {
+                hideFx = showFx = o.fx;
+            }
         }
 
-        // Show a tab, animation prevents browser scrolling to fragment,
-        // $hide is optional.
-        function showTab(clicked, $show, $hide) {
-            // last tab gets to set the second title component
-            var title = $(clicked).attr('title');
-            if (title)
-                moksha.update_title(title, 1);
-
-            if (showFx === baseFx)
-                $show.css('display', 'block'); // prevent occasionally occuring flicker in Firefox cause by gap between showing and hiding the tab panels
-            $show.animate(showFx, showFx.duration || baseDuration, function() {
-                $show.removeClass(o.hideClass).css(resetCSS); // maintain flexible height and accessibility in print etc.
-                if ($.browser.msie && showFx.opacity)
-                    $show[0].style.filter = '';
-
-                // callback
-                $(self.element).triggerHandler('tabsshow',
-                    [self.fakeEvent('tabsshow'), self.ui(clicked, $show[0])], o.show);
-
-            });
+        // Reset certain styles left over from animation
+        // and prevent IE's ClearType bug...
+        function resetStyle($el, fx) {
+            $el.css({ display: '' });
+            if (!$.support.opacity && fx.opacity) {
+                $el[0].style.removeAttribute('filter');
+            }
         }
 
-        // switch a tab
-        function switchTab(clicked, $li, $hide, $show) {
-            /*if (o.bookmarkable && trueClick) { // add to history only if true click occured, not a triggered click
-                $.ajaxHistory.update(clicked.hash);
-            }*/
+        // Show a tab...
+        var showTab = showFx ?
+            function(clicked, $show) {
+                var title = $(clicked).attr('title');
+                if (title)
+                    moksha.update_title(title, 1);
 
-            self.$lis.removeClass(o.selectedClass);
-            $li.addClass(o.selectedClass);
-            hideTab(clicked, $hide, $show);
-        }
+                $(clicked).closest('li').addClass('ui-tabs-selected ui-state-active');
+                $show.hide().removeClass('ui-tabs-hide') // avoid flicker that way
+                    .animate(showFx, showFx.duration || 'normal', function() {
+                        resetStyle($show, showFx);
+                        self._trigger('show', null, self._ui(clicked, $show[0]));
+                    });
+            } :
+            function(clicked, $show) {
+                var title = $(clicked).attr('title');
+                if (title)
+                    moksha.update_title(title, 1);
 
-        // attach tab event handler, unbind to avoid duplicates from former tabifying...
-        this.$tabs.unbind('.tabs').bind(o.event, function() {
+                $(clicked).closest('li').addClass('ui-tabs-selected ui-state-active');
+                $show.removeClass('ui-tabs-hide');
+                self._trigger('show', null, self._ui(clicked, $show[0]));
+            };
 
-            //var trueClick = e.clientX; // add to history only if true click occured, not a triggered click
+        // Hide a tab, $show is optional...
+        var hideTab = hideFx ?
+            function(clicked, $hide) {
+                $hide.animate(hideFx, hideFx.duration || 'normal', function() {
+                    self.lis.removeClass('ui-tabs-selected ui-state-active');
+                    $hide.addClass('ui-tabs-hide');
+                    resetStyle($hide, hideFx);
+                    self.element.dequeue("tabs");
+                });
+            } :
+            function(clicked, $hide, $show) {
+                self.lis.removeClass('ui-tabs-selected ui-state-active');
+                $hide.addClass('ui-tabs-hide');
+                self.element.dequeue("tabs");
+            };
 
+         // attach tab event handler, unbind to avoid duplicates from former tabifying...
+        this.anchors.bind(o.event + '.tabs', function() {
             // if we have a static link use that instead
             var isStaticLink = $(this).hasClass('static_link');
             if (isStaticLink)
                 return true;
 
-            var $li = $(this).parents('li:eq(0)'),
-                $hide = self.$panels.filter(':visible'),
-                $show = $($(this).data('dynamic_href.tabs') + ':first', self.element)
+            var el = this, $li = $(this).closest('li'), $hide = self.panels.filter(':not(.ui-tabs-hide)'),
+                    $show = $(self._sanitizeSelector(this.hash));
 
-            // If tab disabled or
+            // If tab is already selected and not collapsible or tab disabled or
             // or is already loading or click callback returns false stop here.
             // Check if click handler returns false last so that it is not executed
             // for a disabled or loading tab!
-            if ($li.hasClass(o.disabledClass)
-                || $(this).hasClass(o.loadingClass)
-                || $(self.element).triggerHandler('tabsselect', [self.fakeEvent('tabsselect'), self.ui(this, $show[0])], o.select) === false
-                ) {
+            if (($li.hasClass('ui-tabs-selected') && !o.collapsible) ||
+                $li.hasClass('ui-state-disabled') ||
+                $li.hasClass('ui-state-processing') ||
+                self._trigger('select', null, self._ui(this, $show[0])) === false) {
                 this.blur();
                 return false;
             }
 
-            self.options.selected = self.$tabs.index(this);
+            o.selected = self.anchors.index(this);
 
-            var $el = $(this)
-
-            // we don't get the actual href but the dynamic one
-            var href = $el.data('dynamic_href.tabs');
-
-            href = self._stripUUID(href);
-
-            //only update the hash level we care about
-            if (o.container_level != 0) {
-              var hash = self._generateTabLink(href.substr(1), false);
-
-              if (o.staticLoadOnClick) {
-                  moksha.goto(hash);
-                  return false;
-              } else {
-                  location.hash = '#' + hash;
-              }
-            } else {
-              if (o.staticLoadOnClick) {
-                  moksha.goto('/' + href.substr(1));
-                  return false;
-              } else {
-                  location.hash = href;
-              }
-            }
+            self.abort();
 
             // if tab may be closed
-            if (o.unselect) {
-                if ($li.hasClass(o.selectedClass)) {
-                    self.options.selected = null;
-                    $li.removeClass(o.selectedClass);
-                    self.$panels.stop();
-                    hideTab(this, $hide);
+            if (o.collapsible) {
+                if ($li.hasClass('ui-tabs-selected')) {
+                    o.selected = -1;
+
+                    if (o.cookie) {
+                        self._cookie(o.selected, o.cookie);
+                    }
+
+                    self.element.queue("tabs", function() {
+                        hideTab(el, $hide);
+                    }).dequeue("tabs");
+
                     this.blur();
                     return false;
-                } else if (!$hide.length) {
-                    self.$panels.stop();
-                    var a = this;
-                    self.load(self.$tabs.index(this), function() {
-                        $li.addClass(o.selectedClass).addClass(o.unselectClass);
-                        showTab(a, $show);
+                }
+                else if (!$hide.length) {
+                    if (o.cookie) {
+                        self._cookie(o.selected, o.cookie);
+                    }
+
+                    self.element.queue("tabs", function() {
+                        showTab(el, $show);
                     });
+
+                    self.load(self.anchors.index(this)); // TODO make passing in node possible, see also http://dev.jqueryui.com/ticket/3171
+
                     this.blur();
                     return false;
                 }
             }
 
-            if (o.cookie)
-                $.cookie('ui-tabs' + $.data(self.element), self.options.selected, o.cookie);
-
-            // stop possibly running animations
-            self.$panels.stop();
+            if (o.cookie) {
+                self._cookie(o.selected, o.cookie);
+            }
 
             // show new tab
             if ($show.length) {
+                if ($hide.length) {
+                    self.element.queue("tabs", function() {
+                        hideTab(el, $hide);
+                    });
+                }
+                self.element.queue("tabs", function() {
+                    showTab(el, $show);
+                });
 
-                // prevent scrollbar scrolling to 0 and than back in IE7, happens only if bookmarking/history is enabled
-                /*if ($.browser.msie && o.bookmarkable) {
-                    var showId = this.hash.replace('#', '');
-                    $show.attr('id', '');
-                    setTimeout(function() {
-                        $show.attr('id', showId); // restore id
-                    }, 0);
-                }*/
-
-                var a = this;
-                self.load(self.$tabs.index(this), $hide.length ?
-                    function() {
-                        switchTab(a, $li, $hide, $show);
-                    } :
-                    function() {
-                        $li.addClass(o.selectedClass);
-                        showTab(a, $show);
-                    }
-                );
-
-                // Set scrollbar to saved position - need to use timeout with 0 to prevent browser scroll to target of hash
-                /*var scrollX = window.pageXOffset || document.documentElement && document.documentElement.scrollLeft || document.body.scrollLeft || 0;
-                var scrollY = window.pageYOffset || document.documentElement && document.documentElement.scrollTop || document.body.scrollTop || 0;
-                setTimeout(function() {
-                    scrollTo(scrollX, scrollY);
-                }, 0);*/
-
-            } else
+                self.load(self.anchors.index(this));
+            }
+            else {
                 throw 'jQuery UI Tabs: Mismatching fragment identifier.';
+            }
 
             // Prevent IE from keeping other link focussed when using the back button
-            // and remove dotted border from clicked link. This is controlled in modern
-            // browsers via CSS, also blur removes focus from address bar in Firefox
-            // which can become a usability and annoying problem with tabsRotate.
-            if ($.browser.msie)
+            // and remove dotted border from clicked link. This is controlled via CSS
+            // in modern browsers; blur() removes focus from address bar in Firefox
+            // which can become a usability and annoying problem with tabs('rotate').
+            if ($.browser.msie) {
                 this.blur();
+            }
 
-            //return o.bookmarkable && !!trueClick; // convert trueClick == undefined to Boolean required in IE
-            return false;
         });
 
-        // disable click if event is configured to something else
-        if (!(/^click/).test(o.event))
-            this.$tabs.bind('click.tabs', function() { return false; });
+        // disable click in any case
+        this.anchors.bind('click.tabs', function(){return false;});
 
     },
     add: function(url, label, index) {
         if (index == undefined)
-            index = this.$tabs.length; // append by default
+            index = this.anchors.length; // append by default
 
-        var o = this.options;
-        var $li = $(o.tabTemplate.replace(/#\{href\}/g, url).replace(/#\{label\}/g, label));
-        $li.data('destroy.tabs', true);
+        var self = this, o = this.options,
+            $li = $(o.tabTemplate.replace(/#\{href\}/g, url).replace(/#\{label\}/g, label)),
+            id = !url.indexOf('#') ? url.replace('#', '') : this._tabId( $('a:first-child', $li)[0] );
 
-        var id = url.indexOf('#') == 0 ? url.replace('#', '') : this.tabId( $('a:first-child', $li)[0] );
+        $li.addClass('ui-state-default ui-corner-top').data('destroy.tabs', true);
 
         // try to find an existing element before creating a new one
-        var $panel = $('#' + id, this.element);
+        // J5: Check if they correctly select the panel inside the element
+        var $panel = $('#' + id, this.list);
         if (!$panel.length) {
-            $panel = $(o.panelTemplate).attr('id', id)
-                .addClass(o.hideClass)
-                .data('destroy.tabs', true);
+            $panel = $(o.panelTemplate).attr('id', id).data('destroy.tabs', true);
         }
-        $panel.addClass(o.panelClass);
-        if (index >= this.$lis.length) {
-            $li.appendTo(this.element);
-            $panel.appendTo(this.element[0].parentNode);
+        $panel.addClass('ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide');
+        if (index >= this.lis.length) {
+            $li.appendTo(this.list);
+            $panel.appendTo(this.list[0].parentNode);
         } else {
-            $li.insertBefore(this.$lis[index]);
-            $panel.insertBefore(this.$panels[index]);
+            $li.insertBefore(this.lis[index]);
+            $panel.insertBefore(this.panels[index]);
         }
 
         o.disabled = $.map(o.disabled,
             function(n, i) { return n >= index ? ++n : n });
 
-        this.tabify();
+        this._tabify();
 
-        if (this.$tabs.length == 1) {
-            $li.addClass(o.selectedClass);
-            $panel.removeClass(o.hideClass);
-            var href = $.data(this.$tabs[0], 'load.tabs');
-            if (href)
-                this.load(index, href);
+        if (this.anchors.length == 1) {
+            $li.addClass('ui-tabs-selected ui-state-active');
+            $panel.removeClass('ui-tabs-hide');
+            this.element.queue("tabs", function() {
+                self._trigger('show', null, self._ui(self.anchors[0], self.panels[0]));
+            });
         }
 
-        // callback
-        this.element.triggerHandler('tabsadd',
-            [this.fakeEvent('tabsadd'), this.ui(this.$tabs[index], this.$panels[index])], o.add
-        );
-    },
-    remove: function(index) {
-        var o = this.options, $li = this.$lis.eq(index).remove(),
-            $panel = this.$panels.eq(index).remove();
-
-        // If selected tab was removed focus tab to the right or
-        // in case the last tab was removed the tab to the left.
-        if ($li.hasClass(o.selectedClass) && this.$tabs.length > 1)
-            this.select(index + (index + 1 < this.$tabs.length ? 1 : -1));
-
-        o.disabled = $.map($.grep(o.disabled, function(n, i) { return n != index; }),
-            function(n, i) { return n >= index ? --n : n });
-
-        this.tabify();
+        this.load(0);
 
         // callback
-        this.element.triggerHandler('tabsremove',
-            [this.fakeEvent('tabsremove'), this.ui($li.find('a')[0], $panel[0])], o.remove
-        );
-    },
-    enable: function(index) {
-        var o = this.options;
-        if ($.inArray(index, o.disabled) == -1)
-            return;
-
-        var $li = this.$lis.eq(index).removeClass(o.disabledClass);
-        if ($.browser.safari) { // fix disappearing tab (that used opacity indicating disabling) after enabling in Safari 2...
-            $li.css('display', 'inline-block');
-            setTimeout(function() {
-                $li.css('display', 'block');
-            }, 0);
-        }
-
-        o.disabled = $.grep(o.disabled, function(n, i) { return n != index; });
-
-        // callback
-        this.element.triggerHandler('tabsenable',
-            [this.fakeEvent('tabsenable'), this.ui(this.$tabs[index], this.$panels[index])], o.enable
-        );
-
-    },
-    disable: function(index) {
-        var self = this, o = this.options;
-        if (index != o.selected) { // cannot disable already selected tab
-            this.$lis.eq(index).addClass(o.disabledClass);
-
-            o.disabled.push(index);
-            o.disabled.sort();
-
-            // callback
-            this.element.triggerHandler('tabsdisable',
-                [this.fakeEvent('tabsdisable'), this.ui(this.$tabs[index], this.$panels[index])], o.disable
-            );
-        }
+        this._trigger('add', null, this._ui(this.anchors[index], this.panels[index]));
+        return this;
     },
 
     // get the selected tab index give a location hash
@@ -607,8 +545,8 @@ $.widget("ui.mokshatabs", {
     idToIndex: function(id) {
         var index = -1;
         var l = id.length;
-        for(var i=0; i < this.$tabs.length; i++) {
-            var h = $(this.$tabs[i]).data('dynamic_href.tabs');
+        for(var i=0; i < this.anchors.length; i++) {
+            var h = $(this.anchors[i]).data('dynamic_href.tabs');
             // static links do not count
             if (!h)
                 continue;
@@ -625,30 +563,43 @@ $.widget("ui.mokshatabs", {
     select: function(index) {
         if (typeof index == 'string')
             index = this.idToIndex(index);
+        else if(index === null) { // usage of null is deprecated, TODO remove in next release
+            index = -1;
+        }
 
-        this.$tabs.eq(index).trigger(this.options.event);
+        if (index == -1 && this.options.collapsible) {
+            index = this.options.selected;
+        }
+
+        this.anchors.eq(index).trigger(this.options.event + '.tabs');
+        return this;
     },
+
     load: function(index, callback) { // callback is for internal usage only
 
-        var self = this, o = this.options, $a = this.$tabs.eq(index), a = $a[0],
-                bypassCache = callback == undefined || callback === false, url = $a.data('load.tabs');
+        var self = this, o = this.options, a = this.anchors.eq(index)[0],
+                bypassCache = callback == undefined || callback === false, url = $.data(a, 'load.tabs');
 
         callback = callback || function() {};
 
+        this.abort();
+
         // no remote or from cache - just finish with callback
-        if (!url || !bypassCache && $.data(a, 'cache.tabs')) {
+        if (!url || this.element.queue("tabs").length !== 0 && !bypassCache && $.data(a, 'cache.tabs')) {
+            this.element.dequeue("tabs");
             callback();
             return;
         }
 
         // load remote from here on
+        this.lis.eq(index).addClass('ui-state-processing');
 
         var inner = function(parent) {
             var $parent = $(parent), $inner = $parent.find('*:last');
             return $inner.length && $inner.is(':not(img)') && $inner || $parent;
         };
         var cleanup = function() {
-            self.$tabs.filter('.' + o.loadingClass).removeClass(o.loadingClass)
+            self.anchors.filter('.' + o.loadingClass).removeClass(o.loadingClass)
                         .each(function() {
                             if (o.spinner)
                                 inner(this).parent().html(inner(this).data('label.tabs'));
@@ -664,7 +615,7 @@ $.widget("ui.mokshatabs", {
 
         var success_cb = function(r, s) {
                 var id = $(a).data('dynamic_href.tabs')
-                var $panel = $(id + ':first', self.element);
+                var $panel = $(id + ':first', self.anchors);
                 var $stripped = moksha.filter_resources(r);
 
                 $panel.html($stripped);
@@ -674,9 +625,7 @@ $.widget("ui.mokshatabs", {
                     $.data(a, 'cache.tabs', true); // if loaded once do not load them again
 
                 // callbacks
-                $(self.element).triggerHandler('tabsload',
-                    [self.fakeEvent('tabsload'), self.ui(self.$tabs[index], self.$panels[index])], o.load
-                );
+                self._trigger('load', null, self._ui(self.anchors[index], self.panels[index]));
 
                 // This callback is required because the switch has to take
                 // place after loading has completed. Call last in order to
@@ -689,85 +638,14 @@ $.widget("ui.mokshatabs", {
             this.xhr.abort();
             cleanup();
         }
-        $a.addClass(o.loadingClass);
+        //a.addClass(o.loadingClass);
         setTimeout(function() { // timeout is again required in IE, "wait" for id being restored
             self.xhr = moksha.html_load(moksha.url(url), {}, success_cb, self.$overlay_div)
         }, 0);
 
+        return this;
     },
-    url: function(index, url) {
-        this.$tabs.eq(index).removeData('cache.tabs').data('load.tabs', url);
-    },
-    destroy: function() {
-        var o = this.options;
-        this.element.unbind('.tabs')
-            .removeClass(o.navClass).removeData('tabs');
-        if (jQuery(this.element).effectivedirection() == 'rtl') {
-            jQuery(this.element).removeClass(o.navClass_rtl);
-        }
-        this.$tabs.each(function() {
-            var href = $.data(this, 'href.tabs');
-            if (href)
-                this.href = href;
-            var $this = $(this).unbind('.tabs');
-            $.each(['href', 'load', 'cache'], function(i, prefix) {
-                $this.removeData(prefix + '.tabs');
-            });
-        });
-        this.$lis.add(this.$panels).each(function() {
-            if ($.data(this, 'destroy.tabs'))
-                $(this).remove();
-            else
-                $(this).removeClass([o.selectedClass, o.unselectClass,
-                    o.disabledClass, o.panelClass, o.hideClass].join(' '));
-        });
-    },
-    fakeEvent: function(type) {
-        return $.event.fix({
-            type: type,
-            target: this.element[0]
-        });
-    }
+
 });
-
-$.ui.mokshatabs.defaults = {
-    // basic setup
-    unselect: false,
-    event: 'click',
-    disabled: [],
-    cookie: null, // e.g. { expires: 7, path: '/', domain: 'jquery.com', secure: true }
-    staticLoadOnClick: false,
-
-    // TODO history: false,
-
-    // Ajax
-    spinner: 'Loading&#8230;',
-    cache: false,
-    idPrefix: 'ui-tabs-',
-    ajaxOptions: {},
-    passPathRemainder:false,
-
-    // animations
-    fx: null, // e.g. { height: 'toggle', opacity: 'toggle', duration: 200 }
-
-
-
-    // templates
-    tabTemplate: '<li><a href="#{href}"><span>#{label}</span></a></li>',
-    panelTemplate: '<div></div>',
-
-    // CSS classes
-    navClass: 'ui-tabs-nav',
-    navClass_rtl: 'ui-tabs-nav-rtl',
-    selectedClass: 'ui-tabs-selected',
-    unselectClass: 'ui-tabs-unselect',
-    disabledClass: 'ui-tabs-disabled',
-    panelClass: 'ui-tabs-panel',
-    hideClass: 'ui-tabs-hide',
-    loadingClass: 'ui-tabs-loading',
-    navContainerClass: 'moksha-ui-navcontainer'
-};
-
-$.ui.mokshatabs.getter = "length";
 
 })(jQuery);
