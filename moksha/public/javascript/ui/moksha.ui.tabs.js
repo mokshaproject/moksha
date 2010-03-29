@@ -35,7 +35,7 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
         container_level: 0,
 
         // Ajax
-        spinner: 'Loading&#8230;',
+        spinner: '<em>Loading&#8230;</em>',
         cache: false,
         idPrefix: 'ui-tabs-',
         ajaxOptions: {},
@@ -601,9 +601,11 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
         };
 
         if (o.spinner) {
-            var label = inner(a).html();
-            inner(a).wrapInner('<em></em>')
-                .find('em').data('label.tabs', label).html(o.spinner);
+            var span = $('span', a);
+            if (span.length == 0)
+                span = inner(a).wrapInner('<span></span>').find('span');
+
+            span.data('label.tabs', span.html()).html(o.spinner);
         }
 
         var success_cb = function(r, s) {
