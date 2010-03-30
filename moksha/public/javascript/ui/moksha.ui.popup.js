@@ -28,8 +28,17 @@
  */
 (function ($) {
 $.widget("ui.moksha_popup", {
+	options: {
+	    popupClass: 'ui-moksha-popup',
+	    popupItemsClass: 'ui-moksha-popup-items',
+	    selectedClass: 'ui-moksha-selected',
+	    panelClass: 'ui-moksha-popup-panel',
+	    hoverTimeout: 500,
+	    triggerEvent: 'hover',
+	    fx: null, // e.g. { height: 'toggle', opacity: 'toggle', duration: 200 }
+    },
 
-	_init: function() {
+	_create: function() {
 		// create popup
 		this._createpopup();
 	},
@@ -130,16 +139,7 @@ $.widget("ui.moksha_popup", {
 });
 
 $.extend($.ui.moksha_popup, {
-	version: '@VERSION',
-	defaults: {
-		popupClass: 'ui-moksha-popup',
-		popupItemsClass: 'ui-moksha-popup-items',
-		selectedClass: 'ui-moksha-selected',
-		panelClass: 'ui-moksha-popup-panel',
-		hoverTimeout: 500,
-		triggerEvent: 'hover',
-		fx: null, // e.g. { height: 'toggle', opacity: 'toggle', duration: 200 }
-	}
+	version: '@VERSION'
 });
 
 
