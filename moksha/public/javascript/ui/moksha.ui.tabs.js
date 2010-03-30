@@ -251,7 +251,6 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
                     moksha.update_title(title, 1);
 
                 //var $show = $($(a).data('dynamic_href.tabs') + ':first', self.element)
-                //$show.show().removeClass(o.hideClass); // use show and remove class to show in any case no matter how it has been hidden before
 
                 // seems to be expected behavior that the show callback is fired
                 self.element.queue("tabs", function() {
@@ -386,7 +385,7 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
                 return true;
 
             var el = this, $li = $(this).closest('li'), $hide = self.panels.filter(':not(.ui-tabs-hide)'),
-                    $show = $(self._sanitizeSelector(this.hash));
+                    $show = $($(this).data('dynamic_href.tabs') + ':first', self.element);
 
             // If tab is already selected and not collapsible or tab disabled or
             // or is already loading or click callback returns false stop here.
