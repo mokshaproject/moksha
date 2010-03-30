@@ -464,6 +464,9 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
                 this.blur();
             }
 
+            // we've handled the event so stop it from propagating
+            return false;
+
         });
 
     },
