@@ -223,7 +223,7 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
                         o.selected = index;
                 }
                 else if (self.lis.filter('.' + o.selectedClass).length)
-                    o.selected = self.lis.index( self.lis.filter('.' + o.selectedClass)[0] );
+                    o.selected = self.lis.index( self.lis.filter('.ui-tabs-selected')[0] );
             }
             o.selected = o.selected === null || o.selected !== undefined ? o.selected : first_non_static_tab; // first non-static tab selected by default
 
@@ -242,7 +242,7 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
             this.panels.addClass('ui-tabs-hide');
             this.lis.removeClass('ui-tabs-selected ui-state-active');
             if (o.selected >= 0 && this.anchors.length) {
-                this.panels.eq(o.selected).removeClass('ui-tabs-hide');
+                this.panels.eq(o.selected - first_non_static_tab).removeClass('ui-tabs-hide');
                 var l = this.lis.eq(o.selected).addClass('ui-tabs-selected ui-state-active');
 
                 var a = $('a', l)[0];
