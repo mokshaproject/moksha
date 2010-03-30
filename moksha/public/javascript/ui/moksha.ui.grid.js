@@ -18,8 +18,35 @@
   $.widget("ui.mokshagrid",{
     controls: function(){},
     /* methods */
+    options: {
+        event: 'click',
+        rows_per_page: 10,
+        page_num: 1,
+        total_rows: 0,
+        first_visible_row: 1, // 1 based index
+        last_visible_row: 1, // 1 based index
+        visible_rows: 0,
+        filters: {},
+        unique_key: undefined,
+        sort_key: undefined,
+        sort_order: -1,
+        row_template: null,
+        resource: null,
+        resource_path: null,
+        blankRowClass: 'moksha-grid-blank-row',
+        rowClass: 'moksha-grid-row',
+        pagerPageLimit: 5,
+        alphaPager: false,
+        numericPager: false,
+        filterControls: false,
+        more_link: null,
+        loading_throbber: ["Loading",    // list of img urls or text
+                           "Loading.",
+                           "Loading..",
+                           "Loading..."]
+    },
 
-    _init: function() {
+    _create: function() {
       var self = this;
       var o = self.options;
 
@@ -538,34 +565,7 @@
 
   $.extend($.ui.mokshagrid, {
           version: '@VERSION',
-          getters: 'visible_row_count',
-          defaults: {
-                 event: 'click',
-                 rows_per_page: 10,
-                 page_num: 1,
-                 total_rows: 0,
-                 first_visible_row: 1, // 1 based index
-                 last_visible_row: 1, // 1 based index
-                 visible_rows: 0,
-                 filters: {},
-                 unique_key: undefined,
-                 sort_key: undefined,
-                 sort_order: -1,
-                 row_template: null,
-                 resource: null,
-                 resource_path: null,
-                 blankRowClass: 'moksha-grid-blank-row',
-                 rowClass: 'moksha-grid-row',
-                 pagerPageLimit: 5,
-                 alphaPager: false,
-                 numericPager: false,
-                 filterControls: false,
-                 more_link: null,
-                 loading_throbber: ["Loading",    // list of img urls or text
-                                    "Loading.",
-                                    "Loading..",
-                                    "Loading..."]
-          }
+          getters: 'visible_row_count'
   });
 
   $.ui.mokshagrid.prototype.controls.filter = {
