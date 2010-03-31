@@ -584,7 +584,7 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
 
         this.abort();
 
-        // no remote or from cache - just finish with callback
+        // not remote or from cache - just finish with callback
         if (!url || this.element.queue("tabs").length !== 0 && !bypassCache && $.data(a, 'cache.tabs')) {
             this.element.dequeue("tabs");
             callback();
@@ -633,9 +633,9 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
             self._cleanup();
         }
 
-        setTimeout(function() { // timeout is again required in IE, "wait" for id being restored
-            self.xhr = moksha.html_load(moksha.url(url), {}, success_cb, self.$overlay_div)
-        }, 0);
+
+        this.xhr = moksha.html_load(moksha.url(url), {}, success_cb, self.$overlay_div);
+        self.element.dequeue("tabs");
 
         return this;
     },
