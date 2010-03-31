@@ -33,7 +33,7 @@ setup(
         "feedparser",
         "tw.jquery",
         "orbited",
-        "Twisted",
+        #"Twisted",
         "stomper",
         "Sphinx",
         "Paver",
