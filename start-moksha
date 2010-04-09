@@ -23,7 +23,7 @@ if [ ! $VIRTUAL_ENV ]; then
         easy_install Twisted
         easy_install pysqlite
         easy_install -U ToscaWidgets
-        easy_install tw.jquery==dev
+        easy_install "tw.jquery>=0.9.9"
         easy_install -U SQLAlchemy
         easy_install -U FormEncode
         easy_install -U Beaker
