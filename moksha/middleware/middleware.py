@@ -202,54 +202,57 @@ class MokshaMiddleware(object):
          """
         from mako.template import Template
         from mako.lookup import TemplateLookup
-        try: # TG2b6 and later
-            from tg.dottednamesupport import DottedTemplateLookup
-        except: # TG2b5 and earlier
-            from tg.util import get_dotted_filename
+        try: # TG2.1
+            from tg.dottednames.mako_lookup import DottedTemplateLookup
+        except ImportError:
+            try: # TG2b6
+                from tg.dottednamesupport import DottedTemplateLookup
+            except: # TG2b5 and earlier
+                from tg.util import get_dotted_filename
 
-            class DottedTemplateLookup(object):
-                """this is an emulation of the Mako template lookup
-                that will handle get_template and support dotted names
-                in python path notation to support zipped eggs
-                """
-                def __init__(self, input_encoding, output_encoding,
-                             imports, default_filters):
-                    self.input_encoding = input_encoding
-                    self.output_encoding = output_encoding
-                    self.imports = imports
-                    self.default_filters = default_filters
-
-                def adjust_uri(self, uri, relativeto):
-                    """this method is used by mako for filesystem based reasons.
-                    In dotted lookup land we don't adjust uri so se just return
-                    the value we are given without any change
+                class DottedTemplateLookup(object):
+                    """this is an emulation of the Mako template lookup
+                    that will handle get_template and support dotted names
+                    in python path notation to support zipped eggs
                     """
-                    if '.' in uri:
-                        """we are in the DottedTemplateLookup system so dots in
-                        names should be treated as a python path.
-                        Since this method is called by template inheritance we must
-                        support dotted names also in the inheritance.
+                    def __init__(self, input_encoding, output_encoding,
+                                 imports, default_filters):
+                        self.input_encoding = input_encoding
+                        self.output_encoding = output_encoding
+                        self.imports = imports
+                        self.default_filters = default_filters
+
+                    def adjust_uri(self, uri, relativeto):
+                        """this method is used by mako for filesystem based reasons.
+                        In dotted lookup land we don't adjust uri so se just return
+                        the value we are given without any change
                         """
-                        result = get_dotted_filename(template_name=uri,
-                                                     template_extension='.mak')
+                        if '.' in uri:
+                            """we are in the DottedTemplateLookup system so dots in
+                            names should be treated as a python path.
+                            Since this method is called by template inheritance we must
+                            support dotted names also in the inheritance.
+                            """
+                            result = get_dotted_filename(template_name=uri,
+                                                         template_extension='.mak')
 
-                    else:
-                        """no dot detected, just return plain name
+                        else:
+                            """no dot detected, just return plain name
+                            """
+                            result = uri
+
+                        return result
+
+                    def get_template(self, template_name):
+                        """this is the emulated method that must return a template
+                        instance based on a given template name
                         """
-                        result = uri
-
-                    return result
-
-                def get_template(self, template_name):
-                    """this is the emulated method that must return a template
-                    instance based on a given template name
-                    """
-                    return Template(open(template_name).read(),
-                        input_encoding=self.input_encoding,
-                        output_encoding=self.output_encoding,
-                        default_filters=self.default_filters,
-                        imports=self.imports,
-                        lookup=self)
+                        return Template(open(template_name).read(),
+                            input_encoding=self.input_encoding,
+                            output_encoding=self.output_encoding,
+                            default_filters=self.default_filters,
+                            imports=self.imports,
+                            lookup=self)
 
         if config.get('use_dotted_templatenames', True):
             # support dotted names by injecting a slightly different template
