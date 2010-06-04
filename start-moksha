@@ -12,10 +12,10 @@ if [ ! $VIRTUAL_ENV ]; then
         virtualenv --distribute --no-site-packages tg2env
         source tg2env/bin/activate
 
-        #easy_install -i http://www.turbogears.org/2.1/downloads/current/index tg.devtools
         # HACK: http://groups.google.com/group/turbogears/browse_thread/thread/0176623b9825e3ad
         easy_install Extremes
-        easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
+        easy_install -i http://www.turbogears.org/2.1/downloads/current/index tg.devtools
+        #easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
 
         # Hack around Shove's hard SQLAlchemy requirement :(
         easy_install -U Shove
