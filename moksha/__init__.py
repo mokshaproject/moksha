@@ -41,7 +41,8 @@ livewidgets = StackedObjectProxy(name="livewidgets")
 
 def get_widget(name):
     """ Get a widget instance by name """
-    return _widgets[name]['widget']
+    if _widgets:
+        return _widgets[name]['widget']
 
 def get_app(name):
     """ Get an app controller by name """
