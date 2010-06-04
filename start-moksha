@@ -9,10 +9,12 @@ if [ ! $VIRTUAL_ENV ]; then
         #fi
         #python tg2-bootstrap.py --no-site-packages tg2env
 
-        virtualenv --no-site-packages tg2env
+        virtualenv --distribute --no-site-packages tg2env
         source tg2env/bin/activate
 
         #easy_install -i http://www.turbogears.org/2.1/downloads/current/index tg.devtools
+        # HACK: http://groups.google.com/group/turbogears/browse_thread/thread/0176623b9825e3ad
+        easy_install Extremes
         easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
 
         # Hack around Shove's hard SQLAlchemy requirement :(
@@ -21,19 +23,19 @@ if [ ! $VIRTUAL_ENV ]; then
         easy_install -U SQLAlchemy
         easy_install Paver
         easy_install Twisted
-        easy_install pysqlite
+        #easy_install pysqlite
         easy_install -U ToscaWidgets
         easy_install "tw.jquery>=0.9.9"
-        easy_install -U SQLAlchemy
-        easy_install -U FormEncode
-        easy_install -U Beaker
+        #easy_install -U SQLAlchemy
+        #easy_install -U FormEncode
+        #easy_install -U Beaker
 
         # `install` instead of `develop` to avoid weird directory vs. egg
         # namespace issues
-        #echo "Installing Moksha"
         echo "Installing Moksha"
         #rm -fr dist
         python setup.py install
+
         #python setup.py bdist_egg
         #easy_install -Z dist/*.egg
 
