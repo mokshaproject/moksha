@@ -76,11 +76,13 @@ class TestCSRFProtection(TestController):
         # Make sure we can't get back to the page without the token
         resp = self.app.get('/moksha_admin/', status=302)
         assert 'The resource was found at /post_logout' in resp or \
-               'The resource was found at /login' in resp, resp
+               'The resource was found at /login' in resp or \
+               'The resource was found at http://localhost/login' in resp
 
         # Make sure that we can't get back after we got rejected once
         resp = self.app.post('/moksha_admin/', {'_csrf_token': token}, status=302)
-        assert 'The resource was found at /login' in resp, resp
+        assert 'The resource was found at /login' in resp or \
+               'The resource was found at http://localhost/login' in resp
 
         # Ensure the token gets removed
         resp = self.app.get('/', status=200)
@@ -104,4 +106,5 @@ class TestCSRFProtection(TestController):
 
         # Now, make sure we reject invalid tokens
         resp = self.app.post('/moksha_admin/', {'_csrf_token': token + ' '}, status=302)
-        assert 'The resource was found at /post_logout' in resp, resp
+        assert 'The resource was found at /post_logout' in resp or \
+               'The resource was found at http://localhost/post_logout' in resp
