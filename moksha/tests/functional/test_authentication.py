@@ -52,7 +52,8 @@ class TestAuthentication(TestController):
         """
         # Requesting a protected area
         resp = self.app.get('/moksha_admin/', status=302)
-        assert resp.location.startswith('http://localhost/login')
+        assert resp.location.startswith('http://localhost/login') or \
+               repo.location.startswith('/login')
         # Getting the login form:
         resp = resp.follow(status=200)
         form = resp.form
@@ -78,7 +79,8 @@ class TestAuthentication(TestController):
         form['password'] = 'managepass'
         post_login = form.submit(status=302)
         # Being redirected to the home page:
-        assert post_login.location.startswith('http://localhost/post_login'), post_login.location
+        assert post_login.location.startswith('http://localhost/post_login') or\
+               post_login.location.startswith('/post_login')
         home_page = post_login.follow(status=302)
         assert 'authtkt' in home_page.request.cookies, \
                'Session cookie was not defined: %s' % home_page.request.cookies
@@ -94,7 +96,8 @@ class TestAuthentication(TestController):
                'Session cookie was not defined: %s' % resp.request.cookies
         # Logging out:
         resp = self.app.get('/logout_handler', status=302)
-        assert resp.location.startswith('http://localhost/post_logout')
+        assert resp.location.startswith('http://localhost/post_logout') or \
+               repo.location.startswith('/post_logout')
         # Finally, redirected to the home page:
         home_page = resp.follow(status=302)
         authtkt = home_page.request.cookies.get('authtkt')

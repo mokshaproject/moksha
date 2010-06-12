@@ -37,7 +37,8 @@ class TestCSRFProtection(TestController):
 
         # Requesting a protected area
         resp = self.app.get('/moksha_admin/', status=302)
-        assert resp.location.startswith('http://localhost/login')
+        assert resp.location.startswith('http://localhost/login') or \
+               resp.location.startswith('/login'), resp.location
 
         # Getting the login form:
         resp = resp.follow(status=200)
@@ -49,7 +50,8 @@ class TestCSRFProtection(TestController):
         post_login = form.submit(status=302)
 
         # Being redirected to the initially requested page:
-        assert post_login.location.startswith('http://localhost/post_login')
+        assert post_login.location.startswith('http://localhost/post_login') or\
+               post_login.location.startswith('/post_login')
         initial_page = post_login.follow(status=302)
         assert 'authtkt' in initial_page.request.cookies, \
                "Session cookie wasn't defined: %s" % initial_page.request.cookies
