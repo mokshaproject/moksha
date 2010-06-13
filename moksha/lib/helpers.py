@@ -791,10 +791,11 @@ def get_moksha_config_path():
         # raise MokshaConfigNotFound('Cannot find moksha configuration file!')
 
 def get_moksha_dev_config():
-    cfg = os.path.join(os.path.abspath(__file__ + '/../../../'), 'development.ini')
-    if os.path.isfile(cfg):
-        return cfg
-    log.warn("Cannot find %r" % cfg)
+    cfgs = [os.path.join(os.path.abspath(__file__ + '/../../../'), 'development.ini'), os.path.join(os.path.abspath(__file__ + '/../../../../'), 'development.ini'), os.path.join(os.getcwd(), 'development.ini')]
+    for cfg in cfgs:
+        if os.path.isfile(cfg):
+            return cfg
+    log.warn("Cannot find configuration in %r" % cfgs)
 
 
 def get_moksha_appconfig():
