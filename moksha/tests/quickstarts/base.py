@@ -47,11 +47,9 @@ def setup_quickstart(template, templates, template_vars, args):
             template_vars)
     command.command()
 
-    global old_cwd
-    old_cwd = os.getcwd()
-    os.chdir(proj_dir)
     subprocess.Popen('paver egg_info', shell=True, stdout=subprocess.PIPE,
-                     stderr=subprocess.PIPE).communicate()
+                     stderr=subprocess.PIPE,
+                     cwd=proj_dir).communicate()
 
     pkg_resources.working_set.add_entry(proj_dir)
     reload(pkg_resources)
@@ -62,7 +60,6 @@ def setup_quickstart(template, templates, template_vars, args):
 
 def teardown_quickstart():
     shutil.rmtree(testDataPath, ignore_errors=True)
-    os.chdir(old_cwd)
 
 
 class QuickstartTester(object):
