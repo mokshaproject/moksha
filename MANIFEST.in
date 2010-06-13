@@ -12,3 +12,6 @@ include LICENSE
 include README
 include AUTHORS
 include COPYING
+include development.ini
+include test.ini
+include *.py
