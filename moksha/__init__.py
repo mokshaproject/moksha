@@ -44,6 +44,11 @@ def get_widget(name):
     if _widgets:
         return _widgets[name]['widget']
 
+def get_widgets():
+    """ Return a dictionary of all widgets """
+    from pkg_resources import iter_entry_points
+    return _widgets or [widget.load() for widget in iter_entry_points('moksha.widget')]
+
 def get_app(name):
     """ Get an app controller by name """
     return _apps[name]['controller']
