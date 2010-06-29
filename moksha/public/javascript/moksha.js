@@ -559,8 +559,6 @@ moksha = {
     },
 
     ajax_load: function(path, params, callback, $overlay_div, data_type, loading_icon) {
-       self = this;
-
        if (typeof(params) == 'string') {
          params = $.secureEvalJSON(params);
        }
@@ -714,13 +712,13 @@ moksha = {
       var defer_time = 1; // ms
       var timeout = function () {
           var closure = _moksha_deferred.shift();
-          var self = closure[0];
+          var _self = closure[0];
           var f = closure[1];
           var args = closure[2];
           if (!args)
             args = [];
 
-          f.apply(self, args);
+          f.apply(_self, args);
           if (_moksha_deferred.length > 0)
             setTimeout(timeout, defer_time);
       }
@@ -791,7 +789,7 @@ moksha = {
                 _body: $.toJSON(body),
                 _header: {
                     delivery_properties: {
-                        routing_key: topic,
+                        routing_key: topic
                     }
                 }
             });

@@ -42,7 +42,7 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
         passPathRemainder:false,
 
         // templates
-        tabTemplate: '<li><a href="#{href}"><span>#{label}</span></a></li>',
+        tabTemplate: '<li><a href="#{href}"><span>#{label}</span></a></li>'
     },
     _create: function() {
         this._findParentNav();
@@ -164,7 +164,7 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
             $overlay.css({'opacity': .75,
                         'z-index': 99,
                         'background-color': 'white',
-                        'position': 'absolute',
+                        'position': 'absolute'
                        }
                       )
 
@@ -638,7 +638,7 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
         self.element.dequeue("tabs");
 
         return this;
-    },
+    }
 
 });
 
