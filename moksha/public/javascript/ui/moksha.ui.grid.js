@@ -200,7 +200,7 @@
             start_row: start_row,
             rows_per_page: rpp,
             sort_key: o.sort_key,
-            sort_order: o.sort_order,
+            sort_order: o.sort_order
         }
 
         // TODO: Only trigger refresh signal if we have a cache miss
@@ -486,7 +486,7 @@
           $overlay.css({'opacity': .75,
                         'z-index': 99,
                         'background-color': 'white',
-                        'position': 'absolute',
+                        'position': 'absolute'
                        }
                       )
 
@@ -595,7 +595,7 @@
 
       processElement: function($el) {
           // we don't do anything here as it is all handled by the event handler
-      },
+      }
   }
 
   $.ui.mokshagrid.prototype.controls.info_display = {
@@ -658,7 +658,7 @@
 
           return pager_obj.processElement.call(this.pager_types[type],
                                                $el);
-      },
+      }
   };
 
   $.ui.mokshagrid.prototype.controls.pager.pager_types.more_link = {
@@ -905,7 +905,7 @@ $.extend( $.template.helpers , {
 
             filter: function(v, filter_cb) {
                         return window[filter_cb](v);
-                    },
+                    }
           }
 );
 
