@@ -689,7 +689,7 @@ moksha = {
 
            moksha.csrf_rewrite_uri(purl);
        } else {
-           if (moksha_csrf_trusted_domains.indexOf(purl.host) != -1)
+           if (moksha_csrf_trusted_domains[purl.host])
                moksha.csrf_rewrite_uri(purl);
        }
 

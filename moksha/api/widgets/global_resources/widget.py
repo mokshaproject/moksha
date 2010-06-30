@@ -94,6 +94,14 @@ class GlobalResourceInjectionWidget(Widget):
         if asbool(config.get('moksha.extensionpoints', False)):
             self.javascript.append(moksha_extension_points_js)
 
+        trusted_domain_list = config.get('moksha.csrf.trusted_domains', '').split(',')
+        # turn into quick lookup hash
+        item_list = [] 
+        for domain in trusted_domain_list:
+            item_list.append('"%s": true' % domain)
+        trusted_domain_hash = '{%s}' % ','.join(item_list) 
+        self.csrf_trusted_domains_hash = trusted_domain_hash
+
     def update_params(self, d):
         super(GlobalResourceInjectionWidget, self).update_params(d)
 
@@ -104,7 +112,7 @@ class GlobalResourceInjectionWidget(Widget):
         if asbool(config['global_conf'].get('profile')):
             d['profile'] = 'true'
 
-        d['csrf_trusted_domains'] = config.get('moksha.csrf.trusted_domains', '').split(',')
+        d['csrf_trusted_domains'] = self.csrf_trusted_domains_hash
 
         identity = request.environ.get('repoze.who.identity')
         if identity:
