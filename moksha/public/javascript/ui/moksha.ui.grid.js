@@ -50,7 +50,7 @@
       var self = this;
       var o = self.options;
 
-      if (typeof(o.filters != 'object')) {
+      if (typeof(o.filters) != 'object') {
           try {
             self.options.filters = $.secureEvalJSON(o.filters);
           } catch(e) {
