@@ -35,7 +35,7 @@ $.widget("ui.moksha_popup", {
 	    panelClass: 'ui-moksha-popup-panel',
 	    hoverTimeout: 500,
 	    triggerEvent: 'hover',
-	    fx: null, // e.g. { height: 'toggle', opacity: 'toggle', duration: 200 }
+	    fx: null // e.g. { height: 'toggle', opacity: 'toggle', duration: 200 }
     },
 
 	_create: function() {

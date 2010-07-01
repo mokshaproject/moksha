@@ -30,12 +30,15 @@ _extensions.prototype = {
       },
     grep_extensions: function(frag)
       {
-        var extension_points = jQuery('moksha_extpoint', frag);
+        // FIXME: I would like to use namespaces and custom tags but
+        //        IE makes this dificult (and JQuery doesn't fully support it
+        //        so use div with a class instead
+        var extension_points = jQuery('div.moksha_extpoint', frag);
         extension_points.each
           (
             function(i)
               {
-                var ep = $(this)
+                var ep = $(this);
                 var data = ep.text();
                 //remove the extension point
                 ep.replaceWith('');
