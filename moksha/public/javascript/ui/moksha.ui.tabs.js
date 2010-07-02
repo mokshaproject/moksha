@@ -540,24 +540,24 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
     	var offset = 0;
 
         //remove the has because we only care about the / delimiter
-        if (hash[0] == "#")
+        if (hash.charAt(0) == "#")
             hash = hash.substr(1);
 
-        hash = hash.split("/");
+        hash_items = hash.split("/");
         // get the first id ignoring leading slashes
-        for (var i=0; i<hash.length, !hash[i]; i++) {
+        for (var i=0; i<hash_items.length, !hash_items[i]; i++) {
             offset++;
         }
 
         var id_index = level + offset;
-        if (id_index >= hash.length)
+        if (id_index >= hash_items.length)
             return -2;
 
-        var id = "#" + hash[level + offset];
+        var id = "#" + hash_items[level + offset];
 
         var remainder = level + offset + 1;
-        if (this.options.passPathRemainder && hash.length > remainder)
-            this.path_remainder = '/' + hash.splice(level + offset + 1).join('/');
+        if (this.options.passPathRemainder && hash_items.length > remainder)
+            this.path_remainder = '/' + hash_items.splice(level + offset + 1).join('/');
 
         moksha.info('moksha.ui.tabs.js (hashToIndex): Selecting element ' + level + '(' + id + ') from hash "' + hash + '"');
         return this.idToIndex(id);
