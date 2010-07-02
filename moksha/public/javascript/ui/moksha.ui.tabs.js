@@ -120,15 +120,11 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
             // inline tab
             if (fragmentId.test(href)) {
                 self.panels = self.panels.add(self._sanitizeSelector(href));
-            } else if ($(a).hasClass('static_link') || o.staticLinkOnClick) {
-                // static link on click assumes you have already validated
+            } else if ($(a).hasClass('static_link')) {
                 $.data(a, 'href.tabs', href);
                 $.data(a, 'load.tabs', href);
 
-                if (!o.staticLinkOnClick) {
-                    a.href = moksha.url(href);
-                }
-
+                a.href = moksha.url(href);
             // remote tab
             } else if (href != '#') { // prevent loading the page itself if href is just "#"
                 if (first_non_static_tab == -1)
@@ -401,7 +397,31 @@ $.widget("ui.mokshatabs", $.ui.tabs, {
 
             o.selected = self.anchors.index(this);
 
-            self.abort();
+            var $el = $(this)
+
+            // we don't get the actual href but the dynamic one
+            var href = $el.data('dynamic_href.tabs');
+
+            href = self._stripUUID(href);
+
+            //only update the hash level we care about
+            if (o.container_level != 0) {
+              var hash = self._generateTabLink(href.substr(1), false);
+
+              if (o.staticLoadOnClick) {
+                  moksha.goto(hash);
+                  return false;
+              } else {
+                  location.hash = '#' + hash;
+              }
+            } else {
+              if (o.staticLoadOnClick) {
+                  moksha.goto('/' + href.substr(1));
+                  return false;
+              } else {
+                  location.hash = href;
+              }
+            }
 
             // if tab may be closed
             if (o.collapsible) {
