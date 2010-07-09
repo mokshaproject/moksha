@@ -24,13 +24,9 @@ from paste.deploy.converters import asbool
 from pylons import request
 from inspect import isclass
 
+from moksha.widgets.moksha_js import moksha_js, moksha_extension_points_js
+
 log = logging.getLogger(__name__)
-
-moksha_js = JSLink(modname="moksha", filename='public/javascript/moksha.js',
-                   javascript=[jquery_js])
-moksha_extension_points_js = JSLink(modname="moksha", javascript=[moksha_js],
-        filename='public/javascript/moksha.extensions.js')
-
 
 class GlobalResourceInjectionWidget(Widget):
     """
