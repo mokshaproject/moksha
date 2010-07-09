@@ -1055,4 +1055,7 @@ def deprecation(message):
 
 
 def listify(something):
-    return not isinstance(something, list) and [something] or something
+    if something:
+        return not isinstance(something, list) and [something] or something
+    else:
+        return []
