@@ -1,2 +1,6 @@
 from tw.api import JSLink
-jquery_json_js = JSLink(link='/javascript/jquery.json.js')
+from tw.jquery import jquery_js
+
+jquery_json_js = JSLink(modname=__name__,
+        filename='static/jquery.json.js',
+        javascript=[jquery_js])

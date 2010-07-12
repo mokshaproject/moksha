@@ -17,8 +17,8 @@
 from tw.api import JSLink
 from tw.jquery import jquery_js
 
-moksha_js = JSLink(modname="moksha",
-        filename='public/javascript/moksha.js',
+moksha_js = JSLink(modname=__name__,
+        filename='static/moksha.js',
         javascript=[jquery_js])
 
 moksha_extension_points_js = JSLink(modname="moksha",
