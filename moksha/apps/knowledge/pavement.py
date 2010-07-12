@@ -23,7 +23,7 @@ options(
             'moksha',
             'moksha.apps',
         ],
-        install_requires=["Moksha"],
+        install_requires=["Moksha", "tgext.crud"],
         entry_points="""
             [moksha.application]
             moksha.apps.knowledge = moksha.apps.knowledge.controllers.root:RootController
