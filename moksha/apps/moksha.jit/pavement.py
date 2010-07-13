@@ -32,6 +32,7 @@ options(
             'moksha.widget': (
                 'mokshajit = moksha.widgets.mokshajit.widgets:MokshaJitWidget',
                 'moksha.jit.hypertree = moksha.widgets.mokshajit.hypertree:HyperTree',
+                'moksha.jit.areachart = moksha.widgets.mokshajit.areachart:AreaChart',
             ),
             'moksha.application': (
                 'mokshajit = moksha.apps.mokshajit.controllers.root:MokshajitController'
