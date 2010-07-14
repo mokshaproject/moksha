@@ -26,6 +26,7 @@ import logging
 import warnings
 from orbited import json
 
+from UserDict import DictMixin
 from tw.api import js_callback
 from pytz import timezone, utc
 from webob import Request
