@@ -32,7 +32,7 @@ from tw.jquery.flot import excanvas_js
 
 jit_yc_js = JSLink(filename='static/jit-yc.js', javascript=[excanvas_js], modname=__name__)
 jit_base_css = CSSLink(filename='static/css/base.css', modname=__name__)
-jit_areachart_css = CSSLink(filename='static/css/areachart.css', modname=__name__)
+jit_areachart_css = CSSLink(filename='static/css/Areachart.css', modname=__name__)
 
 class AreaChart(Widget):
     params = {
