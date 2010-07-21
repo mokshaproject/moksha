@@ -57,6 +57,7 @@ class WidgetController(Controller):
         if (chrome and getattr(w['widget'], 'visible', True)) or source:
             tmpl_context.widget = container
             options['content'] = w['widget']
+            options['content_args'] = kw
             options['title'] =  w['name']
             options['id'] = widget + '_container'
 

@@ -69,6 +69,7 @@ class MokshaContainer(Widget):
 
         if isinstance(d.content, Widget):
             d.widget_name = d.content.__class__.__name__
+            content_args = d.content_args or {}
 
             if isinstance(d.content, LiveWidget):
                 topics = d.content.get_topics()
@@ -81,7 +82,7 @@ class MokshaContainer(Widget):
                 d.onRestore = js_callback("function(o){%s}" %
                         subscribe_topics(topics))
 
-            d.content = d.content.display()
+            d.content = d.content.display(**content_args)
 
         for option in self.options:
             d[option] = d.get(option, True) and option or ''
