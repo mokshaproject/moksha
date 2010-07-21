@@ -32,6 +32,7 @@ from pytz import timezone, utc
 from webob import Request
 from decorator import decorator
 from datetime import datetime
+from BeautifulSoup import BeautifulSoup, NavigableString
 from webhelpers import date, feedgenerator, html, number, misc, text
 from webhelpers.date import distance_of_time_in_words
 from repoze.what.authorize import check_authorization, NotAuthorizedError
@@ -811,11 +812,14 @@ def create_app_engine(app):
     return create_engine(pylons.config.get('app_db', 'sqlite:///%s.db') % app)
 
 
-def to_unicode(obj, encoding='utf-8'):
+def to_unicode(obj, encoding='utf-8', errors='replace'):
     if isinstance(obj, basestring):
         if not isinstance(obj, unicode):
-            obj = unicode(obj, encoding, 'replace')
+            obj = unicode(obj, encoding, errors)
+    elif hasattr(obj, 'string') and isinstance(obj.string, NavigableString):
+        return obj.string.decode(encoding, errors)
     return obj
+
 
 def replace_app_header(app, header_name, value):
         from paste.response import replace_header
