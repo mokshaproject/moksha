@@ -23,11 +23,9 @@ from tw.jquery.ui_core import jquery_ui_core_js
 from tw.jquery import jQuery, jquery_js
 
 from moksha.lib.helpers import when_ready
+from moksha.widgets.json import jquery_json_js
+from moksha.widgets.jquery_template import jquery_template_js
 
-jquery_json_js = JSLink(filename='public/javascript/jquery.json.js',
-                           modname='moksha', javascript=[jquery_js])
-jquery_template_js = JSLink(filename='public/javascript/jquery.template.js',
-                           modname='moksha', javascript=[jquery_js])
 moksha_ui_grid_js = JSLink(filename='public/javascript/ui/moksha.ui.grid.js',
                            modname='moksha',
                            javascript=[jquery_ui_core_js,
