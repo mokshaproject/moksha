@@ -33,16 +33,13 @@ jit_yc_js = JSLink(filename='static/jit-yc.js', javascript=[excanvas_js], modnam
 jit_base_css = CSSLink(filename='static/css/base.css', modname=__name__)
 jit_spacetree_css = CSSLink(filename='static/css/Spacetree.css', modname=__name__)
 
-# TODO: FIX ME BEFORE COMMITTING
-from civx.widgets.civx_js import civx_js
-
 class SpaceTree(Widget):
     params = {
             'query': 'URL to query for JSON data',
             'title': 'The title of this graph',
             'description': 'A description of this graph',
     }
-    javascript = [jit_yc_js, civx_js]
+    javascript = [jit_yc_js]
     css = [jquery_js, jit_base_css, jit_spacetree_css]
     template = 'mako:moksha.widgets.mokshajit.templates.spacetree'
     query = '/apps/mokshajit/query'
