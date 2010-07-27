@@ -41,6 +41,7 @@ setup(
         "pytz",
         "Babel",
         "pyOpenSSL",
+        "BeautifulSoup",
         #"repoze.squeeze", # Not hard requirements
         #"repoze.profile", # Not hard requirements
     ],
