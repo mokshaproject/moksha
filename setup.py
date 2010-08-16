@@ -26,7 +26,7 @@ setup(
     url='http://moksha.fedorahosted.org',
     install_requires=[
         "TurboGears2",
-        "ToscaWidgets>=0.9.9",
+        "ToscaWidgets",
         "zope.sqlalchemy",
         #"Shove",
         "feedcache",
