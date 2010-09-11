@@ -41,7 +41,7 @@ class WidgetController(Controller):
         'module': validators.StringBool(),
         'iframe': validators.StringBool(),
     })
-    def default(self, widget, chrome=False, live=False, source=False,
+    def _default(self, widget, chrome=False, live=False, source=False,
                 module=False, iframe=False, **kw):
         """ Display a single widget.
 

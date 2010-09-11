@@ -23,7 +23,7 @@ class MokshaMenuController(Controller):
     name = 'Moksha Menus'
 
     @expose()
-    def default(self, menuId, *args, **kw):
+    def _default(self, menuId, *args, **kw):
         """ For the selected `menuId`, return the menu HTML.
 
         The `menuId` is the name of the portion of the menu that was clicked
