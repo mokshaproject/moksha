@@ -72,8 +72,9 @@ class MokshaMiddleware(object):
         self.load_menus()
 
         try:
-            moksha.feed_storage = Shove(config.get('feed_cache',
-                'sqlite:///%(here)s/feeds.db'), compress=True)
+            moksha.feed_storage = Shove(config.get('feed_store', 'simple://'),
+                                        config.get('feed_cache', 'simple://'),
+                                        compress=True)
             moksha.feed_cache = Cache(moksha.feed_storage)
         except Exception, e:
             log.exception(e)
