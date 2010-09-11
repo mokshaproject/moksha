@@ -69,7 +69,7 @@ class MokshaContainer(Widget):
 
         if isinstance(d.content, Widget):
             d.widget_name = d.content.__class__.__name__
-            content_args = d.content_args or {}
+            content_args = getattr(d, 'content_args', {})
 
             if isinstance(d.content, LiveWidget):
                 topics = d.content.get_topics()
