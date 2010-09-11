@@ -18,7 +18,7 @@ You'll need the `virtualenv <http://pypi.python.org/pypi/virtualenv>`_ package.
 
 .. code-block:: bash
 
-    # yum -y install python-virtualenv gcc
+    # yum -y install python-virtualenv gcc openssl-devel
     # yum-builddep -y python-lxml pyOpenSSL python-sqlite2
 
 
