@@ -1,6 +1,10 @@
 import os
 from paver.easy import *
 
+def rpm_topdir():
+    """ Return the RPM top dir """
+    return sh("rpm --eval='%{_topdir}'", capture=True).strip()
+
 @task
 def rpm():
     specfile = '%s.spec' % options.rpm_name
@@ -53,17 +57,29 @@ paver install -O1 --skip-build --root %%{buildroot} --record INSTALLED_FILES
                'url': options.url, 'rpm_name': options.rpm_name})
         spec_file.close()
 
+    topdir = rpm_topdir()
+    if not topdir:
+        print "Error: No RPM build directory found.  Try installing the "
+        print "fedora-packager package and running `rpmdev-setuptree`?"
+        sys.exit(-1)
+
     sh('paver sdist --format=bztar')
-    sh('mv dist/* ~/rpmbuild/SOURCES/')
-    sh('cp %s.spec ~/rpmbuild/SPECS/' % options.rpm_name)
-    sh('rpmbuild -ba ~/rpmbuild/SPECS/%s.spec' % options.rpm_name)
+    sh('mv dist/* %s/SOURCES/' % topdir)
+    sh('cp %s.spec %s/SPECS/' % (options.rpm_name, topdir))
+    sh('rpmbuild -ba %s/SPECS/%s.spec' % (topdir, options.rpm_name))
 
 @task
 @needs(['rpm'])
 def reinstall():
+    topdir = rpm_topdir()
+    if not topdir:
+        print "Error: No RPM build directory found.  Try installing the "
+        print "fedora-packager package and running `rpmdev-setuptree`?"
+        sys.exit(-1)
+
     sh('sudo rpm -e %s' % options.rpm_name, ignore_error=True)
-    sh('sudo rpm -ivh ~/rpmbuild/RPMS/noarch/%s-%s-%s.*noarch.rpm' % (
-        options.rpm_name, options.version, options.release))
+    sh('sudo rpm -ivh %s/RPMS/noarch/%s-%s-%s.*noarch.rpm' % (
+        topdir, options.rpm_name, options.version, options.release))
 
 @task
 @needs('setuptools.command.install')
