@@ -4,8 +4,11 @@
 import os
 import sys
 import signal
+import pkg_resources
 
+from optparse import OptionParser
 from subprocess import Popen, PIPE
+from setuptools.command import easy_install
 from twisted.internet import protocol
 from twisted.internet import reactor
 
@@ -57,6 +60,14 @@ class MokshaCLI(object):
 
     def list(self):
         """ List all available apps, widgets, producers and consumers """
+        entry_points = ('widget', 'application', 'wsgiapp',
+                        'producer', 'consumer')
+        for entry in entry_points:
+            print "[moksha.%s]" % entry
+            for obj_entry in pkg_resources.iter_entry_points('moksha.' + entry):
+                print " * %s" % obj_entry.name
+            print
+
 
     def install(self):
         """ Install a Moksha component """
@@ -69,9 +80,22 @@ class MokshaCLI(object):
         # If no arguments given, run `paster moksha --help`
 
 
+def get_parser():
+    usage = 'usage: %prog [command]'
+    parser = OptionParser(usage)
+    parser.add_option('', '--start', action='store_true', dest='start',
+                      help='Start Moksha')
+    parser.add_option('', '--list', action='store_true', dest='list',
+                      help='List all installed Moksha components')
+    return parser
+
+
 def main():
+    parser = get_parser()
+    opts, args = parser.parse_args()
     moksha = MokshaCLI()
-    if sys.argv[1] == 'start':
+
+    if opts.start:
         print "Starting Moksha..."
         moksha.start()
         try:
@@ -79,3 +103,9 @@ def main():
         except Exception, e:
             print "Caught exception: %s" % str(e)
             moksha.stop()
+    elif opts.list:
+        moksha.list()
+
+
+if __name__ == '__main__':
+    main()
