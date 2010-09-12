@@ -127,6 +127,7 @@ restorecon -Rv /var/cache/moksha
 %files 
 %defattr(-,root,root,-)
 %doc README AUTHORS LICENSE COPYING
+%{_bindir}/moksha
 %{python_sitelib}/%{name}/
 %{python_sitelib}/%{name}-%{version}-py%{pyver}.egg-info/
 %attr(-,apache,apache) %dir %{_localstatedir}/lib/%{name}
