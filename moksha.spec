@@ -4,7 +4,7 @@
 Name:           moksha
 Version:        0.4.4
 Release:        1%{?dist}
-Summary:        A flexable platform for creating live collaborative web applications
+Summary:        A platform for creating live collaborative web applications
 Group:          Applications/Internet
 License:        AGPLv3
 URL:            https://fedorahosted.org/moksha
@@ -29,8 +29,6 @@ Requires: python-shove
 Requires: python-feedcache
 Requires: python-feedparser
 Requires: python-tw-jquery >= 0.9.4.1
-#Requires: python-repoze-squeeze
-#Requires: python-repoze-profile
 Requires: orbited
 Requires: python-sphinx
 Requires: python-paver
