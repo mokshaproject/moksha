@@ -51,10 +51,11 @@ class TestLiveWidgetQuickstart(QuickstartTester):
         resp = self.app.get('/')
         assert 'moksha_csrf_token' in resp
 
-    def test_menu(self):
-        """ Ensure that our default menu is being created """
-        resp = self.app.get('/')
-        assert 'buildMenu' in resp
+    # Disabled, since we don't want to ship the menu by default
+    #def test_menu(self):
+    #    """ Ensure that our default menu is being created """
+    #    resp = self.app.get('/')
+    #    assert 'buildMenu' in resp
 
     def test_tcpsocket(self):
         """ Ensure our Orbited TCPSocket is getting injected """
