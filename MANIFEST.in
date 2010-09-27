@@ -3,7 +3,13 @@ include LICENSE README AUTHORS COPYING
 include development.ini test.ini
 include setup.py pavement.py
 
-graft moksha docs production
+graft moksha
+graft docs
+graft production
+
+# Pull in the apps so we can run the test suite in %check from the RPM,
+# and generate docs
+graft moksha/apps
 
 # Omit the apps from our core tarball
-prune moksha/apps
+#prune moksha/apps
