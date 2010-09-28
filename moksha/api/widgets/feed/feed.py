@@ -80,8 +80,9 @@ class Feed(Widget):
         if not (200 <= feed.get('status', 200) < 400):
             log.warning('Got %s status from %s: %s' % (
                         feed['status'], url, feed.headers.get('status')))
-            d['title'] = feed.headers.get('status')
-            d['link'] = feed.feed.get('link')
+            if d:
+                d['title'] = feed.headers.get('status')
+                d['link'] = feed.feed.get('link')
             return
         if d:
             d['link'] = feed.feed.get('link')
