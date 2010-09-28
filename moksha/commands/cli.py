@@ -82,7 +82,7 @@ class MokshaCLI(object):
 
 def get_parser():
     usage = 'usage: %prog [command]'
-    parser = OptionParser(usage)
+    parser = OptionParser(usage, description=__doc__)
     parser.add_option('', '--start', action='store_true', dest='start',
                       help='Start Moksha')
     parser.add_option('', '--list', action='store_true', dest='list',
@@ -95,7 +95,7 @@ def main():
     opts, args = parser.parse_args()
     moksha = MokshaCLI()
 
-    if opts.start:
+    if opts.start or 'start' in args:
         print "Starting Moksha..."
         moksha.start()
         try:
@@ -105,6 +105,8 @@ def main():
             moksha.stop()
     elif opts.list:
         moksha.list()
+    else:
+        parser.print_help()
 
 
 if __name__ == '__main__':
