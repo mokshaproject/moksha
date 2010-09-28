@@ -2,7 +2,7 @@
 %{!?pyver: %define pyver %(%{__python} -c "import sys ; print sys.version[:3]")}
 
 Name:           moksha
-Version:        0.4.4
+Version:        0.5.0
 Release:        1%{?dist}
 Summary:        A platform for creating live collaborative web applications
 Group:          Applications/Internet
@@ -13,7 +13,8 @@ Source0:        moksha-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      noarch
 
-BuildRequires: python-setuptools 
+BuildRequires: python-setuptools
+BuildRequires: pytz
 BuildRequires: python-setuptools-devel
 BuildRequires: python-devel
 BuildRequires: python-pygments
@@ -21,6 +22,17 @@ BuildRequires: python-paver
 BuildRequires: python-sphinx
 BuildRequires: python-paste
 BuildRequires: python-nose
+BuildRequires: python-BeautifulSoup
+BuildRequires: python-stomper
+BuildRequires: python-tw-forms
+BuildRequires: python-tw-jquery
+BuildRequires: python-feedparser
+BuildRequires: python-feedcache
+BuildRequires: python-repoze-what-quickstart
+BuildRequires: python-shove
+BuildRequires: python-bunch
+BuildRequires: TurboGears2
+BuildRequires: orbited
 
 Requires: TurboGears2
 Requires: python-toscawidgets >= 0.9.1
@@ -79,7 +91,6 @@ This package contains the Moksha Hub.
 %setup -q
 
 %build
-%{__rm} -fr moksha/tests
 %{__python} setup.py build
 
 %{__sed} -i -e 's/$VERSION/%{version}/g' docs/conf.py
@@ -113,10 +124,19 @@ make -C docs html
 %{__install} production/moksha-hub %{buildroot}%{_bindir}/moksha-hub
 %{__install} production/moksha-hub.init %{buildroot}%{_sysconfdir}/init.d/moksha-hub
 
+%check
+PYTHONPATH=$(pwd) paver test
+
+# Remove the tests
+%{__rm} -r %{buildroot}%{python_sitelib}/%{name}/tests
+
+# Remove the demo after its tests pass
+%{__rm} -r %{buildroot}%{python_sitelib}/%{name}/apps/demo
+
+
 %post server
 semanage fcontext -a -t httpd_cache_t '/var/cache/moksha(/.*)?'
 restorecon -Rv /var/cache/moksha
-
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -147,6 +167,10 @@ restorecon -Rv /var/cache/moksha
 %doc docs/_build/html
 
 %changelog
+* Sat Sep 11 2010 Luke Macken <lmacken@redhat.com> - 0.5.0-1
+- 0.5.0 release
+- Run the full test suite
+
 * Thu Sep 24 2009 Luke Macken <lmacken@redhat.com> - 0.4.0-1
 - 0.4.0 release
 
