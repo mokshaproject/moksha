@@ -28,7 +28,7 @@ import paver.virtual
 from paver.setuputils import install_distutils_tasks
 install_distutils_tasks()
 
-VERSION = '0.4.4'
+VERSION = '0.5.0'
 
 HEADER = """This file is part of Moksha.
 Copyright (C) 2008-2010  Red Hat, Inc.
