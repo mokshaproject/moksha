@@ -78,7 +78,7 @@ class MokshaMiddleware(object):
                                         compress=True)
             moksha.feed_cache = Cache(moksha.feed_storage)
         except Exception, e:
-            log.exception(e)
+            log.error(str(e))
             log.error("Unable to initialize the Feed Storage")
 
     def __call__(self, environ, start_response):
