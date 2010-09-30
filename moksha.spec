@@ -118,6 +118,7 @@ make -C docs html
 %{__install} production/nginx/* %{buildroot}%{_datadir}/%{name}/production/nginx
 %{__install} production/rabbitmq/* %{buildroot}%{_datadir}/%{name}/production/rabbitmq
 %{__cp} production/sample-production.ini %{buildroot}%{_sysconfdir}/%{name}/production.ini
+%{__cp} development.ini %{buildroot}%{_sysconfdir}/%{name}/development.ini
 %{__sed} -i -e 's/$VERSION/%{version}/g' %{buildroot}%{_sysconfdir}/%{name}/production.ini
 %{__cp} orbited.cfg %{buildroot}%{_sysconfdir}/%{name}/orbited.cfg
 
@@ -153,7 +154,7 @@ restorecon -Rv /var/cache/moksha
 %files server
 %attr(-,apache,root) %{_datadir}/%{name}
 %config(noreplace) %{_sysconfdir}/httpd/conf.d/moksha.conf
-%config(noreplace) %{_sysconfdir}/%{name}/production.ini
+%config(noreplace) %{_sysconfdir}/%{name}/*.ini
 %config(noreplace) %{_sysconfdir}/%{name}/orbited.cfg
 %attr(-,apache,apache) %dir %{_localstatedir}/cache/%{name}/
 
