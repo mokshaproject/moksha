@@ -29,12 +29,7 @@ from moksha.controllers.apps import AppController
 from moksha.controllers.widgets import WidgetController
 from moksha.controllers.secure import SecureController
 
-class RootController(BaseController):
-
-    apps = AppController()
-    widgets = WidgetController()
-    error = ErrorController()
-    moksha_admin = SecureController()
+class DefaultRootController(BaseController):
 
     @expose('mako:moksha.templates.index')
     def index(self, *args, **kw):
@@ -44,6 +39,23 @@ class RootController(BaseController):
             tmpl_context.menu_widget = lambda: ''
         #tmpl_context.contextual_menu_widget = moksha.menus['contextual_menu']
         return dict(title='[ Moksha ]')
+
+
+class RootController(BaseController):
+
+    apps = AppController()
+    widgets = WidgetController()
+    error = ErrorController()
+    moksha_admin = SecureController()
+
+    @expose()
+    def _lookup(self, *remainder):
+        if moksha.root:
+            return moksha.root(), remainder
+        else:
+            # If we're running moksha without a root specified on the
+            # moksha.root entry-point, then redirect to a moksha logo
+            return DefaultRootController(), remainder
 
     @expose('mako:moksha.templates.login')
     def login(self, came_from=None):

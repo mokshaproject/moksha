@@ -18,6 +18,9 @@ __import__('pkg_resources').declare_namespace(__name__)
 
 from paste.registry import StackedObjectProxy
 
+# The root controller class
+root = None
+
 # The central feed cache, used by the Feed widget.
 feed_cache = None
 

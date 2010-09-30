@@ -70,6 +70,7 @@ class MokshaMiddleware(object):
         self.load_wsgi_applications()
         self.load_models()
         self.load_menus()
+        self.load_root()
 
         try:
             moksha.feed_storage = Shove(config.get('feed_store', 'simple://'),
@@ -375,6 +376,42 @@ class MokshaMiddleware(object):
                 log.debug('Creating database engine for %s' % app['name'])
                 app['model'].init_model(self.engines[name])
                 app['model'].metadata.create_all(bind=self.engines[name])
+
+    def load_root(self):
+        """ Load the root controller.
+
+        This allows developers to configure Moksha to directly hit their
+        TurboGears controller or WSGI app.  You can also have the root of your
+        website be a single widget.
+
+        This is an example entry-point in your setup.py/pavement.py::
+
+            [moksha.root]
+            root = myproject.controllers.root:RootController
+
+        """
+        root = None
+        for root_entry in pkg_resources.iter_entry_points('moksha.root'):
+            log.info('Loading the root of the project: %r' %
+                     root_entry.dist.project_name)
+            if root_entry.name == 'root':
+                root_class = root_entry.load()
+                moksha.root = root_class
+
+                # TODO: support setting a root widget
+                #if issubclass(root_class, Widget):
+                #    widget = root_class(root_class.__name__)
+                #    moksha._widgets[root_entry.name] = {
+                #        'name': getattr(root_class, 'name', widget_entry.name),
+                #        'widget': widget,
+                #        'path': root_entry.dist.location,
+                #        }
+
+                # TODO: handle root wsgi apps
+            else:
+                log.error('Ignoring [moksha.root] entry %r')
+                log.error('Please expose at most 1 object on this entry-point,'
+                          ' named "root".')
 
 
 def make_moksha_middleware(app):
