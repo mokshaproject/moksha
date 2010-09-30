@@ -4,13 +4,14 @@
 import os
 import sys
 import signal
+import logging
 import pkg_resources
 
 from optparse import OptionParser
-from subprocess import Popen, PIPE
-from setuptools.command import easy_install
 from twisted.internet import protocol
 from twisted.internet import reactor
+
+log = logging.getLogger(__name__)
 
 pids = []
 
@@ -46,28 +47,31 @@ class MokshaCLI(object):
         args = args and [process] + list(args) or [process]
         print "Running %s %s" % (process, ' '.join(args))
         pp = MokshaProcessProtocol(name=process)
-        orbited = reactor.spawnProcess(pp, process, args, **kw)
-        pids.append(orbited.pid)
+        process = reactor.spawnProcess(pp, process, args, **kw)
+        pids.append(process.pid)
 
     def start(self):
         """ Start all of the Moksha components """
-        # Try to import moksha.   If you can, move on.
-        # If not, setup a virtualenv if one doesn't already exist
 
-        self._exec('orbited')
-        self._exec('paster', 'serve', 'development.ini')
+        from moksha.lib.helpers import get_moksha_config_path
+
+        orbited = ['orbited']
+        if os.path.exists('/etc/moksha/orbited.cfg'):
+            orbited += ['-c', '/etc/moksha/orbited.cfg']
+
+        self._exec(*orbited)
         self._exec('moksha-hub')
+        self._exec('paster', 'serve', get_moksha_config_path())
 
     def list(self):
         """ List all available apps, widgets, producers and consumers """
-        entry_points = ('widget', 'application', 'wsgiapp',
+        entry_points = ('root', 'widget', 'application', 'wsgiapp',
                         'producer', 'consumer')
         for entry in entry_points:
             print "[moksha.%s]" % entry
             for obj_entry in pkg_resources.iter_entry_points('moksha.' + entry):
                 print " * %s" % obj_entry.name
             print
-
 
     def install(self):
         """ Install a Moksha component """
@@ -94,6 +98,11 @@ def main():
     parser = get_parser()
     opts, args = parser.parse_args()
     moksha = MokshaCLI()
+
+    log.setLevel(logging.INFO)
+    stdout = logging.StreamHandler(sys.stdout)
+    stdout.setFormatter(logging.Formatter('%(message)s'))
+    log.addHandler(stdout)
 
     if opts.start or 'start' in args:
         print "Starting Moksha..."
