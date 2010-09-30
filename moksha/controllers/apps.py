@@ -36,7 +36,7 @@ appwidget_container = AppWidgetContainer('appwidget')
 class AppController(Controller):
 
     @expose()
-    def lookup(self, app, *remainder):
+    def _lookup(self, app, *remainder):
         if app not in moksha._apps:
             raise ApplicationNotFound(app)
         return moksha.get_app(app), remainder
