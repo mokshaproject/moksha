@@ -1,4 +1,4 @@
-exclude *.swp .gitignore
+global-exclude *.swp .gitignore
 
 include moksha.spec stop-moksha start-moksha orbited.cfg
 include LICENSE README AUTHORS COPYING
