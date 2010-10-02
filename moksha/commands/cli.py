@@ -117,7 +117,9 @@ def main():
     opts, args = parser.parse_args()
     moksha = MokshaCLI()
 
-    log.setLevel(logging.INFO)
+    logging.basicConfig(level=logging.INFO, format=
+            '%(asctime)s,%(msecs)03d %(levelname)-5.5s [%(name)s] %(message)s')
+
     stdout = logging.StreamHandler(sys.stdout)
     stdout.setFormatter(logging.Formatter('%(message)s'))
     log.addHandler(stdout)
