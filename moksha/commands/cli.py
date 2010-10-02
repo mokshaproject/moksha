@@ -84,6 +84,21 @@ class MokshaCLI(object):
         """ Create a new Moksha component """
         # If no arguments given, run `paster moksha --help`
 
+    def send(self, topic, message):
+        """ Send a message to a topic """
+        from moksha.api.hub import MokshaHub, reactor
+        hub = MokshaHub()
+        print "send_message(%s, %s)" % (topic, message)
+        hub.send_message(topic, {'msg': message})
+
+        def stop_reactor():
+            hub.close()
+            reactor.stop()
+
+        reactor.callLater(0.2, stop_reactor)
+        reactor.run()
+
+
 
 def get_parser():
     usage = 'usage: %prog [command]'
@@ -92,6 +107,8 @@ def get_parser():
                       help='Start Moksha')
     parser.add_option('', '--list', action='store_true', dest='list',
                       help='List all installed Moksha components')
+    parser.add_option('', '--send', action='store_true', dest='send',
+        help='Send a message to a given topic. Usage: send <topic> <message>')
     return parser
 
 
