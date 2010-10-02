@@ -27,3 +27,8 @@ Pros:
     - Flexibility and power of AMQP queues, exchanges, routing keys, etc.
 Cons:
     - Relatively new and not 100% complete JavaScript bindings
+
+.. seealso::
+
+   See :doc:`MessageBrokers` for more information on configuring various
+   protocols and brokers with Moksha.
