@@ -132,8 +132,13 @@ def main():
         except Exception, e:
             print "Caught exception: %s" % str(e)
             moksha.stop()
-    elif opts.list:
+    elif opts.list or 'list' in args:
         moksha.list()
+    elif opts.send or 'send' in args:
+        if len(sys.argv) != 4:
+            log.error('Usage: moksha send <topic> <message>')
+            sys.exit(-1)
+        moksha.send(sys.argv[2], sys.argv[3])
     else:
         parser.print_help()
 
