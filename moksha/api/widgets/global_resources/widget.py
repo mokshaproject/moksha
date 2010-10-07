@@ -25,6 +25,7 @@ from pylons import request
 from inspect import isclass
 
 from moksha.widgets.moksha_js import moksha_js, moksha_extension_points_js
+from moksha.api.widgets.live import moksha_socket
 
 log = logging.getLogger(__name__)
 
@@ -80,6 +81,10 @@ class GlobalResourceInjectionWidget(Widget):
                     log.debug("Skipping duplicate global widget: %s" %
                               widget_entry.name)
                 else:
+                    if loaded is moksha_socket:
+                        if not asbool(config.get('moksha.livesocket', True)):
+                            log.debug('Moksha Live Socket disabled in the config')
+                            continue
                     self.children.append(loaded)
             else:
                 raise Exception("Unknown global resource: %s.  Should be "

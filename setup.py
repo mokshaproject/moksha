@@ -86,6 +86,9 @@ setup(
     code_widget = moksha.widgets.source:code_widget
     moksha_socket = moksha.api.widgets.live:moksha_socket
 
+    [moksha.global]
+    moksha_socket = moksha.api.widgets.live:moksha_socket
+
     [paste.global_paster_command]
     moksha = moksha.commands.quickstart:MokshaQuickstartCommand
 
