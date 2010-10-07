@@ -19,7 +19,6 @@ import pkg_resources
 
 from tg import config, url
 from tw.api import Widget, CSSLink, JSLink
-from tw.jquery import jquery_js
 from paste.deploy.converters import asbool
 from pylons import request
 from inspect import isclass
