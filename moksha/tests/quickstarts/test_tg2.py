@@ -1,4 +1,5 @@
 import os
+import pylons
 import pkg_resources
 
 from webtest import TestApp
@@ -34,10 +35,24 @@ class TestTG2AppInMoksha(object):
         DBSession.flush()
         assert DBSession.query(User).count() == 1
 
-    def test_tg2app_wsgi(self):
-        """ Ensure we can get to TG2 when it is mounted as a WSGI app """
-        resp = self.app.get('/apps/tg2wsgi/')
-        assert 'Now Viewing: index' in resp
+    #def test_tg2app_wsgi(self):
+    #    """
+    #    Test plugging a TurboGears2/Pylons app into moksha via the
+    #    moksha.wsgiapp extension-point.
+
+    #    :Note: This is a bad idea, as the the TG2 app will stomp on Moksha's
+    #    pylons.config, since Moksha is a TG2 app as well.  So, this test
+    #    will verify that they don't play well together.
+    #    """
+    #    # The tg2app will stomp on the pylons.paths and TG will dispatch
+    #    # to the plugins RootController, instead of Moksha's
+    #    resp = self.app.get('/apps/tg2wsgi/')
+    #    assert '[ Moksha ]' in resp
+    #    # It's getting to the app
+    #    #assert 'Welcome to TurboGears' in resp, resp
+
+    #    #import tg2app
+    #    #assert pylons.config['package'] == tg2app, pylons.config['package']
 
 
 class TestTG2App(object):
