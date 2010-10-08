@@ -16,7 +16,10 @@ setup(
     entry_points="""
 
     [moksha.root]
-    root = demo.root:Root
+    root = demo.controllers.root:Root
+
+    [moksha.application]
+    helloworld = demo.controllers.root:Root
 
     [moksha.producer]
     helloworld = demo.producer:HelloWorldProducer

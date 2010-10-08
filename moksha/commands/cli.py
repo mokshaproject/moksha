@@ -61,8 +61,8 @@ class MokshaCLI(object):
             orbited += ['-c', '/etc/moksha/orbited.cfg']
 
         self._exec(*orbited)
-        self._exec('moksha-hub')
         self._exec('paster', 'serve', get_moksha_config_path())
+        self._exec('moksha-hub')
 
     def list(self):
         """ List all available apps, widgets, producers and consumers """

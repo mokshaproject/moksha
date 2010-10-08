@@ -4,8 +4,8 @@ class HelloWorldWidget(LiveWidget):
     topic = "helloworld"
     template = """
         <b>Hello World Widget</b>
-        <div id="data"/>
+        <ul id="data"/>
     """
     onmessage = """
-        $('#data').append(json.msg).append('<br/>');
+        $('<li/>').text(json.msg).prependTo('#data');
     """
