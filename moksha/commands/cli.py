@@ -99,7 +99,6 @@ class MokshaCLI(object):
         reactor.run()
 
 
-
 def get_parser():
     usage = 'usage: %prog [command]'
     parser = OptionParser(usage, description=__doc__)
@@ -115,6 +114,8 @@ def get_parser():
 def main():
     parser = get_parser()
     opts, args = parser.parse_args()
+    pkg_resources.working_set.add_entry(os.getcwd())
+
     moksha = MokshaCLI()
 
     logging.basicConfig(level=logging.INFO, format=
