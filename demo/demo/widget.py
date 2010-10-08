@@ -6,4 +6,6 @@ class HelloWorldWidget(LiveWidget):
         <b>Hello World Widget</b>
         <div id="data"/>
     """
-    onmessage = "$('#data').append(json.msg).append('<br/>');"
+    onmessage = """
+        $('#data').append(json.msg).append('<br/>');
+    """
