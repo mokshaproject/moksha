@@ -7,6 +7,7 @@
    main/Vision
    main/Architecture
    main/GettingStarted
+   main/HelloWorld
    main/Widgets
    main/PluginEntryPoints
    main/Messaging
