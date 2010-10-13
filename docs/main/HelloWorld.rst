@@ -35,6 +35,18 @@ Let's say we want this index method to be the root of our application.  To accom
     root = demo.controllers.root:Root
 
 
+Running the Moksha stack
+------------------------
+
+.. code-block:: bash
+
+   $ moksha start
+
+.. code-block:: bash
+
+   $ curl http://localhost:8080/
+   Hello World
+
 Bringing a templating engine into the mix
 -----------------------------------------
 
