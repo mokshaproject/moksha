@@ -23,7 +23,7 @@ demo/controllers/root.py
    class Root(object):
 
        @expose()
-       def index(self, *args, **kwargs):
+       def index(self):
            return 'Hello World!'
 
 
@@ -61,18 +61,48 @@ Now let's plug in our Mako template into our Root controller.
 .. code-block:: python
 
    @expose('mako:demo.templates.template')
-   def index(self, *args, **kwargs):
+   def index(self):
        """ An example controller method exposed with a Mako template """
        return {'msg': 'Hello World!'}
 
 
-** Messaging
+** Messaging **
 
 Creating a message producer
 ---------------------------
 
+.. code-block:: python
+
+   from datetime import timedelta
+   from moksha.api.hub.producer import PollingProducer
+
+   class HelloWorldProducer(PollingProducer):
+       frequency = timedelta(seconds=3)
+
+       def poll(self):
+           self.send_message('helloworld', {'msg': 'Hello World!'})
+
+
 Creating a message consumer
 ---------------------------
+
+`demo/consumer.py`
+
+.. code-block:: python
+
+   from moksha.api.hub.consumer import Consumer
+   from demo.model import HelloWorldModel
+
+   class HelloWorldConsumer(Consumer):
+       topic = 'helloworld'
+
+       def consume(self, message):
+           self.log.info('Received message: ' + message['body']['msg'])
+
+
+Running the Moksha Hub
+----------------------
+<watch output scrolling>
 
 Creating a Live Widget!
 -----------------------
@@ -109,7 +139,7 @@ new messages as they arrive in the users web browser.
 .. code-block:: python
 
    @expose('mako:moksha.templates.widget')
-   def livewidget(self, *args, **kwargs):
+   def livewidget(self):
        tmpl_context.widget = moksha.get_widget('helloworld')
        tmpl_context.moksha_socket = moksha.get_widget('moksha_socket')
        return dict(options={})
@@ -118,5 +148,57 @@ new messages as they arrive in the users web browser.
 Creating a database model
 -------------------------
 
+`demo.model.model.py`
+
+.. code-block:: python
+
+   from datetime import datetime
+   from sqlalchemy import Integer, Text, DateTime, Column
+   from demo.model import DeclarativeBase
+
+   class HelloWorldModel(DeclarativeBase):
+       __tablename__ = 'helloworld'
+
+       id = Column(Integer, autoincrement=True, primary_key=True)
+       message = Column(Text)
+       timestamp = Column(DateTime, default=datetime.now)
+
+
+Populating our database
+~~~~~~~~~~~~~~~~~~~~~~~
+via the consumer upon message arrival
+
+Querying our database
+~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+   from demo.model import DBSession, HelloWorldModel
+
+   class Root(object):
+
+      @expose('mako:demo.templates.model')
+      def model(self, *args, **kwargs):
+          entries = DBSession.query(HelloWorldModel).all()
+          return dict(entries=entries)
+
+
 Caching
 -------
+
+.. code-block:: python
+
+   from pylons import cache
+   from demo.model import DBSession, HelloWorldModel
+
+   class Root(object):
+
+       @expose('mako:demo.templates.model')
+       def model(self):
+           mycache = cache.get_cache('helloworld')
+           entries = mycache.get_value(key='entries', createfunc=self._get_entries,
+                                       expiretime=3600)
+           return dict(entries=entries)
+
+       def _get_entries(self, *args, **kwargs):
+           return DBSession.query(HelloWorldModel).all()
