@@ -14,7 +14,7 @@ Cons:
 
 
 Pros
-    - STOMP/AMQP broker briding
+    - STOMP/AMQP broker bridging
 Cons
     - Not very well tested
     - May or may not work as expected
