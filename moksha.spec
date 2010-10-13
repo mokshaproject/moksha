@@ -50,6 +50,8 @@ Requires: pytz
 Requires: pyevent
 Requires: python-repoze-who-testutil
 Requires: python-BeautifulSoup
+Requires: python-twisted
+Requires: python-stomper
 
 %description
 Moksha is a platform for creating real-time collaborative web applications.  It 
@@ -76,16 +78,6 @@ Requires: mod_wsgi httpd
 
 %description server
 This package contains an Apache mod_wsgi configuration for Moksha.
-
-%package hub
-Summary: Moksha Hub
-Group: Applications/Internet
-Requires: %{name} = %{version}-%{release}
-Requires: python-twisted
-Requires: python-stomper
-
-%description hub
-This package contains the Moksha Hub.
 
 %prep
 %setup -q
@@ -117,9 +109,9 @@ make -C docs html
 %{__install} production/apache/moksha.conf %{buildroot}%{_sysconfdir}/httpd/conf.d/
 %{__install} production/nginx/* %{buildroot}%{_datadir}/%{name}/production/nginx
 %{__install} production/rabbitmq/* %{buildroot}%{_datadir}/%{name}/production/rabbitmq
-%{__cp} production/sample-production.ini %{buildroot}%{_sysconfdir}/%{name}/production.ini
+%{__cp} production/sample-production.ini %{buildroot}%{_sysconfdir}/%{name}/sample-production.ini
 %{__cp} development.ini %{buildroot}%{_sysconfdir}/%{name}/development.ini
-%{__sed} -i -e 's/$VERSION/%{version}/g' %{buildroot}%{_sysconfdir}/%{name}/production.ini
+%{__sed} -i -e 's/$VERSION/%{version}/g' %{buildroot}%{_sysconfdir}/%{name}/sample-production.ini
 %{__cp} orbited.cfg %{buildroot}%{_sysconfdir}/%{name}/orbited.cfg
 
 %{__install} production/moksha-hub %{buildroot}%{_bindir}/moksha-hub
@@ -147,6 +139,8 @@ restorecon -Rv /var/cache/moksha
 %defattr(-,root,root,-)
 %doc README AUTHORS LICENSE COPYING
 %{_bindir}/moksha
+%{_bindir}/moksha-hub
+%{_sysconfdir}/init.d/moksha-hub
 %{python_sitelib}/%{name}/
 %{python_sitelib}/%{name}-%{version}-py%{pyver}.egg-info/
 %attr(-,apache,apache) %dir %{_localstatedir}/lib/%{name}
@@ -157,11 +151,6 @@ restorecon -Rv /var/cache/moksha
 %config(noreplace) %{_sysconfdir}/%{name}/*.ini
 %config(noreplace) %{_sysconfdir}/%{name}/orbited.cfg
 %attr(-,apache,apache) %dir %{_localstatedir}/cache/%{name}/
-
-%files hub
-%defattr(-,root,root,-)
-%{_bindir}/moksha-hub
-%{_sysconfdir}/init.d/moksha-hub
 
 %files docs
 %defattr(-,root,root)
