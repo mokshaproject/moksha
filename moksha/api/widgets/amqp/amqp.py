@@ -29,6 +29,7 @@ from paste.deploy.converters import asbool
 from moksha.api.widgets.orbited import orbited_host, orbited_port, orbited_url
 from moksha.api.widgets.orbited import orbited_js
 from moksha.lib.helpers import defaultdict, listify
+from moksha.widgets.moksha_js import moksha_js
 from moksha.widgets.notify import moksha_notify
 from moksha.widgets.json import jquery_json_js
 
@@ -66,7 +67,7 @@ def amqp_unsubscribe(topic):
 
 class AMQPSocket(Widget):
     callbacks = ['onconnectedframe', 'onmessageframe']
-    javascript = [jquery_json_js, kamaloka_qpid_js]
+    javascript = [jquery_json_js, moksha_js, kamaloka_qpid_js]
     params = callbacks[:] + ['topics', 'notify', 'orbited_host',
             'orbited_port', 'orbited_url', 'orbited_js', 'amqp_broker_host',
             'amqp_broker_port', 'amqp_broker_user', 'amqp_broker_pass',
