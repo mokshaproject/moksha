@@ -28,7 +28,8 @@ setup(
     helloworld = demo.consumer:HelloWorldConsumer
 
     [moksha.widget]
-    helloworld = demo.widget:HelloWorldWidget
+    basic = demo.widgets.basic:HelloWorldWidget
+    live = demo.widgets.live:HelloWorldWidget
 
     """
 )

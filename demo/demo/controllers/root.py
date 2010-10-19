@@ -29,11 +29,10 @@ class Root(object):
     def cached_model(self, *args, **kwargs):
         from pylons import cache
         mycache = cache.get_cache('helloworld')
-        entries = mycache.get_value(key='entries', createfunc=self._expensive_call,
+        entries = mycache.get_value(key='entries', createfunc=self._get_entries,
                                     expiretime=3600)
         return dict(entries=entries)
 
-    def _expensive_call(self, *args, **kwargs):
+    def _get_entries(self, *args, **kwargs):
         from demo.model import DBSession, HelloWorldModel
-        entries = DBSession.query(HelloWorldModel).all()
-        return entries
+        return DBSession.query(HelloWorldModel).all()

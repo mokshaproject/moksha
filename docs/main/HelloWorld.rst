@@ -50,7 +50,6 @@ Running the Moksha stack
 Bringing a templating engine into the mix
 -----------------------------------------
 
-
 The previous example just returned a string from our controller.  What if we
 want to use one of the many powerful templating engines out there?
 
@@ -78,7 +77,57 @@ Now let's plug in our Mako template into our Root controller.
        return {'msg': 'Hello World!'}
 
 
-** Messaging **
+Building a basic Widget
+-----------------------
+
+.. code-block:: python
+
+   from tw.api import Widget
+
+   class HelloWorldWidget(Widget):
+       params = ['msg']
+       msg = 'Hello World'
+       template = '${msg}'
+       engine_name = 'mako'
+
+       def update_params(self, d):
+           """ Render-time logic """
+           super(HelloWorldWidget, self).update_params(d)
+
+
+`setup.py`
+
+.. code-block:: python
+
+   [moksha.widget]
+   helloworld = demo.widgets:HelloWorldWidget
+
+.. code-block:: bash
+
+   $ curl http://localhost:8080/widgets/basic
+
+.. code-block:: html
+
+   <html>
+     <head></head>
+     <body>Hello World</body>
+   </html>
+
+.. code-block:: bash
+
+   $ curl http://localhost:8080/widgets/basic?msg=foobar
+
+.. code-block:: html
+
+   <html>
+     <head></head>
+     <body>foobar</body>
+   </html>
+
+.. seealso::
+
+   `ToscaWidgets documentation <http://toscawidgets.org/documentation/ToscaWidgets>`_
+   `ToscaWidgets2 documentation <http://toscawidgets.org/documentation/tw2.core>`_
 
 Creating a message producer
 ---------------------------
