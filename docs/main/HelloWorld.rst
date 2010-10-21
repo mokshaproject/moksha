@@ -2,8 +2,6 @@
 Hello World Moksha Demo
 =======================
 
-Ok, lets get down to the basics.
-
 The goal of this tutorial is to show the simplicity of Moksha's API by creating
 basic "Hello World" components in one demo.
 
@@ -14,7 +12,7 @@ The Controller
 
 This is the most basic of controllers.
 
-demo/controllers/root.py
+`demo/controllers/root.py`
 
 .. code-block:: python
 
@@ -27,13 +25,19 @@ demo/controllers/root.py
            return 'Hello World!'
 
 
-Ok, so here we have a trivial TurboGears controller.  How do we plug this into Moksha and actually run it?
+Ok, so here we have a trivial TurboGears controller.  How do we plug this into
+Moksha and actually run it?
 
-Let's say we want this index method to be the root of our application.  To accomplish this we add it to the `[moksha.root]` entry-point in our setup.py::
+Let's say we want this index method to be the root of our application.  To
+accomplish this we add it to the `[moksha.root]` entry-point in our setup.py::
 
     [moksha.root]
     root = demo.controllers.root:Root
 
+
+.. seealso::
+
+   :doc:`PluginEntryPoints`
 
 Running the Moksha stack
 ------------------------
@@ -46,6 +50,11 @@ Running the Moksha stack
 
    $ curl http://localhost:8080/
    Hello World
+
+
+.. seealso::
+
+   :doc:`MokshaCLI`
 
 Bringing a templating engine into the mix
 -----------------------------------------
@@ -79,6 +88,8 @@ Now let's plug in our Mako template into our Root controller.
 
 Building a basic Widget
 -----------------------
+
+.. image:: ../_static/widget.png
 
 .. code-block:: python
 
@@ -126,8 +137,9 @@ Building a basic Widget
 
 .. seealso::
 
-   `ToscaWidgets documentation <http://toscawidgets.org/documentation/ToscaWidgets>`_
-   `ToscaWidgets2 documentation <http://toscawidgets.org/documentation/tw2.core>`_
+    :doc:`Widgets`
+
+
 
 Creating a message producer
 ---------------------------
@@ -143,6 +155,13 @@ Creating a message producer
        def poll(self):
            self.send_message('helloworld', {'msg': 'Hello World!'})
 
+.. seealso::
+
+   :doc:`Messaging`
+
+.. seealso::
+
+   :doc:`Producers`
 
 Creating a message consumer
 ---------------------------
@@ -160,10 +179,20 @@ Creating a message consumer
        def consume(self, message):
            self.log.info('Received message: ' + message['body']['msg'])
 
+.. seealso::
+
+   :doc:`Consumers`
 
 Running the Moksha Hub
 ----------------------
-<watch output scrolling>
+
+.. image:: ../_static/moksha-hub.png
+
+<consumer output>
+
+.. seealso::
+
+   :doc:`MokshaHub`
 
 Creating a Live Widget!
 -----------------------
@@ -175,7 +204,7 @@ bundle of HTML/JavaScript/CSS/Server-side logic   Making it "live" entails
 having the widget "subscribe" to "topics" and perform some action upon 
 new messages as they arrive in the users web browser.
 
-<live widget diagram?>
+.. image:: ../_static/live_widgets.png
 
 `demo/widget.py`
 
@@ -206,6 +235,10 @@ new messages as they arrive in the users web browser.
        return dict(options={})
 
 
+.. seealso::
+
+   :doc:`LiveWidget`
+
 Creating a database model
 -------------------------
 
@@ -224,10 +257,31 @@ Creating a database model
        message = Column(Text)
        timestamp = Column(DateTime, default=datetime.now)
 
+.. seealso::
+
+   `Working with SQLAlchemy and your data model <http://turbogears.org/2.1/docs/main/SQLAlchemy.html>`_
 
 Populating our database
 ~~~~~~~~~~~~~~~~~~~~~~~
-via the consumer upon message arrival
+<via the consumer upon message arrival>
+
+.. code-block:: python
+
+   from moksha.api.hub.consumer import Consumer
+   from demo.model import HelloWorldModel
+
+   class HelloWorldConsumer(Consumer):
+       topic = 'helloworld'
+       app = 'helloworld'
+
+       def consume(self, message):
+           self.log.info('Received message: ' + message['body']['msg'])
+
+           entry = HelloWorldModel()
+           entry.message = message['body']['msg']
+           self.DBSession.add(entry)
+           self.DBSession.commit()
+
 
 Querying our database
 ~~~~~~~~~~~~~~~~~~~~~
@@ -243,6 +297,9 @@ Querying our database
           entries = DBSession.query(HelloWorldModel).all()
           return dict(entries=entries)
 
+.. seealso::
+
+   `SQLAlchemy documentation <http://www.sqlalchemy.org/docs>`_
 
 Caching
 -------
@@ -263,3 +320,11 @@ Caching
 
        def _get_entries(self, *args, **kwargs):
            return DBSession.query(HelloWorldModel).all()
+
+.. seealso::
+
+   `Caching in TurboGears2 <http://turbogears.org/2.1/docs/main/Caching.html>`_
+
+.. seealso::
+
+   `Beaker documentation <http://beaker.groovie.org>`_
