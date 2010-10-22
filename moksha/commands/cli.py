@@ -45,7 +45,7 @@ class MokshaCLI(object):
 
     def _exec(self, process, *args, **kw):
         args = args and [process] + list(args) or [process]
-        print "Running %s %s" % ' '.join(args)
+        print "Running %s" % ' '.join(args)
         pp = MokshaProcessProtocol(name=process)
         process = reactor.spawnProcess(pp, process, args,
                 env={'PYTHONPATH': os.getcwd()}, **kw)
