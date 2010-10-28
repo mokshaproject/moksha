@@ -62,7 +62,7 @@ class MokshaCLI(object):
 
         self._exec(*orbited)
         self._exec('paster', 'serve', get_moksha_config_path())
-        self._exec('moksha-hub')
+        self._exec('moksha-hub', '-v')
 
     def list(self):
         """ List all available apps, widgets, producers and consumers """
