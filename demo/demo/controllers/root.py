@@ -15,7 +15,7 @@ class Root(object):
 
     @expose('mako:moksha.templates.widget')
     def livewidget(self, *args, **kwargs):
-        tmpl_context.widget = moksha.get_widget('helloworld')
+        tmpl_context.widget = moksha.get_widget('live')
         tmpl_context.moksha_socket = moksha.get_widget('moksha_socket')
         return dict(options={})
 
