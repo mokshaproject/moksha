@@ -159,6 +159,25 @@ class AMQPSocket(Widget):
             ${onconnectedframe}
             moksha_amqp_queue.start();
         }
+
+        if (typeof moksha == 'undefined') {
+            moksha = {
+                /* Send an AMQP message to a given topic */
+                send_message: function(topic, body) {
+                    moksha_amqp_session.Message('transfer', {
+                        accept_mode: 1,
+                        acquire_mode: 1, 
+                        destination: 'amq.topic',
+                        _body: $.toJSON(body),
+                        _header: {
+                            delivery_properties: {
+                                routing_key: topic
+                            }
+                        }
+                    });
+                },
+            }
+        }
       </script>
     """
     hidden = True

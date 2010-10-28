@@ -148,6 +148,15 @@ class StompWidget(Widget):
             }
         }
 
+        if (typeof moksha == 'undefined') {
+            moksha = {
+                /* Send a STOMP message to a given topic */
+                send_message: function(topic, body) {
+                    stomp.send($.toJSON(body), topic)
+                }
+            }
+        }
+
         % if notify:
             $.jGrowl.defaults.position = 'bottom-right';
         % endif

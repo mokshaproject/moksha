@@ -1,3 +1,20 @@
+moksha = {
+    /* Send an AMQP message to a given topic */
+    send_message: function(topic, body) {
+        moksha_amqp_session.Message('transfer', {
+            accept_mode: 1,
+            acquire_mode: 1, 
+            destination: 'amq.topic',
+            _body: $.toJSON(body),
+            _header: {
+                delivery_properties: {
+                    routing_key: topic
+                }
+            }
+        });
+    },
+}
+
 if (typeof moksha_amqp_conn == 'undefined') {
     moksha_callbacks = new Object();
     moksha_amqp_remote_queue = null;

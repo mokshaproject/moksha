@@ -1,3 +1,10 @@
+moksha = {
+    /* Send a STOMP message to a given topic */
+    send_message: function(topic, body) {
+		stomp.send($.toJSON(body), topic)
+    },
+}
+
 if (typeof TCPSocket == 'undefined') {
     moksha_callbacks = new Object();
     moksha_socket_busy = false;
