@@ -239,6 +239,15 @@ new messages as they arrive in the users web browser.
 
    :doc:`LiveWidget`
 
+Sending messages to from the Live Widget
+----------------------------------------
+
+You can send messages with Moksha's JavaScript API using the following function:
+
+.. code-block:: javascript
+
+   moksha.send_message('helloworld', {'foo': 'bar'});
+
 Creating a database model
 -------------------------
 
