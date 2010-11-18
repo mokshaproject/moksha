@@ -5,7 +5,7 @@ Hello World Moksha Demo
 The goal of this tutorial is to show the simplicity of Moksha's API by creating
 basic "Hello World" components in one demo.
 
-<link to directory of code and tarball>
+:Demo Source: https://fedorahosted.org/moksha/browser/demo
 
 The Controller
 --------------
