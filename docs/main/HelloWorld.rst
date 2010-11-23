@@ -248,6 +248,34 @@ You can send messages with Moksha's JavaScript API using the following function:
 
    moksha.send_message('helloworld', {'foo': 'bar'});
 
+So let's add a simple little text field to our HelloWorldWidget that allows people
+to send messages to the `helloworld` topic:
+
+.. code-block:: python
+
+   class HelloWorldWidget(LiveWidget):
+       topic = "helloworld"
+       template = """
+           <b>Hello World Widget</b>
+           <form onsubmit="return send_msg()">
+               <input name="text" id="text"/>
+           </form>
+   
+           <ul id="data"/>
+   
+           <script>
+               function send_msg() {
+                   moksha.send_message('helloworld', {'msg': $('#text').val()});
+                   $('#text').val('');
+                   return false;
+               }
+           </script>
+       """
+       onmessage = """
+           $('<li/>').text(json.msg).prependTo('#data');
+       """
+
+
 Creating a database model
 -------------------------
 
