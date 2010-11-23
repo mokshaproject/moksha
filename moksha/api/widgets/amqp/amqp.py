@@ -89,7 +89,7 @@ class AMQPSocket(Widget):
                 var dest = msg.header.delivery_properties.routing_key;
                 var json = null;
                 try {
-                    var json = $.secureEvalJSON(msg.body);
+                    var json = $.parseJSON(msg.body);
                 } catch(err) {
                     moksha.error("Unable to decode JSON message body");
                     moksha.error(msg);
