@@ -117,7 +117,7 @@ class StompWidget(Widget):
                             var json = $.secureEvalJSON(f.body);
                         } catch(err) {
                             moksha.error("Unable to decode JSON message body");
-                            moksha.debug(msg);
+                            moksha.error(msg);
                         }
                         if (moksha_callbacks[dest]) {
                             for (var i=0; i < moksha_callbacks[dest].length; i++) {
