@@ -22,7 +22,7 @@ class Root(object):
     @expose('mako:demo.templates.model')
     def model(self, *args, **kwargs):
         from demo.model import DBSession, HelloWorldModel
-        entries = DBSession.query(HelloWorldModel).all()
+        entries = DBSession.query(HelloWorldModel).limit(10).all()
         return dict(entries=entries)
 
     @expose('mako:demo.templates.model')
@@ -35,4 +35,4 @@ class Root(object):
 
     def _get_entries(self, *args, **kwargs):
         from demo.model import DBSession, HelloWorldModel
-        return DBSession.query(HelloWorldModel).all()
+        return DBSession.query(HelloWorldModel).limit(10).all()
