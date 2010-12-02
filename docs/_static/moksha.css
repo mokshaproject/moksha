@@ -806,6 +806,10 @@ form.comment textarea {
     border: 3px solid red;
 }
 
+img {
+    border: 0px;
+}
+
 /* :::: PRINT :::: */
 @media print {
     div.document, 
