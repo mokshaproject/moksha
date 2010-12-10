@@ -3,12 +3,12 @@
 
 Name:           moksha
 Version:        0.5.0
-Release:        1%{?dist}
-Summary:        A platform for creating live collaborative web applications
+Release:        2%{?dist}
+Summary:        A platform for creating real-time web applications
 Group:          Applications/Internet
 License:        AGPLv3
 URL:            https://fedorahosted.org/moksha
-Source0:        moksha-%{version}.tar.bz2
+Source0:        https://fedorahosted.org/releases/m/o/%{name}/%{name}-%{version}.tar.bz2
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      noarch
@@ -36,7 +36,7 @@ BuildRequires: orbited
 
 Requires: TurboGears2
 Requires: python-toscawidgets >= 0.9.1
-Requires: python-zope-sqlalchemy 
+Requires: python-zope-sqlalchemy
 Requires: python-shove
 Requires: python-feedcache
 Requires: python-feedparser
@@ -58,8 +58,7 @@ Moksha is a platform for creating real-time collaborative web applications.  It
 provides a set of Python and JavaScript API's that make it simple to create 
 rich applications that can acquire, manipulate, and visualize data from 
 external services. It is a unified framework build using the best available 
-open source technologies such as TurboGears2, jQuery, AMQP, and Orbited.  More 
-information can be found on the Moksha Project Page at 
+open source technologies such as TurboGears2, jQuery, AMQP, and Orbited.
 
 %package docs
 Summary: Developer documentation for Moksha
@@ -137,7 +136,7 @@ restorecon -Rv /var/cache/moksha
 
 %files 
 %defattr(-,root,root,-)
-%doc README AUTHORS LICENSE COPYING
+%doc README AUTHORS COPYING
 %{_bindir}/moksha
 %{_bindir}/moksha-hub
 %{_sysconfdir}/init.d/moksha-hub
@@ -146,6 +145,7 @@ restorecon -Rv /var/cache/moksha
 %attr(-,apache,apache) %dir %{_localstatedir}/lib/%{name}
 
 %files server
+%defattr(-,root,root,-)
 %attr(-,apache,root) %{_datadir}/%{name}
 %config(noreplace) %{_sysconfdir}/httpd/conf.d/moksha.conf
 %config(noreplace) %{_sysconfdir}/%{name}/*.ini
@@ -157,6 +157,12 @@ restorecon -Rv /var/cache/moksha
 %doc docs/_build/html
 
 %changelog
+* Fri Dec 10 2010 Luke Macken <lmacken@redhat.com> - 0.5.0-2
+- Fix our Source URL
+- Fix files-attr-not-set rpmlint errors
+- Fix up the description
+- Remove redundant license
+
 * Sat Sep 11 2010 Luke Macken <lmacken@redhat.com> - 0.5.0-1
 - 0.5.0 release
 - Run the full test suite
