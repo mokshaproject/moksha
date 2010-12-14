@@ -190,8 +190,8 @@ def reinstall():
     sh('mv dist/* ~/rpmbuild/SOURCES/')
     sh('cp moksha.spec ~/rpmbuild/SPECS/')
     sh('rpmbuild -ba ~/rpmbuild/SPECS/moksha.spec') 
-    sh('sudo rpm -e --nodeps moksha{,-docs,-server}', ignore_error=True)
-    sh('sudo rpm -ivh ~/rpmbuild/RPMS/noarch/moksha{,-docs,-server}-%s-1.*noarch.rpm' % options.version.number)
+    sh('sudo rpm -e --nodeps moksha{,-doc,-server}', ignore_error=True)
+    sh('sudo rpm -ivh ~/rpmbuild/RPMS/noarch/moksha{,-doc,-server}-%s-1.*noarch.rpm' % options.version.number)
 
 @task
 def restart_httpd():
