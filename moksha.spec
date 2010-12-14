@@ -3,7 +3,7 @@
 
 Name:           moksha
 Version:        0.5.0
-Release:        2%{?dist}
+Release:        1%{?dist}
 Summary:        A platform for creating real-time web applications
 Group:          Applications/Internet
 License:        AGPLv3
@@ -52,6 +52,7 @@ Requires: python-repoze-who-testutil
 Requires: python-BeautifulSoup
 Requires: python-twisted
 Requires: python-stomper
+Requires: python-daemon
 
 %description
 Moksha is a platform for creating real-time collaborative web applications.  It 
@@ -60,12 +61,12 @@ rich applications that can acquire, manipulate, and visualize data from
 external services. It is a unified framework build using the best available 
 open source technologies such as TurboGears2, jQuery, AMQP, and Orbited.
 
-%package docs
+%package doc
 Summary: Developer documentation for Moksha
 Group: Documentation
 Requires: %{name} = %{version}-%{release}
 
-%description docs
+%description doc
 This package contains developer documentation for Moksha along with
 other supporting documentation
 
@@ -86,6 +87,7 @@ This package contains an Apache mod_wsgi configuration for Moksha.
 
 %{__sed} -i -e 's/$VERSION/%{version}/g' docs/conf.py
 make -C docs html
+%{__rm} docs/_build/html/.buildinfo
 
 %install
 %{__rm} -rf %{buildroot}
@@ -96,18 +98,21 @@ make -C docs html
 %{__mkdir_p} %{buildroot}%{_datadir}/%{name}/production/apache
 %{__mkdir_p} %{buildroot}%{_datadir}/%{name}/production/nginx
 %{__mkdir_p} %{buildroot}%{_datadir}/%{name}/production/rabbitmq
-%{__mkdir_p} -m 0700 %{buildroot}/%{_localstatedir}/cache/%{name}
-%{__mkdir_p} -m 0700 %{buildroot}/%{_localstatedir}/lib/%{name}
+%{__mkdir_p} -m 0755 %{buildroot}/%{_localstatedir}/cache/%{name}
+%{__mkdir_p} -m 0755 %{buildroot}/%{_localstatedir}/lib/%{name}
 %{__mkdir_p} -m 0755 %{buildroot}%{_sysconfdir}/httpd/conf.d
 %{__mkdir_p} -m 0755 %{buildroot}/%{_sysconfdir}/%{name}/
 %{__mkdir_p} -m 0755 %{buildroot}/%{_sysconfdir}/%{name}/conf.d
 %{__mkdir_p} -m 0755 %{buildroot}/%{_sysconfdir}/init.d/
+%{__mkdir_p} -m 0755 %{buildroot}/%{_var}/log/%{name}
 
-%{__install} production/*.* %{buildroot}%{_datadir}/%{name}/production/
-%{__install} production/apache/* %{buildroot}%{_datadir}/%{name}/production/apache
-%{__install} production/apache/moksha.conf %{buildroot}%{_sysconfdir}/httpd/conf.d/
-%{__install} production/nginx/* %{buildroot}%{_datadir}/%{name}/production/nginx
-%{__install} production/rabbitmq/* %{buildroot}%{_datadir}/%{name}/production/rabbitmq
+
+%{__install} -m 0644 production/*.* %{buildroot}%{_datadir}/%{name}/production/
+%{__install} -m 0644 production/apache/* %{buildroot}%{_datadir}/%{name}/production/apache
+%{__install} -m 0644 production/apache/moksha.conf %{buildroot}%{_sysconfdir}/httpd/conf.d/
+%{__install} -m 0644 production/nginx/* %{buildroot}%{_datadir}/%{name}/production/nginx
+%{__install} -m 0644 production/rabbitmq/*.patch %{buildroot}%{_datadir}/%{name}/production/rabbitmq
+%{__install} -m 0755 production/rabbitmq/run %{buildroot}%{_datadir}/%{name}/production/rabbitmq
 %{__cp} production/sample-production.ini %{buildroot}%{_sysconfdir}/%{name}/sample-production.ini
 %{__cp} development.ini %{buildroot}%{_sysconfdir}/%{name}/development.ini
 %{__sed} -i -e 's/$VERSION/%{version}/g' %{buildroot}%{_sysconfdir}/%{name}/sample-production.ini
@@ -115,6 +120,10 @@ make -C docs html
 
 %{__install} production/moksha-hub %{buildroot}%{_bindir}/moksha-hub
 %{__install} production/moksha-hub.init %{buildroot}%{_sysconfdir}/init.d/moksha-hub
+%{__rm} %{buildroot}%{_datadir}/%{name}/production/moksha-hub.init
+
+%{__install} -d -m 0755 %{buildroot}/var/run/%{name}
+
 
 %check
 PYTHONPATH=$(pwd) paver test
@@ -126,6 +135,10 @@ PYTHONPATH=$(pwd) paver test
 %{__rm} -r %{buildroot}%{python_sitelib}/%{name}/apps/demo
 
 
+%post
+/sbin/chkconfig --add moksha-hub
+
+
 %post server
 semanage fcontext -a -t httpd_cache_t '/var/cache/moksha(/.*)?'
 restorecon -Rv /var/cache/moksha
@@ -133,6 +146,17 @@ restorecon -Rv /var/cache/moksha
 %clean
 %{__rm} -rf %{buildroot}
 
+%pre
+%{_sbindir}/groupadd -r %{name} &>/dev/null || :
+%{_sbindir}/useradd  -r -s /sbin/nologin -d %{_datadir}/%{name} -M \
+                           -c 'Moksha' -g %{name} %{name} &>/dev/null || :
+
+
+%preun
+if [ $1 -eq 0 ]; then
+        /sbin/service moksha-hub stop >/dev/null 2>&1
+        /sbin/chkconfig --del moksha-hub
+fi
 
 %files 
 %defattr(-,root,root,-)
@@ -143,6 +167,9 @@ restorecon -Rv /var/cache/moksha
 %{python_sitelib}/%{name}/
 %{python_sitelib}/%{name}-%{version}-py%{pyver}.egg-info/
 %attr(-,apache,apache) %dir %{_localstatedir}/lib/%{name}
+%attr(0755,root,%{name}) %dir %{_var}/log/%{name}
+%ghost %attr(755, %{name}, %{name}) /var/run/%{name}
+
 
 %files server
 %defattr(-,root,root,-)
@@ -152,11 +179,17 @@ restorecon -Rv /var/cache/moksha
 %config(noreplace) %{_sysconfdir}/%{name}/orbited.cfg
 %attr(-,apache,apache) %dir %{_localstatedir}/cache/%{name}/
 
-%files docs
+%files doc
 %defattr(-,root,root)
 %doc docs/_build/html
 
 %changelog
+* Tue Dec 14 2010 Luke Macken <lmacken@redhat.com> - 0.5.0-3
+- Handle ghosting /var/run/moksha
+- Setup a log directory
+- Get the moksha-hub init script working properly
+- A variety of specfile cleanups from our package review (#661902)
+
 * Fri Dec 10 2010 Luke Macken <lmacken@redhat.com> - 0.5.0-2
 - Fix our Source URL
 - Fix files-attr-not-set rpmlint errors
