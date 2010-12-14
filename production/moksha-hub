@@ -2,19 +2,31 @@
 
 __requires__ = 'moksha'
 
-import os
 import sys
 
 def main():
     from pkg_resources import load_entry_point
     sys.exit(load_entry_point('moksha', 'console_scripts', 'moksha-hub')())
 
+def handle_signal(signum, stackframe):
+    from moksha.hub.reactor import reactor
+    from moksha.hub import hub
+    from twisted.internet.error import ReactorNotRunning
+    import signal
+    if hub._hub:
+        hub._hub.stop()
+    try:
+        reactor.stop()
+    except ReactorNotRunning:
+        pass
+
 if '--daemon' in sys.argv:
-    pid = os.fork()
-    if pid == 0:
-        os.setsid()
-        pid = os.fork()
-        if pid == 0:
-            main()
-else:
-    main()
+    from daemon import DaemonContext
+    from daemon.pidlockfile import PIDLockFile
+    pidlock = PIDLockFile('/var/run/moksha/moksha-hub.pid')
+    output = file('/var/log/moksha/moksha-hub.log', 'a')
+    daemon = DaemonContext(pidfile=pidlock, stdout=output, stderr=output)
+    daemon.terminate = handle_signal
+    daemon.open()
+
+main()

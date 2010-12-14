@@ -42,6 +42,7 @@ setup(
         "Babel",
         "pyOpenSSL",
         "BeautifulSoup",
+        "python-daemon",
         #"repoze.squeeze", # Not hard requirements
         #"repoze.profile", # Not hard requirements
     ],

@@ -41,6 +41,8 @@ from moksha.hub.stomp import StompHub
 
 log = logging.getLogger('moksha.hub')
 
+_hub = None
+
 class MokshaHub(StompHub, AMQPHub):
 
     topics = None # {topic_name: [callback,]}
@@ -256,6 +258,8 @@ def main():
     config.update(cfg)
 
     hub = CentralMokshaHub()
+    global _hub
+    _hub = hub
 
     def handle_signal(signum, stackframe):
         from moksha.hub.reactor import reactor
