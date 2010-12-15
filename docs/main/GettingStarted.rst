@@ -15,7 +15,9 @@ Once you have Moksha installed, there are many ways to start using it.
 .. toctree::
    :maxdepth: 2
 
+   HelloWorld
+   IntegratingWithTG2
+   UsingLiveSocketOutsideOfMoksha
    QuickstartTemplates
    PluginEntryPoints
    Widgets
-   IntegratingWithTG2
