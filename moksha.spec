@@ -98,6 +98,7 @@ make -C docs html
 %{__mkdir_p} %{buildroot}%{_datadir}/%{name}/production/apache
 %{__mkdir_p} %{buildroot}%{_datadir}/%{name}/production/nginx
 %{__mkdir_p} %{buildroot}%{_datadir}/%{name}/production/rabbitmq
+%{__mkdir_p} %{buildroot}%{_sysconfdir}/logrotate.d
 %{__mkdir_p} -m 0755 %{buildroot}/%{_localstatedir}/cache/%{name}
 %{__mkdir_p} -m 0755 %{buildroot}/%{_localstatedir}/lib/%{name}
 %{__mkdir_p} -m 0755 %{buildroot}%{_sysconfdir}/httpd/conf.d
@@ -106,23 +107,24 @@ make -C docs html
 %{__mkdir_p} -m 0755 %{buildroot}/%{_sysconfdir}/init.d/
 %{__mkdir_p} -m 0755 %{buildroot}/%{_var}/log/%{name}
 
-
 %{__install} -m 0644 production/*.* %{buildroot}%{_datadir}/%{name}/production/
 %{__install} -m 0644 production/apache/* %{buildroot}%{_datadir}/%{name}/production/apache
 %{__install} -m 0644 production/apache/moksha.conf %{buildroot}%{_sysconfdir}/httpd/conf.d/
 %{__install} -m 0644 production/nginx/* %{buildroot}%{_datadir}/%{name}/production/nginx
 %{__install} -m 0644 production/rabbitmq/*.patch %{buildroot}%{_datadir}/%{name}/production/rabbitmq
 %{__install} -m 0755 production/rabbitmq/run %{buildroot}%{_datadir}/%{name}/production/rabbitmq
-%{__cp} production/sample-production.ini %{buildroot}%{_sysconfdir}/%{name}/sample-production.ini
-%{__cp} development.ini %{buildroot}%{_sysconfdir}/%{name}/development.ini
-%{__sed} -i -e 's/$VERSION/%{version}/g' %{buildroot}%{_sysconfdir}/%{name}/sample-production.ini
-%{__cp} orbited.cfg %{buildroot}%{_sysconfdir}/%{name}/orbited.cfg
-
+%{__install} -m 0644 production/logrotate/moksha %{buildroot}%{_sysconfdir}/logrotate.d/
 %{__install} production/moksha-hub %{buildroot}%{_bindir}/moksha-hub
 %{__install} production/moksha-hub.init %{buildroot}%{_sysconfdir}/init.d/moksha-hub
-%{__rm} %{buildroot}%{_datadir}/%{name}/production/moksha-hub.init
-
 %{__install} -d -m 0755 %{buildroot}/var/run/%{name}
+
+%{__cp} production/sample-production.ini %{buildroot}%{_sysconfdir}/%{name}/sample-production.ini
+%{__cp} development.ini %{buildroot}%{_sysconfdir}/%{name}/development.ini
+%{__cp} orbited.cfg %{buildroot}%{_sysconfdir}/%{name}/orbited.cfg
+
+%{__sed} -i -e 's/$VERSION/%{version}/g' %{buildroot}%{_sysconfdir}/%{name}/sample-production.ini
+
+%{__rm} %{buildroot}%{_datadir}/%{name}/production/moksha-hub.init
 
 
 %check
@@ -169,7 +171,7 @@ fi
 %attr(-,apache,apache) %dir %{_localstatedir}/lib/%{name}
 %attr(0755,root,%{name}) %dir %{_var}/log/%{name}
 %ghost %attr(755, %{name}, %{name}) /var/run/%{name}
-
+%config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 
 %files server
 %defattr(-,root,root,-)
@@ -184,6 +186,9 @@ fi
 %doc docs/_build/html
 
 %changelog
+* Wed Dec 15 2010 Luke Macken <lmacken@redhat.com> - 0.5.0-4
+- Add a logrotate configuration
+
 * Tue Dec 14 2010 Luke Macken <lmacken@redhat.com> - 0.5.0-3
 - Handle ghosting /var/run/moksha
 - Setup a log directory
