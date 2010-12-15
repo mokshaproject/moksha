@@ -1,0 +1,173 @@
+#bling-frame {
+  height: 475px;
+  width: 940px;
+  background: url('../img/bling-frame.png') center top no-repeat;
+  margin-bottom:-90px;
+  background-position: center top;
+}
+
+#bling-screen {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 56px;
+  height: 274px;
+  width: 380px;
+  background: url('../img/all-sprites.png');
+}
+
+ul {
+list-style-type: none;
+padding: 0px;
+margin-left: -10px;
+margin-right: 0px;
+}
+
+li {
+background-image: url('../img/bullet_orange-square.png');
+background-repeat: no-repeat;
+background-position: 0px 5px;
+padding-left: 14px;
+margin-left: 14px;
+}
+
+#sidebar li { 
+  list-style-type: square; 
+  background-image: none; 
+  padding-left: 0px;
+  margin-left: 28px;
+}
+
+#sidebar li.doc,
+li.doc { 
+  background-image: url('../img/bullet_doc.png');  
+  list-style-type: none;
+  padding-left: 20px;
+  margin-left: 14px;
+  line-height: 25px;
+}
+#sidebar li.web-doc,
+li.web-doc { 
+  background-image: url('../img/bullet_web-doc.png'); 
+  list-style-type: none; 
+  padding-left: 20px;
+  margin-left: 14px;
+  line-height: 25px;
+}
+
+#header li {
+  background-image: none;
+  padding: 0px;
+  margin: 12px;
+}
+
+a img {
+  border: none !important;
+}
+
+.clear {
+  clear: both !important;
+}
+
+#header h2 {
+  font-weight: normal;
+  text-align: center;
+  font-size: 2.4em;
+}
+
+#header .nav ul li {
+  float: left;
+  list-style-type: none;
+  margin-top: 8px;
+}
+
+#header .nav {
+  height: 34px;
+  background: url('../img/main-nav_bg.png') repeat-x;
+  text-transform: uppercase;
+}
+
+#header .nav ul {
+  margin-left: 24px;
+}
+
+#header .nav a { color: white; }
+#header .nav a:hover { color: #e3a534; }
+
+/** Colors **/
+
+body {
+  background: url('../img/background-repeater.png') black repeat-x;
+  color: white;
+}
+
+a:link, a:visited, a:active {
+  color: #e3a534;
+  text-decoration: none;
+}
+
+#logo {
+  margin-top: 20px;
+  margin-bottom: 24px;
+}
+
+#logo h1 {
+  height: 124px;
+  width: 155px;
+  background: url('../img/moksha-logo.png') no-repeat top left;
+  text-ident: -99999px;
+  font-size: 0;
+}
+
+h2#download {
+  vertical-align: middle !important;
+  margin-bottom: 12px !important;
+}
+
+#download a {
+  background: url('../img/orange-button.png') no-repeat top left;
+  width: 334px;
+  padding-top: 10px;
+  height: 44px;
+  display: block;
+  text-align: center;
+  vertical-align: middle;
+  color: white;
+  text-shadow: 1px 1px #552200;
+  text-transform: uppercase;
+}
+
+#sidebar h3 {
+  font-size: 1.1em;
+  margin-bottom: 0px;
+}
+
+#sidebar p {
+  color: #ccc;
+}
+
+#sidebar h2 {
+  color: #e3a534;
+  font-weight: normal;
+  margin-bottom: 0px;
+}
+
+
+#footer {
+  width: 100%;
+  clear: both;
+  min-height: 269px;
+  background: black url('http://duffy.fedorapeople.org/moksha/html/img/footer-bg.png') repeat-x;
+}
+
+
+#footer img {
+  margin-right: 24px;
+}
+
+#content {
+  margin-bottom: 100px;
+}
+
+#footer .container_16 div {
+  margin-top: 36px;
+}
