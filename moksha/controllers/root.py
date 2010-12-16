@@ -62,7 +62,9 @@ class RootController(BaseController):
         """Returns a raw Moksha live socket, for use in non-Moksha apps.
 
         <script> function bar(msg) { alert('bar(' + msg + ')'); } </script>
-        <script type="text/javascript" src="http://localhost:8080/livesocket?topic=foo&callback=bar"> </script>
+        <script type="text/javascript"
+                src="http://localhost:8080/livesocket?topic=foo&callback=bar">
+        </script>
 
         """
         data = {'topic': topic, 'callback': callback}
