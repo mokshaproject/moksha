@@ -8,7 +8,7 @@ Version:        0.2
 Release:        1%{?dist}
 Summary:        Moksha Chat App
 Group:          Applications/Internet
-License:        AGPLv3
+License:        ASL 2.0
 URL:            http://moksha.fedorahosted.org
 Source0:        %{modname}-%{version}dev.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)

@@ -15,7 +15,7 @@ options(
         long_description="",
         author="Luke Macken",
         author_email="lmacken@redhat.com",
-        license="AGPLv3",
+        license="ASL 2.0",
         rpm_name='moksha-metrics',
         packages=find_packages(),
         package_data=find_package_data(),

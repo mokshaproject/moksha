@@ -13,7 +13,7 @@ options(
         url="http://moksha.fedorahosted.org",
         description="Moksha Docs App",
         long_description="Moksha Sphinx docs and ToscaWidgets demos",
-        license='AGPLv3',
+        license='ASL 2.0',
         rpm_name='moksha-apps-docs',
         author="Luke Macken",
         author_email="lmacken@redhat.com",
