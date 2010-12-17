@@ -43,6 +43,9 @@ setup(
         "pyOpenSSL",
         "BeautifulSoup",
         "python-daemon",
+        "repoze.what-quickstart",
+        "repoze.what-pylons",
+        "repoze.tm2",
         #"repoze.squeeze", # Not hard requirements
         #"repoze.profile", # Not hard requirements
     ],
