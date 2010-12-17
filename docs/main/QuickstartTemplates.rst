@@ -36,6 +36,15 @@ Creating a new moksha app with all components
 
    $ paster moksha --livewidget --producer --consumer --controller
 
+Quick and dirty method of running your app
+------------------------------------------
+
+This command will run the entire Moksha stack, including orbited, paster WSGI
+server, and the moksha-hub, along with your application.
+
+.. code-block:: bash
+
+   $ moksha start
 
 Creating and installing an RPM for your new package
 ---------------------------------------------------

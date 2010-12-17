@@ -12,7 +12,7 @@ options(
         release="1",
         url="http://moksha.fedorahosted.org",
         description="Describe your package here",
-        license="AGPLv3",
+        license="ASL 2.0",
         long_description="",
         author="",
         author_email="",

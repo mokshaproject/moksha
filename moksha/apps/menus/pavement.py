@@ -12,7 +12,7 @@ options(
         release="1",
         url="http://moksha.fedorahosted.org",
         description="Moksha Menus App",
-        license="AGPLv3",
+        license="ASL 2.0",
         long_description="",
         author="Luke Macken",
         author_email="lmacken@redhat.com",

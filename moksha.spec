@@ -6,7 +6,7 @@ Version:        0.5.0
 Release:        1%{?dist}
 Summary:        A platform for creating real-time web applications
 Group:          Applications/Internet
-License:        AGPLv3
+License:        ASL 2.0
 URL:            https://fedorahosted.org/moksha
 Source0:        https://fedorahosted.org/releases/m/o/%{name}/%{name}-%{version}.tar.bz2
 

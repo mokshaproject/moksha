@@ -1,18 +1,17 @@
 # This file is part of Moksha.
 # Copyright (C) 2008-2010  Red Hat, Inc.
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-# 
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 import os
 import sys
@@ -30,21 +29,34 @@ install_distutils_tasks()
 
 VERSION = '0.5.0'
 
-HEADER = """This file is part of Moksha.
-Copyright (C) 2008-2010  Red Hat, Inc.
+OLDHEADER = """
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as
-published by the Free Software Foundation, either version 3 of the
-License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>."""
+HEADER = """
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""
 
 options(
     version=Bunch(
@@ -67,6 +79,7 @@ options(
             # Things we don't want to add our license tag to
             './moksha/widgetbrowser',
             './pip.py',
+            './pavement.py',
             './moksha/widgets/feedtree/static',
             './moksha/widgets/misc/ptd/game/',
             './moksha/widgets/misc/ptd/static',
@@ -152,6 +165,32 @@ def _apply_header_if_necessary(f, header, first_line, last_line):
         data = data[pos:]
     data = header + data
     f.write_bytes(data)
+
+@task
+def relicense():
+    cwd = path('.')
+    info("Re-licesning text")
+    for extension, comment_marker in options.extensions:
+        hlines = [comment_marker + " " + line for line in HEADER.split("\n")]
+        header = "\n".join(hlines) + "\n\n"
+        first_line = hlines[0]
+        last_line = hlines[-1]
+        for f in cwd.walkfiles("*.%s" % extension):
+            exclude = False
+            for pattern in options.exclude:
+                if f.startswith(pattern):
+                    exclude=True
+                    break
+            if exclude:
+                continue
+            info("Re-licensing %s" %  f)
+            tmp = file(f, 'r')
+            data = tmp.read()
+            tmp.close()
+            data = data.replace(OLDHEADER, HEADER)
+            out = file(f, 'w')
+            out.write(data)
+            out.close()
 
 @task
 def license():
