@@ -14,7 +14,6 @@
 # limitations under the License.
 
 from setuptools import setup, find_packages
-from paver.setuputils import find_package_data
 
 setup(
     name='moksha',
@@ -53,17 +52,7 @@ setup(
     test_suite='nose.collector',
     #namespace_packages=['moksha'],
     tests_require=['WebTest', 'BeautifulSoup'],
-    package_data=find_package_data(exclude=['ez_setup']),
-    #package_data={'moksha': ['i18n/*/LC_MESSAGES/*.mo',
-    #                         'public/favicon',
-    #                         'public/css/*.css',
-    #                         'public/images/*.png',
-    #                         'public/images/*.gif',
-    #                         'public/images/*.jpg',
-    #                         'public/javascript/*.js',
-    #                         'templates/*.html',
-    #                         'templates/*.mak',
-    #                         'public/javascript/ui/*.js']},
+    #package_data=find_package_data(exclude=['ez_setup']),
     message_extractors = {'moksha': [
             ('**.py', 'python', None),
             ('templates/**.mak', 'mako', None),
