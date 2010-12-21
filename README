@@ -2,15 +2,9 @@
 Moksha
 ======
 
-http://moksha.csh.rit.edu
+http://mokshaproject.net
 
-mod_wsgi RPM installation
--------------------------
+Documentation
+-------------
 
-    $ paver reinstall{,_apps} restart_httpd
-
-Local virtualenv install
-------------------------
-
-    $ ./start-moksha
-    $ ./stop-moksha
+http://mokshaproject.net/apps/docs
