@@ -19,11 +19,26 @@ can change the `stomp_broker` in the Moksha configuration file to point to a
 different STOMP broker -- `RabbitMQ <http://rabbitmq.com>`_ with the STOMP-adapter has been tested as
 well.
 
+Make sure Orbited is configured to proxy connections to your STOMP Broker in your ``/etc/orbited.cfg``
+
+.. code-block:: none
+
+   [access]
+   * -> localhost:61613
+
+You can also enable the built-in STOMP broker within Orbited, MorbidQ, by doing the following in the ``orbited.cfg``:
+
+.. code-block:: none
+
+   [listen]
+   stomp://:61613
+
+
 `AMQP <http://amqp.org>`_
 -------------------------
 
 Plugging an `AMQP <http://amqp.org>`_ broker into Moksha is trivial.  Simply
-add an `amqp_broker` to your configuration, and change the live socket backend:
+add an `amqp_broker` to your configuration, and change the live socket backend in Moksha's ``development.ini`` or ``production.ini``:
 
 .. code-block:: none
 
@@ -38,6 +53,16 @@ add an `amqp_broker` to your configuration, and change the live socket backend:
 
 The :class:`MokshaHub` will then automatically connect up to your AMQP broker and proxy messages to the STOMP broker and Moksha Consumers.
 
-AMQP support in Moksha has been tested with `Qpid <http://qpid.apache.org>`_.
+You will then need to edit your Orbited configuration to allow proxying to your
+AMQP Broker in your``/etc/orbited.cfg``
 
-`RabbitMQ <http://rabbitmq.com>`_ support is under development.  See the :doc:`RabbitMQ` documentation for details on testing it.
+.. code-block:: none
+
+   [access]
+   * -> localhost:5672
+
+.. note::
+
+   AMQP support in Moksha has been tested with `Qpid <http://qpid.apache.org>`_.
+      
+      `RabbitMQ <http://rabbitmq.com>`_ support is under development.  See the :doc:`RabbitMQ` documentation for details on testing it.
