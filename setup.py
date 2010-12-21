@@ -44,6 +44,8 @@ setup(
         "repoze.what-quickstart",
         "repoze.what-pylons",
         "repoze.tm2",
+        "Mako",
+        "Genshi",
         #"repoze.squeeze", # Not hard requirements
         #"repoze.profile", # Not hard requirements
     ],
