@@ -1,8 +1,5 @@
-Security
-========
-
 Cross-site Request Forgery Protection
--------------------------------------
+=====================================
 
 Moksha offers a layer of CSRF protection for authenticated users.
 For more information on `CSRF`, see the `Wikipedia entry

@@ -5,6 +5,7 @@ Getting Started with Moksha
 There are currently two ways of installing and running Moksha.
 
 .. toctree::
+   :maxdepth: 1
 
    RPMInstallation
    VirtualenvInstallation
