@@ -25,6 +25,21 @@ Entry points are defined in your projects ``setup.py`` like so:
             hellowidget = helloworld.widgets:HelloWorldWidget
          """
 
+Mounting the root controller of your application
+------------------------------------------------
+
+Moksha allows you to easily configure the root controller of your application.
+You can do this by mounting your controller on the ``[moksha.root]``
+entry-point as ``root``, like so:
+
+.. code-block:: python
+
+    [moksha.root]
+    root = myproject.controllers.root:RootController
+
+.. seealso::
+
+   `Writing TurboGears Controllers <http://turbogears.org/2.1/docs/main/Controllers.html>`_
 
 Mounting a TurboGears application
 ----------------------------------
