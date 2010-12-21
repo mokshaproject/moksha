@@ -7,18 +7,24 @@ and store them in ``moksha.apps`` and ``moksha._widgets`` dictionaries.
 These can then be accessed at any time by any application or widget during
 any request.
 
-Mounting a WSGI application
----------------------------
+What is an Entry Point?
+-----------------------
 
-You can mount an existing WSGI application by pointing to it
-in the ``setup.py`` on the ``[moksha.wsgiapp]`` entry-point.
+Entry points are a Python setuptools/distribute feature that allows packages to
+register something under a specific key that other packages can query for.
+This is how you make Moksha aware of your widgets/apps/producers/consumers.
+
+Entry points are defined in your projects ``setup.py`` like so:
 
 .. code-block:: python
 
-    [moksha.wsgiapp]
-    mywsgiapp = mywsgiapp.wsgiapp:MyWSGIApplication
+   setup(name='moksha.helloworld',
+         ...
+         entry_points="""
+            [moksha.widget]
+            hellowidget = helloworld.widgets:HelloWorldWidget
+         """
 
-Your WSGI application will then be accessable via ``/apps/mywsgiapp`` in Moksha.
 
 Mounting a TurboGears application
 ----------------------------------
@@ -47,6 +53,26 @@ You can plug an existing ToscaWidget into Moksha by adding it to the ``[moksha.w
     jquery = tw.jquery:jquery_js
 
 Your Widget will then be accessable via ``/widgets/mywidget`` in Moksha.
+
+Mounting a WSGI application
+---------------------------
+
+You can mount an existing WSGI application by pointing to it
+in the ``setup.py`` on the ``[moksha.wsgiapp]`` entry-point.
+
+.. code-block:: python
+
+    [moksha.wsgiapp]
+    mywsgiapp = mywsgiapp.wsgiapp:MyWSGIApplication
+
+Your WSGI application will then be accessable via ``/apps/mywsgiapp`` in Moksha.
+
+.. warning::
+
+   At the moment it is not recommened that you mount a TurboGears/Pylons app as
+   a WSGI application inside of Moksha, since the ``pylons.config`` objects
+   will conflict.  This issue will be addressed in the future.  Instead, you can
+   simply mount a Controller as a ``moksha.application``.
 
 Configuration
 -------------

@@ -6,7 +6,11 @@ The goal of this tutorial is to show the simplicity of Moksha's API by creating
 basic "Hello World" components in one demo.
 
 :Download: https://fedorahosted.org/releases/m/o/moksha/moksha-helloworld.tar.bz2
-:Demo Source: https://fedorahosted.org/moksha/browser/moksha/apps/helloworld
+:Browse Source: https://fedorahosted.org/moksha/browser/moksha/apps/helloworld
+
+.. note::
+
+   You can easily run this demo by extracting the above tarball, and running ``moksha start`` within it.
 
 The Controller
 --------------

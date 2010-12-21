@@ -7,9 +7,12 @@ have to learn Python or TurboGears?
 Thankfully, Moksha allows you to leverage it's realtime pipes on any existing
 web page without having to write a line of Python code.
 
-Add code snippet to your web page
-Configure your message broker
-Start Moksha
+This means that you can have your web site listen to topics from your message
+broker, and run javascript when new messages arrive.
+
+All you need to do is add a single ``<script>`` tag to your web site that
+specifies the topic that you wish to listen to, and the javascript function
+that should be called with each new message as they arrive.
 
 .. code-block:: html
 
@@ -28,7 +31,7 @@ Start Moksha
        <script type="text/javascript" src="http://localhost:8080/livesocket?topic=helloworld&callback=consume_message"></script>
    </html>
 
-Caveats
--------
+.. note::
 
-Must be under the same domain name.
+   In order for the live sockets to work properly, Moksha (specifically Orbited) must be running
+   under the same domain as your web site.
