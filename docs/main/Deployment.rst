@@ -16,23 +16,13 @@ Once extracted, comment out the ToscaWidgets alias in your
 `/etc/httpd/conf.d/moksha.conf`.
 
 
-Running orbited
----------------
-
-.. code-block:: bash
-
-   $ orbited -c /etc/moksha/orbited.cfg
-
-
 Setting up an AMQP message broker
 ---------------------------------
 
-By default Moksha utilizes the embeded MorbidQ message broker inside of
-Orbited.  This allows for widgets to communicate with the server using the
-Stomp protocol.  In production you can easily switch to an enterprise-grade
-message broker, such as `Apache Qpid <http://qpid.apache.org>`_.
+In production you can easily switch to an enterprise-grade message broker, such
+as `Apache Qpid <http://qpid.apache.org>`_.
 
-See the documentatoin on :doc:`MessageBrokers` for how to hook up an AMQP broker.
+See the documentation on :doc:`MessageBrokers` for details on how to hook up an AMQP broker.
 
 .. seealso::
 
@@ -50,4 +40,6 @@ to utlize the memcached Beaker extension.  This example uses two memcached serve
    beaker.cache.type = ext:memcached
    beaker.cache.url = memcached1;memcached2
 
+.. seealso::
 
+   `Caching with TurboGears <http://turbogears.org/2.1/docs/main/Caching.html>`
