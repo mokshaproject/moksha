@@ -32,7 +32,6 @@ BuildRequires: python-repoze-what-quickstart
 BuildRequires: python-shove
 BuildRequires: python-bunch
 BuildRequires: TurboGears2
-BuildRequires: orbited
 
 Requires: TurboGears2
 Requires: python-toscawidgets >= 0.9.1
@@ -41,7 +40,6 @@ Requires: python-shove
 Requires: python-feedcache
 Requires: python-feedparser
 Requires: python-tw-jquery >= 0.9.4.1
-Requires: orbited
 Requires: python-sphinx
 Requires: python-paver
 Requires: python-tw-forms
@@ -75,6 +73,7 @@ Summary: mod_wsgi Moksha server
 Group: Applications/Internet
 Requires: %{name} = %{version}-%{release}
 Requires: mod_wsgi httpd
+Requires: orbited
 
 %description server
 This package contains an Apache mod_wsgi configuration for Moksha.
