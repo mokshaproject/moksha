@@ -30,7 +30,7 @@ setup(
         "feedcache",
         "feedparser",
         "tw.jquery>=0.9.9",
-        "orbited",
+        "orbited==0.7.10",
         #"Twisted",
         "stomper",
         "Sphinx",
