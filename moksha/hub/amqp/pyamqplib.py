@@ -29,8 +29,8 @@ NONPERSISTENT_DELIVERY = PERSISTENT_DELIVERY = range(1, 3)
 class AMQPLibHub(BaseAMQPHub):
     """ An AMQPHub implemention using the amqplib module """
 
-    def __init__(self, broker, username=None, password=None, ssl=False):
-        self.conn = amqp.Connection(host=broker, ssl=ssl,
+    def __init__(self, broker, username=None, password=None, ssl=False, threaded=False):
+        self.conn = amqp.Connection(host=broker, ssl=ssl, use_threading=threaded,
                                     userid=username, password=password)
         self.channel = self.conn.channel()
         self.channel.access_request('/data', active=True, write=True, read=True)

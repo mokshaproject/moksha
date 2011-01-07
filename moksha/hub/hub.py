@@ -72,7 +72,10 @@ class MokshaHub(StompHub, AMQPHub):
                     self.topics[topic].append(callback)
 
         if self.amqp_broker:
-            AMQPHub.__init__(self, self.amqp_broker)
+            AMQPHub.__init__(self, self.amqp_broker,
+                             username=config.get('amqp_broker_user', 'guest'),
+                             password=config.get('amqp_broker_pass', 'guest'),
+                             ssl=config.get('amqp_broker_ssl', False))
 
         if self.stomp_broker:
             log.info('Initializing STOMP support')
