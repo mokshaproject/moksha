@@ -23,10 +23,14 @@ try:
     from qpid010 import QpidAMQPHub
     AMQPHub = QpidAMQPHub
 except ImportError:
-    log.debug("Unable to import qpid module")
-    class FakeHub(object):
-        pass
-    AMQPHub = FakeHub
+    log.debug("Cannot find qpid python module")
+    try:
+        from pyamqplib import AMQPLibHub
+        AMQPHub = AMQPLibHub
+    except ImportError:
+        log.debug("Cannot find pyamqplib")
+        log.debug("Using FakeHub AMQP broker. Don't expect AMQP to work")
+        class FakeHub(object):
+            pass
+        AMQPHub = FakeHub
 
-#from pyamqplib import AMQPLibHub
-#AMQPHub = AMQPLibHub
