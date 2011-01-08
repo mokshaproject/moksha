@@ -25,6 +25,7 @@ loaded, and receives each message for the specified topic through the
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
 """
 
+import uuid
 import logging
 log = logging.getLogger('moksha.hub')
 
@@ -49,8 +50,7 @@ class Consumer(object):
 
                 if isinstance(self.hub, AMQPLibHub):
                     # AMQPLibHub specific 
-                    import uuid
-                    queue_name = str(uuid.uiud4())
+                    queue_name = str(uuid.uuid4())
                     self.hub.queue_declare(queue=queue_name, exclusive=True)
                     self.hub.exchange_bind(queue_name, binding_key=topic)
                     if self.jsonify:
