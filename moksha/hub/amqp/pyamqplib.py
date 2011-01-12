@@ -77,7 +77,6 @@ class AMQPLibHub(BaseAMQPHub):
         msg = self.channel.basic_get(queue, no_ack=True)
         return msg
 
-    @trace
     def subscribe(self, queue, callback, no_ack=True):
         """
         Consume messages from a given `queue`, passing each to `callback` 
