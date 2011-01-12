@@ -77,12 +77,11 @@ class AMQPLibHub(BaseAMQPHub):
         msg = self.channel.basic_get(queue, no_ack=True)
         return msg
 
-    def subscribe(self, queue, callback, no_ack=True):
+    def queue_subscribe(self, queue, callback, no_ack=True):
         """
         Consume messages from a given `queue`, passing each to `callback` 
         """
         self.channel.basic_consume(queue, callback=callback, no_ack=no_ack)
-
 
     def wait(self):
         self.channel.wait()

@@ -54,9 +54,9 @@ class Consumer(object):
                     self.hub.queue_declare(queue=queue_name, exclusive=True)
                     self.hub.exchange_bind(queue_name, binding_key=topic)
                     if self.jsonify:
-                        self.hub.subscribe(queue_name, self._consume_json)
+                        self.hub.queue_subscribe(queue_name, self._consume_json)
                     else:
-                        self.hub.subscribe(queue_name, self._consume)
+                        self.hub.queue_subscribe(queue_name, self._consume)
                 else:
                     # Assume we're using Qpid then.
                     server_queue_name = 'moksha_consumer_' + self.hub.session.name
