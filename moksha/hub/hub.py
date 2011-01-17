@@ -161,6 +161,7 @@ class CentralMokshaHub(MokshaHub):
     producers = None # [<Producer>,]
 
     def __init__(self):
+        log.info('Loading the Moksha Hub')
         self.topics = defaultdict(list)
         self.__init_consumers()
 
