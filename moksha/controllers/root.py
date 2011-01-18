@@ -58,7 +58,7 @@ class RootController(BaseController):
             return DefaultRootController(), remainder
 
     @expose()
-    def livesocket(self, topic=None, callback=None):
+    def livesocket(self, topic=None, callback=None, json=True):
         """Returns a raw Moksha live socket, for use in non-Moksha apps.
 
         <script> function bar(msg) { alert('bar(' + msg + ')'); } </script>
@@ -67,7 +67,7 @@ class RootController(BaseController):
         </script>
 
         """
-        data = {'topic': topic, 'callback': callback}
+        data = {'topic': topic, 'callback': callback, 'json': json}
         backend = config.get('moksha.livesocket.backend', 'stomp').lower()
         if backend == 'stomp':
             override_template(self.livesocket, 'mako:moksha.templates.stomp_socket')

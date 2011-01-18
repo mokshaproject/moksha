@@ -5,7 +5,11 @@ moksha = {
             accept_mode: 1,
             acquire_mode: 1, 
             destination: 'amq.topic',
-            _body: $.toJSON(body),
+% if json:
+            _body: JSON.stringify(body),
+% else:
+            _body: body,
+% endif
             _header: {
                 delivery_properties: {
                     routing_key: topic
@@ -21,9 +25,18 @@ if (typeof moksha_amqp_conn == 'undefined') {
     moksha_amqp_queue = null;
     moksha_amqp_on_message = function(msg) {
         var dest = msg.header.delivery_properties.routing_key;
+        var json = msg.body;
+% if json:
+        try {
+            var json = JSON.parse(msg.body);
+        } catch(err) {
+            console.log("Unable to decode JSON message body:");
+            console.log(f.body);
+        }
+% endif
         if (moksha_callbacks[dest]) {
             for (var i=0; i < moksha_callbacks[dest].length; i++) {
-                moksha_callbacks[dest][i](msg.body);
+                moksha_callbacks[dest][i](json);
             }
         }
     }

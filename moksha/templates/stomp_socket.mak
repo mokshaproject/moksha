@@ -1,7 +1,11 @@
 moksha = {
     /* Send a STOMP message to a given topic */
     send_message: function(topic, body) {
-		stomp.send($.toJSON(body), topic)
+% if json:
+        stomp.send(JSON.stringify(body), topic)
+% else:
+        stomp.send(body, topic)
+% endif
     },
 }
 
@@ -41,18 +45,18 @@ if (typeof TCPSocket == 'undefined') {
             };
             stomp.onmessageframe = function(f){
                 var dest = f.headers.destination;
-/*
-                var json = null;
+                var json = f.body;
+% if json:
                 try {
-                    var json = $.parseJSON(f.body);
+                    var json = JSON.parse(f.body);
                 } catch(err) {
                     console.log("Unable to decode JSON message body:");
-                    console.log(f.body);
+                    console.log(f);
                 }
-*/
+% endif
                 if (moksha_callbacks[dest]) {
                     for (var i=0; i < moksha_callbacks[dest].length; i++) {
-                        moksha_callbacks[dest][i](f.body);
+                        moksha_callbacks[dest][i](json);
                     }
                 }
             };
