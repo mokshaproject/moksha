@@ -812,6 +812,9 @@ def create_app_engine(app):
 
 
 def to_unicode(obj, encoding='utf-8', errors='replace'):
+    """
+    :deprecated: by to_unicode in http://python-kitchen.fedorahosted.org
+    """
     if isinstance(obj, basestring):
         if not isinstance(obj, unicode):
             obj = unicode(obj, encoding, errors)

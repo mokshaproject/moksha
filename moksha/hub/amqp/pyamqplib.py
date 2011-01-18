@@ -17,7 +17,10 @@
 
 import logging
 
-import amqplib.client_0_8 as amqp
+try:
+    import amqplib.client_0_8 as amqp
+except ImportError:
+    pass
 
 from moksha.lib.helpers import trace
 from moksha.hub.amqp.base import BaseAMQPHub
@@ -29,8 +32,8 @@ NONPERSISTENT_DELIVERY = PERSISTENT_DELIVERY = range(1, 3)
 class AMQPLibHub(BaseAMQPHub):
     """ An AMQPHub implemention using the amqplib module """
 
-    def __init__(self, broker, username=None, password=None, ssl=False):
-        self.conn = amqp.Connection(host=broker, ssl=ssl,
+    def __init__(self, broker, username=None, password=None, ssl=False, threaded=False):
+        self.conn = amqp.Connection(host=broker, ssl=ssl, use_threading=threaded,
                                     userid=username, password=password)
         self.channel = self.conn.channel()
         self.channel.access_request('/data', active=True, write=True, read=True)
@@ -77,13 +80,11 @@ class AMQPLibHub(BaseAMQPHub):
         msg = self.channel.basic_get(queue, no_ack=True)
         return msg
 
-    @trace
-    def subscribe(self, queue, callback, no_ack=True):
+    def queue_subscribe(self, queue, callback, no_ack=True):
         """
         Consume messages from a given `queue`, passing each to `callback` 
         """
         self.channel.basic_consume(queue, callback=callback, no_ack=no_ack)
-
 
     def wait(self):
         self.channel.wait()

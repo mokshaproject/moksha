@@ -72,7 +72,10 @@ class MokshaHub(StompHub, AMQPHub):
                     self.topics[topic].append(callback)
 
         if self.amqp_broker:
-            AMQPHub.__init__(self, self.amqp_broker)
+            AMQPHub.__init__(self, self.amqp_broker,
+                             username=config.get('amqp_broker_user', 'guest'),
+                             password=config.get('amqp_broker_pass', 'guest'),
+                             ssl=config.get('amqp_broker_ssl', False))
 
         if self.stomp_broker:
             log.info('Initializing STOMP support')
@@ -155,9 +158,10 @@ class CentralMokshaHub(MokshaHub):
     The Moksha Hub is responsible for initializing all of the Hooks,
     AMQP queues, exchanges, etc.
     """
-    data_streams = None # [<DataStream>,]
+    producers = None # [<Producer>,]
 
     def __init__(self):
+        log.info('Loading the Moksha Hub')
         self.topics = defaultdict(list)
         self.__init_consumers()
 
@@ -167,9 +171,11 @@ class CentralMokshaHub(MokshaHub):
             self.__init_amqp()
 
         self.__run_consumers()
-        self.__init_data_streams()
+        self.__init_producers()
 
     def __init_amqp(self):
+        # Ok this looks odd at first.  I think this is only used when we are briding stomp/amqp,
+        # Since each producer and consumer opens up their own AMQP connections anyway
         if self.stomp_broker:
             log.debug("Initializing local AMQP queue...")
             self.server_queue_name = 'moksha_hub_' + self.session.name
@@ -184,7 +190,7 @@ class CentralMokshaHub(MokshaHub):
 
     def __init_consumers(self):
         """ Initialize all Moksha Consumer objects """
-        log.info('Loading Moksha Consumers')
+        log.info('Loading Consumers')
         for consumer in pkg_resources.iter_entry_points('moksha.consumer'):
             c_class = consumer.load()
             log.info("%s consumer is watching the %r topic" % (
@@ -200,15 +206,16 @@ class CentralMokshaHub(MokshaHub):
                 self.consumers.append(c)
                 self.topics[topic][i] = c.consume
 
-    def __init_data_streams(self):
-        """ Initialize all data streams """
-        self.data_streams = []
+    def __init_producers(self):
+        """ Initialize all producers (aka data streams) """
+        log.info('Loading Producers')
+        self.producers = []
         for entry in ('moksha.producer', 'moksha.stream'):
-            for stream in pkg_resources.iter_entry_points(entry):
-                stream_class = stream.load()
-                log.info('Loading %s producer' % stream_class.__name__)
-                stream_obj = stream_class()
-                self.data_streams.append(stream_obj)
+            for producer in pkg_resources.iter_entry_points(entry):
+                producer_class = producer.load()
+                log.info('Loading %s producer' % producer_class.__name__)
+                producer_obj = producer_class()
+                self.producers.append(producer_obj)
 
     @trace
     def create_topic(self, topic):
@@ -222,10 +229,10 @@ class CentralMokshaHub(MokshaHub):
     def stop(self):
         log.debug("Stopping the CentralMokshaHub")
         MokshaHub.close(self)
-        if self.data_streams:
-            for stream in self.data_streams:
-                log.debug("Stopping data stream %s" % stream)
-                stream.stop()
+        if self.producers:
+            for producer in self.producers:
+                log.debug("Stopping producer %s" % producer)
+                producer.stop()
         if self.consumers:
             for consumer in self.consumers:
                 log.debug("Stopping consumer %s" % consumer)

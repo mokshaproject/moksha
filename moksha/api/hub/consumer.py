@@ -25,10 +25,12 @@ loaded, and receives each message for the specified topic through the
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
 """
 
+import uuid
 import logging
 log = logging.getLogger('moksha.hub')
 
 from moksha.hub.hub import MokshaHub
+from moksha.hub.amqp.pyamqplib import AMQPLibHub
 from moksha.lib.helpers import listify, create_app_engine, json
 from sqlalchemy.orm import sessionmaker
 
@@ -45,18 +47,30 @@ class Consumer(object):
         if self.hub.amqp_broker and not self.hub.stomp_broker:
             for topic in listify(self.topic):
                 log.debug('Subscribing to consumer topic %s' % topic)
-                server_queue_name = 'moksha_consumer_' + self.hub.session.name
-                self.hub.queue_declare(queue=server_queue_name, exclusive=True)
-                self.hub.exchange_bind(server_queue_name, binding_key=topic)
-                local_queue_name = 'moksha_consumer_' + self.hub.session.name
-                self.hub.local_queue = self.hub.session.incoming(local_queue_name)
-                self.hub.message_subscribe(queue=server_queue_name,
-                                       destination=local_queue_name)
-                self.hub.local_queue.start()
-                if self.jsonify:
-                    self.hub.local_queue.listen(self._consume_json)
+
+                if isinstance(self.hub, AMQPLibHub):
+                    # AMQPLibHub specific 
+                    queue_name = str(uuid.uuid4())
+                    self.hub.queue_declare(queue=queue_name, exclusive=True)
+                    self.hub.exchange_bind(queue_name, binding_key=topic)
+                    if self.jsonify:
+                        self.hub.queue_subscribe(queue_name, self._consume_json)
+                    else:
+                        self.hub.queue_subscribe(queue_name, self._consume)
                 else:
-                    self.hub.local_queue.listen(self._consume)
+                    # Assume we're using Qpid then.
+                    server_queue_name = 'moksha_consumer_' + self.hub.session.name
+                    self.hub.queue_declare(queue=server_queue_name, exclusive=True)
+                    self.hub.exchange_bind(server_queue_name, binding_key=topic)
+                    local_queue_name = 'moksha_consumer_' + self.hub.session.name
+                    self.hub.local_queue = self.hub.session.incoming(local_queue_name)
+                    self.hub.message_subscribe(queue=server_queue_name,
+                                           destination=local_queue_name)
+                    self.hub.local_queue.start()
+                    if self.jsonify:
+                        self.hub.local_queue.listen(self._consume_json)
+                    else:
+                        self.hub.local_queue.listen(self._consume)
 
         # If the consumer specifies an 'app', then setup `self.engine` to
         # be a SQLAlchemy engine, along with a configured DBSession

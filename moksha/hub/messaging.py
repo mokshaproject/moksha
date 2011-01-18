@@ -25,5 +25,5 @@ class MessagingHub(object):
     def send_message(self, topic, message):
         raise NotImplementedError
 
-    def subscribe(self, topic):
+    def subscribe(self, topic, callback):
         raise NotImplementedError

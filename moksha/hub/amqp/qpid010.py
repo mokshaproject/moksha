@@ -35,7 +35,7 @@ class QpidAMQPHub(BaseAMQPHub):
 
     """
 
-    def __init__(self, broker):
+    def __init__(self, broker, **kw):
         self.set_broker(broker)
         self.socket = connect(self.host, self.port)
         if self.url.scheme == URL.AMQPS:

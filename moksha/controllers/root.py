@@ -58,7 +58,7 @@ class RootController(BaseController):
             return DefaultRootController(), remainder
 
     @expose()
-    def livesocket(self, topic=None, callback=None):
+    def livesocket(self, topic=None, callback=None, json=True):
         """Returns a raw Moksha live socket, for use in non-Moksha apps.
 
         <script> function bar(msg) { alert('bar(' + msg + ')'); } </script>
@@ -67,7 +67,7 @@ class RootController(BaseController):
         </script>
 
         """
-        data = {'topic': topic, 'callback': callback}
+        data = {'topic': topic, 'callback': callback, 'json': json}
         backend = config.get('moksha.livesocket.backend', 'stomp').lower()
         if backend == 'stomp':
             override_template(self.livesocket, 'mako:moksha.templates.stomp_socket')
@@ -81,8 +81,6 @@ class RootController(BaseController):
             data['amqp_broker_port'] = config.get('amqp_broker_port', 5672)
             data['amqp_broker_user'] = config.get('amqp_broker_user', 'guest')
             data['amqp_broker_pass'] = config.get('amqp_broker_pass', 'guest')
-            # TODO: dynamic widget url 
-            #  'toscawidgets.prefix': '/toscawidgets',
 
         data['orbited_host'] = config.get('orbited_host', 'localhost')
         data['orbited_port'] = config.get('orbited_port', 9000)
@@ -90,6 +88,11 @@ class RootController(BaseController):
         data['orbited_url'] = '%s://%s:%s' % (data['orbited_scheme'],
                 data['orbited_host'], data['orbited_port'])
 
+        environ = pylons.request.environ
+        data['server'] = '%s://%s:%s%s' % (environ.get('wsgi.url_scheme', 'http'),
+                                            environ['SERVER_NAME'],
+                                            environ['SERVER_PORT'],
+                                            environ['toscawidgets.prefix'])
         return data
 
     @expose('mako:moksha.templates.login')
