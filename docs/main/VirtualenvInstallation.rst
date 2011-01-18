@@ -1,5 +1,5 @@
-Virtualenv installation
------------------------
+Virtualenv installation (Other Linux distros, OSX, Windows, etc)
+----------------------------------------------------------------
 
 This guide will help quickly get you up and running with a local copy of
 Moksha.  It will run the Moksha WSGI application using the Paste threaded http
