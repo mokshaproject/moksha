@@ -90,6 +90,11 @@ class RootController(BaseController):
         data['orbited_url'] = '%s://%s:%s' % (data['orbited_scheme'],
                 data['orbited_host'], data['orbited_port'])
 
+        environ = pylons.request.environ
+        data['server'] = '%s://%s:%s/%s' % (environ.get('wsgi.url_scheme', 'http'),
+                                            environ['SERVER_NAME'],
+                                            environ['SERVER_PORT'],
+                                            environ['toscawidgets.prefix'])
         return data
 
     @expose('mako:moksha.templates.login')

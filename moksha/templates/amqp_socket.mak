@@ -58,9 +58,9 @@ if (typeof moksha_amqp_conn == 'undefined') {
         Orbited.settings.port = ${orbited_port};
         Orbited.settings.hostname = '${orbited_host}';
         Orbited.settings.streaming = true;
-        $.getScript('/toscawidgets/resources/moksha.api.widgets.amqp.widgets/static/amqp.protocol.js', function() {
-            $.getScript('/toscawidgets/resources/moksha.api.widgets.amqp.widgets/static/amqp.protocol_0_10.js', function() {
-                $.getScript('/toscawidgets/resources/moksha.api.widgets.amqp.widgets/static/qpid_amqp.js', function() {
+        $.getScript('${server}/toscawidgets/resources/moksha.api.widgets.amqp.widgets/static/amqp.protocol.js', function() {
+            $.getScript('${server}/toscawidgets/resources/moksha.api.widgets.amqp.widgets/static/amqp.protocol_0_10.js', function() {
+                $.getScript('${server}/toscawidgets/resources/moksha.api.widgets.amqp.widgets/static/qpid_amqp.js', function() {
                     moksha_amqp_conn = new amqp.Connection({
                         host: '${amqp_broker_host}',
                         port: ${amqp_broker_port},
