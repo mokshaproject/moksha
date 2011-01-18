@@ -5,10 +5,10 @@ Getting Started with Moksha
 There are currently two ways of installing and running Moksha.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 0
 
-   RPMInstallation
-   VirtualenvInstallation
+   RPMInstallation (Fedora, RHEL, CentOS)
+   VirtualenvInstallation (Other linux distros, OSX, etc.)
 
 Once you have Moksha installed, there are many ways to start using it.
 
