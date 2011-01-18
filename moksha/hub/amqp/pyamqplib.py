@@ -17,7 +17,10 @@
 
 import logging
 
-import amqplib.client_0_8 as amqp
+try:
+    import amqplib.client_0_8 as amqp
+except ImportError:
+    pass
 
 from moksha.lib.helpers import trace
 from moksha.hub.amqp.base import BaseAMQPHub
