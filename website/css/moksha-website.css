@@ -113,9 +113,6 @@ a:link, a:visited, a:active {
 #logo h1 {
   height: 124px;
   width: 155px;
-  background: url('../img/moksha-logo.png') no-repeat top left;
-  text-ident: -99999px;
-  font-size: 0;
 }
 
 h2#download {
