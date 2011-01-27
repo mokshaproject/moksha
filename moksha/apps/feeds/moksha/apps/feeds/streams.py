@@ -17,6 +17,7 @@
 
 import logging
 import feedparser
+import pkg_resources
 import time
 import os
 
@@ -130,6 +131,10 @@ class FeederProtocol(object):
     def __init__(self):
         self.parsed = 1
         self.hub = MokshaHub()
+        self.post_processors = []
+        for entry in pkg_resources.iter_entry_points('moksha.feeds.post_processor'):
+            log.info('Registering feed post-processor: %s' % entry.name)
+            self.post_processors.append(entry.load())
 
     def is_cached(self, site):
         already_got = feed_storage.get(site)
@@ -215,8 +220,19 @@ class FeederProtocol(object):
                 channel_link = entry.get('channel', {'link': addr})['link']
                 if entry['title'] not in oldtitles:
                     log.info('New feed entry found: %s' % entry['title'])
-                    self.hub.send_message('moksha.feeds.%s' % channel_link,
-                            {'title': entry_title, 'link': entry.get('link')})
+                    if self.post_processors:
+                        for processor in self.post_processors:
+                            entry = processor(entry)
+                        try:
+                            self.hub.send_message('moksha.feeds.%s' % channel_link, entry)
+                        except Exception, e: # Usually JSON encoding issues.  
+                            log.error(str(e))
+                            log.debug('Sending just the title and link instead')
+                            self.hub.send_message('moksha.feeds.%s' % channel_link,
+                                    {'title': entry_title, 'link': entry.get('link')})
+                    else:
+                        self.hub.send_message('moksha.feeds.%s' % channel_link,
+                                {'title': entry_title, 'link': entry.get('link')})
 
     def get_page(self, data, args):
         return conditional_get_page(args, timeout=self.timeout)
