@@ -271,8 +271,12 @@ class MokshaFeedStream(PollingDataStream):
     then Moksha will automatically handle polling it.  Upon new entries,
     AMQP messages will be sent to the `feeds.$URL` queue.
     """
-    frequency = timedelta(minutes=15)
+    #frequency = timedelta(minutes=1)
     now = True
+
+    def __init__(self):
+        self.frequency = int(config.get('feed.poll_frequency', 900))
+        super(MokshaFeedStream, self).__init__()
 
     def poll(self):
         """ Poll all feeds in our feed cache """

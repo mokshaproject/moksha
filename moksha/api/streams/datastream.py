@@ -69,7 +69,7 @@ class PollingDataStream(DataStream):
                     (self.frequency.microseconds / 1000000.0)
         else:
             seconds = self.frequency
-        log.debug("Setting a %s second timers" % seconds)
+        log.debug("Setting a %s second timer" % seconds)
         self.timer.start(seconds, now=self.now)
 
     def poll(self):
