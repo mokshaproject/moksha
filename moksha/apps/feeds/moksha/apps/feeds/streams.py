@@ -82,7 +82,13 @@ class ConditionalHTTPClientFactory(HTTPClientFactory):
         self.deferred = defer.Deferred()
 
     def lastModified(self, modtime):
-        t = time.mktime(time.strptime(modtime[0], '%a, %d %b %Y %H:%M:%S %Z'))
+        try:
+            t = time.mktime(time.strptime(modtime[0], '%a, %d %b %Y %H:%M:%S %Z'))
+        except ValueError:
+            # Try stripping off the timezone?
+            t = time.mktime(time.strptime(' '.join(modtime[0].split()[:-1]),
+                                          '%a, %d %b %Y %H:%M:%S'))
+
         parsed_feed = {}
 
         if self.url in feed_storage:
