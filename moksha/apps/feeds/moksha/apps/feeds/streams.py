@@ -39,7 +39,7 @@ from moksha.api.streams import PollingDataStream
 
 log = logging.getLogger('moksha.hub')
 
-feed_storage = Shove(config['feed_cache'], compress=True)
+feed_storage = Shove(config.get('feed_cache', 'simple://'), compress=True)
 feed_cache = Cache(feed_storage)
 
 class ConditionalHTTPPageGetter(HTTPPageGetter):
