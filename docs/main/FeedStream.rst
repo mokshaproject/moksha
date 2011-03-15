@@ -37,6 +37,9 @@ The feed app can be configured with the following options in your config file:
 
 .. code-block:: python
 
+   # Enable the feed aggregator in the moksha-hub
+   moksha.feedaggregator = True
+
    # Number of seconds between polling feeds
    feed.poll_frequency = 900
 
