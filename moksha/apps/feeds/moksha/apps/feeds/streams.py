@@ -29,6 +29,7 @@ except ImportError:
 from twisted.web import client
 from twisted.web.client import HTTPPageGetter, HTTPClientFactory
 from twisted.internet import reactor, protocol, defer
+from paste.deploy.converters import asbool
 
 from datetime import timedelta
 from feedcache import Cache
@@ -294,10 +295,15 @@ class MokshaFeedStream(PollingDataStream):
     AMQP messages will be sent to the `feeds.$URL` queue.
     """
     #frequency = timedelta(minutes=1)
-    now = True
+    now = False
 
     def __init__(self):
-        self.frequency = int(config.get('feed.poll_frequency', 900))
+        enabled = asbool(config.get('moksha.feedaggregator', False))
+        if not enabled:
+            log.info('Moksha Feed Aggregator disabled')
+            return
+        else:
+            self.frequency = int(config.get('feed.poll_frequency', 900))
         super(MokshaFeedStream, self).__init__()
 
     def poll(self):
