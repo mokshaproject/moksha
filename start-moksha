@@ -59,6 +59,11 @@ if [ ! $VIRTUAL_ENV ]; then
         #./pip.py install -E tg2env -r normal-reqs.txt --extra-index-url=http://www.turbogears.org/2.0/downloads/current/index
         #easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
         #pushd moksha/widgetbrowser; python setup.py develop; popd
+
+        # Link the python-qpid modules into our virtualenv, if they exist
+        if [ -d /usr/lib/python*/site-packages/qpid ]; then
+                ln -s /usr/lib/python*/site-packages/qpid tg2env/lib/python*/site-packages/
+        fi
     else
         source tg2env/bin/activate
     fi
