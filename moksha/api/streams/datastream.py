@@ -46,8 +46,9 @@ class DataStream(object):
             log.error('Cannot send message: %s' % e)
 
     def stop(self):
-        self.hub.close()
-        if self.DBSession:
+        if hasattr(self, 'hub') and self.hub:
+            self.hub.close()
+        if hasattr(self, 'DBSession') and self.DBSession:
             self.DBSession.close()
 
 
@@ -78,6 +79,7 @@ class PollingDataStream(DataStream):
     def stop(self):
         super(PollingDataStream, self).stop()
         try:
-            self.timer.stop()
+            if hasattr(self, 'timer'):
+                self.timer.stop()
         except Exception, e:
             self.log.warn(e)
