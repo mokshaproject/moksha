@@ -15,10 +15,16 @@
 # limitations under the License.
 
 import os
+import logging
 import subprocess
+
+from tg import config
+from paste.deploy.converters import asbool
 
 from moksha.lib.helpers import defaultdict
 from moksha.api.streams import PollingDataStream
+
+log = logging.getLogger('moksha.hub')
 
 PID = 0
 NAME = -1
@@ -36,6 +42,9 @@ class MokshaMetricsDataStream(PollingDataStream):
     poll_for_new_pids = False
 
     def __init__(self):
+        if not asbool(config.get('moksha.metrics_stream', False)):
+            log.info('Moksha Metrics Stream disabled')
+            return
         self.programs = self._find_programs()
         self.processors = self._find_processors()
         super(MokshaMetricsDataStream, self).__init__()
