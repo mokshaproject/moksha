@@ -20,9 +20,10 @@ from datetime import timedelta
 
 from tw.api import CSSLink, JSLink, js_function
 
-from moksha.api.widgets import LiveWidget
+from moksha.api.widgets import LiveWidget, TW2LiveWidget
 from moksha.api.streams import PollingDataStream
 
+import tw2.core
 import tw2.core.resources as res
 import tw2.core.params as pm
 
