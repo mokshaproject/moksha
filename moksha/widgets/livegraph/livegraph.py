@@ -23,6 +23,32 @@ from tw.api import CSSLink, JSLink, js_function
 from moksha.api.widgets import LiveWidget
 from moksha.api.streams import PollingDataStream
 
+import tw2.core.resources as res
+import tw2.core.params as pm
+
+class TW2LiveGraphWidget(TW2LiveWidget):
+    """
+    This is an example live graph widget based on Michael Carter's article
+    "Scalable Real-Time Web Architecture, Part 2: A Live Graph with Orbited,
+    MorbidQ, and js.io".
+
+    http://cometdaily.com/2008/10/10/scalable-real-time-web-architecture-part-2-a-live-graph-with-orbited-morbidq-and-jsio
+    """
+    onconnectedframe = pm.Param('callback (put a description of what this is here...)')
+    onmessageframe = pm.Param('callback (put a description here..)')
+    topic = 'graph_demo'
+    onmessage = 'modify_graph(bars, frame.body)'
+    resources = [
+        res.JSLink(filename='static/livegraph.js', modname=__name__),
+        res.CSSLink(filename='static/livegraph.css', modname=__name__),
+    ]
+    template = '<div id="${id}" />'
+
+    def prepare(self):
+        super(TW2LiveGraphWidget, self).prepare()
+        self.add_call(tw2.core.JSFuncCall('init_graph', self.id))
+
+
 class LiveGraphWidget(LiveWidget):
     """
     This is an example live graph widget based on Michael Carter's article

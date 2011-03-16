@@ -19,7 +19,9 @@ import uuid
 from tw.api import Widget, JSLink, CSSLink, js_callback
 from tw.jquery import jquery_js, jQuery
 
-from moksha.api.widgets.live import LiveWidget
+import tw2.core
+
+from moksha.api.widgets.live import LiveWidget, TW2LiveWidget
 from moksha.api.widgets.live import subscribe_topics, unsubscribe_topics
 
 container_js = JSLink(filename='static/js/mbContainer.min.js',
@@ -65,12 +67,26 @@ class MokshaContainer(Widget):
 
     def update_params(self, d):
         super(MokshaContainer, self).update_params(d)
+        if isinstance(d.content, tw2.core.widgets.WidgetMeta):
+            d.content = d.content.req()
 
-        if isinstance(d.content, Widget):
+        if (isinstance(d.content, Widget) or
+            isinstance(d.content, tw2.core.Widget)):
+
             d.widget_name = d.content.__class__.__name__
             content_args = getattr(d, 'content_args', {})
 
             if isinstance(d.content, LiveWidget):
+                topics = d.content.get_topics()
+                # FIXME: also unregister the moksha callback functions.  Handle
+                # cases where multiple widgets are listening to the same topics
+                d.onClose = js_callback("function(o){%s $(o).remove();}" %
+                        unsubscribe_topics(topics))
+                d.onIconize = d.onCollapse = js_callback("function(o){%s}" %
+                        unsubscribe_topics(topics))
+                d.onRestore = js_callback("function(o){%s}" %
+                        subscribe_topics(topics))
+            elif isinstance(d.content, TW2LiveWidget):
                 topics = d.content.get_topics()
                 # FIXME: also unregister the moksha callback functions.  Handle
                 # cases where multiple widgets are listening to the same topics

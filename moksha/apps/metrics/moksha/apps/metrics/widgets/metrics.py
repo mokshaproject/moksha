@@ -30,8 +30,34 @@ from tw.jquery.ui import ui_progressbar_js
 from tw.jquery.flot import flot_js, excanvas_js, flot_css
 
 from moksha.api.widgets.flot import LiveFlotWidget
+from moksha.api.widgets.tw2.jit import LiveAreaChartWidget
 from moksha.api.widgets.buttons import buttons_css
 from moksha.widgets.jquery_ui_theme import ui_base_css
+
+import tw2.core.resources as res
+
+class MokshaTW2CPUUsageWidget(LiveAreaChartWidget):
+    name = 'CPU Usage (with tw2.jit)'
+    topic = 'moksha_jit_cpu_metrics'
+
+    width='400px'
+    height='300px'
+    offset = 0
+    showAggregates = False
+    showLabels = False
+    animate = False
+    type = 'stacked'
+    Tips = {
+        'enable': True,
+        'onShow' : res.JSSymbol(src="""
+        (function(tip, elem) {
+            tip.innerHTML = "<b>" + elem.name + "</b>: " + elem.value;
+        })""")
+    }
+
+    container_options = { 'icon': 'chart.png', 'height' : 325 }
+    data = {'labels': [], 'values': []}
+
 
 class MokshaMemoryUsageWidget(LiveFlotWidget):
     name = 'Memory Usage'

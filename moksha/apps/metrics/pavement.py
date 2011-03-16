@@ -29,6 +29,7 @@ options(
                 'moksha_message_metrics = moksha.apps.metrics.consumers:MokshaMessageMetricsConsumer',
             ),
             'moksha.widget': (
+                'MokshaTW2CPUUsageWidget = moksha.apps.metrics.widgets:MokshaTW2CPUUsageWidget',
                 'MokshaMemoryUsageWidget = moksha.apps.metrics.widgets:MokshaMemoryUsageWidget',
                 'MokshaCPUUsageWidget = moksha.apps.metrics.widgets:MokshaCPUUsageWidget',
                 'MokshaMessageMetricsWidget = moksha.apps.metrics.widgets:MokshaMessageMetricsWidget',

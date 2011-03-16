@@ -15,7 +15,10 @@
 
 import pylons
 
-from live import LiveWidget, subscribe_topics, unsubscribe_topics
+from live import (
+    TW2LiveWidget, TW2LiveWidgetMeta, LiveWidget,
+    subscribe_topics, unsubscribe_topics
+)
 from moksha.api.widgets.stomp import StompWidget
 from moksha.api.widgets.amqp import AMQPSocket
 

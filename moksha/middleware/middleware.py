@@ -169,13 +169,16 @@ class MokshaMiddleware(object):
                     }
 
     def load_widgets(self):
-        from moksha.api.widgets.live import LiveWidget
+        from moksha.api.widgets.live import LiveWidget, TW2LiveWidgetMeta
+        import tw2.core.widgets
         log.info('Loading moksha widgets')
         for widget_entry in pkg_resources.iter_entry_points('moksha.widget'):
             log.info('Loading %s widget' % widget_entry.name)
             widget_class = widget_entry.load()
             widget_path = widget_entry.dist.location
-            if isclass(widget_class):
+            if isinstance(widget_class, tw2.core.widgets.WidgetMeta):
+                widget = widget_class
+            elif isclass(widget_class):
                 widget = widget_class(widget_entry.name)
             else:
                 widget = widget_class
@@ -183,7 +186,8 @@ class MokshaMiddleware(object):
                     'name': getattr(widget_class, 'name', widget_entry.name),
                     'widget': widget,
                     'path': widget_path,
-                    'live': isinstance(widget, LiveWidget),
+                    'live': (isinstance(widget, LiveWidget) or
+                             isinstance(widget, TW2LiveWidgetMeta)),
                     }
 
     def load_menus(self):

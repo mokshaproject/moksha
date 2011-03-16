@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from live import LiveWidget, moksha_socket
+from live import TW2LiveWidget, LiveWidget, moksha_socket
 from util import *
 from grid import Grid
 from placeholder import Placeholder

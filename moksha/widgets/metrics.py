@@ -37,12 +37,25 @@ from tw.jquery.flot import flot_js, excanvas_js, flot_css
 
 from moksha.api.hub import Consumer
 from moksha.api.widgets.flot import LiveFlotWidget
+from moksha.api.widgets.tw2.jit import LiveAreaChartWidget
 from moksha.api.widgets.buttons import buttons_css
 from moksha.api.streams import PollingDataStream
 from moksha.lib.helpers import defaultdict
 from moksha.widgets.jquery_ui_theme import ui_base_css
 
 log = logging.getLogger('moksha.hub')
+
+class MokshaTW2CPUUsageWidget(LiveAreaChartWidget):
+    name = 'CPU Usage (with tw2.jit)'
+    topic = 'moksha_jit_cpu_metrics'
+    width = '300'
+    height = '300'
+    offset = 0
+    type = 'stacked'
+    container_options = {
+        'icon': 'chart.png', 'top': 400, 'left': 80, 'height': 310,
+        'iconize': False, 'minimize': False,
+    }
 
 class MokshaMemoryUsageWidget(LiveFlotWidget):
     name = 'Memory Usage'
@@ -291,6 +304,20 @@ class MokshaMetricsDataStream(PollingDataStream):
                 })
 
         self.send_message('moksha_cpu_metrics', [cpu_data])
+
+        jit_cpu_data = {
+            'label': [],
+            'values': [{'label': str(i), 'values': []}
+                       for i in range(len(self.cpu_usage.values()[0]))]
+        }
+
+        for program, history in self.cpu_usage.items():
+            for i in range(len(jit_cpu_data['values'])):
+                jit_cpu_data['values'][i]['values'].append(history[i][1])
+            jit_cpu_data['label'].append(program.split()[0])
+
+        self.send_message('moksha_jit_cpu_metrics', [jit_cpu_data])
+
 
     def mem(self):
         """
