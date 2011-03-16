@@ -1,0 +1,15 @@
+<html>
+    <head>
+        <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    </head>
+    <body>
+	<a href="#" onclick="moksha.send_message('helloworld', {'msg': 'Hi there!'});">Send a message</a>
+        <ul id="data"/>
+    </body>
+    <script>
+        function consume_message(json) {
+            $('<li/>').text(json.msg).appendTo('#data')
+        }
+    </script>
+    <script type="text/javascript" src="http://localhost:8080/livesocket?topic=helloworld&callback=consume_message"></script>
+</html>

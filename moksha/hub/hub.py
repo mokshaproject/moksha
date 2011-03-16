@@ -146,7 +146,8 @@ class MokshaHub(StompHub, AMQPHub):
             body = json.decode(message['body'])
         except Exception, e:
             log.warning('Cannot decode message from JSON: %s' % e)
-            body = {}
+            #body = {}
+            body = message['body']
 
         # feed all of our consumers
         for callback in self.topics.get(topic, []):

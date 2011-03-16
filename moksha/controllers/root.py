@@ -81,8 +81,6 @@ class RootController(BaseController):
             data['amqp_broker_port'] = config.get('amqp_broker_port', 5672)
             data['amqp_broker_user'] = config.get('amqp_broker_user', 'guest')
             data['amqp_broker_pass'] = config.get('amqp_broker_pass', 'guest')
-            # TODO: dynamic widget url 
-            #  'toscawidgets.prefix': '/toscawidgets',
 
         data['orbited_host'] = config.get('orbited_host', 'localhost')
         data['orbited_port'] = config.get('orbited_port', 9000)
@@ -91,7 +89,7 @@ class RootController(BaseController):
                 data['orbited_host'], data['orbited_port'])
 
         environ = pylons.request.environ
-        data['server'] = '%s://%s:%s/%s' % (environ.get('wsgi.url_scheme', 'http'),
+        data['server'] = '%s://%s:%s%s' % (environ.get('wsgi.url_scheme', 'http'),
                                             environ['SERVER_NAME'],
                                             environ['SERVER_PORT'],
                                             environ['toscawidgets.prefix'])

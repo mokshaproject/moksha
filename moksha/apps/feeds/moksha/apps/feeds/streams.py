@@ -17,6 +17,7 @@
 
 import logging
 import feedparser
+import pkg_resources
 import time
 import os
 
@@ -28,6 +29,7 @@ except ImportError:
 from twisted.web import client
 from twisted.web.client import HTTPPageGetter, HTTPClientFactory
 from twisted.internet import reactor, protocol, defer
+from paste.deploy.converters import asbool
 
 from datetime import timedelta
 from feedcache import Cache
@@ -39,7 +41,7 @@ from moksha.api.streams import PollingDataStream
 
 log = logging.getLogger('moksha.hub')
 
-feed_storage = Shove(config['feed_cache'], compress=True)
+feed_storage = Shove(config.get('feed_cache', 'simple://'), compress=True)
 feed_cache = Cache(feed_storage)
 
 class ConditionalHTTPPageGetter(HTTPPageGetter):
@@ -82,7 +84,13 @@ class ConditionalHTTPClientFactory(HTTPClientFactory):
         self.deferred = defer.Deferred()
 
     def lastModified(self, modtime):
-        t = time.mktime(time.strptime(modtime[0], '%a, %d %b %Y %H:%M:%S %Z'))
+        try:
+            t = time.mktime(time.strptime(modtime[0], '%a, %d %b %Y %H:%M:%S %Z'))
+        except ValueError:
+            # Try stripping off the timezone?
+            t = time.mktime(time.strptime(' '.join(modtime[0].split()[:-1]),
+                                          '%a, %d %b %Y %H:%M:%S'))
+
         parsed_feed = {}
 
         if self.url in feed_storage:
@@ -124,6 +132,10 @@ class FeederProtocol(object):
     def __init__(self):
         self.parsed = 1
         self.hub = MokshaHub()
+        self.post_processors = []
+        for entry in pkg_resources.iter_entry_points('moksha.feeds.post_processor'):
+            log.info('Registering feed post-processor: %s' % entry.name)
+            self.post_processors.append(entry.load())
 
     def is_cached(self, site):
         already_got = feed_storage.get(site)
@@ -209,8 +221,19 @@ class FeederProtocol(object):
                 channel_link = entry.get('channel', {'link': addr})['link']
                 if entry['title'] not in oldtitles:
                     log.info('New feed entry found: %s' % entry['title'])
-                    self.hub.send_message('moksha.feeds.%s' % channel_link,
-                            {'title': entry_title, 'link': entry.get('link')})
+                    if self.post_processors:
+                        for processor in self.post_processors:
+                            entry = processor(entry)
+                        try:
+                            self.hub.send_message('moksha.feeds.%s' % channel_link, entry)
+                        except Exception, e: # Usually JSON encoding issues.  
+                            log.error(str(e))
+                            log.debug('Sending just the title and link instead')
+                            self.hub.send_message('moksha.feeds.%s' % channel_link,
+                                    {'title': entry_title, 'link': entry.get('link')})
+                    else:
+                        self.hub.send_message('moksha.feeds.%s' % channel_link,
+                                {'title': entry_title, 'link': entry.get('link')})
 
     def get_page(self, data, args):
         return conditional_get_page(args, timeout=self.timeout)
@@ -271,8 +294,17 @@ class MokshaFeedStream(PollingDataStream):
     then Moksha will automatically handle polling it.  Upon new entries,
     AMQP messages will be sent to the `feeds.$URL` queue.
     """
-    frequency = timedelta(minutes=15)
-    now = True
+    #frequency = timedelta(minutes=1)
+    now = False
+
+    def __init__(self):
+        enabled = asbool(config.get('moksha.feedaggregator', False))
+        if not enabled:
+            log.info('Moksha Feed Aggregator disabled')
+            return
+        else:
+            self.frequency = int(config.get('feed.poll_frequency', 900))
+        super(MokshaFeedStream, self).__init__()
 
     def poll(self):
         """ Poll all feeds in our feed cache """
