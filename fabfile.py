@@ -1,41 +1,41 @@
 from fabric.api import run, sudo, env
 from fabric.context_managers import prefix, settings, cd, hide
-from fabric.colors import red, green, cyan, magenta
+import fabric.colors as c
 import decorator
 
 VENV = 'moksha'
 SRC_DIR = '/'.join(env['real_fabfile'].split('/')[:-1])
 APPS_DIR = 'moksha/apps'
 
-def with_virtualenv(func, *args, **kwargs):
+def _with_virtualenv(func, *args, **kwargs):
     with prefix('workon {venv}'.format(venv=VENV)):
         return func(*args, **kwargs)
 
-def in_srcdir(func, *args, **kwargs):
+def _in_srcdir(func, *args, **kwargs):
     with cd(SRC_DIR):
         return func(*args, **kwargs)
 
-def reporter(func, *args, **kwargs):
+def _reporter(func, *args, **kwargs):
     print "[moksha fabric] Running", func.__name__, "with",
-    print "args:", cyan(str(args)) + " and kw:" + cyan(str(kwargs))
+    print "args:", c.cyan(str(args)) + " and kw:" + c.cyan(str(kwargs))
     try:
         output = func(*args, **kwargs)
     except Exception:
-        print "[moksha fabric] [ " + red('FAIL') + " ]", func.__name__
+        print "[moksha fabric] [ " + c.red('FAIL') + " ]", func.__name__
         raise
-    print "[moksha fabric] [  " + green('OK') + "  ]", func.__name__
+    print "[moksha fabric] [  " + c.green('OK') + "  ]", func.__name__
     return output
         
 
-with_virtualenv = decorator.decorator(with_virtualenv)
-in_srcdir = decorator.decorator(in_srcdir)
-reporter = decorator.decorator(reporter)
+_with_virtualenv = decorator.decorator(_with_virtualenv)
+_in_srcdir = decorator.decorator(_in_srcdir)
+_reporter = decorator.decorator(_reporter)
 
-@with_virtualenv
+@_with_virtualenv
 def wtf():
     print "hai"
 
-@reporter
+@_reporter
 def bootstrap():
     sudo('yum install -y python-setuptools python-qpid qpid-cpp-server orbited')
     sudo('easy_install pip')
@@ -58,15 +58,15 @@ source /usr/bin/virtualenvwrapper.sh;
     run('mkdir -p $WORKON_HOME')
     rebuild()
 
-@reporter
+@_reporter
 def rebuild():
     with settings(warn_only=True):
         run('rmvirtualenv %s' % VENV)
     run('mkvirtualenv --distribute --no-site-packages %s' % VENV)
     install()
 
-@reporter
-@with_virtualenv
+@_reporter
+@_with_virtualenv
 def install():
     install_hacks()
     with cd(SRC_DIR):
@@ -74,16 +74,16 @@ def install():
     install_apps()
     link_qpid_libs()
 
-@reporter
-@with_virtualenv
+@_reporter
+@_with_virtualenv
 def install_hacks():
     run('pip install Extremes')
     tg_url = "http://www.turbogears.org/2.1/downloads/current/index"
     run('pip install -i {tg_url} tg.devtools'.format(tg_url=tg_url))
 
-@reporter
-@with_virtualenv
-@in_srcdir
+@_reporter
+@_with_virtualenv
+@_in_srcdir
 def install_apps():
     with cd(APPS_DIR):
         dnames = [d for d in run('ls -F').split() if d.endswith('/')]
@@ -91,8 +91,8 @@ def install_apps():
             install_app(app=d)
 
 
-@reporter
-@with_virtualenv
+@_reporter
+@_with_virtualenv
 def install_app(app):
     with cd("/".join([SRC_DIR, APPS_DIR, app])):
         run('rm -rf dist')
@@ -103,51 +103,55 @@ def install_app(app):
 
 
 pid_files = ['paster.pid', 'orbited.pid', 'moksha-hub.pid']
-def file_exists(fname):
+def _file_exists(fname):
     with settings(hide('warnings', 'running', 'stdout', 'stderr'),
                   warn_only=True):
         return 'No such file' not in run('ls {fname}'.format(fname=fname))
 
-@reporter
-@with_virtualenv
-@in_srcdir
+def _runbg(cmd, out_file="/dev/null", err_file=None, *args, **kw):
+    run('nohup %s > "%s" 2> "%s" < /dev/null &' % (
+        cmd, out_file, err_file or out_file), *args, **kw)
+
+@_reporter
+@_with_virtualenv
+@_in_srcdir
 def start():
     def start_service(name, cmd):
-        print "[moksha fabric] Starting " + magenta(name)
+        print "[moksha fabric] Starting " + c.magenta(name)
         run(cmd)
         run("echo $! >> {name}.pid".format(name=name))
 
-    if any(map(file_exists, pid_files)):
+    if any(map(_file_exists, pid_files)):
         raise ValueError, "some .pid file exists"
     start_service(name='paster', cmd='paster serve development.ini')
     start_service(name='orbited', cmd='orbited -c orbited.cfg')
     start_service(name='moksha-hub', cmd='moksha-hub -v')
 
-@reporter
-@with_virtualenv
-@in_srcdir
+@_reporter
+@_with_virtualenv
+@_in_srcdir
 def stop():
     for fname in pid_files:
-        if not file_exists(fname):
-            print "[moksha fabric] [ " + red('FAIL') + " ]",
+        if not _file_exists(fname):
+            print "[moksha fabric] [ " + c.red('FAIL') + " ]",
             print fname, "does not exist."
             continue
         try:
             cmd = 'kill $(cat %s)' % fname
             run(cmd)
             run('rm %s' % fname)
-            print "[moksha fabric] [  " + green('OK') + "  ]", cmd
+            print "[moksha fabric] [  " + c.green('OK') + "  ]", cmd
         except:
-            print "[moksha fabric] [ " + red('FAIL') + " ]", cmd
+            print "[moksha fabric] [ " + c.red('FAIL') + " ]", cmd
 
-@reporter
-@with_virtualenv
+@_reporter
+@_with_virtualenv
 def restart():
     stop()
     start()
 
-@reporter
-@with_virtualenv
+@_reporter
+@_with_virtualenv
 def reload():
     stop()
     with cd(SRC_DIR):
