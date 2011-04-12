@@ -95,9 +95,18 @@ def install():
 @_reporter
 @_with_virtualenv
 def install_hacks():
+
+    # TODO -- why is this installation of 'Extremes' a hack?
     run('pip -q install Extremes')
+
+    # TODO -- why is this installation of tg2.1 from their repo a hack?
     tg_url = "http://www.turbogears.org/2.1/downloads/current/index"
     run('pip -q install -i {tg_url} tg.devtools'.format(tg_url=tg_url))
+
+    # Here we install Orbited ourselves (instead of through `python setup.py
+    # develop`) because we need to specify --use-mirrors since orbited's website
+    # is often down and breaks the build process.
+    run('pip -q install --use-mirrors orbited')
 
 @_reporter
 @_with_virtualenv
