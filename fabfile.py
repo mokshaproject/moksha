@@ -93,16 +93,20 @@ def install_hacks():
 @_with_virtualenv
 @_in_srcdir
 def install_apps():
-    with cd(APPS_DIR):
-        dnames = [d for d in run('ls -F').split() if d.endswith('/')]
-        for d in dnames:
-            install_app(app=d)
-
+    with settings(hide('warnings', 'running', 'stdout', 'stderr')):
+        with cd(APPS_DIR):
+            dnames = [d for d in run('ls -F').split() if d.endswith('/')]
+            for d in dnames:
+                install_app(app=d)
 
 @_reporter
 @_with_virtualenv
 def install_app(app):
     with cd("/".join([SRC_DIR, APPS_DIR, app])):
+        out = run('ls')
+        if not ' pavement.py ' in out:
+            print "No `pavement.py` found for app '%s'.  Skipping." % app
+            return
         run('rm -rf dist')
         run('paver bdist_egg')
         run('easy_install -Z dist/*.egg')
