@@ -20,14 +20,14 @@ For Fedora/Red Hat/CentOS based environments:
 
 .. code-block:: bash
 
-    # yum -y install python-virtualenv gcc openssl-devel
+    # yum -y install python-virtualenv gcc openssl-devel fabric
     # yum-builddep -y python-lxml pyOpenSSL python-sqlite2
 
 On Ubuntu/Debian:
 
 .. code-block:: bash
 
-   # apt-get install git python-dev python-virtualenv
+   # apt-get install git python-dev python-virtualenv fabric
 
 
 Getting the code
@@ -38,26 +38,35 @@ Getting the code
     $ git clone git://git.fedorahosted.org/git/moksha
 
 
+Bootstrapping the environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    $ fab -H localhost bootstrap
+
+.. note::
+   This script takes care of setting up your TurboGears2 virtual environment.
+   To drop into the virtualenv manually you can run `workon moksha` to enter it,
+   and `deactivate` to leave it.
+
 Starting
 ~~~~~~~~
 
 .. code-block:: bash
 
-    $ ./start-moksha
-
-.. note::
-   This script takes care of setting up your TurboGears2 virtual environment
-   the first time it is run.  To drop into the virtualenv manually you can run
-   `source tg2env/bin/activate` to enter it, and `deactivate` to leave it.
-
+    $ fab -H localhost start
 
 Stopping
 ~~~~~~~~
 
 .. code-block:: bash
 
-    $ ./stop-moksha
+    $ fab -H localhost stop
 
+.. note::
+    The fabric script `fabfile.py` contains a number of utilities.  You can see
+    a list by running ``$ fab --list``.
 
 Using Moksha
 ~~~~~~~~~~~~
