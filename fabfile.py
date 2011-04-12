@@ -22,7 +22,7 @@ def _in_srcdir(func, *args, **kwargs):
         return func(*args, **kwargs)
 
 def _reporter(func, *args, **kwargs):
-    print "[moksha fabric] Running", func.__name__, "with",
+    print "[moksha fabric]  Running", func.__name__, "with",
     print "args:", c.cyan(str(args)) + " and kw:" + c.cyan(str(kwargs))
     try:
         output = func(*args, **kwargs)
@@ -78,6 +78,7 @@ def install():
     install_hacks()
     with cd(SRC_DIR):
         run('python setup.py install')
+
     install_apps()
     link_qpid_libs()
 
