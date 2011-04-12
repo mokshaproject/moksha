@@ -1,0 +1,3 @@
+#!/bin/bash -x
+nohup orbited -c orbited.cfg >> logs/orbited.log 2>&1 < /dev/null &
+echo $! >> orbited.pid

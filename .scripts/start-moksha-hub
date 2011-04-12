@@ -1,0 +1,3 @@
+#!/bin/bash -x
+nohup moksha-hub -v >> logs/moksha-hub.log 2>&1 < /dev/null & 
+echo $! >> moksha-hub.pid

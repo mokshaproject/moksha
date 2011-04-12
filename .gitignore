@@ -22,3 +22,4 @@ tg2-bootstrap.py
 *.cachegrind
 dist
 build
+logs/*.log

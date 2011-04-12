@@ -108,24 +108,19 @@ def _file_exists(fname):
                   warn_only=True):
         return 'No such file' not in run('ls {fname}'.format(fname=fname))
 
-def _runbg(cmd, out_file="/dev/null", err_file=None, *args, **kw):
-    run('nohup %s > "%s" 2> "%s" < /dev/null &' % (
-        cmd, out_file, err_file or out_file), *args, **kw)
-
 @_reporter
 @_with_virtualenv
 @_in_srcdir
 def start():
-    def start_service(name, cmd):
+    def start_service(name):
         print "[moksha fabric] Starting " + c.magenta(name)
-        run(cmd)
-        run("echo $! >> {name}.pid".format(name=name))
+        run('.scripts/start-{name}'.format(name=name), pty=False)
 
     if any(map(_file_exists, pid_files)):
         raise ValueError, "some .pid file exists"
-    start_service(name='paster', cmd='paster serve development.ini')
-    start_service(name='orbited', cmd='orbited -c orbited.cfg')
-    start_service(name='moksha-hub', cmd='moksha-hub -v')
+    start_service(name='paster')
+    start_service(name='orbited')
+    start_service(name='moksha-hub')
 
 @_reporter
 @_with_virtualenv
