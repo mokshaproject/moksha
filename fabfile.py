@@ -248,7 +248,10 @@ def _wtf_rest():
         out = run('pgrep ' + prog).split()
 
         if not out:
-            wtffail(prog + ' is not running.')
+            if pid:
+                wtffail(prog + ' is not running BUT it has a pid file!')
+            else:
+                wtffail(prog + ' is not running.')
         else:
             if len(out) > 1:
                 wtffail(prog + ' has more than one instance running.')
