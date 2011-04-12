@@ -152,3 +152,9 @@ def reload():
     with cd(SRC_DIR):
         run('python setup.py develop install')
     start()
+
+@_reporter
+@_with_virtualenv
+def egg_info():
+    with cd(SRC_DIR):
+        run('python setup.py egg_info')
