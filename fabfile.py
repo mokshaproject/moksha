@@ -114,6 +114,17 @@ def install_app(app):
 @_reporter
 @_with_virtualenv
 @_in_srcdir
+@_warn_only
+def link_qpid_libs():
+    location = 'lib/python*/site-packages'
+    template = 'ln -s /usr/{location}/{lib} $WORKON_HOME/{VENV}/{location}/'
+    for lib in ['qpid', 'mllib']:
+        cmd = template.format(location=location, VENV=VENV, lib=lib)
+        out = run(cmd)
+
+@_reporter
+@_with_virtualenv
+@_in_srcdir
 def start():
     def start_service(name):
         print "[moksha fabric] Starting " + c.magenta(name)
