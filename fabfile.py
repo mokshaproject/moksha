@@ -183,7 +183,9 @@ def restart():
 def reload():
     stop()
     with cd(SRC_DIR):
-        run('python setup.py develop install')
+        # `install` instead of `develop` to avoid weird directory vs. egg
+        # namespace issues
+        run('python setup.py install')
     start()
 
 @_reporter
