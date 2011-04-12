@@ -31,11 +31,16 @@ def _reporter(func, *args, **kwargs):
         raise
     print "[moksha fabric] [  " + c.green('OK') + "  ]", func.__name__
     return output
-        
+
+def _warn_only(func, *args, **kwargs):
+    with settings(hide('warnings', 'running', 'stdout', 'stderr'),
+                  warn_only=True):
+        return func(*args, **kwargs)
 
 _with_virtualenv = decorator.decorator(_with_virtualenv)
 _in_srcdir = decorator.decorator(_in_srcdir)
 _reporter = decorator.decorator(_reporter)
+_warn_only = decorator.decorator(_warn_only)
 
 @_reporter
 def bootstrap():
@@ -152,7 +157,54 @@ def egg_info():
     with cd(SRC_DIR):
         run('python setup.py egg_info')
 
-@_with_virtualenv
+# --
+# Below here follows the *giant* 'wtf' block.  Add things to it as necessary.
+# --
+
+def _wtfwin(msg):
+    print "[wtf] [  " + c.green('OK') + "  ]", msg
+
+def _wtffail(msg):
+    print "[wtf] [ " + c.red('FAIL') + " ]", msg
+
 @_in_srcdir
+@_warn_only
 def wtf():
-    print "hai"
+    wtfwin, wtffail = _wtfwin, _wtffail
+
+    output = run('echo $WORKON_HOME')
+    if not output:
+        wtffail('$WORKON_HOME is not set.')
+    else:
+        wtfwin('$WORKON_HOME is set to ' + output)
+        if _file_exists('$WORKON_HOME'):
+            wtfwin(output + ' exists.')
+        else:
+            wtffail(output + ' does not exist.')
+
+    _wtf_rest()
+
+@_with_virtualenv
+def _wtf_rest():
+    wtfwin, wtffail = _wtfwin, _wtffail
+    for pid_file in pid_files:
+        prog = pid_file[:-4]
+
+        pid = None
+        if _file_exists(pid_file):
+            pid = run('cat ' + pid_file)
+        else:
+            wtffail(pid_file + ' does not exist.')
+
+        out = run('pgrep ' + prog).split()
+
+        if not out:
+            wtffail(prog + ' is not running.')
+        else:
+            if len(out) > 1:
+                wtffail(prog + ' has more than one instance running.')
+            else:
+                if out[0] != pid:
+                    wtffail('pid of ' + prog + " doesn't match pid-file")
+                else:
+                    wtfwin(prog + ' is running and healthy.')
