@@ -182,11 +182,25 @@ def wtf():
         else:
             wtffail(output + ' does not exist.')
 
+    out = run('python -c "import qpid"')
+    if not out:
+        wtfwin('system-wide python-qpid is installed.')
+    else:
+        wtffail('system-wide python-qpid not installed.')
+
+    # Proceed along the rest of the way, but with the virtualenv enabled.
     _wtf_rest()
 
 @_with_virtualenv
 def _wtf_rest():
     wtfwin, wtffail = _wtfwin, _wtffail
+
+    out = run('python -c "import qpid"')
+    if not out:
+        wtfwin('virtualenv python-qpid is linked.')
+    else:
+        wtffail('virtualenv python-qpid not linked.')
+
     for pid_file in pid_files:
         prog = pid_file[:-4]
 
