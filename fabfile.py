@@ -37,11 +37,6 @@ _with_virtualenv = decorator.decorator(_with_virtualenv)
 _in_srcdir = decorator.decorator(_in_srcdir)
 _reporter = decorator.decorator(_reporter)
 
-@_with_virtualenv
-@_in_srcdir
-def wtf():
-    print "hai"
-
 @_reporter
 def bootstrap():
     sudo('yum install -y python-setuptools python-qpid qpid-cpp-server orbited')
@@ -156,3 +151,8 @@ def reload():
 def egg_info():
     with cd(SRC_DIR):
         run('python setup.py egg_info')
+
+@_with_virtualenv
+@_in_srcdir
+def wtf():
+    print "hai"
