@@ -42,12 +42,23 @@ _in_srcdir = decorator.decorator(_in_srcdir)
 _reporter = decorator.decorator(_reporter)
 _warn_only = decorator.decorator(_warn_only)
 
+def _use_yum():
+    with settings(hide('warnings', 'running', 'stdout', 'stderr', 'aborts'),
+                  warn_only=True):
+        return bool(run('cat /etc/redhat-release'))
+
 @_reporter
 def bootstrap():
-    sudo('yum install -y python-setuptools python-qpid qpid-cpp-server orbited')
-    sudo('easy_install pip')
-    sudo('pip install virtualenv')
-    sudo('pip install virtualenvwrapper')
+    if _use_yum():
+        sudo('yum install -q -y python-setuptools python-qpid qpid-cpp-server orbited')
+    else:
+        # No orbited or qpid on ubuntu as far as I can tell
+        # TODO -- how should we work this?
+        sudo('apt-get install -y python-setuptools')
+
+    sudo('easy_install -q pip')
+    sudo('pip -q install virtualenv')
+    sudo('pip -q install virtualenvwrapper')
     
     shellrc_lookup = {
         # TODO -- add other shells (zsh) here if need be
@@ -78,16 +89,15 @@ def install():
     install_hacks()
     with cd(SRC_DIR):
         run('python setup.py install')
-
     install_apps()
     link_qpid_libs()
 
 @_reporter
 @_with_virtualenv
 def install_hacks():
-    run('pip install Extremes')
+    run('pip -q install Extremes')
     tg_url = "http://www.turbogears.org/2.1/downloads/current/index"
-    run('pip install -i {tg_url} tg.devtools'.format(tg_url=tg_url))
+    run('pip -q install -i {tg_url} tg.devtools'.format(tg_url=tg_url))
 
 @_reporter
 @_with_virtualenv
