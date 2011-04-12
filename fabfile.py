@@ -123,7 +123,7 @@ def install_apps():
 def install_app(app):
     with cd("/".join([SRC_DIR, APPS_DIR, app])):
         out = run('ls')
-        if not ' pavement.py ' in out:
+        if not 'pavement.py' in out.split():
             print "No `pavement.py` found for app '%s'.  Skipping." % app
             return
         run('rm -rf dist')
