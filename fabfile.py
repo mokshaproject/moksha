@@ -6,6 +6,12 @@ import decorator
 VENV = 'moksha'
 SRC_DIR = '/'.join(env['real_fabfile'].split('/')[:-1])
 APPS_DIR = 'moksha/apps'
+pid_files = ['paster.pid', 'orbited.pid', 'moksha-hub.pid']
+
+def _file_exists(fname):
+    with settings(hide('warnings', 'running', 'stdout', 'stderr'),
+                  warn_only=True):
+        return 'No such file' not in run('ls {fname}'.format(fname=fname))
 
 def _with_virtualenv(func, *args, **kwargs):
     with prefix('workon {venv}'.format(venv=VENV)):
@@ -32,6 +38,7 @@ _in_srcdir = decorator.decorator(_in_srcdir)
 _reporter = decorator.decorator(_reporter)
 
 @_with_virtualenv
+@_in_srcdir
 def wtf():
     print "hai"
 
@@ -98,15 +105,6 @@ def install_app(app):
         run('rm -rf dist')
         run('paver bdist_egg')
         run('easy_install -Z dist/*.egg')
-
-
-
-
-pid_files = ['paster.pid', 'orbited.pid', 'moksha-hub.pid']
-def _file_exists(fname):
-    with settings(hide('warnings', 'running', 'stdout', 'stderr'),
-                  warn_only=True):
-        return 'No such file' not in run('ls {fname}'.format(fname=fname))
 
 @_reporter
 @_with_virtualenv
