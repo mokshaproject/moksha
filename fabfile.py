@@ -96,6 +96,10 @@ def install():
         run('python setup.py install')
     install_apps()
     link_qpid_libs()
+    with cd(SRC_DIR):
+        # But.. at the end of the day, we still do a 'develop'.
+        # When someone can tell me why, that will be great.
+        run('python setup.py develop')
 
 @_reporter
 @_with_virtualenv

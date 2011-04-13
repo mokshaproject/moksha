@@ -26,6 +26,7 @@ setup(
         "TurboGears2",
         "ToscaWidgets",
         "zope.sqlalchemy",
+        "sqlalchemy",
         "Shove",
         "feedcache",
         "feedparser",
