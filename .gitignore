@@ -9,7 +9,6 @@ prompt.py
 mokshaenv
 *.db
 .build
-tg2env
 *.egg-info
 *.pid
 rabbitmq-codegen
