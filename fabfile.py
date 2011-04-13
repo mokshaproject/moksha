@@ -101,10 +101,7 @@ def install():
         run('python setup.py install')
     install_apps()
     link_qpid_libs()
-    with cd(SRC_DIR):
-        # But.. at the end of the day, we still do a 'develop'.
-        # When someone can tell me why, that will be great.
-        run('python setup.py develop')
+    develop()
 
 @_reporter
 @_with_virtualenv
@@ -192,14 +189,20 @@ def stop():
             print "[moksha fabric] [  " + c.green('OK') + "  ]", cmd
         except:
             print "[moksha fabric] [ " + c.red('FAIL') + " ]", cmd
+@_reporter
+@_with_virtualenv
+@_in_srcdir
+def develop():
+    """ `python setup.py develop` """
+    run('python setup.py install')
+    run('python setup.py develop')
 
 @_reporter
 @_with_virtualenv
 def restart():
     """ Stop, `python setup.py develop`, start.  """
     stop()
-    with cd(SRC_DIR):
-        run('python setup.py develop')
+    develop()
     start()
 
 @_reporter
