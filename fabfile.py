@@ -111,9 +111,8 @@ def install_hacks():
     # TODO -- why is this installation of 'Extremes' a hack?
     run('pip -q install Extremes')
 
-    # TODO -- why is this installation of tg2.1 from their repo a hack?
-    tg_url = "http://www.turbogears.org/2.1/downloads/current/index"
-    run('pip -q install -i {tg_url} tg.devtools'.format(tg_url=tg_url))
+    # TODO -- TBD -- does this still belong in install_hacks?
+    run('pip -q install tg.devtools')
 
     # Here we install Orbited ourselves (instead of through `python setup.py
     # develop`) because we need to specify --use-mirrors since orbited's website
