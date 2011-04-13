@@ -49,6 +49,7 @@ def _use_yum():
 
 @_reporter
 def bootstrap():
+    """ Should only be run once.  First-time moksha setup. """
     if _use_yum():
         sudo('yum install -q -y python-setuptools python-qpid qpid-cpp-server orbited')
     else:
@@ -78,6 +79,7 @@ source /usr/bin/virtualenvwrapper.sh;
 
 @_reporter
 def rebuild():
+    """ Completely destroy and rebuild the virtualenv. """
     with settings(warn_only=True):
         run('rmvirtualenv %s' % VENV)
     run('mkvirtualenv --distribute --no-site-packages %s' % VENV)
@@ -86,6 +88,7 @@ def rebuild():
 @_reporter
 @_with_virtualenv
 def install():
+    """ Install moksha and all its dependencies. """
     install_hacks()
     with cd(SRC_DIR):
         # `install` instead of `develop` to avoid weird directory vs. egg
@@ -97,6 +100,7 @@ def install():
 @_reporter
 @_with_virtualenv
 def install_hacks():
+    """ Install dependencies with weird workarounds. """
 
     # TODO -- why is this installation of 'Extremes' a hack?
     run('pip -q install Extremes')
@@ -114,6 +118,8 @@ def install_hacks():
 @_with_virtualenv
 @_in_srcdir
 def install_apps():
+    """ Install *all* the moksha `apps`. """
+
     with settings(hide('warnings', 'running', 'stdout', 'stderr')):
         with cd(APPS_DIR):
             dnames = [d for d in run('ls -F').split() if d.endswith('/')]
@@ -123,6 +129,7 @@ def install_apps():
 @_reporter
 @_with_virtualenv
 def install_app(app):
+    """ Install a particular app.  $ fab install_app:metrics """
     with cd("/".join([SRC_DIR, APPS_DIR, app])):
         out = run('ls')
         if not 'pavement.py' in out.split():
@@ -137,6 +144,7 @@ def install_app(app):
 @_in_srcdir
 @_warn_only
 def link_qpid_libs():
+    """ Link qpid and mllib in from the system site-packages. """
     location = 'lib/python*/site-packages'
     template = 'ln -s /usr/{location}/{lib} $WORKON_HOME/{VENV}/{location}/'
     for lib in ['qpid', 'mllib']:
@@ -147,6 +155,7 @@ def link_qpid_libs():
 @_with_virtualenv
 @_in_srcdir
 def start():
+    """ Start paster, orbited, and moksha-hub. """
     def start_service(name):
         print "[moksha fabric] Starting " + c.magenta(name)
         run('.scripts/start-{name}'.format(name=name), pty=False)
@@ -161,6 +170,7 @@ def start():
 @_with_virtualenv
 @_in_srcdir
 def stop():
+    """ Stop paster, orbited, and moksha-hub.  """
     for fname in pid_files:
         if not _file_exists(fname):
             print "[moksha fabric] [ " + c.red('FAIL') + " ]",
@@ -177,6 +187,7 @@ def stop():
 @_reporter
 @_with_virtualenv
 def restart():
+    """ Stop, `python setup.py develop`, start.  """
     stop()
     with cd(SRC_DIR):
         run('python setup.py develop')
@@ -185,6 +196,7 @@ def restart():
 @_reporter
 @_with_virtualenv
 def egg_info():
+    """ Rebuild egg_info. """
     with cd(SRC_DIR):
         run('python setup.py egg_info')
 
@@ -201,6 +213,7 @@ def _wtffail(msg):
 @_in_srcdir
 @_warn_only
 def wtf():
+    """ Debug a busted moksha environment. """
     wtfwin, wtffail = _wtfwin, _wtffail
 
     output = run('echo $WORKON_HOME')
