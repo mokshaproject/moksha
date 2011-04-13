@@ -1,0 +1,39 @@
+""" Fabric file used to install this app.
+
+Run::
+
+    $ fab install
+
+"""
+
+from fabric.api import run, env
+from fabric.context_managers import prefix, cd
+import decorator
+
+VENV = 'moksha'
+SRC_DIR = '/'.join(env['real_fabfile'].split('/')[:-1])
+
+def _with_virtualenv(func, *args, **kwargs):
+    with prefix('workon {venv}'.format(venv=VENV)):
+        return func(*args, **kwargs)
+
+def _in_srcdir(func, *args, **kwargs):
+    with cd(SRC_DIR):
+        return func(*args, **kwargs)
+
+_with_virtualenv = decorator.decorator(_with_virtualenv)
+_in_srcdir = decorator.decorator(_in_srcdir)
+
+@_with_virtualenv
+@_in_srcdir
+def install():
+    """ Install this app. """
+
+    out = run('ls')
+    if not 'pavement.py' in out.split():
+        print "No `pavement.py` found.  Aborting."
+        return
+
+    run('rm -rf dist')
+    run('paver bdist_egg')
+    run('easy_install -Z dist/*.egg')
