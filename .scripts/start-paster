@@ -1,3 +1,4 @@
 #!/bin/bash -x
+echo "-------------- Trying to start up --------------" >> logs/paster.log
 nohup paster serve development.ini >> logs/paster.log 2>&1 < /dev/null &
 echo $! >> paster.pid

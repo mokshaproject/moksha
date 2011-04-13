@@ -1,3 +1,4 @@
 #!/bin/bash -x
+echo "-------------- Trying to start up --------------" >> logs/orbited.log
 nohup orbited -c orbited.cfg >> logs/orbited.log 2>&1 < /dev/null &
 echo $! >> orbited.pid
