@@ -51,7 +51,12 @@ def _use_yum():
 def bootstrap():
     """ Should only be run once.  First-time moksha setup. """
     if _use_yum():
-        sudo('yum install -q -y python-setuptools python-qpid qpid-cpp-server orbited')
+        reqs = [
+            'python-setuptools', 'python-qpid', 'qpid-cpp-server',
+            'orbited', 'multitail',
+        ]
+
+        sudo('yum install -q -y ' + ' '.join(reqs) )
     else:
         # No orbited or qpid on ubuntu as far as I can tell
         # TODO -- how should we work this?
@@ -203,6 +208,12 @@ def egg_info():
     """ Rebuild egg_info. """
     with cd(SRC_DIR):
         run('python setup.py egg_info')
+
+def logs():
+    """ Watch the paster and moksha-hub logs (beta). """
+    with cd(SRC_DIR):
+        run('multitail -i logs/paster.log -i logs/moksha-hub.log')
+
 
 # --
 # Below here follows the *giant* 'wtf' block.  Add things to it as necessary.
