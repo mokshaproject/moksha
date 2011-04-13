@@ -2,10 +2,15 @@
 
 Run::
 
-    $ fab install                           # In this directory
+    $ fab install             # In this directory
     $ cd <moksha_directory>
-    $ fab restart
+    $ fab stop                  # Only if moksha is running
+    $ fab develop               # Necessary for moksha to integrate this app
+    $ fab start                 # Restart it to test
     $ cd -
+
+Then you should be able to visit http://localhost:8080/ with your
+app now available.
 
 """
 
