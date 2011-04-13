@@ -88,6 +88,8 @@ def rebuild():
 def install():
     install_hacks()
     with cd(SRC_DIR):
+        # `install` instead of `develop` to avoid weird directory vs. egg
+        # namespace issues
         run('python setup.py install')
     install_apps()
     link_qpid_libs()
@@ -176,16 +178,8 @@ def stop():
 @_with_virtualenv
 def restart():
     stop()
-    start()
-
-@_reporter
-@_with_virtualenv
-def reload():
-    stop()
     with cd(SRC_DIR):
-        # `install` instead of `develop` to avoid weird directory vs. egg
-        # namespace issues
-        run('python setup.py install')
+        run('python setup.py develop')
     start()
 
 @_reporter
