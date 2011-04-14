@@ -1,1 +1,1 @@
-from moksha.fab import *
+from moksha.fabric.core import *

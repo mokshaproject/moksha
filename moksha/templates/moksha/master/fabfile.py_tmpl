@@ -1,1 +1,1 @@
-from {{project}}.fab import *
+from moksha.fabric.{{project}} import *
