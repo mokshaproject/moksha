@@ -56,7 +56,4 @@ def install():
 @_with_virtualenv
 def moksha_restart():
     """ Restart moksha. """
-    run("python -c \"print __import__('moksha.fabric.core')\"")
-    run("python -c \"print __import__('moksha.fabric.core').__file__\"")
-    run("python -c \"print __import__('moksha.fabric.core').fabric.__dict__.keys()\"")
     run("python -c \"__import__('moksha.fabric.core').fabric.core.restart()\"")
