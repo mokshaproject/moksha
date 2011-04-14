@@ -53,12 +53,7 @@ def install():
     run('paver bdist_egg')
     run('easy_install -Z dist/*.egg')
 
+@_with_virtualenv
 def moksha_restart():
-    """ Restart moksha.  Run '$ workon moksha' first. """
-    # It should only be possible to do this once we've activated the virtualenv
-    try:
-        import moksha.fabric.core
-        moksha.fabric.core.restart()
-    except ImportError as e:
-        print str(e)
-        print "** You should probably run '$ workon moksha' first."
+    """ Restart moksha. """
+    run("python -c \"__import__('moksha.fabric.core').fabric.core.restart()\"")
