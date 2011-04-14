@@ -4,7 +4,7 @@ import fabric.colors as c
 import decorator
 
 VENV = 'moksha'
-SRC_DIR = '/'.join(env['real_fabfile'].split('/')[:-1])
+SRC_DIR = '/'.join(__file__.split('/')[:-4])
 APPS_DIR = 'moksha/apps'
 pid_files = ['paster.pid', 'orbited.pid', 'moksha-hub.pid']
 

@@ -19,7 +19,7 @@ from fabric.context_managers import prefix, cd
 import decorator
 
 VENV = 'moksha'
-SRC_DIR = '/'.join(env['real_fabfile'].split('/')[:-1])
+SRC_DIR = '/'.join(__file__.split('/')[:-4])
 
 def _with_virtualenv(func, *args, **kwargs):
     with prefix('workon {venv}'.format(venv=VENV)):
