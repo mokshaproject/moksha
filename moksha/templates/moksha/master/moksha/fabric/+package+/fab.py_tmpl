@@ -47,5 +47,5 @@ def install():
     run('easy_install -Z dist/*.egg')
 
     # It should only be possible to do this once we've activated the virtualenv
-    import moksha.fab
-    moksha.fab.restart()
+    import moksha.fabric.core
+    moksha.fabric.core.restart()
