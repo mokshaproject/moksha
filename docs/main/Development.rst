@@ -86,7 +86,7 @@ Freezing requirements
 
 .. code-block:: bash
 
-    $ pip freeze -E tg2env -r requirements.txt production/stable-reqs.txt
+    $ pip freeze -E ~/.virtualenvs/moksha -r requirements.txt production/stable-reqs.txt
 
 Profiling the WSGI stack
 ------------------------

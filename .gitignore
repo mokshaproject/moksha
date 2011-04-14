@@ -9,7 +9,6 @@ prompt.py
 mokshaenv
 *.db
 .build
-tg2env
 *.egg-info
 *.pid
 rabbitmq-codegen
@@ -22,3 +21,4 @@ tg2-bootstrap.py
 *.cachegrind
 dist
 build
+logs/*.log

@@ -51,11 +51,19 @@ make it look something like this:
 
         """
 
-After modifying your entry-points, you'll need to re-generate your project's `egg-info`.  The `start-moksha` script will do this for you.
+After modifying your entry-points, you'll need to re-generate your project's `egg-info`.  A number of the `fabric` commands can do this for you, in particular:
 
 .. code-block:: bash
 
+    $ fab -H localhost egg_info
+
+Alternatively, you can do it yourself.
+
+.. code-block:: bash
+
+    $ workon moksha
     $ python setup.py egg_info
+    $ deactivate
 
 
 Moksha will now automatically detect, instantiate, and feed your consumer.

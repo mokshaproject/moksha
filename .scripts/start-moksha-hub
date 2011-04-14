@@ -1,0 +1,4 @@
+#!/bin/bash -x
+echo "-------------- Trying to start up --------------" >> logs/moksha-hub.log
+nohup moksha-hub -v >> logs/moksha-hub.log 2>&1 < /dev/null & 
+echo $! >> moksha-hub.pid
