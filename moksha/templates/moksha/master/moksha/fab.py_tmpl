@@ -45,3 +45,7 @@ def install():
     run('rm -rf dist')
     run('paver bdist_egg')
     run('easy_install -Z dist/*.egg')
+
+    # It should only be possible to do this once we've activated the virtualenv
+    import moksha.fab
+    moksha.fab.restart()
