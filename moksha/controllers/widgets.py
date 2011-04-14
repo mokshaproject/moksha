@@ -15,7 +15,7 @@
 #
 # Authors: Luke Macken <lmacken@redhat.com>
 
-import moksha
+import moksha.utils
 import logging
 
 from urllib import urlencode
@@ -50,7 +50,7 @@ class WidgetController(Controller):
         """
         options = {}
         options.update(kw)
-        w = moksha._widgets.get(widget)
+        w = moksha.utils._widgets.get(widget)
         if not w:
             raise WidgetNotFound(widget)
         if (chrome and getattr(w['widget'], 'visible', True)) or source:
@@ -67,7 +67,7 @@ class WidgetController(Controller):
         else:
             tmpl_context.widget = w['widget']
         if live:
-            tmpl_context.moksha_socket = moksha.get_widget('moksha_socket')
+            tmpl_context.moksha_socket = moksha.utils.get_widget('moksha_socket')
         if source:
             options['content'] = iframe_widget(url='/widgets/code/' + source +
                                                '?module=%s' % module,

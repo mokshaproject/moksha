@@ -22,7 +22,7 @@ returns the source code, in HTML.
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
 """
 
-import moksha
+import moksha.utils
 import inspect
 
 from tw.api import Widget
@@ -52,7 +52,7 @@ class SourceCodeWidget(Widget):
         title = d.widget.__class__.__name__
         if not d.source:
             try:
-                d.widget = moksha.get_widget(d.widget)
+                d.widget = moksha.utils.get_widget(d.widget)
             except Exception, e:
                 d.widget = namedAny(d.widget)
             if d.module:

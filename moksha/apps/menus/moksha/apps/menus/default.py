@@ -23,6 +23,7 @@ the installed Applications, Widgets, etc.
 """
 
 import moksha
+import moksha.utils
 from moksha.apps.menus import MokshaMenu, MokshaContextualMenu
 
 class MokshaContextMenu(MokshaContextualMenu):
@@ -48,7 +49,7 @@ class MokshaDefaultMenu(MokshaMenu):
             <br/>
         </a>
         """
-        for id, widget in moksha._widgets.iteritems():
+        for id, widget in moksha.utils._widgets.iteritems():
             if not getattr(widget['widget'], 'hidden', False):
                 menu += """
                       <a href="#" onclick="

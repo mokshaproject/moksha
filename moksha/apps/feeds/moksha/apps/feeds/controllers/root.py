@@ -20,6 +20,7 @@ The Moksha Feed Tree Controller
 """
 
 import moksha
+import moksha.utils
 import logging
 
 from tg import expose, tmpl_context
@@ -54,18 +55,18 @@ class FeedController(Controller):
 
     def _get_feed_titles(self, fresh=False):
         results = []
-        for feed in moksha.feed_storage.keys():
+        for feed in moksha.utils.feed_storage.keys():
             if not feed:
                 raise Exception('None feed?!')
             if fresh:
                 print "Getting fresh data"
-                feed_data = moksha.feed_cache.fetch(feed)
+                feed_data = moksha.utils.feed_cache.fetch(feed)
             else:
                 print "Getting cached data"
-                timestamp, feed_data = moksha.feed_storage[feed]
+                timestamp, feed_data = moksha.utils.feed_storage[feed]
             if not feed_data:
                 log.debug("no feed_data, refetching")
-                #feed_data = moksha.feed_cache.fetch(feed)
+                #feed_data = moksha.utils.feed_cache.fetch(feed)
                 #if not feed_data:
                 #    log.debug("NO FEED DATA AFTER FRESH FETCH!!!!")
                 continue
@@ -85,14 +86,14 @@ class FeedController(Controller):
     def get_feed(self, key, *args, **kw):
         if '::' in key:
             url, title = key.split('::')
-            for entry in moksha.feed_storage[url][1]['entries']:
+            for entry in moksha.utils.feed_storage[url][1]['entries']:
                 content = entry.get('content', entry.get('summary'))
                 content = '<span style="line-height:100%%;">%s</span>' % content
                 if entry['title'] == title:
                     return json.encode([{'title': content, 'isLazy': False}])
             raise Exception("Cannot find entry by title: %s" % title)
 
-        feed = moksha.feed_storage[key][1]
+        feed = moksha.utils.feed_storage[key][1]
         entries = []
         for entry in feed['entries']:
             entries.append({
@@ -106,7 +107,7 @@ class FeedController(Controller):
     @expose('mako:moksha.templates.widget')
     def get_entries(self, key, **kw):
         tmpl_context.widget = feed_entries_tree
-        feed = moksha.feed_storage[key][1]
+        feed = moksha.utils.feed_storage[key][1]
         entries = []
         for entry in feed['entries']:
             entries.append({
@@ -122,7 +123,7 @@ class FeedController(Controller):
     def get_entry(self, key, **kw):
         if '::' in key:
             url, title = key.split('::')
-            for entry in moksha.feed_storage[url][1]['entries']:
+            for entry in moksha.utils.feed_storage[url][1]['entries']:
                 content = entry.get('content', entry.get('summary'))
                 if isinstance(content, list):
                     if isinstance(content[0], dict) and \

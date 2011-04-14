@@ -16,6 +16,7 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 
 import moksha
+import moksha.utils
 import logging
 
 from tw.api import Widget
@@ -26,7 +27,7 @@ log = logging.getLogger(__name__)
 
 # An in-memory sqlite feed cache.  Utilized when the moksha WSGI middleware
 # is unavailable.  By default, it will try and use the centralized
-# moksha.feed_cache, which is setup by the middleware, but will gracefully
+# moksha.utils.feed_cache, which is setup by the middleware, but will gracefully
 # fallback to this cache.
 feed_storage = None
 feed_cache = None
@@ -66,8 +67,8 @@ class Feed(Widget):
     def iterentries(self, d=None, limit=None):
         url = self.url or d.get('url')
         id = d and d.get('id', self.id) or self.id
-        if moksha.feed_cache:
-            feed = moksha.feed_cache.fetch(url)
+        if moksha.utils.feed_cache:
+            feed = moksha.utils.feed_cache.fetch(url)
         else:
             # MokshaMiddleware not running, so setup our own feed cache.
             # This allows us to use this object outside of WSGI requests.

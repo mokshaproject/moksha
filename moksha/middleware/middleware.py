@@ -18,6 +18,7 @@
 import os
 import tg
 import moksha
+import moksha.utils
 import logging
 import pkg_resources
 
@@ -56,9 +57,9 @@ class MokshaMiddleware(object):
         self.application = application
         self.mokshaapp = MokshaAppDispatcher(application)
 
-        moksha._apps = {}        # {'app name': tg.TGController/tg.WSGIAppController}
-        moksha._widgets = {}    # {'widget name': tw.api.Widget}
-        moksha.menus = {}       # {'menu name': moksha.api.menus.MokshaMenu}
+        moksha.utils._apps = {}        # {'app name': tg.TGController/tg.WSGIAppController}
+        moksha.utils._widgets = {}    # {'widget name': tw.api.Widget}
+        moksha.utils.menus = {}       # {'menu name': moksha.api.menus.MokshaMenu}
         self.engines = {}       # {'app name': sqlalchemy.engine.base.Engine}
 
         self.load_paths()
@@ -72,10 +73,10 @@ class MokshaMiddleware(object):
         self.load_root()
 
         try:
-            moksha.feed_storage = Shove(config.get('feed_store', 'simple://'),
+            moksha.utils.feed_storage = Shove(config.get('feed_store', 'simple://'),
                                         config.get('feed_cache', 'simple://'),
                                         compress=True)
-            moksha.feed_cache = Cache(moksha.feed_storage)
+            moksha.utils.feed_cache = Cache(moksha.utils.feed_storage)
         except Exception, e:
             log.error(str(e))
             log.error("Unable to initialize the Feed Storage")
@@ -93,7 +94,7 @@ class MokshaMiddleware(object):
         decoding the incoming JSON data, and dispatching messages to them as
         they arrive.
         """
-        environ['paste.registry'].register(moksha.livewidgets, {
+        environ['paste.registry'].register(moksha.utils.livewidgets, {
             'onopen': [],
             'onclose': [],
             'onerror': [],
@@ -110,21 +111,21 @@ class MokshaMiddleware(object):
         beforehand.
         """
         for app_entry in pkg_resources.iter_entry_points('moksha.application'):
-            if app_entry.name in moksha._apps:
+            if app_entry.name in moksha.utils._apps:
                 raise MokshaException('Duplicate application name: %s' %
                                       app_entry.name)
             app_path = app_entry.dist.location
-            moksha._apps[app_entry.name] = {
+            moksha.utils._apps[app_entry.name] = {
                     'name': app_entry.name,
                     'project_name': app_entry.dist.project_name,
                     'path': app_path,
                     }
         for widget_entry in pkg_resources.iter_entry_points('moksha.widget'):
-            if widget_entry.name in moksha._widgets:
+            if widget_entry.name in moksha.utils._widgets:
                 raise MokshaException('Duplicate widget name: %s' %
                                       widget_entry.name)
             widget_path = widget_entry.dist.location
-            moksha._widgets[widget_entry.name] = {
+            moksha.utils._widgets[widget_entry.name] = {
                     'name': widget_entry.name,
                     'project_name': widget_entry.dist.project_name,
                     'path': widget_path,
@@ -139,7 +140,7 @@ class MokshaMiddleware(object):
             app_name = getattr(app_class, 'name', app_entry.name)
             if isclass(app_class):
                 app_class = app_class()
-            moksha._apps[app_entry.name].update({
+            moksha.utils._apps[app_entry.name].update({
                     'name': app_name,
                     'controller': app_class,
                     'path': app_path,
@@ -151,7 +152,7 @@ class MokshaMiddleware(object):
                                   ['model'])
                 model = __import__(module, globals(), locals(),
                                    [app_entry.name])
-                moksha._apps[app_entry.name]['model'] = model
+                moksha.utils._apps[app_entry.name]['model'] = model
             except ImportError, e:
                 log.debug("Cannot find application model: %r" % module)
 
@@ -161,7 +162,7 @@ class MokshaMiddleware(object):
             log.info('Loading %s WSGI application' % app_entry.name)
             app_path = app_entry.dist.location
             app_class = app_entry.load()
-            moksha._apps[app_entry.name] = {
+            moksha.utils._apps[app_entry.name] = {
                     'name': getattr(app_class, 'name', app_entry.name),
                     'controller': WSGIAppController(app_class),
                     'path': app_path,
@@ -182,7 +183,7 @@ class MokshaMiddleware(object):
                 widget = widget_class(widget_entry.name)
             else:
                 widget = widget_class
-            moksha._widgets[widget_entry.name] = {
+            moksha.utils._widgets[widget_entry.name] = {
                     'name': getattr(widget_class, 'name', widget_entry.name),
                     'widget': widget,
                     'path': widget_path,
@@ -196,7 +197,7 @@ class MokshaMiddleware(object):
             log.info('Loading %s menu' % menu_entry.name)
             menu_class = menu_entry.load()
             menu_path = menu_entry.dist.location
-            moksha.menus[menu_entry.name] = menu_class(menu_entry.name)
+            moksha.utils.menus[menu_entry.name] = menu_class(menu_entry.name)
 
     def load_renderers(self):
         """ Load our template renderers with our application paths.
@@ -321,7 +322,7 @@ class MokshaMiddleware(object):
             apps = [{'path': moksha_config_path}]
         main_app_config_path = os.path.dirname(get_main_app_config_path())
 
-        apps += moksha._apps.values()
+        apps += moksha.utils._apps.values()
         for app in apps:
             for configfile in ('production.ini', 'development.ini'):
                 for path in (app['path'], conf_d % app.get('project_name')):
@@ -329,7 +330,7 @@ class MokshaMiddleware(object):
                     if os.path.exists(confpath):
                         conf = appconfig('config:' + confpath)
                         if app.get('name'):
-                            moksha._apps[app['name']]['config'] = conf
+                            moksha.utils._apps[app['name']]['config'] = conf
                         if app['path'] == main_app_config_path or \
                                 confpath in loaded_configs:
                             continue
@@ -360,7 +361,7 @@ class MokshaMiddleware(object):
         if they don't already exist.
 
         """
-        for name, app in moksha._apps.items():
+        for name, app in moksha.utils._apps.items():
             sa_url = app.get('config', {}).get('sqlalchemy.url', None)
             app_db = config.get('app_db', 'sqlite:///%s.db')
             if sa_url:
@@ -399,12 +400,12 @@ class MokshaMiddleware(object):
                      root_entry.dist.project_name)
             if root_entry.name == 'root':
                 root_class = root_entry.load()
-                moksha.root = root_class
+                moksha.utils.root = root_class
 
                 # TODO: support setting a root widget
                 #if issubclass(root_class, Widget):
                 #    widget = root_class(root_class.__name__)
-                #    moksha._widgets[root_entry.name] = {
+                #    moksha.utils._widgets[root_entry.name] = {
                 #        'name': getattr(root_class, 'name', widget_entry.name),
                 #        'widget': widget,
                 #        'path': root_entry.dist.location,

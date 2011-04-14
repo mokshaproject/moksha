@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import moksha
+import moksha.utils
 import copy
 import time
 import pylons
@@ -517,7 +518,7 @@ class MokshaWidget(Widget):
         :css_class: Either a string or list of strings defining the css class
                     for this wrapper
         """
-        widget = moksha._widgets[moksha_widget]['widget']
+        widget = moksha.utils._widgets[moksha_widget]['widget']
         return super(MokshaWidget, self).__init__(label=label, widget=widget,
                                            content_id=content_id, params=params,
                                            auth=auth,

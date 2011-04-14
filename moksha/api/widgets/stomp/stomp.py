@@ -16,6 +16,7 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 
 import moksha
+import moksha.utils
 
 from tg import config
 from tw.api import Widget, JSLink, js_callback, js_function
@@ -182,15 +183,15 @@ class StompWidget(Widget):
         d.topics = []
         d.onmessageframe = defaultdict(str) # {topic: 'js callbacks'}
         for callback in self.callbacks:
-            if len(moksha.livewidgets[callback]):
+            if len(moksha.utils.livewidgets[callback]):
                 cbs = ''
                 if callback == 'onmessageframe':
-                    for topic in moksha.livewidgets[callback]:
+                    for topic in moksha.utils.livewidgets[callback]:
                         d.topics.append(topic)
-                        for cb in moksha.livewidgets[callback][topic]:
+                        for cb in moksha.utils.livewidgets[callback][topic]:
                             d.onmessageframe[topic] += '%s;' % str(cb)
                 else:
-                    for cb in moksha.livewidgets[callback]:
+                    for cb in moksha.utils.livewidgets[callback]:
                         if isinstance(cb, (js_callback, js_function)):
                             cbs += '$(%s);' % str(cb)
                         else:
