@@ -54,15 +54,11 @@ def install():
     run('easy_install -Z dist/*.egg')
 
 def moksha_restart():
-    # Activate the global-moksha virtualenv internally
-    import site, os, sys
-    path = os.expanduser('~/.virtualenvs/') + \
-                         VENV + \
-                         '/lib/python' + \
-                         '.'.join(map(str, sys.version[:2])) + \
-                         '/site-packages'
-    site.addsitedir(path)
-
+    """ Restart moksha.  Run '$ workon moksha' first. """
     # It should only be possible to do this once we've activated the virtualenv
-    import moksha.fabric.core
-    moksha.fabric.core.restart()
+    try:
+        import moksha.fabric.core
+        moksha.fabric.core.restart()
+    except ImportError as e:
+        print str(e)
+        print "** You should probably run '$ workon moksha' first."
