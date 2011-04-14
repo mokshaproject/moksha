@@ -52,8 +52,3 @@ def install():
     run('rm -rf dist')
     run('paver bdist_egg')
     run('easy_install -Z dist/*.egg')
-
-@_with_virtualenv
-def moksha_restart():
-    """ Restart moksha. """
-    run("python -c \"__import__('moksha.fabric.core').fabric.core.restart()\"")
