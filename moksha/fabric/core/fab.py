@@ -1,10 +1,18 @@
 from fabric.api import run, sudo, env
 from fabric.context_managers import prefix, settings, cd, hide
+from fabric.operations import prompt
 import fabric.colors as c
 import decorator
 
 VENV = 'moksha'
-SRC_DIR = '/'.join(__file__.split('/')[:-4])
+
+SRC_DIR_KEY = 'moksha_source_location'
+if not SRC_DIR_KEY in env:
+    prompt('Enter ' + SRC_DIR_KEY + ' (can be specified in ~/.fabricrc):',
+           key=SRC_DIR_KEY)
+
+SRC_DIR = env[SRC_DIR_KEY]
+
 APPS_DIR = 'moksha/apps'
 pid_files = ['paster.pid', 'orbited.pid', 'moksha-hub.pid']
 

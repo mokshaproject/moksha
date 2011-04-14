@@ -16,10 +16,17 @@ app now available.
 
 from fabric.api import run, env
 from fabric.context_managers import prefix, cd
+from fabric.operations import prompt
 import decorator
 
 VENV = 'moksha'
-SRC_DIR = '/'.join(__file__.split('/')[:-4])
+
+SRC_DIR_KEY = '{{package}}_source_location'
+if not SRC_DIR_KEY in env:
+    prompt('Enter ' + SRC_DIR_KEY + ' (can be specified in ~/.fabricrc):',
+        key=SRC_DIR_KEY)
+
+SRC_DIR = env[SRC_DIR_KEY]
 
 def _with_virtualenv(func, *args, **kwargs):
     with prefix('workon {venv}'.format(venv=VENV)):
