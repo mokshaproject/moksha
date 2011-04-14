@@ -174,6 +174,7 @@ def start():
 @_reporter
 @_with_virtualenv
 @_in_srcdir
+@_warn_only
 def stop():
     """ Stop paster, orbited, and moksha-hub.  """
     for fname in pid_files:
@@ -184,10 +185,11 @@ def stop():
         try:
             cmd = 'kill $(cat %s)' % fname
             run(cmd)
-            run('rm %s' % fname)
             print "[moksha fabric] [  " + c.green('OK') + "  ]", cmd
         except:
             print "[moksha fabric] [ " + c.red('FAIL') + " ]", cmd
+        finally:
+            run('rm %s' % fname)
 @_reporter
 @_with_virtualenv
 @_in_srcdir
