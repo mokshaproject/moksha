@@ -61,7 +61,7 @@ def bootstrap():
     if _use_yum():
         reqs = [
             'python-setuptools', 'python-qpid', 'qpid-cpp-server',
-            'orbited', 'multitail',
+            'orbited', 'multitail', 'python-pip', 'python-virtualenv',
         ]
 
         sudo('yum install -q -y ' + ' '.join(reqs) )
@@ -70,8 +70,7 @@ def bootstrap():
         # TODO -- how should we work this?
         sudo('apt-get install -y python-setuptools')
 
-    sudo('easy_install -q pip')
-    sudo('pip -q install virtualenv')
+    print 'installing the wrapper'
     sudo('pip -q install virtualenvwrapper')
     
     shellrc_lookup = {
