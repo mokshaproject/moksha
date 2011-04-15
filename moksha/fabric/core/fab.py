@@ -167,25 +167,38 @@ def link_qpid_libs():
 @_reporter
 @_with_virtualenv
 @_in_srcdir
-def start():
+def start(service=None):
     """ Start paster, orbited, and moksha-hub. """
+
     def start_service(name):
         print "[moksha fabric] Starting " + c.magenta(name)
         run('.scripts/start-{name}'.format(name=name), pty=False)
 
-    if any(map(_file_exists, pid_files)):
-        raise ValueError, "some .pid file exists"
-    start_service(name='paster')
-    start_service(name='orbited')
-    start_service(name='moksha-hub')
+
+    if service:
+        pid_file = service + '.pid'
+        if _file_exists(pid_file):
+            raise ValueError, "%s file exists" % pid_file
+        start_service(name=service)
+    else:
+        if any(map(_file_exists, pid_files)):
+            raise ValueError, "some .pid file exists"
+        start_service(name='paster')
+        start_service(name='orbited')
+        start_service(name='moksha-hub')
 
 @_reporter
 @_with_virtualenv
 @_in_srcdir
 @_warn_only
-def stop():
+def stop(service=None):
     """ Stop paster, orbited, and moksha-hub.  """
-    for fname in pid_files:
+    _pid_files = pid_files
+
+    if service:
+        _pid_files = [service+'.pid']
+
+    for fname in _pid_files:
         if not _file_exists(fname):
             print "[moksha fabric] [ " + c.red('FAIL') + " ]",
             print fname, "does not exist."
