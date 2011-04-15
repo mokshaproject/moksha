@@ -51,7 +51,7 @@ _reporter = decorator.decorator(_reporter)
 _warn_only = decorator.decorator(_warn_only)
 
 def _use_yum():
-    with settings(hide('warnings', 'running', 'stdout', 'stderr', 'aborts'),
+    with settings(hide('warnings', 'running', 'stdout', 'stderr'),
                   warn_only=True):
         return bool(run('cat /etc/redhat-release'))
 
