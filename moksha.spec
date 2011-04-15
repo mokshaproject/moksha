@@ -32,6 +32,7 @@ BuildRequires: python-repoze-what-quickstart
 BuildRequires: python-shove
 BuildRequires: python-bunch
 BuildRequires: TurboGears2
+BuildRequires: python-daemon
 
 Requires: TurboGears2
 Requires: python-toscawidgets >= 0.9.1
