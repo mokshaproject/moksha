@@ -215,11 +215,11 @@ def develop():
 
 @_reporter
 @_with_virtualenv
-def restart():
+def restart(service=None):
     """ Stop, `python setup.py develop`, start.  """
-    stop()
+    stop(service)
     develop()
-    start()
+    start(service)
 
 @_reporter
 @_with_virtualenv
