@@ -116,15 +116,15 @@ def install_hacks():
     """ Install dependencies with weird workarounds. """
 
     # TODO -- why is this installation of 'Extremes' a hack?
-    run('pip-python -q install Extremes')
+    run('pip -q install Extremes')
 
     # TODO -- TBD -- does this still belong in install_hacks?
-    run('pip-python -q install tg.devtools')
+    run('pip -q install tg.devtools')
 
     # Here we install Orbited ourselves (instead of through `python setup.py
     # develop`) because we need to specify --use-mirrors since orbited's website
     # is often down and breaks the build process.
-    run('pip-python -q install --use-mirrors orbited')
+    run('pip -q install --use-mirrors orbited')
 
 @_reporter
 @_with_virtualenv
