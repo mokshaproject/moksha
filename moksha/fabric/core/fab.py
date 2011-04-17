@@ -211,6 +211,7 @@ def stop(service=None):
 @_in_srcdir
 def develop():
     """ `python setup.py develop` """
+    run('python setup.py install')
     run('python setup.py develop')
 
 @_reporter
