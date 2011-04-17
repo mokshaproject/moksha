@@ -8,7 +8,7 @@
     % endfor
   </body>
 
-  % if tmpl_context.moksha_socket:
+  % if hasattr(tmpl_context, 'moksha_socket') and not isinstance(tmpl_context.moksha_socket, basestring) and tmpl_context.moksha_socket:
     ${tmpl_context.moksha_socket.display()}
   % endif
 
