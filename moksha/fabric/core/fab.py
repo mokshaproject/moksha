@@ -102,13 +102,9 @@ def rebuild():
 def install():
     """ Install moksha and all its dependencies. """
     install_hacks()
-    with cd(SRC_DIR):
-        # `install` instead of `develop` to avoid weird directory vs. egg
-        # namespace issues
-        run('python setup.py install')
+    develop()
     install_apps()
     link_qpid_libs()
-    develop()
 
 @_reporter
 @_with_virtualenv
@@ -215,7 +211,6 @@ def stop(service=None):
 @_in_srcdir
 def develop():
     """ `python setup.py develop` """
-    run('python setup.py install')
     run('python setup.py develop')
 
 @_reporter
