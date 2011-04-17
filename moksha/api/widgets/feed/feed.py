@@ -74,7 +74,7 @@ class Feed(Widget):
             # This allows us to use this object outside of WSGI requests.
             global feed_cache, feed_storage
             if not feed_cache:
-                feed_storage = Shove('sqlite:///feeds.db', compress=True)
+                feed_storage = Shove('simple://', 'simple://', compress=True)
                 feed_cache = Cache(feed_storage)
             feed = feed_cache.fetch(url)
         if not (200 <= feed.get('status', 200) < 400):
