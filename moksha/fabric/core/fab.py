@@ -121,6 +121,9 @@ def install_hacks():
     # develop`) because we need to specify --use-mirrors since orbited's website
     # is often down and breaks the build process.
     run('pip -q install --use-mirrors orbited')
+    # Same thing here with pycrypto.
+    # TODO -- TBD -- is there a way to python setup.py --user-mirrors develop ?
+    run('pip -q install --use-mirrors pycrypto')
 
 @_reporter
 @_with_virtualenv
