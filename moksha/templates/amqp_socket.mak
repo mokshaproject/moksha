@@ -77,10 +77,13 @@ if (typeof moksha_amqp_conn == 'undefined') {
 
                     moksha_amqp_session.Queue('declare', {
                             queue: moksha_amqp_remote_queue,
-                            auto_delete: true
+                            auto_delete: true,
+                            exclusive: true
                     });
                     moksha_amqp_queue = moksha_amqp_session.create_local_queue({
-                            name: 'local_queue'
+                            name: 'local_queue',
+                            auto_delete: true,
+                            exclusive: true
                     });
 
                     moksha_amqp_queue.subscribe({
