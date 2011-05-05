@@ -145,7 +145,8 @@ class AMQPSocket(Widget):
                         auto_delete: true
                 });
                 moksha_amqp_queue = moksha_amqp_session.create_local_queue({
-                        name: 'local_queue'
+                        name: 'local_queue',
+                        auto_delete: true
                 });
 
                 % if onconnectedframe:
