@@ -76,7 +76,8 @@ if (typeof moksha_amqp_conn == 'undefined') {
                             moksha_amqp_session.name;
 
                     moksha_amqp_session.Queue('declare', {
-                            queue: moksha_amqp_remote_queue
+                            queue: moksha_amqp_remote_queue,
+                            auto_delete: true
                     });
                     moksha_amqp_queue = moksha_amqp_session.create_local_queue({
                             name: 'local_queue'

@@ -51,7 +51,8 @@ class Consumer(object):
                 if isinstance(self.hub, AMQPLibHub):
                     # AMQPLibHub specific 
                     queue_name = str(uuid.uuid4())
-                    self.hub.queue_declare(queue=queue_name, exclusive=True)
+                    self.hub.queue_declare(queue=queue_name, exclusive=True,
+                            auto_delete=True)
                     self.hub.exchange_bind(queue_name, binding_key=topic)
                     if self.jsonify:
                         self.hub.queue_subscribe(queue_name, self._consume_json)
@@ -60,7 +61,8 @@ class Consumer(object):
                 else:
                     # Assume we're using Qpid then.
                     server_queue_name = 'moksha_consumer_' + self.hub.session.name
-                    self.hub.queue_declare(queue=server_queue_name, exclusive=True)
+                    self.hub.queue_declare(queue=server_queue_name, exclusive=True,
+                            auto_delete=True)
                     self.hub.exchange_bind(server_queue_name, binding_key=topic)
                     local_queue_name = 'moksha_consumer_' + self.hub.session.name
                     self.hub.local_queue = self.hub.session.incoming(local_queue_name)

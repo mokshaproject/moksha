@@ -180,7 +180,8 @@ class CentralMokshaHub(MokshaHub):
         if self.stomp_broker:
             log.debug("Initializing local AMQP queue...")
             self.server_queue_name = 'moksha_hub_' + self.session.name
-            self.queue_declare(queue=self.server_queue_name, exclusive=True)
+            self.queue_declare(queue=self.server_queue_name,
+                               exclusive=True, auto_delete=True)
             self.exchange_bind(self.server_queue_name, binding_key='#')
             self.local_queue_name = 'moksha_hub'
             self.local_queue = self.session.incoming(self.local_queue_name)
