@@ -23,7 +23,6 @@ setup(
     author_email='',
     url='http://moksha.fedorahosted.org',
     install_requires=[
-        "fabric",
         "TurboGears2",
         "ToscaWidgets",
         "zope.sqlalchemy",
@@ -36,6 +35,7 @@ setup(
         "Twisted",
         "stomper",
         "Sphinx",
+        "fabulous",
         "Paver",
         "tw.forms",
         "pytz",
