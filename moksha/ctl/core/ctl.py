@@ -2,27 +2,24 @@
 import decorator
 import subprocess
 import os
+import sys
 import shutil
-
-from moksha.ctl.core.utils import (
-    VirtualEnvContext,
-    DirectoryContext,
-)
 
 # Local imports
 import config
 import colors as c
+import utils
 
 ctl_config = config.load_config()
 
 pid_files = ['paster.pid', 'orbited.pid', 'moksha-hub.pid']
 
 def _with_virtualenv(func, *args, **kwargs):
-    with VirtualEnvContext(ctl_config['VENV']):
+    with utils.VirtualenvContext(ctl_config['VENV']):
         return func(*args, **kwargs)
 
 def _in_srcdir(func, *args, **kwargs):
-    with DirectoryContext(ctl_config['SRC_DIR']):
+    with utils.DirectoryContext(ctl_config['SRC_DIR']):
         return func(*args, **kwargs)
 
 def _reporter(func, *args, **kwargs):
@@ -60,7 +57,6 @@ def bootstrap():
     if _use_yum():
         reqs = [
             'python-setuptools', 'python-qpid', 'qpid-cpp-server',
-            'orbited',
             'ccze',  # ccze is awesome
         ]
         os.system('sudo yum install -q -y ' + ' '.join(reqs))
@@ -128,14 +124,11 @@ def rebuild():
 @_with_virtualenv
 def install():
     """ Install moksha and all its dependencies. """
-    import pip
-    print pip.__file__
-    sys.exit(0)
     install_hacks()
-    with DirectoryContext(ctl_config['SRC_DIR']):
+    with utils.DirectoryContext(ctl_config['SRC_DIR']):
         # `install` instead of `develop` to avoid weird directory vs. egg
         # namespace issues
-        os.system('python setup.py install')
+        os.system('%s setup.py install' % sys.executable )
     install_apps()
     link_qpid_libs()
     develop()
@@ -145,21 +138,17 @@ def install():
 def install_hacks():
     """ Install dependencies with weird workarounds. """
 
-    # TODO -- here, even though we're in the virtualenv, pip is still
-    # referring to the system-wide pip.  We need to replace it with
-    # something like
-    # >>> import pip.commands.install
-    # >>> c = pip.commands.install.InstallCommand()
-    # >>> c.run({}, 'Extremes')
+    distributions = [
+        'Extremes',
+        'tg.devtools',
+        'orbited',
+    ]
 
-    os.system('pip -q install Extremes')
-
-    os.system('pip -q install tg.devtools')
-
-    # Here we install Orbited ourselves (instead of through `python setup.py
-    # develop`) because we need to specify --use-mirrors since orbited's website
-    # is often down and breaks the build process.
-    os.system('pip -q install --use-mirrors orbited')
+    # This automatically uses --use-mirrors
+    for dist in distributions:
+        print "[" + c.magenta("moksha-ctl") + "] ",
+        print "pip installing", c.yellow(dist), "with --use-mirrors"
+        utils.install_distributions([dist])
 
 @_reporter
 @_with_virtualenv
@@ -167,7 +156,7 @@ def install_hacks():
 def install_apps():
     """ Install *all* the moksha `apps`. """
 
-    with DirectoryContext(ctl_config['APPS_DIR']):
+    with utils.DirectoryContext(ctl_config['APPS_DIR']):
         dnames = [d for d in os.listdir('.') if os.path.isdir(d)]
         for d in dnames:
             install_app(app=d)
@@ -178,14 +167,17 @@ def install_app(app):
     """ Install a particular app.  $ fab install_app:metrics """
 
     dirname = "/".join([ctl_config['SRC_DIR'], ctl_config['APPS_DIR'], app])
-    with DirectoryContext(dirname):
+    with utils.DirectoryContext(dirname):
         fnames = os.listdir('.')
         if not 'pavement.py' in fnames:
             print "No `pavement.py` found for app '%s'.  Skipping." % app
             return
-        shutil.rmtree('dist')
-        os.system('paver bdist_egg')
-        os.system('easy_install -Z dist/*.egg')
+        try:
+            shutil.rmtree('dist')
+        except OSError as e:
+            pass # It's cool.
+        os.system('%s bdist_egg' % sys.executable.split('/')[:-1] + '/paver')
+        #os.system('easy_install -Z dist/*.egg')
 
 @_reporter
 @_with_virtualenv
@@ -193,11 +185,13 @@ def install_app(app):
 @_warn_only
 def link_qpid_libs():
     """ Link qpid and mllib in from the system site-packages. """
-    location = 'lib/python*/site-packages'
-    template = 'ln -s /usr/{location}/{lib} $WORKON_HOME/{VENV}/{location}/'
+    location = 'lib/python{major}.{minor}/site-packages'.format(
+        major=sys.version_info.major,minor=sys.version_info.minor)
+    template = 'ln -s /usr/{location}/{lib} {workon}/{VENV}/{location}/'
     for lib in ['qpid', 'mllib']:
         cmd = template.format(
-            location=location, VENV=ctl_config['VENV'], lib=lib)
+            location=location, VENV=ctl_config['VENV'], lib=lib,
+            workon=os.getenv("WORKON_HOME"))
         out = os.system(cmd)
 
 @_reporter
