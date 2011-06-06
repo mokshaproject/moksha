@@ -9,29 +9,20 @@ from moksha.ctl.core.utils import (
     DirectoryContext,
 )
 
+# Local imports
+import config
 import colors as c
 
-VENV = 'moksha'
+ctl_config = config.load_config()
 
-### TODO -- use configparser or yaml to get this from ~/.something.rc
-##SRC_DIR_KEY = 'moksha_source_location'
-##if not SRC_DIR_KEY in env:
-##    prompt('Enter ' + SRC_DIR_KEY + ' (can be specified in ~/.fabricrc):',
-##           key=SRC_DIR_KEY)
-##
-##SRC_DIR = env[SRC_DIR_KEY]
-# XXX - remove this
-SRC_DIR = "/home/rjbpop/devel/moksha"
-
-APPS_DIR = 'moksha/apps'
 pid_files = ['paster.pid', 'orbited.pid', 'moksha-hub.pid']
 
 def _with_virtualenv(func, *args, **kwargs):
-    with VirtualEnvContext(VENV):
+    with VirtualEnvContext(ctl_config['VENV']):
         return func(*args, **kwargs)
 
 def _in_srcdir(func, *args, **kwargs):
-    with DirectoryContext(SRC_DIR):
+    with DirectoryContext(ctl_config['SRC_DIR']):
         return func(*args, **kwargs)
 
 def _reporter(func, *args, **kwargs):
@@ -124,11 +115,11 @@ def _do_virtualenvwrapper_command(cmd):
 def rebuild():
     """ Completely destroy and rebuild the virtualenv. """
     try:
-        _do_virtualenvwrapper_command('rmvirtualenv %s' % VENV)
+        _do_virtualenvwrapper_command('rmvirtualenv %s' % ctl_config['VENV'])
     except Exception as e:
         print str(e)
 
-    cmd = 'mkvirtualenv --distribute --no-site-packages %s' % VENV
+    cmd = 'mkvirtualenv --distribute --no-site-packages %s' % ctl_config['VENV']
     _do_virtualenvwrapper_command(cmd)
 
     install()
@@ -141,7 +132,7 @@ def install():
     print pip.__file__
     sys.exit(0)
     install_hacks()
-    with DirectoryContext(SRC_DIR):
+    with DirectoryContext(ctl_config['SRC_DIR']):
         # `install` instead of `develop` to avoid weird directory vs. egg
         # namespace issues
         os.system('python setup.py install')
@@ -176,7 +167,7 @@ def install_hacks():
 def install_apps():
     """ Install *all* the moksha `apps`. """
 
-    with DirectoryContext(APPS_DIR):
+    with DirectoryContext(ctl_config['APPS_DIR']):
         dnames = [d for d in os.listdir('.') if os.path.isdir(d)]
         for d in dnames:
             install_app(app=d)
@@ -186,7 +177,8 @@ def install_apps():
 def install_app(app):
     """ Install a particular app.  $ fab install_app:metrics """
 
-    with DirectoryContext("/".join([SRC_DIR, APPS_DIR, app])):
+    dirname = "/".join([ctl_config['SRC_DIR'], ctl_config['APPS_DIR'], app])
+    with DirectoryContext(dirname):
         fnames = os.listdir('.')
         if not 'pavement.py' in fnames:
             print "No `pavement.py` found for app '%s'.  Skipping." % app
@@ -204,7 +196,8 @@ def link_qpid_libs():
     location = 'lib/python*/site-packages'
     template = 'ln -s /usr/{location}/{lib} $WORKON_HOME/{VENV}/{location}/'
     for lib in ['qpid', 'mllib']:
-        cmd = template.format(location=location, VENV=VENV, lib=lib)
+        cmd = template.format(
+            location=location, VENV=ctl_config['VENV'], lib=lib)
         out = os.system(cmd)
 
 @_reporter
@@ -274,7 +267,7 @@ def restart():
 @_with_virtualenv
 def egg_info():
     """ Rebuild egg_info. """
-    with cd(SRC_DIR):
+    with cd(ctl_config['SRC_DIR']):
         os.system('python setup.py egg_info')
 
 

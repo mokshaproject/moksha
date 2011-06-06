@@ -42,7 +42,7 @@ if __name__ == '__main__':
     ])
 
     parser = optparse.OptionParser(usage=usage)
-    parser.add_option('-E', '--environment', dest='venv', default='moksha',
+    parser.add_option('-E', '--environment', dest='venv', default=None,
                       help='name of the virtualenv to use')
 
     opts, args = parser.parse_args()
@@ -58,6 +58,9 @@ if __name__ == '__main__':
         print
         parser.print_usage()
         sys.exit(0)
+
+    if opts.venv:
+        ctl.ctl_config['VENV'] = opts.venv
 
     # Actually execute the commands
     for arg in arguments:
