@@ -36,25 +36,15 @@ def _reporter(func, *args, **kwargs):
     print "[  " + c.green('OK') + "  ]", func.__name__
     return output
 
-def _warn_only(func, *args, **kwargs):
-    # TODO -- evaluate this for removal.  It might be old news.
-    return func(*args, **kwargs)
-    #with settings(hide('warnings', 'running', 'stdout', 'stderr'),
-    #              warn_only=True):
-    #    return func(*args, **kwargs)
-
 _with_virtualenv = decorator.decorator(_with_virtualenv)
 _in_srcdir = decorator.decorator(_in_srcdir)
 _reporter = decorator.decorator(_reporter)
-_warn_only = decorator.decorator(_warn_only)
 
-def _use_yum():
-    return os.path.exists('/etc/redhat-release')
 
 @_reporter
 def bootstrap():
     """ Should only be run once.  First-time moksha setup. """
-    if _use_yum():
+    if os.path.exists('/etc/redhat-release'):
         reqs = [
             'python-setuptools', 'python-qpid', 'qpid-cpp-server',
             'ccze',  # ccze is awesome
@@ -182,7 +172,6 @@ def install_app(app):
 @_reporter
 @_with_virtualenv
 @_in_srcdir
-@_warn_only
 def link_qpid_libs():
     """ Link qpid and mllib in from the system site-packages. """
     location = 'lib/python{major}.{minor}/site-packages'.format(
@@ -220,7 +209,6 @@ def start(service=None):
 @_reporter
 @_with_virtualenv
 @_in_srcdir
-@_warn_only
 def stop(service=None):
     """ Stop paster, orbited, and moksha-hub.  """
     _pid_files = pid_files
@@ -276,7 +264,6 @@ def _wtffail(msg):
     print "[wtf] [ " + c.red('FAIL') + " ]", msg
 
 @_in_srcdir
-@_warn_only
 def wtf():
     """ Debug a busted moksha environment. """
     wtfwin, wtffail = _wtfwin, _wtffail
