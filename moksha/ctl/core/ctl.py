@@ -22,18 +22,16 @@ def _in_srcdir(func, *args, **kwargs):
     with utils.DirectoryContext(ctl_config['SRC_DIR']):
         return func(*args, **kwargs)
 
+PRETTY_PREFIX = "[" + c.magenta("moksha-ctl") + "] "
 def _reporter(func, *args, **kwargs):
-    print "[" + c.magenta("moksha-ctl") + "] ",
-    print "Running", func.__name__, "with",
+    print PRETTY_PREFIX, "Running", func.__name__, "with",
     print "args:", c.cyan(str(args)) + " and kw:" + c.cyan(str(kwargs))
     try:
         output = func(*args, **kwargs)
     except Exception:
-        print "[" + c.magenta("moksha-ctl") + "] ",
-        print "[ " + c.red('FAIL') + " ]", func.__name__
+        print PRETTY_PREFIX, "[ " + c.red('FAIL') + " ]", func.__name__
         raise
-    print "[" + c.magenta("moksha-ctl") + "] ",
-    print "[  " + c.green('OK') + "  ]", func.__name__
+    print PRETTY_PREFIX, "[  " + c.green('OK') + "  ]", func.__name__
     return output
 
 _with_virtualenv = decorator.decorator(_with_virtualenv)
@@ -72,8 +70,7 @@ source /usr/bin/virtualenvwrapper.sh;
         else:
             raise e
 
-    print "[" + c.magenta("moksha-ctl") + "] ",
-    print "Done-ski."
+    print PRETTY_PREFIX, "Done-ski."
     print "You should definitely add the following to your ~/.bashrc."
     print
     print "*" * 60
@@ -136,8 +133,7 @@ def install_hacks():
 
     # This automatically uses --use-mirrors
     for dist in distributions:
-        print "[" + c.magenta("moksha-ctl") + "] ",
-        print "pip installing", c.yellow(dist), "with --use-mirrors"
+        print PRETTY_PREFIX, "pip installing", c.yellow(dist)
         utils.install_distributions([dist])
 
 @_reporter
@@ -190,7 +186,7 @@ def start(service=None):
     """ Start paster, orbited, and moksha-hub. """
 
     def start_service(name):
-        print "[moksha fabric] Starting " + c.magenta(name)
+        print PRETTY_PREFIX, "Starting " + c.yellow(name)
         os.system('.scripts/start-{name}'.format(name=name), pty=False)
 
 
@@ -257,11 +253,12 @@ def egg_info():
 # Below here follows the *giant* 'wtf' block.  Add things to it as necessary.
 # --
 
+WTF_PREFIX = PRETTY_PREFIX + "[" + c.magenta('wtf') + "]"
 def _wtfwin(msg):
-    print "[wtf] [  " + c.green('OK') + "  ]", msg
+    print WTF_PREFIX, "[  " + c.green('OK') + "  ]", msg
 
 def _wtffail(msg):
-    print "[wtf] [ " + c.red('FAIL') + " ]", msg
+    print WTF_PREFIX, "[ " + c.red('FAIL') + " ]", msg
 
 @_in_srcdir
 def wtf():
