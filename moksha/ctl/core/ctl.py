@@ -234,8 +234,8 @@ def stop(service=None):
 @_in_srcdir
 def develop():
     """ `python setup.py develop` """
-    os.system('python setup.py install')
-    os.system('python setup.py develop')
+    os.system('%s setup.py install' % sys.executable)
+    os.system('%s setup.py develop' % sys.executable)
 
 @_reporter
 @_with_virtualenv
@@ -250,7 +250,7 @@ def restart():
 def egg_info():
     """ Rebuild egg_info. """
     with cd(ctl_config['SRC_DIR']):
-        os.system('python setup.py egg_info')
+        os.system('%s setup.py egg_info' % sys.executable)
 
 
 # --
