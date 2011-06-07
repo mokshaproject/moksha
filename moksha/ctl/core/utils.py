@@ -77,8 +77,6 @@ class VenvModuleLoader(ihooks.ModuleLoader):
 
     def load_module(self, name, stuff):
         """ Overloaded just to remember what we load """
-        file, filename, info = stuff
-        (suff, mode, type) = info
         self.remembered.append(name)
         return ihooks.ModuleLoader.load_module(self, name, stuff)
 
