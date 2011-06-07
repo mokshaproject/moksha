@@ -60,6 +60,7 @@ def bootstrap():
     ret = ret and not os.system('sudo easy_install -q pip')
     ret = ret and not os.system('sudo pip -q install virtualenv')
     ret = ret and not os.system('sudo pip -q install virtualenvwrapper')
+    ret = ret and not os.system('sudo pip -q install fabulous')
 
     shellrc_snippet = """
 # virtualenv stuff
@@ -74,6 +75,8 @@ source /usr/bin/virtualenvwrapper.sh;
         else:
             raise e
 
+    # TODO -- auto-insert virtualenv snippet into ~/.bashrc if its not already
+    # there.
     print PRETTY_PREFIX, "Done-ski."
     print "You should definitely add the following to your ~/.bashrc."
     print
