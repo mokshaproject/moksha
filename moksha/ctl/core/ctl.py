@@ -4,6 +4,7 @@ import subprocess
 import os
 import sys
 import shutil
+import psutil
 
 # Local imports
 import config
@@ -24,14 +25,16 @@ def _in_srcdir(func, *args, **kwargs):
 
 PRETTY_PREFIX = "[" + c.magenta("moksha-ctl") + "] "
 def _reporter(func, *args, **kwargs):
-    print PRETTY_PREFIX, "Running", func.__name__, "with",
-    print "args:", c.cyan(str(args)) + " and kw:" + c.cyan(str(kwargs))
+    descriptor =  ":".join([func.__name__] + [a for a in args if a])
+    print PRETTY_PREFIX, "Running:", descriptor
+    output = None
     try:
         output = func(*args, **kwargs)
+        if not output:
+            raise Exception
+        print PRETTY_PREFIX, "[  " + c.green('OK') + "  ]", descriptor
     except Exception:
-        print PRETTY_PREFIX, "[ " + c.red('FAIL') + " ]", func.__name__
-        raise
-    print PRETTY_PREFIX, "[  " + c.green('OK') + "  ]", func.__name__
+        print PRETTY_PREFIX, "[ " + c.red('FAIL') + " ]", descriptor
     return output
 
 _with_virtualenv = decorator.decorator(_with_virtualenv)
@@ -42,20 +45,21 @@ _reporter = decorator.decorator(_reporter)
 @_reporter
 def bootstrap():
     """ Should only be run once.  First-time moksha setup. """
+    ret = True
     if os.path.exists('/etc/redhat-release'):
         reqs = [
             'python-setuptools', 'python-qpid', 'qpid-cpp-server',
-            'ccze',  # ccze is awesome
+            'python-psutil', 'ccze', # ccze is awesome
         ]
-        os.system('sudo yum install -q -y ' + ' '.join(reqs))
+        ret = ret and not os.system('sudo yum install -q -y ' + ' '.join(reqs))
     else:
         # No orbited or qpid on ubuntu as far as I can tell
         # TODO -- how should we work this?
-        os.system('sudo apt-get install -y python-setuptools')
+        ret = ret and not os.system('sudo apt-get install -y python-setuptools')
 
-    os.system('sudo easy_install -q pip')
-    os.system('sudo pip -q install virtualenv')
-    os.system('sudo pip -q install virtualenvwrapper')
+    ret = ret and not os.system('sudo easy_install -q pip')
+    ret = ret and not os.system('sudo pip -q install virtualenv')
+    ret = ret and not os.system('sudo pip -q install virtualenvwrapper')
 
     shellrc_snippet = """
 # virtualenv stuff
@@ -78,6 +82,7 @@ source /usr/bin/virtualenvwrapper.sh;
     print "*" * 60
     print
     print "Then please run 'moksha-ctl.py rebuild'"
+    return ret
 
 
 def _do_virtualenvwrapper_command(cmd):
@@ -105,20 +110,22 @@ def rebuild():
     cmd = 'mkvirtualenv --distribute --no-site-packages %s' % ctl_config['VENV']
     _do_virtualenvwrapper_command(cmd)
 
-    install()
+    return install()
 
 @_reporter
 @_with_virtualenv
 def install():
     """ Install moksha and all its dependencies. """
-    install_hacks()
+    ret = True
+    ret = ret and install_hacks()
     with utils.DirectoryContext(ctl_config['SRC_DIR']):
         # `install` instead of `develop` to avoid weird directory vs. egg
         # namespace issues
-        os.system('%s setup.py install' % sys.executable )
-    install_apps()
-    link_qpid_libs()
-    develop()
+        ret = ret and not os.system('%s setup.py install' % sys.executable )
+    ret = ret and install_apps()
+    ret = ret and link_qpid_libs()
+    ret = ret and develop()
+    return ret
 
 @_reporter
 @_with_virtualenv
@@ -136,6 +143,11 @@ def install_hacks():
         print PRETTY_PREFIX, "pip installing", c.yellow(dist)
         utils.install_distributions([dist])
 
+    # TODO -- test to see if the installs worked.
+    return True
+
+
+
 @_reporter
 @_with_virtualenv
 @_in_srcdir
@@ -146,6 +158,7 @@ def install_apps():
         dnames = [d for d in os.listdir('.') if os.path.isdir(d)]
         for d in dnames:
             install_app(app=d)
+    return True
 
 @_reporter
 @_with_virtualenv
@@ -157,13 +170,19 @@ def install_app(app):
         fnames = os.listdir('.')
         if not 'pavement.py' in fnames:
             print "No `pavement.py` found for app '%s'.  Skipping." % app
-            return
+            return False
         try:
             shutil.rmtree('dist')
         except OSError as e:
             pass # It's cool.
-        os.system('%s bdist_egg' % sys.executable.split('/')[:-1] + '/paver')
-        #os.system('easy_install -Z dist/*.egg')
+        base = '/'.join(sys.executable.split('/')[:-1])
+        cmd = '%s/paver bdist_egg > /dev/null 2>&1' % base
+        if os.system(cmd):
+            return False
+        cmd = '%s/easy_install -Z dist/*.egg > /dev/null 2>&1' % base
+        if os.system(cmd):
+            return False
+    return True
 
 @_reporter
 @_with_virtualenv
@@ -179,6 +198,9 @@ def link_qpid_libs():
             workon=os.getenv("WORKON_HOME"))
         out = os.system(cmd)
 
+    # TODO -- test for success
+    return True
+
 @_reporter
 @_with_virtualenv
 @_in_srcdir
@@ -187,20 +209,25 @@ def start(service=None):
 
     def start_service(name):
         print PRETTY_PREFIX, "Starting " + c.yellow(name)
-        os.system('.scripts/start-{name}'.format(name=name), pty=False)
+        return not os.system('.scripts/start-{name} {venv}'.format(
+            name=name, venv=ctl_config['VENV']))
 
-
+    ret = True
     if service:
         pid_file = service + '.pid'
         if os.path.exists(pid_file):
             raise ValueError, "%s file exists" % pid_file
-        start_service(name=service)
+        ret = ret and start_service(name=service)
     else:
         if any(map(os.path.exists, pid_files)):
             raise ValueError, "some .pid file exists"
-        start_service(name='paster')
-        start_service(name='orbited')
-        start_service(name='moksha-hub')
+        ret = ret and start_service(name='paster')
+        ret = ret and start_service(name='orbited')
+        ret = ret and start_service(name='moksha-hub')
+
+    print " * Log files are in logs/<service>.log.  Run:"
+    print "     $ tail -f logs/paster.log | ccze"
+    return ret
 
 @_reporter
 @_with_virtualenv
@@ -208,38 +235,64 @@ def start(service=None):
 def stop(service=None):
     """ Stop paster, orbited, and moksha-hub.  """
     _pid_files = pid_files
+    def stopfail(msg):
+        print PRETTY_PREFIX + " [ " + c.red('FAIL') + " ]", msg
+
+    def stopwin(msg):
+        print PRETTY_PREFIX + " [  " + c.green('OK') + "  ]", msg
 
     if service:
         _pid_files = [service+'.pid']
 
+    ret = True
+    processes = psutil.get_process_list()
     for fname in _pid_files:
         if not os.path.exists(fname):
-            print "[moksha fabric] [ " + c.red('FAIL') + " ]",
-            print fname, "does not exist."
+            stopfail(fname + " does not exist.")
             continue
+
+        pid = None
         try:
-            cmd = 'kill $(cat %s)' % fname
-            os.system(cmd)
-            print "[moksha fabric] [  " + c.green('OK') + "  ]", cmd
-        except:
-            print "[moksha fabric] [ " + c.red('FAIL') + " ]", cmd
-        finally:
-            os.system('rm %s' % fname)
+            with open(fname) as f:
+                pid = int(f.read())
+        except IOError:
+            stopfail(fname + " does not exist.")
+            ret = False
+            continue
+        except ValueError:
+            stopfail(fname + " is corrupt.")
+            ret = False
+            continue
+
+        instances = [p for p in processes if p.pid == pid]
+        if len(instances) == 0:
+            stopfail("No such process with pid: " + str(pid))
+            ret = False
+            os.remove(fname)
+            continue
+
+        proc = instances[0]
+        result = proc.kill()
+        stopwin("Killed %i %s" % (proc.pid, proc.name))
+        os.remove(fname)
+
+    return ret
 @_reporter
 @_with_virtualenv
 @_in_srcdir
 def develop():
     """ `python setup.py develop` """
-    os.system('%s setup.py install' % sys.executable)
-    os.system('%s setup.py develop' % sys.executable)
+    ret = True
+    ret = ret and not os.system('%s setup.py install' % sys.executable)
+    ret = ret and not os.system('%s setup.py develop' % sys.executable)
+    return ret
 
 @_reporter
 @_with_virtualenv
 def restart():
     """ Stop, `python setup.py develop`, start.  """
-    stop()
-    develop()
-    start()
+    stop()  # We don't care if this fa
+    return start()
 
 @_reporter
 @_with_virtualenv
@@ -265,56 +318,64 @@ def wtf():
     """ Debug a busted moksha environment. """
     wtfwin, wtffail = _wtfwin, _wtffail
 
-    output = os.system('echo $WORKON_HOME')
-    if not output:
+    workon = os.getenv('WORKON_HOME')
+    if not workon:
         wtffail('$WORKON_HOME is not set.')
     else:
-        wtfwin('$WORKON_HOME is set to ' + output)
-        if os.path.exists('$WORKON_HOME'):
-            wtfwin(output + ' exists.')
+        wtfwin('$WORKON_HOME is set to ' + workon)
+        if os.path.exists(os.path.expanduser(workon)):
+            wtfwin(workon + ' exists.')
         else:
-            wtffail(output + ' does not exist.')
+            wtffail(workon + ' does not exist.')
 
-    out = os.system('python -c "import qpid"')
-    if not out:
+
+    with utils.VirtualenvContext(ctl_config['VENV']):
+        try:
+            import qpid
+            if not qpid.__file__.startswith(os.path.expanduser(workon)):
+                raise ImportError
+            wtfwin('virtualenv python-qpid is installed.')
+        except Exception as e:
+            wtffail('virtualenv python-qpid not installed.')
+
+    try:
+        import qpid
+        if not qpid.__file__.startswith('/usr/'):
+            raise ImportError
         wtfwin('system-wide python-qpid is installed.')
-    else:
+    except ImportError as e:
         wtffail('system-wide python-qpid not installed.')
 
-    # Proceed along the rest of the way, but with the virtualenv enabled.
-    _wtf_rest()
+    with utils.VirtualenvContext(ctl_config['VENV']):
+        all_processes = psutil.get_process_list()
+        for pid_file in pid_files:
+            prog = pid_file[:-4]
 
-@_with_virtualenv
-def _wtf_rest():
-    wtfwin, wtffail = _wtfwin, _wtffail
+            instances = [p for p in all_processes if prog in p.name]
+            pid = None
+            try:
+                with open(pid_file) as f:
+                    pid = int(f.read())
+            except IOError:
+                wtffail(pid_file + ' does not exist.')
+            except ValueError:
+                wtffail(pid_file + ' is corrupt.')
 
-    out = os.system('python -c "import qpid"')
-    if not out:
-        wtfwin('virtualenv python-qpid is linked.')
-    else:
-        wtffail('virtualenv python-qpid not linked.')
-
-    for pid_file in pid_files:
-        prog = pid_file[:-4]
-
-        pid = None
-        if os.path.exists(pid_file):
-            pid = os.system('cat ' + pid_file)
-        else:
-            wtffail(pid_file + ' does not exist.')
-
-        out = os.system('pgrep ' + prog).split()
-
-        if not out:
-            if pid:
-                wtffail(prog + ' is not running BUT it has a pid file!')
+            if not psutil.pid_exists(pid):
+                if pid and len(instances) == 0:
+                    wtffail(prog + ' is not running BUT it has a pid file!')
+                elif len(instances) != 0:
+                    wtffail(prog + " appears to be running, " + 
+                            "but pidfile doesn't match")
+                else:
+                    wtffail(prog + ' is not running.')
             else:
-                wtffail(prog + ' is not running.')
-        else:
-            if len(out) > 1:
-                wtffail(prog + ' has more than one instance running.')
-            else:
-                if out[0] != pid:
+                if len(instances) > 1:
+                    wtffail(prog + ' has multiple instances running.')
+                elif len(instances) == 0:
+                    wtffail(prog + ' not running.  ' +
+                            'But pidfile points to ANOTHER process!')
+                elif instances[0].pid != pid:
                     wtffail('pid of ' + prog + " doesn't match pid-file")
                 else:
                     wtfwin(prog + ' is running and healthy.')
