@@ -28,7 +28,7 @@ def install_distributions(distributions):
         pass
 
     requirement_set = command.run(opts, distributions)
-    foo = requirement_set.install([])
+    requirement_set.install([])
 
 class DirectoryContext(object):
     """ Context manager for changing the path working directory """
