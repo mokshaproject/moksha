@@ -19,7 +19,8 @@ PRETTY_PREFIX = "[" + c.magenta("moksha-ctl") + "] "
 
 
 def _with_virtualenv(func, *args, **kwargs):
-    with utils.VirtualenvContext(ctl_config['VENV']):
+    import virtualenvcontext
+    with virtualenvcontext.VirtualenvContext(ctl_config['VENV']):
         return func(*args, **kwargs)
 
 
@@ -66,6 +67,7 @@ def bootstrap():
     ret = ret and not os.system('sudo easy_install -q pip')
     ret = ret and not os.system('sudo pip -q install virtualenv')
     ret = ret and not os.system('sudo pip -q install virtualenvwrapper')
+    ret = ret and not os.system('sudo pip -q install virtualenvcontext')
     ret = ret and not os.system('sudo pip -q install fabulous')
 
     shellrc_snippet = """
@@ -340,6 +342,7 @@ def _wtffail(msg):
 
 @_in_srcdir
 def wtf():
+    import virtualenvcontext
     """ Debug a busted moksha environment. """
     wtfwin, wtffail = _wtfwin, _wtffail
 
@@ -353,7 +356,7 @@ def wtf():
         else:
             wtffail(workon + ' does not exist.')
 
-    with utils.VirtualenvContext(ctl_config['VENV']):
+    with virtualenvcontext.VirtualenvContext(ctl_config['VENV']):
         try:
             import qpid
             if not qpid.__file__.startswith(os.path.expanduser(workon)):
@@ -370,7 +373,7 @@ def wtf():
     except ImportError as e:
         wtffail('system-wide python-qpid not installed.')
 
-    with utils.VirtualenvContext(ctl_config['VENV']):
+    with virtualenvcontext.VirtualenvContext(ctl_config['VENV']):
         all_processes = psutil.get_process_list()
         for pid_file in pid_files:
             prog = pid_file[:-4]
