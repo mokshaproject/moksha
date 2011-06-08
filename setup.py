@@ -27,6 +27,7 @@ setup(
         "ToscaWidgets",
         "zope.sqlalchemy",
         "sqlalchemy",
+        "psutil",
         "Shove",
         "feedcache",
         "feedparser",
