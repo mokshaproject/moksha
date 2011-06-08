@@ -6,6 +6,7 @@ import ihooks
 import warnings
 import imp
 
+
 def install_distributions(distributions):
     """ Installs distributions with pip! """
 
@@ -30,6 +31,7 @@ def install_distributions(distributions):
     requirement_set = command.run(opts, distributions)
     requirement_set.install([])
 
+
 class DirectoryContext(object):
     """ Context manager for changing the path working directory """
     def __init__(self, directory):
@@ -38,7 +40,7 @@ class DirectoryContext(object):
 
     def __enter__(self):
         if self.old_path:
-            raise ValueError, "Weird.  old_path should be None"
+            raise ValueError("Weird.  old_path should be None")
         self.old_path = os.getcwd()
         os.chdir(self.dirname)
 
@@ -46,11 +48,13 @@ class DirectoryContext(object):
         os.chdir(self.old_path)
         self.old_path = None
 
+
 def _silent_load_source(name, filename, file=None):
     """ Helper function.  Overrides a import hook.  Suppresses warnings. """
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         return imp.load_source(name, filename, file)
+
 
 class VenvModuleLoader(ihooks.ModuleLoader):
     """ Overridden ModuleLoader.
@@ -69,7 +73,7 @@ class VenvModuleLoader(ihooks.ModuleLoader):
         workon = os.getenv("WORKON_HOME", None)
         venv_location = "/".join([
             workon, self.venv, 'lib/python2.7/site-packages'])
-        full = lambda i : "/".join([venv_location, i])
+        full = lambda i: "/".join([venv_location, i])
         venv_path = [venv_location] + [
             full(item) for item in os.listdir(venv_location)
             if os.path.isdir(full(item))] + sys.path
@@ -79,6 +83,7 @@ class VenvModuleLoader(ihooks.ModuleLoader):
         """ Overloaded just to remember what we load """
         self.remembered.append(name)
         return ihooks.ModuleLoader.load_module(self, name, stuff)
+
 
 class VirtualenvContext(object):
     """ Context manager for entering a virtualenv """
@@ -111,4 +116,3 @@ class VirtualenvContext(object):
             del sys.modules[name]
         self.importer.loader.remembered = []
         sys.path_importer_cache.clear()
-

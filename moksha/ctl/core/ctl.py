@@ -15,17 +15,21 @@ ctl_config = config.load_config()
 
 pid_files = ['paster.pid', 'orbited.pid', 'moksha-hub.pid']
 
+PRETTY_PREFIX = "[" + c.magenta("moksha-ctl") + "] "
+
+
 def _with_virtualenv(func, *args, **kwargs):
     with utils.VirtualenvContext(ctl_config['VENV']):
         return func(*args, **kwargs)
+
 
 def _in_srcdir(func, *args, **kwargs):
     with utils.DirectoryContext(ctl_config['SRC_DIR']):
         return func(*args, **kwargs)
 
-PRETTY_PREFIX = "[" + c.magenta("moksha-ctl") + "] "
+
 def _reporter(func, *args, **kwargs):
-    descriptor =  ":".join([func.__name__] + [a for a in args if a])
+    descriptor = ":".join([func.__name__] + [a for a in args if a])
     print PRETTY_PREFIX, "Running:", descriptor
     output = None
     try:
@@ -49,13 +53,15 @@ def bootstrap():
     if os.path.exists('/etc/redhat-release'):
         reqs = [
             'python-setuptools', 'python-qpid', 'qpid-cpp-server',
-            'python-psutil', 'ccze', # ccze is awesome
+            'python-psutil', 'ccze',  # ccze is awesome
         ]
-        ret = ret and not os.system('sudo yum install -q -y ' + ' '.join(reqs))
+        ret = ret and not os.system(
+            'sudo yum install -q -y ' + ' '.join(reqs))
     else:
         # No orbited or qpid on ubuntu as far as I can tell
         # TODO -- how should we work this?
-        ret = ret and not os.system('sudo apt-get install -y python-setuptools')
+        ret = ret and not os.system(
+            'sudo apt-get install -y python-setuptools')
 
     ret = ret and not os.system('sudo easy_install -q pip')
     ret = ret and not os.system('sudo pip -q install virtualenv')
@@ -96,11 +102,12 @@ def _do_virtualenvwrapper_command(cmd):
 
     print "Trying '%s'" % cmd
     out, err = subprocess.Popen(
-        ['bash', '-c', '. /usr/bin/virtualenvwrapper.sh; %s' % cmd ],
+        ['bash', '-c', '. /usr/bin/virtualenvwrapper.sh; %s' % cmd],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE,
     ).communicate()
     print out
     print err
+
 
 @_reporter
 def rebuild():
@@ -110,10 +117,11 @@ def rebuild():
     except Exception as e:
         print str(e)
 
-    cmd = 'mkvirtualenv --distribute --no-site-packages %s' % ctl_config['VENV']
+    cmd = 'mkvirtualenv --no-site-packages %s' % ctl_config['VENV']
     _do_virtualenvwrapper_command(cmd)
 
     return install()
+
 
 @_reporter
 @_with_virtualenv
@@ -124,11 +132,12 @@ def install():
     with utils.DirectoryContext(ctl_config['SRC_DIR']):
         # `install` instead of `develop` to avoid weird directory vs. egg
         # namespace issues
-        ret = ret and not os.system('%s setup.py install' % sys.executable )
+        ret = ret and not os.system('%s setup.py install' % sys.executable)
     ret = ret and install_apps()
     ret = ret and link_qpid_libs()
     ret = ret and develop()
     return ret
+
 
 @_reporter
 @_with_virtualenv
@@ -150,7 +159,6 @@ def install_hacks():
     return True
 
 
-
 @_reporter
 @_with_virtualenv
 @_in_srcdir
@@ -162,6 +170,7 @@ def install_apps():
         for d in dnames:
             install_app(app=d)
     return True
+
 
 @_reporter
 @_with_virtualenv
@@ -177,7 +186,7 @@ def install_app(app):
         try:
             shutil.rmtree('dist')
         except OSError as e:
-            pass # It's cool.
+            pass  # It's cool.
         base = '/'.join(sys.executable.split('/')[:-1])
         cmd = '%s/paver bdist_egg > /dev/null 2>&1' % base
         if os.system(cmd):
@@ -187,13 +196,14 @@ def install_app(app):
             return False
     return True
 
+
 @_reporter
 @_with_virtualenv
 @_in_srcdir
 def link_qpid_libs():
     """ Link qpid and mllib in from the system site-packages. """
     location = 'lib/python{major}.{minor}/site-packages'.format(
-        major=sys.version_info.major,minor=sys.version_info.minor)
+        major=sys.version_info.major, minor=sys.version_info.minor)
     template = 'ln -s /usr/{location}/{lib} {workon}/{VENV}/{location}/'
     for lib in ['qpid', 'mllib']:
         cmd = template.format(
@@ -203,6 +213,7 @@ def link_qpid_libs():
 
     # TODO -- test for success
     return True
+
 
 @_reporter
 @_with_virtualenv
@@ -219,11 +230,11 @@ def start(service=None):
     if service:
         pid_file = service + '.pid'
         if os.path.exists(pid_file):
-            raise ValueError, "%s file exists" % pid_file
+            raise ValueError("%s file exists" % pid_file)
         ret = ret and start_service(name=service)
     else:
         if any(map(os.path.exists, pid_files)):
-            raise ValueError, "some .pid file exists"
+            raise ValueError("some .pid file exists")
         ret = ret and start_service(name='paster')
         ret = ret and start_service(name='orbited')
         ret = ret and start_service(name='moksha-hub')
@@ -232,20 +243,23 @@ def start(service=None):
     print "     $ tail -f logs/paster.log | ccze"
     return ret
 
+
 @_reporter
 @_with_virtualenv
 @_in_srcdir
 def stop(service=None):
     """ Stop paster, orbited, and moksha-hub.  """
-    _pid_files = pid_files
+
     def stopfail(msg):
         print PRETTY_PREFIX + " [ " + c.red('FAIL') + " ]", msg
 
     def stopwin(msg):
         print PRETTY_PREFIX + " [  " + c.green('OK') + "  ]", msg
 
+    _pid_files = pid_files
+
     if service:
-        _pid_files = [service+'.pid']
+        _pid_files = [service + '.pid']
 
     ret = True
     processes = psutil.get_process_list()
@@ -280,6 +294,8 @@ def stop(service=None):
         os.remove(fname)
 
     return ret
+
+
 @_reporter
 @_with_virtualenv
 @_in_srcdir
@@ -290,12 +306,14 @@ def develop():
     ret = ret and not os.system('%s setup.py develop' % sys.executable)
     return ret
 
+
 @_reporter
 @_with_virtualenv
 def restart():
     """ Stop, `python setup.py develop`, start.  """
     stop()  # We don't care if this fa
     return start()
+
 
 @_reporter
 @_with_virtualenv
@@ -310,11 +328,15 @@ def egg_info():
 # --
 
 WTF_PREFIX = PRETTY_PREFIX + "[" + c.magenta('wtf') + "]"
+
+
 def _wtfwin(msg):
     print WTF_PREFIX, "[  " + c.green('OK') + "  ]", msg
 
+
 def _wtffail(msg):
     print WTF_PREFIX, "[ " + c.red('FAIL') + " ]", msg
+
 
 @_in_srcdir
 def wtf():
@@ -330,7 +352,6 @@ def wtf():
             wtfwin(workon + ' exists.')
         else:
             wtffail(workon + ' does not exist.')
-
 
     with utils.VirtualenvContext(ctl_config['VENV']):
         try:
@@ -368,7 +389,7 @@ def wtf():
                 if pid and len(instances) == 0:
                     wtffail(prog + ' is not running BUT it has a pid file!')
                 elif len(instances) != 0:
-                    wtffail(prog + " appears to be running, " + 
+                    wtffail(prog + " appears to be running, " +
                             "but pidfile doesn't match")
                 else:
                     wtffail(prog + ' is not running.')
