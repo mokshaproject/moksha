@@ -10,6 +10,7 @@ mokshaenv
 *.db
 .build
 *.egg-info
+*.egg
 *.pid
 rabbitmq-codegen
 rabbitmq-server
