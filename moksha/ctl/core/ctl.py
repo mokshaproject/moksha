@@ -70,11 +70,6 @@ def bootstrap():
     ret = ret and not os.system('sudo pip -q install virtualenvcontext')
     ret = ret and not os.system('sudo pip -q install fabulous')
 
-    shellrc_snippet = """
-# virtualenv stuff
-export WORKON_HOME=$HOME/.virtualenvs;
-source /usr/bin/virtualenvwrapper.sh;
-"""
     try:
         os.mkdir(os.path.expanduser('~/.virtualenvs'))
     except OSError as e:
@@ -83,16 +78,26 @@ source /usr/bin/virtualenvwrapper.sh;
         else:
             raise e
 
-    # TODO -- auto-insert virtualenv snippet into ~/.bashrc if its not already
-    # there.
-    print PRETTY_PREFIX, "Done-ski."
-    print "You should definitely add the following to your ~/.bashrc."
-    print
-    print "*" * 60
-    print shellrc_snippet
-    print "*" * 60
-    print
-    print "Then please run 'moksha-ctl.py rebuild'"
+    if not os.getenv('WORKON_HOME', None):
+        # TODO -- auto-insert virtualenv snippet into ~/.bashrc if
+        # its not already there.
+        shellrc_snippet = """
+# virtualenv stuff
+export WORKON_HOME=$HOME/.virtualenvs;
+source /usr/bin/virtualenvwrapper.sh;
+"""
+        print PRETTY_PREFIX, "Ok... but,"
+        print "You should definitely add the following to your ~/.bashrc."
+        print
+        print "*" * 60
+        print shellrc_snippet
+        print "*" * 60
+        print
+        print "Then please re-run './moksha-ctl.py bootstrap'."
+        return False
+    else:
+        print PRETTY_PREFIX, "Great.  Done-ski."
+        print "Please run './moksha-ctl.py rebuild' to continue."
     return ret
 
 
