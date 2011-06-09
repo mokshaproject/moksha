@@ -18,17 +18,20 @@ pid_files = ['paster.pid', 'orbited.pid', 'moksha-hub.pid']
 PRETTY_PREFIX = "[" + c.magenta("moksha-ctl") + "] "
 
 
+@decorator.decorator
 def _with_virtualenv(func, *args, **kwargs):
     import virtualenvcontext
     with virtualenvcontext.VirtualenvContext(ctl_config['VENV']):
         return func(*args, **kwargs)
 
 
+@decorator.decorator
 def _in_srcdir(func, *args, **kwargs):
     with utils.DirectoryContext(ctl_config['SRC_DIR']):
         return func(*args, **kwargs)
 
 
+@decorator.decorator
 def _reporter(func, *args, **kwargs):
     descriptor = ":".join([func.__name__] + [a for a in args if a])
     print PRETTY_PREFIX, "Running:", descriptor
@@ -42,10 +45,6 @@ def _reporter(func, *args, **kwargs):
         print PRETTY_PREFIX, "[ " + c.red('FAIL') + " ]", descriptor,
         print ' -- ', str(e)
     return output
-
-_with_virtualenv = decorator.decorator(_with_virtualenv)
-_in_srcdir = decorator.decorator(_in_srcdir)
-_reporter = decorator.decorator(_reporter)
 
 
 @_reporter
