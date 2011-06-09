@@ -38,8 +38,9 @@ def _reporter(func, *args, **kwargs):
         if not output:
             raise Exception
         print PRETTY_PREFIX, "[  " + c.green('OK') + "  ]", descriptor
-    except Exception:
-        print PRETTY_PREFIX, "[ " + c.red('FAIL') + " ]", descriptor
+    except Exception as e:
+        print PRETTY_PREFIX, "[ " + c.red('FAIL') + " ]", descriptor,
+        print ' -- ', str(e)
     return output
 
 _with_virtualenv = decorator.decorator(_with_virtualenv)
