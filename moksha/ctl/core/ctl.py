@@ -129,16 +129,30 @@ def rebuild():
 @_with_virtualenv
 def install():
     """ Install moksha and all its dependencies. """
-    ret = True
-    ret = ret and install_hacks()
+
+    # Use a dict to track return values so we can summarize results
+    ret = {}
+
+    # Do the work
+    ret['install_hacks'] = install_hacks()
     with utils.DirectoryContext(ctl_config['SRC_DIR']):
         # `install` instead of `develop` to avoid weird directory vs. egg
         # namespace issues
-        ret = ret and not os.system('%s setup.py install' % sys.executable)
-    ret = ret and install_apps()
-    ret = ret and link_qpid_libs()
-    ret = ret and develop()
-    return ret
+        ret['python setup.py install'] = \
+                not os.system('%s setup.py install' % sys.executable)
+    ret['install_apps'] = install_apps()
+    ret['link_qpid_libs'] = link_qpid_libs()
+    ret['develop'] = develop()
+
+    # Summarize what went wrong if anything
+    if not all(ret.values()):
+        print PRETTY_PREFIX, "Something went wrong for `install`"
+
+    for k, v in ret.iteritems():
+        if not v:
+            print PRETTY_PREFIX, "  Failing because", c.yellow(k), "failed."
+
+    return all(ret.values())
 
 
 @_reporter
