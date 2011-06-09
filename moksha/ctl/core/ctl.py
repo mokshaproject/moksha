@@ -261,7 +261,7 @@ def start(service=None):
         ret = ret and start_service(name='moksha-hub')
 
     print " * Log files are in logs/<service>.log.  Run:"
-    print "     $ tail -f logs/paster.log | ccze"
+    print "     $ ./moksha-ctl.py logs"
     return ret
 
 
@@ -340,9 +340,21 @@ def restart():
 @_with_virtualenv
 def egg_info():
     """ Rebuild egg_info. """
-    with cd(ctl_config['SRC_DIR']):
+    with utils.DirectoryContext(ctl_config['SRC_DIR']):
         os.system('%s setup.py egg_info' % sys.executable)
 
+
+# No decorators here
+def logs():
+    """ Watch colorized logs of paster, orbited, and moksha-hub """
+    log_location = 'logs'
+    log_files = ['paster.log', 'orbited.log', 'moksha-hub.log']
+    with utils.DirectoryContext(ctl_config['SRC_DIR']):
+        cmd = 'tail -f %s | ccze' % ' '.join([
+            log_location + '/' + fname for fname in log_files
+        ])
+        print PRETTY_PREFIX, "Running '", cmd, "'"
+        os.system(cmd)
 
 # --
 # Below here follows the *giant* 'wtf' block.  Add things to it as necessary.

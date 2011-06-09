@@ -6,7 +6,7 @@ Example:
     $ ./moksha-ctl.py rebuild
     $ ./moksha-ctl.py start
     $ ./moksha-ctl.py wtf
-    $ tail -f logs/moksha-hub.log | ccze
+    $ ./moksha-ctl.py logs
 
 Passing arguments:
     You can also pass arguments to particular commands like start, restart, and
