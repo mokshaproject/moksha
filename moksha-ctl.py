@@ -62,6 +62,13 @@ if __name__ == '__main__':
     if opts.venv:
         ctl.ctl_config['VENV'] = opts.venv
 
+    # Render the moksha logo.  Haters gonna hate.
+    try:
+        from fabulous import image
+        print image.Image("website/img/moksha-logo.png")
+    except Exception as e:
+        pass  # Oh well.
+
     # Actually execute the commands
     for arg in arguments:
         getattr(ctl, arg['cmd'])(*arg['args'])
