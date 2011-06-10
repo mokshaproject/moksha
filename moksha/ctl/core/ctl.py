@@ -21,13 +21,13 @@ PRETTY_PREFIX = "[" + c.magenta("moksha-ctl") + "] "
 @decorator.decorator
 def _with_virtualenv(func, *args, **kwargs):
     import virtualenvcontext
-    with virtualenvcontext.VirtualenvContext(ctl_config['VENV']):
+    with virtualenvcontext.VirtualenvContext(ctl_config['venv']):
         return func(*args, **kwargs)
 
 
 @decorator.decorator
 def _in_srcdir(func, *args, **kwargs):
-    with utils.DirectoryContext(ctl_config['SRC_DIR']):
+    with utils.DirectoryContext(ctl_config['moksha-src-dir']):
         return func(*args, **kwargs)
 
 
@@ -120,11 +120,11 @@ def _do_virtualenvwrapper_command(cmd):
 def rebuild():
     """ Completely destroy and rebuild the virtualenv. """
     try:
-        _do_virtualenvwrapper_command('rmvirtualenv %s' % ctl_config['VENV'])
+        _do_virtualenvwrapper_command('rmvirtualenv %s' % ctl_config['venv'])
     except Exception as e:
         print str(e)
 
-    cmd = 'mkvirtualenv --no-site-packages %s' % ctl_config['VENV']
+    cmd = 'mkvirtualenv --no-site-packages %s' % ctl_config['venv']
     _do_virtualenvwrapper_command(cmd)
 
     return install()
@@ -140,7 +140,7 @@ def install():
 
     # Do the work
     ret['install_hacks'] = install_hacks()
-    with utils.DirectoryContext(ctl_config['SRC_DIR']):
+    with utils.DirectoryContext(ctl_config['moksha-src-dir']):
         # `install` instead of `develop` to avoid weird directory vs. egg
         # namespace issues
         ret['python setup.py install'] = \
@@ -186,7 +186,7 @@ def install_hacks():
 def install_apps():
     """ Install *all* the moksha `apps`. """
 
-    with utils.DirectoryContext(ctl_config['APPS_DIR']):
+    with utils.DirectoryContext(ctl_config['apps-dir']):
         dnames = [d for d in os.listdir('.') if os.path.isdir(d)]
         for d in dnames:
             install_app(app=d)
@@ -198,7 +198,7 @@ def install_apps():
 def install_app(app):
     """ Install a particular app.  $ fab install_app:metrics """
 
-    dirname = "/".join([ctl_config['SRC_DIR'], ctl_config['APPS_DIR'], app])
+    dirname = "/".join([ctl_config['moksha-src-dir'], ctl_config['apps-dir'], app])
     with utils.DirectoryContext(dirname):
         fnames = os.listdir('.')
         if not 'pavement.py' in fnames:
@@ -225,10 +225,10 @@ def link_qpid_libs():
     """ Link qpid and mllib in from the system site-packages. """
     location = 'lib/python{major}.{minor}/site-packages'.format(
         major=sys.version_info.major, minor=sys.version_info.minor)
-    template = 'ln -s /usr/{location}/{lib} {workon}/{VENV}/{location}/'
+    template = 'ln -s /usr/{location}/{lib} {workon}/{venv}/{location}/'
     for lib in ['qpid', 'mllib']:
         cmd = template.format(
-            location=location, VENV=ctl_config['VENV'], lib=lib,
+            location=location, venv=ctl_config['venv'], lib=lib,
             workon=os.getenv("WORKON_HOME"))
         out = os.system(cmd)
 
@@ -245,7 +245,7 @@ def start(service=None):
     def start_service(name):
         print PRETTY_PREFIX, "Starting " + c.yellow(name)
         return not os.system('.scripts/start-{name} {venv}'.format(
-            name=name, venv=ctl_config['VENV']))
+            name=name, venv=ctl_config['venv']))
 
     ret = True
     if service:
@@ -340,7 +340,7 @@ def restart():
 @_with_virtualenv
 def egg_info():
     """ Rebuild egg_info. """
-    with utils.DirectoryContext(ctl_config['SRC_DIR']):
+    with utils.DirectoryContext(ctl_config['moksha-src-dir']):
         os.system('%s setup.py egg_info' % sys.executable)
 
 
@@ -349,7 +349,7 @@ def logs():
     """ Watch colorized logs of paster, orbited, and moksha-hub """
     log_location = 'logs'
     log_files = ['paster.log', 'orbited.log', 'moksha-hub.log']
-    with utils.DirectoryContext(ctl_config['SRC_DIR']):
+    with utils.DirectoryContext(ctl_config['moksha-src-dir']):
         cmd = 'tail -f %s | ccze' % ' '.join([
             log_location + '/' + fname for fname in log_files
         ])
@@ -377,6 +377,7 @@ def wtf():
     """ Debug a busted moksha environment. """
     wtfwin, wtffail = _wtfwin, _wtffail
 
+    wtfwin(' venv is set to "%s"' % ctl_config['venv'])
     workon = os.getenv('WORKON_HOME')
     if not workon:
         wtffail('$WORKON_HOME is not set.')
@@ -387,7 +388,7 @@ def wtf():
         else:
             wtffail(workon + ' does not exist.')
 
-    with virtualenvcontext.VirtualenvContext(ctl_config['VENV']):
+    with virtualenvcontext.VirtualenvContext(ctl_config['venv']):
         try:
             import qpid
             if not qpid.__file__.startswith(os.path.expanduser(workon)):
@@ -404,7 +405,7 @@ def wtf():
     except ImportError as e:
         wtffail('system-wide python-qpid not installed.')
 
-    with virtualenvcontext.VirtualenvContext(ctl_config['VENV']):
+    with virtualenvcontext.VirtualenvContext(ctl_config['venv']):
         all_processes = psutil.get_process_list()
         for pid_file in pid_files:
             prog = pid_file[:-4]
