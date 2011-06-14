@@ -16,6 +16,7 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 
 import moksha
+import moksha.utils
 import pylons
 
 from tg import url, config
@@ -33,11 +34,11 @@ class DefaultRootController(BaseController):
 
     @expose('mako:moksha.templates.index')
     def index(self, *args, **kw):
-        if 'default_menu' in moksha.menus:
-            tmpl_context.menu_widget = moksha.menus['default_menu']
+        if 'default_menu' in moksha.utils.menus:
+            tmpl_context.menu_widget = moksha.utils.menus['default_menu']
         else:
             tmpl_context.menu_widget = lambda: ''
-        #tmpl_context.contextual_menu_widget = moksha.menus['contextual_menu']
+        #tmpl_context.contextual_menu_widget = moksha.utils.menus['contextual_menu']
         return dict(title='[ Moksha ]')
 
 
@@ -50,8 +51,8 @@ class RootController(BaseController):
 
     @expose()
     def _lookup(self, *remainder):
-        if moksha.root:
-            return moksha.root(), remainder
+        if moksha.utils.root:
+            return moksha.utils.root(), remainder
         else:
             # If we're running moksha without a root specified on the
             # moksha.root entry-point, then redirect to a moksha logo

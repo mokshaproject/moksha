@@ -18,6 +18,7 @@
 
 import tg
 import moksha
+import moksha.utils
 
 from uuid import uuid4
 
@@ -86,11 +87,11 @@ class TW2LiveWidget(tw2.core.Widget):
             if callback == 'onmessageframe':
                 for topic in self.topic:
                     cb = getattr(self, 'onmessage').replace('${id}', self.id)
-                    moksha.livewidgets[callback][topic].append(cb)
+                    moksha.utils.livewidgets[callback][topic].append(cb)
             elif callback == 'onconnectedframe':
-                moksha.livewidgets[callback].append(subscribe_topics(self.topic))
+                moksha.utils.livewidgets[callback].append(subscribe_topics(self.topic))
             elif getattr(self, callback, None):
-                moksha.livewidgets[callback].append(getattr(self, callback))
+                moksha.utils.livewidgets[callback].append(getattr(self, callback))
 
     def get_topics(self):
         topics = []
@@ -170,12 +171,12 @@ class LiveWidget(Widget):
             if callback == 'onmessageframe':
                 for topic in topics:
                     cb = getattr(self, 'onmessage').replace('${id}', self.id)
-                    moksha.livewidgets[callback][topic].append(cb)
+                    moksha.utils.livewidgets[callback][topic].append(cb)
             elif callback == 'onconnectedframe':
-                moksha.livewidgets['onconnectedframe'].append(
+                moksha.utils.livewidgets['onconnectedframe'].append(
                         subscribe_topics(topics))
             elif callback in self.params:
-                moksha.livewidgets[callback].append(getattr(self, callback))
+                moksha.utils.livewidgets[callback].append(getattr(self, callback))
 
     def get_topics(self):
         topics = []

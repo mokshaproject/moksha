@@ -20,6 +20,7 @@ from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from repoze.what.predicates import has_permission
 
 import moksha
+import moksha.utils
 from moksha.lib.base import BaseController
 #from moksha.model import DBSession, metadata
 
@@ -38,7 +39,7 @@ class SecureController(BaseController):
         """Let the user know that's visiting a protected controller."""
         flash(_("Secure Controller here"))
         if 'default_menu' in moksha.menus:
-            tmpl_context.menu_widget = moksha.menus['default_menu']
+            tmpl_context.menu_widget = moksha.utils.menus['default_menu']
         else:
             tmpl_context.menu_widget = lambda: ''
         return dict(title='Moksha Administrator Controller')

@@ -25,6 +25,30 @@ from pylons.i18n import _, ungettext, N_
 import moksha
 from moksha.lib.helpers import eval_and_check_predicates
 
+
+def global_resources():
+    """ Returns a rendered Moksha Global Resource Widget.
+
+    This widget contains all of the resources and widgets on the
+    `moksha.global` entry-point.  To use it, simply do this at the bottom of
+    your master template::
+
+        ${tmpl_context.moksha_global_resources()}
+
+    """
+    import tg
+    from moksha.api.widgets.global_resources import global_resources as globs
+    if tg.config.default_renderer == 'genshi':
+        # There's Got To Be A Better Way!
+        from genshi import unescape, Markup
+        return Markup(unescape(Markup(globs)))
+    elif tg.config.default_renderer == 'mako':
+        return globs()
+    else:
+        # If this gets called, and explodes, then you need to add support
+        # for your templating engine here.
+        return globs()
+
 class Controller(object):
     """Base class for a web application's controller.
 
@@ -53,7 +77,7 @@ class BaseController(TGController):
 
         # Add our global widget to the template context, and register it's
         # resources
-        tmpl_context.moksha_global_resources = moksha.global_resources
+        tmpl_context.moksha_global_resources = global_resources
 
         # TGController.__call__ dispatches to the Controller method
         # the request is routed to. This routing information is

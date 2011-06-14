@@ -1,4 +1,4 @@
-import moksha
+import moksha.utils
 
 from tg import expose, tmpl_context
 
@@ -15,8 +15,8 @@ class Root(object):
 
     @expose('mako:moksha.templates.widget')
     def livewidget(self, *args, **kwargs):
-        tmpl_context.widget = moksha.get_widget('live')
-        tmpl_context.moksha_socket = moksha.get_widget('moksha_socket')
+        tmpl_context.widget = moksha.utils.get_widget('live')
+        tmpl_context.moksha_socket = moksha.utils.get_widget('moksha_socket')
         return dict(options={})
 
     @expose('mako:demo.templates.model')
