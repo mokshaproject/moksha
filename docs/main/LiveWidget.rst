@@ -76,3 +76,11 @@ Live Widget Interaction
 
 .. image:: ../_static/live_widget_interaction.png
 
+Dependency on GlobalResourceInjectionWidget
+-------------------------------------------
+
+Under the hood, each :class:`LiveWidget` depends on the
+:class:`GlobalResourceInjectionWidget`
+to render the the javascript callbacks for their topics.  Due to the way
+this works, you should ensure that the global resources are injected
+*last*, after each LiveWidget is rendered.

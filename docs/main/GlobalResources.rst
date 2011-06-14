@@ -35,3 +35,11 @@ Here is an example of what some global resources look like in Moksha's `setup.py
     blueprint_screen_css = moksha.widgets.blueprint:blueprint_screen_css
     blueprint_print_css = moksha.widgets.blueprint:blueprint_print_css
     blueprint_fancytype_css = moksha.widgets.blueprint:blueprint_plugin_fancytype_css
+
+LiveWidget dependency on moksha_socket
+--------------------------------------
+
+The :class:`GlobalResourceInjectionWidget` is also responsible for rendering the moksha_socket which
+creates the callbacks for any :class:`LiveWidget` being rendered.  Because of the way this works,
+you should ensure the :class:`GlobalResourceInjectionWidget` is injected *last*, after each
+LiveWidget has been rendered.
