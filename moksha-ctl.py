@@ -60,7 +60,7 @@ if __name__ == '__main__':
         sys.exit(0)
 
     if opts.venv:
-        ctl.ctl_config['VENV'] = opts.venv
+        ctl.ctl_config['venv'] = opts.venv
 
     # Render the moksha logo.  Haters gonna hate.
     try:
