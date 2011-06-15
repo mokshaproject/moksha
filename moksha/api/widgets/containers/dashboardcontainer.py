@@ -16,17 +16,17 @@
 from tw.api import Widget
 from tw.jquery import jquery_js
 from moksha.lib.helpers import eval_app_config, ConfigWrapper
+
+from paste.deploy.converters import asbool
 from tg import config
-from tw.api import Widget
 
-from moksha.lib.helpers import eval_app_config, ConfigWrapper
 
-class AppListWidget(Widget):
+class TW1AppListWidget(Widget):
     template = 'mako:moksha.api.widgets.containers.templates.layout_applist'
     params = ['category']
 
     def update_params(self, d):
-        super(AppListWidget, self).update_params(d)
+        super(TW1AppListWidget, self).update_params(d)
 
         # ignore categories that don't exist
         c = d['category']
@@ -42,9 +42,15 @@ class AppListWidget(Widget):
             if not found:
                 d['category'] = None
 
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " is not ready for tw2")
+else:
+    AppListWidget = TW1AppListWidget
+
 applist_widget = AppListWidget('applist');
 
-class DashboardContainer(Widget):
+
+class TW1DashboardContainer(Widget):
     template = 'mako:moksha.api.widgets.containers.templates.dashboardcontainer'
     params = ['layout', 'applist_widget']
     css = []
@@ -55,7 +61,7 @@ class DashboardContainer(Widget):
     engine_name = 'mako'
 
     def update_params(self, d):
-        super(DashboardContainer, self).update_params(d)
+        super(TW1DashboardContainer, self).update_params(d)
         layout = eval_app_config(config.get(self.config_key, "None"))
 
         if not layout:
@@ -69,3 +75,8 @@ class DashboardContainer(Widget):
         d.layout = ConfigWrapper.process_wrappers(layout, d)
 
         return d
+
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " is not ready for tw2")
+else:
+    DashboardContainer = TW1DashboardContainer

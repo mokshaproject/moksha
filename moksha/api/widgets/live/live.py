@@ -16,7 +16,9 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 #          Ralph Bean <ralph.bean@gmail.com>
 
-import tg
+from tg import config
+from paste.deploy.converters import asbool
+
 import moksha
 import moksha.utils
 
@@ -53,7 +55,7 @@ class TW2LiveWidget(tw2.core.Widget):
 
     backend = pm.Param(
         'moksha livesocket backend to use',
-        default=tg.config.get('moksha.livesocket.backend', 'stomp').lower())
+        default=config.get('moksha.livesocket.backend', 'stomp').lower())
     topic = pm.Param('Topic to which this widget is subscribed')
     onmessage = pm.Param('js to execute on message received', default=None)
 
@@ -107,7 +109,7 @@ class TW2LiveWidget(tw2.core.Widget):
 
     @classmethod
     def subscribe_topics(cls, topics):
-        backend = tg.config.get('moksha.livesocket.backend', 'stomp').lower()
+        backend = config.get('moksha.livesocket.backend', 'stomp').lower()
         backend_lookup = {
             'stomp': stomp_subscribe,
             'amqp': amqp_subscribe,
@@ -121,7 +123,7 @@ class TW2LiveWidget(tw2.core.Widget):
 
     @classmethod
     def unsubscribe_topics(cls, topics):
-        backend = tg.config.get('moksha.livesocket.backend', 'stomp').lower()
+        backend = config.get('moksha.livesocket.backend', 'stomp').lower()
         backend_lookup = {
             'stomp': stomp_unsubscribe,
             'amqp': amqp_unsubscribe,
@@ -134,7 +136,7 @@ class TW2LiveWidget(tw2.core.Widget):
                                   "'stomp'." % backend)
 
 
-class LiveWidget(Widget):
+class TW1LiveWidget(Widget):
     """ A live streaming widget.
 
     This widget handles automatically subscribing your widget to any given
@@ -152,7 +154,7 @@ class LiveWidget(Widget):
 
     def __init__(self, id, *args, **kw):
         super(LiveWidget, self).__init__(*args, **kw)
-        self.backend = tg.config.get('moksha.livesocket.backend', 'stomp').lower()
+        self.backend = config.get('moksha.livesocket.backend', 'stomp').lower()
 
     def update_params(self, d):
         """ Register this widgets message topic callbacks """
@@ -192,7 +194,7 @@ class LiveWidget(Widget):
 
     @classmethod
     def subscribe_topics(cls, topics):
-        backend = tg.config.get('moksha.livesocket.backend', 'stomp').lower()
+        backend = config.get('moksha.livesocket.backend', 'stomp').lower()
         if backend == 'amqp':
             return amqp_subscribe(topics)
         elif backend == 'stomp':
@@ -204,7 +206,7 @@ class LiveWidget(Widget):
 
     @classmethod
     def unsubscribe_topics(cls, topics):
-        backend = tg.config.get('moksha.livesocket.backend', 'stomp').lower()
+        backend = config.get('moksha.livesocket.backend', 'stomp').lower()
         if backend == 'amqp':
             return amqp_unsubscribe(topics)
         elif backend == 'stomp':
@@ -214,6 +216,13 @@ class LiveWidget(Widget):
                                   "Valid backends are currently 'amqp' and "
                                   "'stomp'." % backend)
 
+
+if asbool(config.get('moksha.use_tw2', False)):
+    LiveWidget = TW2LiveWidget
+    LiveWidgetMeta = TW2LiveWidgetMeta
+else:
+    LiveWidget = TW1LiveWidget
+    LiveWidgetMeta = None
 
 # Moksha Topic subscription handling methods
 subscribe_topics = LiveWidget.subscribe_topics

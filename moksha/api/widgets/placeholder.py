@@ -13,9 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from tg import config
+from paste.deploy.converters import asbool
+
 from tw.api import Widget
 
-class Placeholder(Widget):
+class TW1Placeholder(Widget):
     engine_name = 'mako'
     hidden = True
     template = """
@@ -25,3 +28,8 @@ class Placeholder(Widget):
     layout once the server is restarted.
 </p>
 """
+
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " not ready for tw2.")
+else:
+    Placeholder = TW1Placeholder

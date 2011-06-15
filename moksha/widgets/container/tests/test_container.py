@@ -27,6 +27,8 @@ class TestContainer:
 
     def test_widget_content(self):
         """ Ensure we can render a container with another widget """
+
+        # TODO -- test this for both tw1 and tw2?
         class MyWidget(Widget):
             template = """
                 Hello World!

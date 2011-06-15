@@ -25,13 +25,17 @@ returns the source code, in HTML.
 import moksha.utils
 import inspect
 
-from tw.api import Widget
+import tw.api
 from twisted.python.reflect import namedAny
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
 
-class SourceCodeWidget(Widget):
+from tg import config
+from paste.deploy.converters import asbool
+
+
+class TW1SourceCodeWidget(tw.api.Widget):
     params = {
         'widget': 'The name of the widget',
         'module': 'Whether to display the entire module',
@@ -48,7 +52,7 @@ class SourceCodeWidget(Widget):
     title = None
 
     def update_params(self, d):
-        super(SourceCodeWidget, self).update_params(d)
+        super(TW1SourceCodeWidget, self).update_params(d)
         title = d.widget.__class__.__name__
         if not d.source:
             try:
@@ -64,5 +68,10 @@ class SourceCodeWidget(Widget):
         if d.title:
             html_args['title'] = d.title
         d.code = highlight(d.source, PythonLexer(), HtmlFormatter(**html_args))
+
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " is not ready for tw2")
+else:
+    SourceCodeWidget = TW1SourceCodeWidget
 
 code_widget = SourceCodeWidget('code_widget')

@@ -76,7 +76,6 @@ class MokshaMetricsDataStream(PollingDataStream):
         return processors + 1
 
     def poll(self):
-        i = 0
         mem_data = {
             'data': [],
             'options': {

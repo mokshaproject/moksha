@@ -20,8 +20,18 @@
 http://plugins.learningjquery.com/expander
 """
 
-from tw.api import JSLink
+from tg import config
+from paste.deploy.converters import asbool
+
+import tw.api
 from tw.jquery import jquery_js
 
-expander_js = JSLink(filename='static/jquery.expander.js',
-                     modname=__name__, javascript=[jquery_js])
+tw1_expander_js = tw.api.JSLink(
+    filename='static/jquery.expander.js',
+    modname=__name__,
+    javascript=[jquery_js])
+
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " is not ready for tw2")
+else:
+    expander_js = tw1_expander_js

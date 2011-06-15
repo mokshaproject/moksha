@@ -15,10 +15,13 @@
 #
 # Authors: Luke Macken <lmacken@redhat.com>
 
+from tg import config
+from paste.deploy.converters import asbool
+
 from tw.jquery.flot import flot_js, excanvas_js, flot_css
 from moksha.api.widgets import LiveWidget
 
-class LiveFlotWidget(LiveWidget):
+class TW1LiveFlotWidget(LiveWidget):
     """ A live graphing widget """
     topic = None
     params = ['id', 'data', 'options', 'height', 'width', 'onmessage']
@@ -30,3 +33,8 @@ class LiveFlotWidget(LiveWidget):
     width = '390px'
     options = {}
     data = [{}]
+
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " is not ready for tw2")
+else:
+    LiveFlotWidget = TW1LiveFlotWidget

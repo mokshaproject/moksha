@@ -28,7 +28,7 @@ from moksha.lib.helpers import defaultdict
 from moksha.widgets.notify import moksha_notify
 from moksha.widgets.json import jquery_json_js
 
-stomp_js = JSLink(link=orbited_url + '/static/protocols/stomp/stomp.js')
+tw1_stomp_js = JSLink(link=orbited_url + '/static/protocols/stomp/stomp.js')
 
 def stomp_subscribe(topic):
     """ Return a javascript callback that subscribes to a given topic,
@@ -54,7 +54,7 @@ def stomp_unsubscribe(topic):
     return sub
 
 
-class StompWidget(Widget):
+class TW1StompWidget(Widget):
     callbacks = ['onopen', 'onerror', 'onerrorframe', 'onclose',
                  'onconnectedframe', 'onmessageframe']
     javascript = [jquery_json_js]
@@ -176,10 +176,10 @@ class StompWidget(Widget):
         self.stomp_port = config.get('stomp_port', 61613)
         self.stomp_user = config.get('stomp_user', 'guest')
         self.stomp_pass = config.get('stomp_pass', 'guest')
-        super(StompWidget, self).__init__(*args, **kw)
+        super(TW1StompWidget, self).__init__(*args, **kw)
 
     def update_params(self, d):
-        super(StompWidget, self).update_params(d)
+        super(TW1StompWidget, self).update_params(d)
         d.topics = []
         d.onmessageframe = defaultdict(str) # {topic: 'js callbacks'}
         for callback in self.callbacks:
@@ -205,3 +205,9 @@ class StompWidget(Widget):
             d.onerror = js_callback('function(error) { $.jGrowl("Moksha Live Socket Error: " + error) }')
             d.onerrorframe = js_callback('function(f) { $.jGrowl("Error frame received from Moksha Socket: " + f) }')
             d.onclose = js_callback('function(c) { $.jGrowl("Moksha Socket Closed") }')
+
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " is not ready for tw2")
+else:
+    StompWidget = TW1StompWidget
+    stomp_js = tw1_stomp_js

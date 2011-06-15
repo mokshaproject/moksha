@@ -15,10 +15,13 @@
 #
 # Authors: Luke Macken <lmacken@redhat.com>
 
+from tg import config
+from paste.deploy.converters import asbool
+
 from feed import Feed
 from moksha.api.widgets import LiveWidget
 
-class LiveFeedWidget(LiveWidget):
+class TW1LiveFeedWidget(LiveWidget):
     """ A live streaming feed widget """
     params = {
             'url': 'The feed URL',
@@ -45,5 +48,10 @@ class LiveFeedWidget(LiveWidget):
     def update_params(self, d):
         if not d.get('topic'):
             d['topic'] = 'feed.%s' % d.get('url', self.url)
-        super(LiveFeedWidget, self).update_params(d)
+        super(TW1LiveFeedWidget, self).update_params(d)
         d.d = d
+
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " is not ready for tw2")
+else:
+    LiveFeedWidget = TW1LiveFeedWidget

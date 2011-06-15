@@ -20,27 +20,35 @@ from tw.forms import FormField
 from pylons import config, request
 from repoze.what import predicates
 from moksha.lib.helpers import eval_app_config, ConfigWrapper, when_ready
+from paste.deploy.converters import asbool
 
 moksha_ui_tabs_js = JSLink(modname='moksha', filename='public/javascript/ui/moksha.ui.tabs.js', javascript=[jquery_ui_tabs_js, ui_widget_js])
 
 import urllib
 
-class TabbedContainerTabs(Widget):
+class TW1TabbedContainerTabs(Widget):
     template = 'mako:moksha.api.widgets.containers.templates.tabbedcontainer_tabs'
 
-class TabbedContainerPanes(Widget):
+class TW1TabbedContainerPanes(Widget):
     template = 'mako:moksha.api.widgets.containers.templates.tabbedcontainer_panes'
+
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " is not ready for tw2")
+else:
+    TabbedContainerTabs = TW1TabbedContainerTabs
+    TabbedContainerPanes = TW1TabbedContainerPanes
 
 tabwidget = TabbedContainerTabs('tabs')
 panewidget = TabbedContainerPanes('panes')
 
+# TODO -- watch our for tw1/tw2 here
 jQuery = js_function('jQuery')
 
 """
 :Name: TabbedContainer
 :Type: Container
 """
-class TabbedContainer(FormField):
+class TW1TabbedContainer(FormField):
     """
     :tabs: An ordered list of application tabs to display
            Application descriptors come from the config wrappers in
@@ -72,7 +80,7 @@ class TabbedContainer(FormField):
     staticLoadOnClick=False
 #    include_dynamic_js_calls = True #????
     def update_params(self, d):
-        super(TabbedContainer, self).update_params(d)
+        super(TW1TabbedContainer, self).update_params(d)
         if not getattr(d,"id",None):
             raise ValueError, "JQueryUITabs is supposed to have id"
 
@@ -97,3 +105,8 @@ class TabbedContainer(FormField):
         d['tabwidget'] = tabwidget
         d['panewidget'] = panewidget
         d['root_id'] = d['id']
+
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " is not ready for tw2")
+else:
+    TabbedContainer = TW1TabbedContainer

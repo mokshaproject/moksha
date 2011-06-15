@@ -20,9 +20,21 @@
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
 """
 
-from tw.api import Widget, CSSLink, CSSLink
+from tg import config
+from paste.deploy.converters import asbool
 
-ui_theme_css = CSSLink(link='/css/jquery-ui/ui.theme.css', modname=__name__)
-ui_base_css = CSSLink(link='/css/jquery-ui/ui.base.css',
-                      css=[ui_theme_css],
-                      modname=__name__)
+import tw.api
+
+tw1_ui_theme_css = tw.api.CSSLink(
+    link='/css/jquery-ui/ui.theme.css', modname=__name__)
+tw1_ui_base_css = tw.api.CSSLink(
+    link='/css/jquery-ui/ui.base.css',
+    css=[tw1_ui_theme_css],
+    modname=__name__)
+
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " is not ready for tw2")
+else:
+    ui_theme_css = tw1_ui_theme_css
+    ui_base_css = tw1_ui_base_css
+

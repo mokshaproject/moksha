@@ -13,23 +13,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tw.api import JSLink, Widget
+
+from tg import config
+from paste.deploy.converters import asbool
+
+import tw.api
 from tw.jquery.ui_core import jquery_ui_core_js
 from tw.jquery import jQuery, jquery_js
 from uuid import uuid4
 
+tw1_moksha_ui_selectable_js = tw.api.JSLink(
+    modname='moksha',
+    filename='public/javascript/ui/moksha.ui.selectable.js',
+    javascript=[jquery_ui_core_js])
 
-moksha_ui_selectable_js = JSLink(modname='moksha', filename='public/javascript/ui/moksha.ui.selectable.js',
-                              javascript=[jquery_ui_core_js])
-
-class Selectable(Widget):
+class TW1Selectable(tw.api.Widget):
     template = 'mako:moksha.api.widgets.selectable.templates.selectable'
-    javascript = [moksha_ui_selectable_js]
+    javascript = [tw1_moksha_ui_selectable_js]
 
     def update_params(self, d):
-        super(Selectable, self).update_params(d)
+        super(TW1Selectable, self).update_params(d)
         content_id = d.id + '-uuid' + str(uuid4())
         d['content_id'] = content_id
 
         self.add_call(jQuery("#%s" % d.content_id).moksha_selectable())
+
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " is not ready for tw2")
+else:
+    Selectable = TW1Selectable
+    moksha_ui_selectable_js = tw1_moksha_ui_selectable_js
 

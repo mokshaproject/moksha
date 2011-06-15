@@ -23,8 +23,9 @@ import moksha
 import moksha.utils
 
 from tg import config
-from tw.api import Widget, JSLink, js_callback, js_function
 from paste.deploy.converters import asbool
+
+from tw.api import Widget, JSLink, js_callback, js_function
 
 from moksha.api.widgets.orbited import orbited_host, orbited_port, orbited_url
 from moksha.api.widgets.orbited import orbited_js
@@ -65,7 +66,7 @@ def amqp_unsubscribe(topic):
     #return sub
 
 
-class AMQPSocket(Widget):
+class TW1AMQPSocket(Widget):
     callbacks = ['onconnectedframe', 'onmessageframe']
     javascript = [jquery_json_js, moksha_js, kamaloka_qpid_js]
     params = callbacks[:] + ['topics', 'notify', 'orbited_host',
@@ -194,10 +195,10 @@ class AMQPSocket(Widget):
         self.amqp_broker_port = config.get('amqp_broker_port', 5672)
         self.amqp_broker_user = config.get('amqp_broker_user', 'guest')
         self.amqp_broker_pass = config.get('amqp_broker_pass', 'guest')
-        super(AMQPSocket, self).__init__(*args, **kw)
+        super(TW1AMQPSocket, self).__init__(*args, **kw)
 
     def update_params(self, d):
-        super(AMQPSocket, self).update_params(d)
+        super(TW1AMQPSocket, self).update_params(d)
         d.topics = []
         d.onmessageframe = defaultdict(str) # {topic: 'js callbacks'}
         for callback in self.callbacks:
@@ -216,3 +217,8 @@ class AMQPSocket(Widget):
                             cbs += str(cb)
                 if cbs:
                     d[callback] = cbs
+
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " not ready for tw2")
+else:
+    AMQPSocket = TW1AMQPSocket

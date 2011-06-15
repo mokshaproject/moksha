@@ -13,9 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tw.api import JSLink
+from tg import config
+from paste.deploy.converters import asbool
+
+import tw.api
 from tw.jquery import jquery_js
 
-jquery_template_js = JSLink(modname=__name__,
-        filename='static/jquery.template.js',
-        javascript=[jquery_js])
+tw1_jquery_template_js = tw.api.JSLink(
+    modname=__name__,
+    filename='static/jquery.template.js',
+    javascript=[jquery_js])
+
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " is not ready for tw2")
+else:
+    jquery_template_js = tw1_jquery_template_js

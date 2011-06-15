@@ -19,6 +19,9 @@ import moksha
 import moksha.utils
 import logging
 
+from tg import config
+from paste.deploy.converters import asbool
+
 from tw.api import Widget
 from shove import Shove
 from feedcache.cache import Cache
@@ -32,7 +35,7 @@ log = logging.getLogger(__name__)
 feed_storage = None
 feed_cache = None
 
-class Feed(Widget):
+class TW1Feed(Widget):
     """
     The Moksha Feed object.
 
@@ -49,8 +52,8 @@ class Feed(Widget):
     }
 
     def __new__(cls, *args, **kw):
-        """ If we're instantiated with a specific view, then use the 
-        appropriate template 
+        """ If we're instantiated with a specific view, then use the
+        appropriate template
         Available views: home, canvas, profile
 
         :deprecated: This is old, and will be going away soon
@@ -61,8 +64,8 @@ class Feed(Widget):
         if view:
             class AlternateFeedView(cls):
                 template = 'mako:moksha.feed.templates.feed_%s' % view
-            return super(Feed, cls).__new__(AlternateFeedView, *args, **kw)
-        return super(Feed, cls).__new__(cls, *args, **kw)
+            return super(TW1Feed, cls).__new__(AlternateFeedView, *args, **kw)
+        return super(TW1Feed, cls).__new__(cls, *args, **kw)
 
     def iterentries(self, d=None, limit=None):
         url = self.url or d.get('url')
@@ -108,7 +111,7 @@ class Feed(Widget):
         return len(self.get_entries())
 
     def update_params(self, d):
-        super(Feed, self).update_params(d)
+        super(TW1Feed, self).update_params(d)
         d['entries'] = []
         limit = d.get('limit')
         for entry in self.iterentries(d, limit=limit):
@@ -120,3 +123,8 @@ class Feed(Widget):
             feed_storage.close()
         except:
             pass
+
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " is not ready for tw2")
+else:
+    Feed = TW1Feed

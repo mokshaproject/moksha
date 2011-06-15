@@ -25,8 +25,21 @@ project::
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
 """
 
-from tw.api import CSSLink, Link
+from paste.deploy.converters import asbool
+from tg import config
 
-buttons_css = CSSLink(filename='static/buttons.css',
-                      media='all', modname=__name__)
-static_images = Link(filename='static/images/ventitre.gif', modname=__name__)
+import tw.api
+
+tw1_buttons_css = tw.api.CSSLink(
+    filename='static/buttons.css',
+    media='all', modname=__name__)
+
+tw1_static_images = tw.api.Link(
+    filename='static/images/ventitre.gif',
+    modname=__name__)
+
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " is not ready for tw2")
+else:
+    buttons_css = tw1_buttons_css
+    static_images = tw1_static_images

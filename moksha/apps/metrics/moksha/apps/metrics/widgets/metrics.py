@@ -25,41 +25,43 @@ Moksha's memory and CPU usage.
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
 """
 
+from tg import config
+from paste.deploy.converters import asbool
+
 from uuid import uuid4
 from tw.jquery.ui import ui_progressbar_js
 from tw.jquery.flot import flot_js, excanvas_js, flot_css
 
 from moksha.api.widgets.flot import LiveFlotWidget
-from moksha.api.widgets.tw2.jit import LiveAreaChartWidget
+#from moksha.api.widgets.jit import LiveAreaChartWidget
 from moksha.api.widgets.buttons import buttons_css
 from moksha.widgets.jquery_ui_theme import ui_base_css
 
-import tw2.core.resources as res
+#import tw2.core.resources as res
+#class MokshaTW2CPUUsageWidget(LiveAreaChartWidget):
+#    name = 'CPU Usage (with tw2.jit)'
+#    topic = 'moksha_jit_cpu_metrics'
+#
+#    width='400px'
+#    height='300px'
+#    offset = 0
+#    showAggregates = False
+#    showLabels = False
+#    animate = False
+#    type = 'stacked'
+#    Tips = {
+#        'enable': True,
+#        'onShow' : res.JSSymbol(src="""
+#        (function(tip, elem) {
+#            tip.innerHTML = "<b>" + elem.name + "</b>: " + elem.value;
+#        })""")
+#    }
+#
+#    container_options = { 'icon': 'chart.png', 'height' : 325 }
+#    data = {'labels': [], 'values': []}
 
-class MokshaTW2CPUUsageWidget(LiveAreaChartWidget):
-    name = 'CPU Usage (with tw2.jit)'
-    topic = 'moksha_jit_cpu_metrics'
 
-    width='400px'
-    height='300px'
-    offset = 0
-    showAggregates = False
-    showLabels = False
-    animate = False
-    type = 'stacked'
-    Tips = {
-        'enable': True,
-        'onShow' : res.JSSymbol(src="""
-        (function(tip, elem) {
-            tip.innerHTML = "<b>" + elem.name + "</b>: " + elem.value;
-        })""")
-    }
-
-    container_options = { 'icon': 'chart.png', 'height' : 325 }
-    data = {'labels': [], 'values': []}
-
-
-class MokshaMemoryUsageWidget(LiveFlotWidget):
+class TW1MokshaMemoryUsageWidget(LiveFlotWidget):
     name = 'Memory Usage'
     topic = 'moksha_mem_metrics'
     container_options = {
@@ -67,7 +69,7 @@ class MokshaMemoryUsageWidget(LiveFlotWidget):
             }
 
 
-class MokshaCPUUsageWidget(LiveFlotWidget):
+class TW1MokshaCPUUsageWidget(LiveFlotWidget):
     name = 'CPU Usage'
     topic = 'moksha_cpu_metrics'
     container_options = {
@@ -75,7 +77,7 @@ class MokshaCPUUsageWidget(LiveFlotWidget):
             }
 
 
-class MokshaMessageMetricsWidget(LiveFlotWidget):
+class TW1MokshaMessageMetricsWidget(LiveFlotWidget):
     """ A Moksha Message Benchmarking Widget.
 
     This widget will fire off a bunch of messages to a unique message topic.
@@ -169,4 +171,11 @@ class MokshaMessageMetricsWidget(LiveFlotWidget):
 
     def update_params(self, d):
         d.topic = str(uuid4())
-        super(MokshaMessageMetricsWidget, self).update_params(d)
+        super(TW1MokshaMessageMetricsWidget, self).update_params(d)
+
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " not ready for tw2")
+else:
+    MokshaCPUUsageWidget = TW1MokshaCPUUsageWidget
+    MokshaMemoryUsageWidget = TW1MokshaMemoryUsageWidget
+    MokshaMessageMetricsWidget = TW1MokshaMessageMetricsWidget

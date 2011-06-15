@@ -16,6 +16,9 @@
 import uuid
 import simplejson as json
 
+from tg import config
+from paste.deploy.converters import asbool
+
 from tw.api import JSLink, js_callback
 from tw.forms import FormField
 from tw.jquery.ui_core import jquery_ui_core_js
@@ -25,18 +28,20 @@ from moksha.lib.helpers import when_ready
 from moksha.widgets.json import jquery_json_js
 from moksha.widgets.jquery_template import jquery_template_js
 
-moksha_ui_grid_js = JSLink(filename='public/javascript/ui/moksha.ui.grid.js',
+tw1_moksha_ui_grid_js = JSLink(filename='public/javascript/ui/moksha.ui.grid.js',
                            modname='moksha',
                            javascript=[jquery_ui_core_js,
                                        jquery_template_js,
                                        jquery_json_js])
 
-moksha_ui_popup_js = JSLink(filename='public/javascript/ui/moksha.ui.popup.js',
+tw1_moksha_ui_popup_js = JSLink(filename='public/javascript/ui/moksha.ui.popup.js',
                            modname='moksha',
                            javascript=[jquery_ui_core_js])
 
-class Grid(FormField):
-    javascript=[jquery_ui_core_js, moksha_ui_grid_js, moksha_ui_popup_js]
+class TW1Grid(FormField):
+    javascript=[jquery_ui_core_js,
+                tw1_moksha_ui_grid_js,
+                tw1_moksha_ui_popup_js]
     params= ['rows_per_page', 'page_num', 'total_rows',
             'filters', 'unique_key', 'sort_key', 'sort_order',
             'row_template', 'resource', 'resource_path',
@@ -60,7 +65,7 @@ class Grid(FormField):
     numericPager = False
 
     def update_params(self, d):
-        super(Grid, self).update_params(d)
+        super(TW1Grid, self).update_params(d)
         if not getattr(d,"id",None):
             raise ValueError, "Moksha Grid is supposed to have id"
 
@@ -79,3 +84,10 @@ class Grid(FormField):
         d['id'] += "-uuid" + str(uuid.uuid4())
 
         self.add_call(when_ready(jQuery("#%s" % d['id']).mokshagrid(grid_d)))
+
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " not ready for tw2")
+else:
+    Grid = TW1Grid
+    moksha_ui_grid_js = tw1_moksha_ui_grid_js
+    moksha_ui_popup_js = tw1_moksha_ui_popup_js

@@ -20,9 +20,12 @@
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
 """
 
+from tg import config
+from paste.deploy.converters import asbool
+
 from tw.api import Widget
 
-class IFrameWidget(Widget):
+class TW1IFrameWidget(Widget):
     params = ['id', 'url', 'title', 'height', 'width']
     template = """
       <h1>${title}</h1>
@@ -33,5 +36,10 @@ class IFrameWidget(Widget):
     title = ''
     height = width = '100%'
     engine_name = 'mako'
+
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " is not ready for tw2")
+else:
+    IFrameWidget = TW1IFrameWidget
 
 iframe_widget = IFrameWidget('iframe_widget')

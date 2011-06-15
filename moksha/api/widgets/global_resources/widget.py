@@ -27,7 +27,7 @@ from moksha.api.widgets.live import moksha_socket
 
 log = logging.getLogger(__name__)
 
-class GlobalResourceInjectionWidget(Widget):
+class TW1GlobalResourceInjectionWidget(Widget):
     """
     This widget will pull in all JSLink, CSSLink, and Widget resources that
     are listed on the `[moksha.global]` entry-point.
@@ -64,7 +64,7 @@ class GlobalResourceInjectionWidget(Widget):
     profile = 'false'
 
     def __init__(self):
-        super(GlobalResourceInjectionWidget, self).__init__()
+        super(TW1GlobalResourceInjectionWidget, self).__init__()
         for widget_entry in pkg_resources.iter_entry_points('moksha.global'):
             log.info('Loading global resource: %s' % widget_entry.name)
             loaded = widget_entry.load()
@@ -102,7 +102,7 @@ class GlobalResourceInjectionWidget(Widget):
         self.csrf_trusted_domains_hash = trusted_domain_hash
 
     def update_params(self, d):
-        super(GlobalResourceInjectionWidget, self).update_params(d)
+        super(TW1GlobalResourceInjectionWidget, self).update_params(d)
 
         d['base_url'] = url('/')
 
@@ -117,5 +117,10 @@ class GlobalResourceInjectionWidget(Widget):
         if identity:
             d['csrf_token'] = identity.get(self.csrf_token_id, '')
             d['user_id'] = identity.get('user_id', '')
+
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " is not ready for tw2")
+else:
+    GlobalResourceInjectionWidget = TW1GlobalResourceInjectionWidget
 
 global_resources = GlobalResourceInjectionWidget()

@@ -13,15 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from paste.deploy.converters import asbool
+from tg import config
+
 from tw.api import Widget
 from pylons import tmpl_context
 
-class ContextAwareWidget(Widget):
+class TW1ContextAwareWidget(Widget):
     '''Inherit from this widget class if you want your widget
        to automatically get the pylons.tmpl_context in its dictionary
     '''
 
     def update_params(self, d):
-        super(ContextAwareWidget, self).update_params(d)
+        super(TW1ContextAwareWidget, self).update_params(d)
 
         d['tmpl_context'] = tmpl_context
+
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " not ready for tw2")
+else:
+    ContextAwareWidget = TW1ContextAwareWidget

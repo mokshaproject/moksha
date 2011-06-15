@@ -16,23 +16,31 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 
 import uuid
-from tw.api import Widget, JSLink, CSSLink, js_callback
+import tw.api
 from tw.jquery import jquery_js, jQuery
 
 import tw2.core
 
+from tg import config
+from paste.deploy.converters import asbool
+
+
 from moksha.api.widgets.live import LiveWidget, TW2LiveWidget
 from moksha.api.widgets.live import subscribe_topics, unsubscribe_topics
 
-container_js = JSLink(filename='static/js/mbContainer.min.js',
-                      javascript=[jquery_js],
-                      modname=__name__)
-container_css = CSSLink(filename='static/css/mbContainer.css', modname=__name__)
+tw1_container_js = tw.api.JSLink(
+    filename='static/js/mbContainer.min.js',
+    javascript=[jquery_js],
+    modname=__name__)
 
-class MokshaContainer(Widget):
+tw1_container_css = tw.api.CSSLink(
+    filename='static/css/mbContainer.css',
+    modname=__name__)
+
+class TW1MokshaContainer(tw.api.Widget):
     template = 'mako:moksha.widgets.container.templates.container'
-    javascript = [container_js]
-    css = [container_css]
+    javascript = [tw1_container_js]
+    css = [tw1_container_css]
     options = ['draggable', 'resizable']
     button_options = ['iconize', 'minimize', 'close']
     params = ['buttons', 'skin', 'height', 'width', 'left', 'top', 'id',
@@ -58,19 +66,19 @@ class MokshaContainer(Widget):
     top = 125
 
     # Javascript callbacks
-    onResize = js_callback("function(o){}")
-    onClose = js_callback("function(o){}")
-    onCollapse = js_callback("function(o){}")
-    onIconize = js_callback("function(o){}")
-    onDrag = js_callback("function(o){}")
-    onRestore = js_callback("function(o){}")
+    onResize = tw.api.js_callback("function(o){}")
+    onClose = tw.api.js_callback("function(o){}")
+    onCollapse = tw.api.js_callback("function(o){}")
+    onIconize = tw.api.js_callback("function(o){}")
+    onDrag = tw.api.js_callback("function(o){}")
+    onRestore = tw.api.js_callback("function(o){}")
 
     def update_params(self, d):
-        super(MokshaContainer, self).update_params(d)
+        super(TW1MokshaContainer, self).update_params(d)
         if isinstance(d.content, tw2.core.widgets.WidgetMeta):
             d.content = d.content.req()
 
-        if (isinstance(d.content, Widget) or
+        if (isinstance(d.content, tw.api.Widget) or
             isinstance(d.content, tw2.core.Widget)):
 
             d.widget_name = d.content.__class__.__name__
@@ -80,21 +88,23 @@ class MokshaContainer(Widget):
                 topics = d.content.get_topics()
                 # FIXME: also unregister the moksha callback functions.  Handle
                 # cases where multiple widgets are listening to the same topics
-                d.onClose = js_callback("function(o){%s $(o).remove();}" %
+                d.onClose = tw.api.js_callback("function(o){%s $(o).remove();}" %
                         unsubscribe_topics(topics))
-                d.onIconize = d.onCollapse = js_callback("function(o){%s}" %
+                d.onIconize = d.onCollapse = tw.api.js_callback("function(o){%s}" %
                         unsubscribe_topics(topics))
-                d.onRestore = js_callback("function(o){%s}" %
+                d.onRestore = tw.api.js_callback("function(o){%s}" %
                         subscribe_topics(topics))
             elif isinstance(d.content, TW2LiveWidget):
+                # TODO -- do we even need to worry about this since its a tw1
+                # container?
                 topics = d.content.get_topics()
                 # FIXME: also unregister the moksha callback functions.  Handle
                 # cases where multiple widgets are listening to the same topics
-                d.onClose = js_callback("function(o){%s $(o).remove();}" %
+                d.onClose = tw.api.js_callback("function(o){%s $(o).remove();}" %
                         unsubscribe_topics(topics))
-                d.onIconize = d.onCollapse = js_callback("function(o){%s}" %
+                d.onIconize = d.onCollapse = tw.api.js_callback("function(o){%s}" %
                         unsubscribe_topics(topics))
-                d.onRestore = js_callback("function(o){%s}" %
+                d.onRestore = tw.api.js_callback("function(o){%s}" %
                         subscribe_topics(topics))
 
             d.content = d.content.display(**content_args)
@@ -120,5 +130,11 @@ class MokshaContainer(Widget):
             'onRestore': d.onRestore,
             }))
 
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " is not ready for tw2")
+else:
+    MokshaContainer = TW1MokshaContainer
+    container_js = tw1_container_js
+    container_css = tw1_container_css
 
 container = MokshaContainer('moksha_container')
