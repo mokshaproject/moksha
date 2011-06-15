@@ -8,6 +8,7 @@ docs/_build
 prompt.py
 mokshaenv
 *.db
+*.db-journal
 .build
 *.egg-info
 *.pid
