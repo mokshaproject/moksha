@@ -50,9 +50,12 @@ setup(
         "Bunch",
         "Mako",
         "Genshi",
-        "tw2.core",
+        "tw2.core>=2.0b5",
         "tw2.forms",
+        "tw2.jqplugins.ui",
+        "tw2.jqplugins.flot>=2.0a4",
         "tw2.jit",
+        "tw2.excanvas",
         #"repoze.squeeze", # Not hard requirements
         #"repoze.profile", # Not hard requirements
     ],

@@ -1,6 +1,6 @@
 # This file is part of Moksha.
 # Copyright (C) 2008-2010  Red Hat, Inc.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -24,6 +24,8 @@ from tg import config
 from paste.deploy.converters import asbool
 
 import tw.api
+import tw2.core as twc
+
 
 tw1_ui_theme_css = tw.api.CSSLink(
     link='/css/jquery-ui/ui.theme.css', modname=__name__)
@@ -32,9 +34,18 @@ tw1_ui_base_css = tw.api.CSSLink(
     css=[tw1_ui_theme_css],
     modname=__name__)
 
+
+tw2_ui_theme_css = twc.CSSLink(
+    link='/css/jquery-ui/ui.theme.css', modname=__name__)
+tw2_ui_base_css = twc.CSSLink(
+    link='/css/jquery-ui/ui.base.css',
+    resources=[tw2_ui_theme_css],
+    modname=__name__)
+
+
 if asbool(config.get('moksha.use_tw2', False)):
-    raise NotImplementedError(__name__ + " is not ready for tw2")
+    ui_theme_css = tw2_ui_theme_css
+    ui_base_css = tw2_ui_base_css
 else:
     ui_theme_css = tw1_ui_theme_css
     ui_base_css = tw1_ui_base_css
-

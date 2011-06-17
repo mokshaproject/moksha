@@ -27,30 +27,59 @@ Bicocchi. © 2002-2008 Open Lab srl, Matteo Bicocchi. GPL licensed.
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
 """
 
-from tw.api import JSLink, Widget, CSSLink, js_symbol
-from tw.jquery import jquery_js, jQuery
+from tg import config
+from paste.deploy.converters import asbool
+
+import tw.api
+import tw.jquery
+import tw2.core as twc
+import tw2.jquery
 
 from moksha.lib.helpers import when_ready
 
 modname = __name__
 
-jquery_mbmenu_js = JSLink(modname=modname,
-                          filename='static/mbMenu.js',
-                          javascript=[jquery_js])
 
-jquery_mbmenu_min_js = JSLink(modname=modname,
-                              filename='static/mbMenu.min.js',
-                              javascript=[jquery_js])
+tw1_jquery_mbmenu_js = tw.api.JSLink(
+    modname=modname,
+    filename='static/mbMenu.js',
+    javascript=[tw.jquery.jquery_js])
+tw1_jquery_mbmenu_min_js = tw.api.JSLink(
+    modname=modname,
+    filename='static/mbMenu.min.js',
+    javascript=[tw.jquery.jquery_js])
+tw1_mbmenu_css_1 = tw.api.CSSLink(
+    modname=modname,
+    filename='static/css/menu1.css',
+    media='screen')
+tw1_mbmenu_css = tw.api.CSSLink(
+    modname=modname,
+    filename='static/css/menu.css',
+    media='screen')
 
-mbmenu_css_1 = CSSLink(modname=modname, filename='static/css/menu1.css',
-                       media='screen')
-mbmenu_css = CSSLink(modname=modname, filename='static/css/menu.css',
-                     media='screen')
 
-class MokshaMenuBase(Widget):
+tw2_jquery_mbmenu_js = twc.JSLink(
+    modname=modname,
+    filename='static/mbMenu.js',
+    resources=[tw2.jquery.jquery_js])
+tw2_jquery_mbmenu_min_js = twc.JSLink(
+    modname=modname,
+    filename='static/mbMenu.min.js',
+    resources=[tw2.jquery.jquery_js])
+tw2_mbmenu_css_1 = twc.CSSLink(
+    modname=modname,
+    filename='static/css/menu1.css',
+    media='screen')
+tw2_mbmenu_css = twc.CSSLink(
+    modname=modname,
+    filename='static/css/menu.css',
+    media='screen')
+
+
+class TW1MokshaMenuBase(tw.api.Widget):
     template = "mako:moksha.apps.menus.templates.mbmenu"
-    javascript = [jquery_mbmenu_min_js]
-    css = [mbmenu_css_1]
+    javascript = [tw1_jquery_mbmenu_min_js]
+    css = [tw1_mbmenu_css_1]
     params = ['callback', 'rootMenuSelector', 'menuSelector', 'id', 'menus',
               'additionalData', 'iconPath', 'menuWidth', 'openOnRight',
               'hasImages', 'fadeTime', 'adjustLeft', 'adjustTop', 'opacity',
@@ -78,10 +107,40 @@ class MokshaMenuBase(Widget):
     minZindex = 'auto'
 
 
-class MokshaMenu(MokshaMenuBase):
+class TW2MokshaMenuBase(twc.Widget):
+    template = "mako:moksha.apps.menus.templates.mbmenu"
+    resources = [tw2_jquery_mbmenu_min_js, tw2_mbmenu_css_1]
+    params = ['callback', 'rootMenuSelector', 'menuSelector', 'id', 'menus',
+              'additionalData', 'iconPath', 'menuWidth', 'openOnRight',
+              'hasImages', 'fadeTime', 'adjustLeft', 'adjustTop', 'opacity',
+              'shadow', 'fadeInTime', 'fadeOutTime', 'overflow', 'effect',
+              'minZindex']
+
+    rootMenuSelector = 'rootVoices'
+    menuSelector = 'menuContainer'
+    callback = '/apps/menu'
+    iconPath = '/resources/moksha.apps.menus.widgets/static/images/'
+    additionalData = ""
+    menus = []
+    menuWidth = 200
+    openOnRight =  False
+    hasImages = True
+    fadeTime = 200
+    fadeInTime = 100
+    fadeOutTime = 100
+    adjustLeft = 2
+    adjustTop = 10
+    opacity = 0.95
+    shadow = True
+    overflow = 2
+    effect = 'fade'
+    minZindex = 'auto'
+
+
+class TW1MokshaMenu(TW1MokshaMenuBase):
 
     def update_params(self, d):
-        super(MokshaMenu, self).update_params(d)
+        super(TW1MokshaMenu, self).update_params(d)
 
         if not d.id:
             raise Exception("MokshaMenu must have an id!")
@@ -93,7 +152,7 @@ class MokshaMenu(MokshaMenuBase):
             menus.append((menu.lower().replace(' ', ''), menu))
         d.menus = menus
 
-        self.add_call(when_ready(jQuery('.%s' % d.id).buildMenu({
+        self.add_call(when_ready(tw.jquery.jQuery('.%s' % d.id).buildMenu({
                 'template': d.callback,
                 'additionalData': d.additionalData,
                 'menuWidth': d.menuWidth,
@@ -113,7 +172,41 @@ class MokshaMenu(MokshaMenuBase):
                 })))
 
 
-class MokshaContextualMenu(MokshaMenuBase):
+class TW2MokshaMenu(TW2MokshaMenuBase):
+
+    def prepare(self):
+        super(TW2MokshaMenu, self).prepare()
+
+        if not self.id:
+            raise Exception("MokshaMenu must have an id!")
+        if not self.callback:
+            raise Exception("Must provide a callback URL!")
+
+        menus = []
+        for menu in self.menus:
+            menus.append((menu.lower().replace(' ', ''), menu))
+        self.menus = menus
+
+        self.add_call(when_ready(tw2.jquery.jQuery('.%s' % self.id).buildMenu({
+                'template': self.callback,
+                'additionalData': self.additionalData,
+                'menuWidth': self.menuWidth,
+                'openOnRight': self.openOnRight,
+                'rootMenuSelector': ".%s" % self.rootMenuSelector,
+                'menuSelector': ".%s" % self.menuSelector,
+                'iconPath': self.iconPath,
+                'hasImages': self.hasImages,
+                'fadeTime': self.fadeTime,
+                'fadeInTime': self.fadeInTime,
+                'fadeOutTime': self.fadeOutTime,
+                'adjustLeft': self.adjustLeft,
+                'adjustTop': self.adjustTop,
+                'opacity': self.opacity,
+                'shadow': self.shadow,
+                'minZindex': self.minZindex,
+                })))
+
+class TW1MokshaContextualMenu(TW1MokshaMenuBase):
 
     def update_params(self, d):
         super(MokshaContextualMenu, self).update_params(d)
@@ -128,7 +221,7 @@ class MokshaContextualMenu(MokshaMenuBase):
             menus.append((menu.lower().replace(' ', ''), menu))
         d.menus = menus
 
-        self.add_call(jQuery(js_symbol('document')).buildContextualMenu({
+        self.add_call(tw.jquery.jQuery(tw.api.js_symbol('document')).buildContextualMenu({
                 'template': d.callback,
                 'menuWidth': d.menuWidth,
                 'rootMenuSelector': ".%s" % d.rootMenuSelector,
@@ -145,3 +238,47 @@ class MokshaContextualMenu(MokshaMenuBase):
                 'effect': d.effect,
                 'minZindex': d.minZindex
                 }))
+
+
+class TW2MokshaContextualMenu(TW1MokshaMenuBase):
+
+    def prepare(self):
+        super(MokshaContextualMenu, self).prepare()
+
+        if not self.id:
+            raise Exception("MokshaMenu must have an id!")
+        if not self.callback:
+            raise Exception("Must provide a callback URL!")
+
+        menus = []
+        for menu in self.menus:
+            menus.append((menu.lower().replace(' ', ''), menu))
+        self.menus = menus
+
+        self.add_call(tw2.jquery.jQuery(twc.js_symbol('document')).buildContextualMenu({
+                'template': self.callback,
+                'menuWidth': self.menuWidth,
+                'rootMenuSelector': ".%s" % self.rootMenuSelector,
+                'menuSelector': ".%s" % self.menuSelector,
+                'iconPath': self.iconPath,
+                'hasImages': self.hasImages,
+                'fadeTime': self.fadeTime,
+                'fadeInTime': self.fadeInTime,
+                'fadeOutTime': self.fadeOutTime,
+                'adjustLeft': self.adjustLeft,
+                'adjustTop': self.adjustTop,
+                'opacity': self.opacity,
+                'shadow': self.shadow,
+                'effect': self.effect,
+                'minZindex': self.minZindex
+                }))
+
+
+if asbool(config.get('moksha.use_tw2', False)):
+    MokshaMenuBase = TW2MokshaMenuBase
+    MokshaMenu = TW2MokshaMenu
+    MokshaContextualMenu = TW2MokshaContextualMenu
+else:
+    MokshaMenuBase = TW1MokshaMenuBase
+    MokshaMenu = TW1MokshaMenu
+    MokshaContextualMenu = TW1MokshaContextualMenu

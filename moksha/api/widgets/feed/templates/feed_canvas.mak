@@ -1,7 +1,8 @@
-<div id="${id}" class="list">
-    <h3><a href="${link}" target="_blank">${title}</a></h3>
+<%namespace name="tw" module="moksha.utils.mako"/>
+<div id="${tw._('id')}" class="list">
+    <h3><a href="${tw._('link')}" target="_blank">${tw._('title')}</a></h3>
     <table>
-        % for entry in entries:
+        % for entry in tw._('entries'):
             <tr>
                 <td id="${entry['uid']}">
                     <h4><a href="${entry.link}" target="_blank">${entry.title}</a></h4>

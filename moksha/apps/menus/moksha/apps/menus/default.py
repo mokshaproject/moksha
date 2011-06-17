@@ -24,9 +24,16 @@ the installed Applications, Widgets, etc.
 
 import moksha
 import moksha.utils
-from moksha.apps.menus import MokshaMenu, MokshaContextualMenu
 
-class MokshaContextMenu(MokshaContextualMenu):
+from tg import config
+from paste.deploy.converters import asbool
+
+from moksha.apps.menus import (
+    TW1MokshaMenu, TW1MokshaContextualMenu,
+    TW2MokshaMenu, TW2MokshaContextualMenu,
+)
+
+class TW1MokshaContextMenu(TW1MokshaContextualMenu):
 
     def default(self, *args, **kw):
         return """
@@ -39,7 +46,7 @@ class MokshaContextMenu(MokshaContextualMenu):
             <a menu="moksha">Moksha</a>
         """
 
-class MokshaDefaultMenu(MokshaMenu):
+class TW1MokshaDefaultMenu(TW1MokshaMenu):
     menus = ['Moksha', 'Widgets', 'Fedora']
 
     def widgets(self, *args, **kw):
@@ -102,3 +109,93 @@ class MokshaDefaultMenu(MokshaMenu):
         for title, url in links.items():
             menu += '<a href="%s" target="_blank">%s</a>' % (url, title)
         return menu
+
+
+class TW2MokshaContextMenu(TW2MokshaContextualMenu):
+
+    @classmethod
+    def default(cls, *args, **kw):
+        return """
+            <a rel="text">
+                <img src="/images/moksha-icon.png" style="position:absolute;margin-top:-20px; margin-left:-25px;margin-bottom:10px"/><br/>
+            </a>
+            <a href="/widget">Documentation</a>
+            <a href="https://fedorahosted.org/moksha/report/3">Tickets</a>
+            <a href="https://fedorahosted.org/moksha/">Wiki</a>
+            <a menu="moksha">Moksha</a>
+        """
+
+class TW2MokshaDefaultMenu(TW2MokshaMenu):
+    menus = ['Moksha', 'Widgets', 'Fedora']
+
+    @classmethod
+    def widgets(cls, *args, **kw):
+        menu = """
+        <a rel="text">
+            <img src="/images/block.png" style="position:absolute;margin-top:-20px; margin-left:-25px;margin-bottom:10px"/>
+            <br/>
+        </a>
+        """
+        for id, widget in moksha.utils._widgets.iteritems():
+            if not getattr(widget['widget'], 'hidden', False):
+                menu += """
+                      <a href="#" onclick="
+                            $('<div/>').attr('id', '%(id)s_loader').appendTo('body')
+                            $.ajax({
+                                url: moksha.url('/widgets/%(id)s?chrome=True&live=%(live)s'),
+                                success: function(r, s) {
+                                    $('#%(id)s_loader')
+                                      .append(moksha.filter_resources(r));
+                                }
+                            });
+                            return false;">%(name)s</a>
+
+                """ % {'name': widget['name'], 'id': id, 'live': widget['live']}
+        return menu
+
+    @classmethod
+    def moksha(cls, *args, **kw):
+        return """
+        <a rel="text">
+            <img src="/images/moksha-icon.png" style="position:absolute;margin-top:-20px; margin-left:-25px;margin-bottom:10px"/><br>
+            <br>Moksha is a platform for creating live collaborative web applications.<br><br>
+        </a>
+        <a rel="separator"></a>
+        <a href="http://mokshaproject.net/">Homepage</a>
+        <a href="http://mokshaproject.net/apps/docs/">Documentation</a>
+        <a href="https://fedorahosted.org/moksha/report/3">Tickets</a>
+        <a href="https://fedorahosted.org/moksha/">Wiki</a>
+        """
+
+    @classmethod
+    def fedora(cls, *args, **kw):
+        links = {
+                'Wiki': 'http://fedoraproject.org/wiki',
+                'Hosted': 'http://fedorahosted.org',
+                'Bugzilla': 'http://bugzilla.redhat.com',
+                'Community': 'https://admin.fedoraproject.org/community',
+                'Elections': 'https://admin.fedoraproject.org/voting',
+                'Translations': 'http://translate.fedoraproject.org',
+                'Build System': 'http://koji.fedoraproject.org',
+                'Update System': 'http://bodhi.fedoraproject.org',
+                'Package Database': 'http://admin.fedoraproject.org/pkgdb',
+                'Account System': 'http://admin.fedoraproject.org/accounts',
+                'Hardware Database': 'http://smolts.org',
+        }
+        menu = """
+            <a rel="text">
+                <img src="/images/fedora-icon.png" style="position:absolute;margin-top:-20px; margin-left:-25px;margin-bottom:10px"/><br>
+            </a>
+            <a rel="separator"></a>
+        """
+        for title, url in links.items():
+            menu += '<a href="%s" target="_blank">%s</a>' % (url, title)
+        return menu
+
+
+if asbool(config.get('moksha.use_tw2', False)):
+    MokshaDefaultMenu = TW2MokshaDefaultMenu
+    MokshaContextMenu = TW2MokshaContextMenu
+else:
+    MokshaDefaultMenu = TW1MokshaDefaultMenu
+    MokshaContextMenu = TW1MokshaContextMenu

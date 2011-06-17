@@ -2,14 +2,21 @@ from tg import config
 from paste.deploy.converters import asbool
 
 import tw.api
-from tw.jquery import jquery_js
+import tw.jquery
+import tw2.core as twc
+import tw2.jquery
 
 tw1_jquery_json_js = tw.api.JSLink(
     modname=__name__,
     filename='static/jquery.json.js',
-    javascript=[jquery_js])
+    javascript=[tw.jquery.jquery_js])
+
+tw2_jquery_json_js = twc.JSLink(
+    modname=__name__,
+    filename='static/jquery.json.js',
+    resources=[tw2.jquery.jquery_js])
 
 if asbool(config.get('moksha.use_tw2', False)):
-    raise NotImplementedError(__name__ + " is not ready for tw2")
+    jquery_json_js = tw2_jquery_json_js
 else:
     jquery_json_js = tw1_jquery_json_js

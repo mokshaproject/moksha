@@ -17,20 +17,33 @@ from tg import config
 from paste.deploy.converters import asbool
 
 import tw.api
-from tw.jquery import jquery_js
+import tw.jquery
+import tw2.core as twc
+import tw2.jquery
 
 tw1_moksha_js = tw.api.JSLink(
     modname=__name__,
     filename='static/moksha.js',
-    javascript=[jquery_js])
+    javascript=[tw.jquery.jquery_js])
 
 tw1_moksha_extension_points_js = tw.api.JSLink(
     modname="moksha",
     filename='public/javascript/moksha.extensions.js',
     javascript=[tw1_moksha_js])
 
+tw2_moksha_js = twc.JSLink(
+    modname=__name__,
+    filename='static/moksha.js',
+    resources=[tw2.jquery.jquery_js])
+
+tw2_moksha_extension_points_js = twc.JSLink(
+    modname="moksha",
+    filename='public/javascript/moksha.extensions.js',
+    resources=[tw2_moksha_js])
+
 if asbool(config.get('moksha.use_tw2', False)):
-    raise NotImplementedError(__name__ + " is not ready for tw2")
+    moksha_js = tw2_moksha_js
+    moksha_extension_points_js = tw2_moksha_extension_points_js
 else:
     moksha_js = tw1_moksha_js
     moksha_extension_points_js = tw1_moksha_extension_points_js

@@ -95,11 +95,12 @@ class TW2LiveWidget(tw2.core.Widget):
             elif getattr(self, callback, None):
                 moksha.utils.livewidgets[callback].append(getattr(self, callback))
 
-    def get_topics(self):
+    @classmethod
+    def get_topics(cls):
         topics = []
         for key in ('topic', 'topics'):
-            if hasattr(self, key):
-                topic = getattr(self, key)
+            if hasattr(cls, key):
+                topic = getattr(cls, key)
                 if topic:
                     if isinstance(topic, basestring):
                         map(topics.append, topic.split())

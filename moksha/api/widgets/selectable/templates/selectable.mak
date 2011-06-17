@@ -1,5 +1,6 @@
-<div class="links" id="${content_id}">
-    % for i, c in enumerate(categories):
+<%namespace name="tw" module="moksha.utils.mako"/>
+<div class="links" id="${tw._('content_id')}">
+    % for i, c in enumerate(tw._('categories')):
        % if c['label']:
          <h4>
             ${c['label']}
@@ -8,7 +9,7 @@
        <ul>
        % for j, item in enumerate(c['items']):
          <li>
-            <a id="${content_id}_${i}_${j}" href="${item['link']}" moksha_url="dynamic">${item['label']}</a>
+            <a id="${tw._('content_id')}_${i}_${j}" href="${item['link']}" moksha_url="dynamic">${item['label']}</a>
             % if 'data' in item:
             <script type="text/javascript">
                 <%
@@ -17,7 +18,7 @@
                     if 'label' not in data:
                         data['label'] = label
                 %>
-                $("#${content_id}_${i}_${j}").data('.moksha_selectable_data', ${item['data']})
+                $("#${tw._('content_id')}_${i}_${j}").data('.moksha_selectable_data', ${item['data']})
             </script>
             % endif
          </li>

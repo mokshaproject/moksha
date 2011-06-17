@@ -19,9 +19,11 @@ from tg import config
 from paste.deploy.converters import asbool
 
 from feed import Feed
-from moksha.api.widgets import LiveWidget
+from moksha.api.widgets.live import TW1LiveWidget, TW2LiveWidget
+import tw2.core as twc
 
-class TW1LiveFeedWidget(LiveWidget):
+
+class TW1LiveFeedWidget(TW1LiveWidget):
     """ A live streaming feed widget """
     params = {
             'url': 'The feed URL',
@@ -30,7 +32,7 @@ class TW1LiveFeedWidget(LiveWidget):
             'd': 'The widget data',
             'limit': 'The number of entries to display',
     }
-    template = '${feed(id=id, url=url, limit=limit)}'
+    template = "mako:moksha.api.widgets.feed.templates.live"
     onmessage = """
         $.each(json, function() {
             $("#${id} ul li:last").remove();
@@ -51,7 +53,38 @@ class TW1LiveFeedWidget(LiveWidget):
         super(TW1LiveFeedWidget, self).update_params(d)
         d.d = d
 
+
+class TW2LiveFeedWidget(TW2LiveWidget):
+    """ A live streaming feed widget """
+
+    url = twc.Param("The feed URL")
+    topic = twc.Param("A topic or list of topics to subscribe to")
+    feed = twc.Param("A moksha Feed object")
+    d = twc.Param("The widget data")
+    limit = twc.Param("The number of entries to display")
+
+    template = "mako:moksha.api.widgets.feed.templates.live"
+    onmessage = """
+        $.each(json, function() {
+            $("#${id} ul li:last").remove();
+            $("<li/>").html(
+                $("<a/>")
+                  .attr("href", this.link)
+                  .text(this.title))
+              .prependTo($("#${id} ul"));
+        });
+    """
+    feed = Feed()
+    topic = None
+    limit = 10
+
+    def prepare(self):
+        if not getattr(self, 'topic', None):
+            self.topic = 'feed.%s' % d.get('url', self.url)
+        super(TW2LiveFeedWidget, self).prepare()
+        self.d = self  # Wha?
+
 if asbool(config.get('moksha.use_tw2', False)):
-    raise NotImplementedError(__name__ + " is not ready for tw2")
+    LiveFeedWidget = TW2LiveFeedWidget
 else:
     LiveFeedWidget = TW1LiveFeedWidget

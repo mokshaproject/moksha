@@ -234,7 +234,10 @@ class MokshaMiddleware(object):
             log.info('Loading %s menu' % menu_entry.name)
             menu_class = menu_entry.load()
             menu_path = menu_entry.dist.location
-            moksha.utils.menus[menu_entry.name] = menu_class(menu_entry.name)
+            if asbool(config.get('moksha.use_tw2', False)):
+                moksha.utils.menus[menu_entry.name] = menu_class(id=menu_entry.name)
+            else:
+                moksha.utils.menus[menu_entry.name] = menu_class(menu_entry.name)
 
     def load_renderers(self):
         """ Load our template renderers with our application paths.

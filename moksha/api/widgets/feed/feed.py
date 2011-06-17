@@ -22,7 +22,9 @@ import logging
 from tg import config
 from paste.deploy.converters import asbool
 
-from tw.api import Widget
+import tw.api
+import tw2.core as twc
+
 from shove import Shove
 from feedcache.cache import Cache
 
@@ -35,7 +37,8 @@ log = logging.getLogger(__name__)
 feed_storage = None
 feed_cache = None
 
-class TW1Feed(Widget):
+
+class TW1Feed(tw.api.Widget):
     """
     The Moksha Feed object.
 
@@ -124,7 +127,81 @@ class TW1Feed(Widget):
         except:
             pass
 
+
+class TW2Feed(twc.Widget):
+    """
+    The Moksha Feed object.
+
+    A Feed is initialized with an id and a url, and automatically handles the
+    fetching, parsing, and caching of the data.
+
+    """
+    url = None
+    template = 'mako:moksha.api.widgets.feed.templates.feed_home'
+    title = twc.Param("The title of this feed")
+    link = twc.Param("The url to the site that this feed is for")
+    entries = twc.Param("A list of feed entries", default=[])
+
+
+    def iterentries(self, d=None, limit=None):
+        url = self.url or d.get('url')
+        id = d and d.get('id', self.id) or self.id
+        if moksha.utils.feed_cache:
+            feed = moksha.utils.feed_cache.fetch(url)
+        else:
+            # MokshaMiddleware not running, so setup our own feed cache.
+            # This allows us to use this object outside of WSGI requests.
+            global feed_cache, feed_storage
+            if not feed_cache:
+                feed_storage = Shove('sqlite:///feeds.db', compress=True)
+                feed_cache = Cache(feed_storage)
+            feed = feed_cache.fetch(url)
+        if not (200 <= feed.get('status', 200) < 400):
+            log.warning('Got %s status from %s: %s' % (
+                        feed['status'], url, feed.headers.get('status')))
+            if d:
+                d['title'] = feed.headers.get('status')
+                d['link'] = feed.feed.get('link')
+            return
+        if d:
+            d['link'] = feed.feed.get('link')
+            try:
+                d['title'] = feed.feed.title
+            except AttributeError:
+                d['title'] = 'Unable to parse feed'
+                return
+        for i, entry in enumerate(feed.get('entries', [])):
+            entry['uid'] = '%s_%d' % (id, i)
+            entry['link'] = entry.get('link')
+            if i == limit:
+                break
+            yield entry
+
+
+    def get_entries(self, url=None):
+        d = {}
+        if url:
+            d['url'] = url
+        return [entry for entry in self.iterentries(d=d)]
+
+
+    def num_entries(self):
+        return len(self.get_entries())
+
+
+    def prepare(self):
+        super(TW2Feed, self).prepare()
+        for entry in self.iterentries(d, limit=self.limit):
+            self.entries.append(entry)
+
+
+    def close(self):
+        global feed_storage
+        try:
+            feed_storage.close()
+        except:
+            pass
 if asbool(config.get('moksha.use_tw2', False)):
-    raise NotImplementedError(__name__ + " is not ready for tw2")
+    Feed = TW2Feed
 else:
     Feed = TW1Feed

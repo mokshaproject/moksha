@@ -1,6 +1,6 @@
 # This file is part of Moksha.
 # Copyright (C) 2008-2010  Red Hat, Inc.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -16,20 +16,21 @@
 from tg import config
 from paste.deploy.converters import asbool
 
-from tw.api import Widget
+import tw.api
+import tw2.core as twc
 
-class TW1Placeholder(Widget):
-    engine_name = 'mako'
-    hidden = True
-    template = """
-<p class='placeholder'>
-    Moksha application <strong>${appname}</strong> is not registered yet.  This is a placeholder
-    for testing purposes.  When the app is registered it will appear in the
-    layout once the server is restarted.
-</p>
-"""
+
+class TW1Placeholder(tw.api.Widget):
+    hidden = twc.Param(default=True)
+    template = "mako:moksha.api.widgets.templates.placeholder"
+
+
+class TW2Placeholder(twc.Widget):
+    hidden = twc.Param(default=True)
+    template = "mako:moksha.api.widgets.templates.placeholder"
+
 
 if asbool(config.get('moksha.use_tw2', False)):
-    raise NotImplementedError(__name__ + " not ready for tw2.")
+    Placeholder = TW2Placeholder
 else:
     Placeholder = TW1Placeholder

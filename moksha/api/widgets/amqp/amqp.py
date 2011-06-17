@@ -25,16 +25,18 @@ import moksha.utils
 from tg import config
 from paste.deploy.converters import asbool
 
-from tw.api import Widget, JSLink, js_callback, js_function
+import tw.api
+import tw2.core as twc
 
 from moksha.api.widgets.orbited import orbited_host, orbited_port, orbited_url
 from moksha.api.widgets.orbited import orbited_js
 from moksha.lib.helpers import defaultdict, listify
-from moksha.widgets.moksha_js import moksha_js
 from moksha.widgets.notify import moksha_notify
-from moksha.widgets.json import jquery_json_js
+from moksha.widgets.moksha_js import tw1_moksha_js, tw2_moksha_js
+from moksha.widgets.json import tw1_jquery_json_js, tw2_jquery_json_js
 
-from widgets import kamaloka_qpid_js
+from widgets import tw1_kamaloka_qpid_js, tw2_kamaloka_qpid_js
+
 
 def amqp_subscribe(topic):
     """ Return a javascript callback that subscribes to a given topic,
@@ -66,9 +68,9 @@ def amqp_unsubscribe(topic):
     #return sub
 
 
-class TW1AMQPSocket(Widget):
+class TW1AMQPSocket(tw.api.Widget):
     callbacks = ['onconnectedframe', 'onmessageframe']
-    javascript = [jquery_json_js, moksha_js, kamaloka_qpid_js]
+    javascript = [tw1_jquery_json_js, tw1_moksha_js, tw1_kamaloka_qpid_js]
     params = callbacks[:] + ['topics', 'notify', 'orbited_host',
             'orbited_port', 'orbited_url', 'orbited_js', 'amqp_broker_host',
             'amqp_broker_port', 'amqp_broker_user', 'amqp_broker_pass',
@@ -78,109 +80,8 @@ class TW1AMQPSocket(Widget):
     send_hook = ''
     recieve_hook = ''
 
-    engine_name = 'mako'
-    template = u"""
-      <script type="text/javascript">
+    template = "mako:moksha.api.widgets.amqp.templates.amqp"
 
-        if (typeof moksha_amqp_conn == 'undefined') {
-            moksha_callbacks = new Object();
-            moksha_amqp_remote_queue = null;
-            moksha_amqp_queue = null;
-            moksha_amqp_on_message = function(msg) {
-                var dest = msg.header.delivery_properties.routing_key;
-                var json = null;
-                try {
-                    var json = $.parseJSON(msg.body);
-                } catch(err) {
-                    moksha.error("Unable to decode JSON message body");
-                    moksha.error(msg);
-                }
-                if (moksha_callbacks[dest]) {
-                    for (var i=0; i < moksha_callbacks[dest].length; i++) {
-                        moksha_callbacks[dest][i](json, msg);
-                    }
-                }
-            }
-        }
-
-        ## Register our topic callbacks
-        % for topic in topics:
-            var topic = "${topic}";
-            if (!moksha_callbacks[topic]) {
-                moksha_callbacks[topic] = [];
-            }
-            moksha_callbacks[topic].push(function(json, frame) {
-                ${onmessageframe[topic]}
-            });
-        % endfor
-
-        ## Create a new AMQP client
-        if (typeof moksha_amqp_conn == 'undefined') {
-            document.domain = document.domain;
-            $.getScript("${orbited_url}/static/Orbited.js", function() {
-                Orbited.settings.port = ${orbited_port};
-                Orbited.settings.hostname = '${orbited_host}';
-                Orbited.settings.streaming = true;
-                moksha_amqp_conn = new amqp.Connection({
-                    % if send_hook:
-                        send_hook: function(data, frame) { ${send_hook} },
-                    % endif
-                    % if recieve_hook:
-                        recive_hook: function(data, frame) { ${recieve_hook} },
-                    % endif
-                    host: '${amqp_broker_host}',
-                    port: ${amqp_broker_port},
-                    username: '${amqp_broker_user}',
-                    password: '${amqp_broker_pass}',
-                });
-                moksha_amqp_conn.start();
-
-                moksha_amqp_session = moksha_amqp_conn.create_session(
-                    'moksha_socket_' + (new Date().getTime() + Math.random()));
-
-                moksha_amqp_remote_queue = 'moksha_socket_queue_' +
-                        moksha_amqp_session.name;
-
-                moksha_amqp_session.Queue('declare', {
-                        queue: moksha_amqp_remote_queue
-                });
-                moksha_amqp_queue = moksha_amqp_session.create_local_queue({
-                        name: 'local_queue'
-                });
-
-                % if onconnectedframe:
-                    ${onconnectedframe}
-                    moksha_amqp_queue.start();
-                % endif
-
-            });
-
-        } else {
-            ## Utilize the existing Moksha AMQP socket connection
-            ${onconnectedframe}
-            moksha_amqp_queue.start();
-        }
-
-        if (typeof moksha == 'undefined') {
-            moksha = {
-                /* Send an AMQP message to a given topic */
-                send_message: function(topic, body) {
-                    moksha_amqp_session.Message('transfer', {
-                        accept_mode: 1,
-                        acquire_mode: 1, 
-                        destination: 'amq.topic',
-                        _body: $.toJSON(body),
-                        _header: {
-                            delivery_properties: {
-                                routing_key: topic
-                            }
-                        }
-                    });
-                },
-            }
-        }
-      </script>
-    """
     hidden = True
 
     def __init__(self, *args, **kw):
@@ -188,9 +89,10 @@ class TW1AMQPSocket(Widget):
         self.orbited_host = config.get('orbited_host', 'localhost')
         self.orbited_port = config.get('orbited_port', 9000)
         self.orbited_scheme = config.get('orbited_scheme', 'http')
-        self.orbited_url = '%s://%s:%s' % (self.orbited_scheme,
-                self.orbited_host, self.orbited_port)
-        self.orbited_js = JSLink(link=self.orbited_url + '/static/Orbited.js')
+        self.orbited_url = '%s://%s:%s' % (
+            self.orbited_scheme, self.orbited_host, self.orbited_port)
+        self.orbited_js = tw.api.JSLink(
+            link=self.orbited_url + '/static/Orbited.js')
         self.amqp_broker_host = config.get('amqp_broker_host', 'localhost')
         self.amqp_broker_port = config.get('amqp_broker_port', 5672)
         self.amqp_broker_user = config.get('amqp_broker_user', 'guest')
@@ -200,7 +102,7 @@ class TW1AMQPSocket(Widget):
     def update_params(self, d):
         super(TW1AMQPSocket, self).update_params(d)
         d.topics = []
-        d.onmessageframe = defaultdict(str) # {topic: 'js callbacks'}
+        d.onmessageframe = defaultdict(str)  # {topic: 'js callbacks'}
         for callback in self.callbacks:
             if len(moksha.utils.livewidgets[callback]):
                 cbs = ''
@@ -211,14 +113,76 @@ class TW1AMQPSocket(Widget):
                             d.onmessageframe[topic] += '%s;' % str(cb)
                 else:
                     for cb in moksha.utils.livewidgets[callback]:
-                        if isinstance(cb, (js_callback, js_function)):
+                        if isinstance(cb, (tw.api.js_callback,
+                                           tw.api.js_function)):
                             cbs += '$(%s);' % str(cb)
                         else:
                             cbs += str(cb)
                 if cbs:
                     d[callback] = cbs
 
+
+# TODO -- AMQPSocket and StompSocket have a *lot* in common.
+#         They should both inherit from an abstract CometSocket! -- threebean
+class TW2AMQPSocket(twc.Widget):
+    callbacks = ['onconnectedframe', 'onmessageframe']
+    resources = [tw2_jquery_json_js, tw2_moksha_js, tw2_kamaloka_qpid_js]
+    topics = twc.Variable()
+    notify = twc.Param(
+        default=asbool(config.get('moksha.socket.notify', False)))
+    hidden = twc.Param(default=True)
+
+    orbited_host = twc.Param(
+        default=config.get('orbited_host', 'localhost'))
+    orbited_port = twc.Param(
+        default=config.get('orbited_port', 9000))
+    orbited_scheme = twc.Param(
+        default=config.get('orbited_scheme', 'http'))
+    orbited_js = twc.Param(default=orbited_js)
+
+    amqp_broker_host = twc.Param(
+        default=config.get('amqp_broker_host', 'localhost'))
+    amqp_broker_port = twc.Param(
+        default=config.get('amqp_broker_port', 5672))
+    amqp_broker_user = twc.Param(
+        default=config.get('amqp_broker_user', 'guest'))
+    amqp_broker_pass = twc.Param(
+        default=config.get('amqp_broker_pass', 'guest'))
+
+    onconnectedframe = twc.Param(default='')
+    onmessageframe = twc.Param(default='')
+    send_hook = twc.Param(default='')
+    receive_hook = twc.Param(default='')
+
+    template = "mako:moksha.api.widgets.amqp.templates.amqp"
+
+    def prepare(self):
+        super(TW2AMQPSocket, self).prepare()
+        self.orbited_url = '%s://%s:%s' % (self.orbited_scheme,
+                self.orbited_host, self.orbited_port)
+
+        self.topics = []
+        self.onmessageframe = defaultdict(str)  # {topic: 'js callbacks'}
+
+        for callback in self.callbacks:
+            if len(moksha.utils.livewidgets[callback]):
+                cbs = ''
+                if callback == 'onmessageframe':
+                    for topic in moksha.utils.livewidgets[callback]:
+                        self.topics.append(topic)
+                        for cb in moksha.utils.livewidgets[callback][topic]:
+                            self.onmessageframe[topic] += '%s;' % str(cb)
+                else:
+                    for cb in moksha.utils.livewidgets[callback]:
+                        if isinstance(cb, (twc.js_callback, twc.js_function)):
+                            cbs += '$(%s);' % str(cb)
+                        else:
+                            cbs += str(cb)
+                if cbs:
+                    setattr(self, callback, cbs)
+
+
 if asbool(config.get('moksha.use_tw2', False)):
-    raise NotImplementedError(__name__ + " not ready for tw2")
+    AMQPSocket = TW2AMQPSocket
 else:
     AMQPSocket = TW1AMQPSocket

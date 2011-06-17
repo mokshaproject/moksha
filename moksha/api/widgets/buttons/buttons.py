@@ -29,17 +29,27 @@ from paste.deploy.converters import asbool
 from tg import config
 
 import tw.api
+import tw2.core as twc
+
 
 tw1_buttons_css = tw.api.CSSLink(
     filename='static/buttons.css',
     media='all', modname=__name__)
-
 tw1_static_images = tw.api.Link(
     filename='static/images/ventitre.gif',
     modname=__name__)
 
+tw2_buttons_css = twc.CSSLink(
+    filename='static/buttons.css',
+    media='all', modname=__name__)
+tw2_static_images = twc.DirLink(
+    filename='static/images/',
+    modname=__name__)
+
+
 if asbool(config.get('moksha.use_tw2', False)):
-    raise NotImplementedError(__name__ + " is not ready for tw2")
+    buttons_css = tw2_buttons_css
+    static_images = tw2_static_images
 else:
     buttons_css = tw1_buttons_css
     static_images = tw1_static_images
