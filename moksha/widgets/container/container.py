@@ -185,7 +185,8 @@ class TW2MokshaContainer(twc.Widget):
 
     def prepare(self):
         super(TW2MokshaContainer, self).prepare()
-        if not isinstance(self.content, tw2.core.widgets.WidgetMeta):
+        if self.content and not isinstance(self.content,
+                                           tw2.core.widgets.WidgetMeta):
             # This does not have to be cause for ultra-alarm.  We could take
             # care to render tw1 widgets inside tw2 widgets, but I'm throwing
             # hard errors here so I don't mess up jquery dependencies.
@@ -208,7 +209,8 @@ class TW2MokshaContainer(twc.Widget):
             self.onRestore = "function(o){%s}" % \
                 subscribe_topics(topics)
 
-        self.content = self.content.display(**content_args)
+        if self.content:
+            self.content = self.content.display(**content_args)
 
         for option in self.options:
             setattr(self, option, getattr(self, option, True) and option or '')

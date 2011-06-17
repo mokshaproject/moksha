@@ -52,6 +52,7 @@ setup(
         "Genshi",
         "tw2.core>=2.0b5",
         "tw2.forms",
+        "tw2.jquery>=2.0b6",
         "tw2.jqplugins.ui",
         "tw2.jqplugins.flot>=2.0a4",
         "tw2.jit",
