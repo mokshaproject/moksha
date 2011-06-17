@@ -18,12 +18,13 @@
 import moksha
 import moksha.utils
 import logging
-
-from tg import config
-from paste.deploy.converters import asbool
+import uuid
 
 import tw.api
 import tw2.core as twc
+
+from tg import config
+from paste.deploy.converters import asbool
 
 from shove import Shove
 from feedcache.cache import Cache
@@ -141,11 +142,15 @@ class TW2Feed(twc.Widget):
     title = twc.Param("The title of this feed")
     link = twc.Param("The url to the site that this feed is for")
     entries = twc.Param("A list of feed entries", default=[])
+    limit = twc.Param("A limit on the number of entries", default=None)
 
 
-    def iterentries(self, d=None, limit=None):
-        url = self.url or d.get('url')
-        id = d and d.get('id', self.id) or self.id
+    @classmethod
+    def iterentries(cls, limit=None):
+        if not hasattr(cls, 'id'):
+            cls.id = str(uuid.uuid4())
+        id = cls.id
+        url = cls.url
         if moksha.utils.feed_cache:
             feed = moksha.utils.feed_cache.fetch(url)
         else:
@@ -159,17 +164,17 @@ class TW2Feed(twc.Widget):
         if not (200 <= feed.get('status', 200) < 400):
             log.warning('Got %s status from %s: %s' % (
                         feed['status'], url, feed.headers.get('status')))
-            if d:
-                d['title'] = feed.headers.get('status')
-                d['link'] = feed.feed.get('link')
+
+            cls.title = feed.headers.get('status')
+            cls.link = feed.feed.get('link')
             return
-        if d:
-            d['link'] = feed.feed.get('link')
-            try:
-                d['title'] = feed.feed.title
-            except AttributeError:
-                d['title'] = 'Unable to parse feed'
-                return
+        cls.link = feed.feed.get('link')
+        try:
+            cls.title = feed.feed.title
+        except AttributeError:
+            cls.title = 'Unable to parse feed'
+            return
+
         for i, entry in enumerate(feed.get('entries', [])):
             entry['uid'] = '%s_%d' % (id, i)
             entry['link'] = entry.get('link')
@@ -177,30 +182,32 @@ class TW2Feed(twc.Widget):
                 break
             yield entry
 
-
-    def get_entries(self, url=None):
-        d = {}
+    @classmethod
+    def get_entries(cls, url=None):
         if url:
-            d['url'] = url
-        return [entry for entry in self.iterentries(d=d)]
+            cls.url = url
+        return [entry for entry in cls.iterentries()]
 
-
-    def num_entries(self):
-        return len(self.get_entries())
+    @classmethod
+    def num_entries(cls):
+        return len(cls.get_entries())
 
 
     def prepare(self):
         super(TW2Feed, self).prepare()
-        for entry in self.iterentries(d, limit=self.limit):
+        for entry in type(self).iterentries(limit=self.limit):
             self.entries.append(entry)
 
 
-    def close(self):
+    @classmethod
+    def close(cls):
         global feed_storage
         try:
             feed_storage.close()
         except:
             pass
+
+
 if asbool(config.get('moksha.use_tw2', False)):
     Feed = TW2Feed
 else:
