@@ -24,14 +24,24 @@ from tg import config
 from paste.deploy.converters import asbool
 
 import tw.api
-from tw.jquery import jquery_js
+import tw.jquery
+import tw2.core as twc
+import tw2.jquery
+
 
 tw1_expander_js = tw.api.JSLink(
     filename='static/jquery.expander.js',
     modname=__name__,
-    javascript=[jquery_js])
+    javascript=[tw.jquery.jquery_js])
+
+
+tw2_expander_js = twc.JSLink(
+    filename='static/jquery.expander.js',
+    modname=__name__,
+    resources=[tw2.jquery.jquery_js])
+
 
 if asbool(config.get('moksha.use_tw2', False)):
-    raise NotImplementedError(__name__ + " is not ready for tw2")
+    expander_js = tw2_expander_js
 else:
     expander_js = tw1_expander_js

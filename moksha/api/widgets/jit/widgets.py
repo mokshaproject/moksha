@@ -14,7 +14,7 @@ class TW2LiveAreaChartWidget(AreaChart, TW2LiveWidget):
 
 
 if asbool(config.get('moksha.use_tw2', False)):
-    LiveAreaChartWidget = TW2AreaChartWidget
+    LiveAreaChartWidget = TW2LiveAreaChartWidget
 else:
     # Probably never will be
     raise NotImplementedError(__name__ + " is not ready for tw1")
