@@ -13,29 +13,59 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tw.api import Widget
+import tw.api
+import tw2.core as twc
+
+from tg import config
+from paste.deploy.converters import asbool
 from moksha.widgets.container import MokshaContainer
+
+if asbool(config.get('moksha.use_tw2', False)):
+    # IF we're using tw2, set up the middleware for the tests
+    def request_local_tst():
+        global _request_local, _request_id
+        #    if _request_id is None:
+        #        raise KeyError('must be in a request')
+        if _request_local == None:
+            _request_local = {}
+        try:
+            return _request_local[_request_id]
+        except KeyError:
+            rl_data = {}
+            _request_local[_request_id] = rl_data
+            return rl_data
+
+    twc.core.request_local = request_local_tst
+    _request_local = {}
+    _request_id = 'whatever'
 
 class TestContainer:
 
     def setUp(self):
-        self.w = MokshaContainer('test')
+        if asbool(config.get('moksha.use_tw2', False)):
+            twc.core.request_local = request_local_tst
+            twc.core.request_local()['middleware'] = twc.make_middleware()
+            self.w = MokshaContainer(id='test')
+        else:
+            self.w = MokshaContainer('test')
 
     def test_render_widget(self):
-        assert 'Moksha Container' in self.w()
+        assert 'Moksha Container' in self.w.display()
 
 
     def test_widget_content(self):
         """ Ensure we can render a container with another widget """
 
-        # TODO -- test this for both tw1 and tw2?
-        class MyWidget(Widget):
-            template = """
-                Hello World!
-            """
-        assert 'Hello World!' in self.w(content=MyWidget('mywidget'))
+        if asbool(config.get('moksha.use_tw2', False)):
+            class MyWidget(twc.Widget):
+                template = "mako:moksha.widgets.container.tests.templates.w"
+        else:
+            class MyWidget(tw.api.Widget):
+                template = "mako:moksha.widgets.container.tests.templates.w"
+
+        assert 'Hello World!' in self.w.display(content=MyWidget(id='mywidget'))
 
     def test_container_classes(self):
-        rendered = self.w(**dict(skin3=True, stikynote=True,
-                                 draggable=True, resizable=True))
+        rendered = self.w.display(**dict(skin3=True, stikynote=True,
+                                         draggable=True, resizable=True))
         assert 'class="containerPlus draggable resizable"' in rendered, rendered

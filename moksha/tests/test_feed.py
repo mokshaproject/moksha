@@ -13,7 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tw.api import Widget
+from tg import config
+from paste.deploy.converters import asbool
+
+import tw.api
+import tw2.core as twc
+
 from moksha.api.widgets.feed import Feed
 
 # Monkey-patch moksha.utils.feed_cache so we don't have to actually
@@ -54,45 +59,71 @@ class TestFeed(object):
     def test_widget_children(self):
         """ Ensure that we can easily set Feeds as ToscaWidget children """
         moksha.utils.feed_cache = FakeCache()
-        class MyWidget(Widget):
-            myfeedurl = 'http://lewk.org/rss'
-            children = [Feed('myfeed', url=myfeedurl)]
-            engine_name = 'mako'
-            template = "${c.myfeed()}"
-        widget = MyWidget()
-        assert widget.c.myfeed
-        rendered = widget()
+
+        if asbool(config.get('moksha.use_tw2', False)):
+            class MyWidget(twc.Widget):
+                myfeedurl = 'http://lewk.org/rss'
+                myfeed = Feed(url=myfeedurl)
+                template = "mako:moksha.tests.templates.myfeed"
+
+            widget = MyWidget
+            assert len(widget.children) > 0
+        else:
+            class MyWidget(tw.api.Widget):
+                myfeedurl = 'http://lewk.org/rss'
+                children = [Feed('myfeed', url=myfeedurl)]
+                engine_name = 'mako'
+                template = "${c.myfeed()}"
+
+            widget = MyWidget()
+            assert widget.c.myfeed
+
+        rendered = widget.display()
+        print rendered
         assert '<div id="myfeed"' in rendered
 
     def test_widget_child_with_dynamic_url(self):
         moksha.utils.feed_cache = FakeCache()
-        class MyWidget(Widget):
-            params = ['url']
-            children = [Feed('feed')]
-            template = "${c.feed(url=url)}"
-            engine_name = 'mako'
+
+        if asbool(config.get('moksha.use_tw2', False)):
+            class MyWidget(twc.Widget):
+                url = twc.Param("a url")
+                feed = Feed
+                template = "mako:moksha.tests.templates.dynfeed"
+        else:
+            class MyWidget(tw.api.Widget):
+                params = ['url']
+                children = [Feed('feed')]
+                template = "mako:moksha.tests.templates.dynfeed"
+
         widget = MyWidget()
-        rendered = widget(url='http://lewk.org/rss')
+        rendered = widget.display(url='http://lewk.org/rss')
         assert '<div id="feed"' in rendered
 
     def test_genshi_widget(self):
         """ Ensure that our Feed widget can be rendered in a Genshi widget """
         moksha.utils.feed_cache = FakeCache()
-        class MyWidget(Widget):
-            children = [Feed('myfeed', url='http://lewk.org/rss')]
-            engine_name = 'genshi'
-            template = """
-            <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-              "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-              <html xmlns="http://www.w3.org/1999/xhtml"
-                    xmlns:py="http://genshi.edgewall.org/"
-                    xmlns:xi="http://www.w3.org/2001/XInclude">
-                ${c.myfeed()}
-             </html>
-            """
+
+        if asbool(config.get('moksha.use_tw2', False)):
+            class MyWidget(twc.Widget):
+                myfeed = Feed(url='http://lewk.org/rss')
+                template = "genshi:moksha.tests.templates.myfeed"
+        else:
+            class MyWidget(tw.api.Widget):
+                children = [Feed('myfeed', url='http://lewk.org/rss')]
+                engine_name = 'genshi'
+                template = """
+                <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+                  <html xmlns="http://www.w3.org/1999/xhtml"
+                        xmlns:py="http://genshi.edgewall.org/"
+                        xmlns:xi="http://www.w3.org/2001/XInclude">
+                    ${c.myfeed()}
+                 </html>
+                """
+
         widget = MyWidget()
-        rendered = widget()
-        print rendered
+        rendered = widget.display()
         assert '<div id="myfeed"' in rendered
 
     def test_feed_generator(self):
@@ -107,5 +138,5 @@ class TestFeed(object):
         """ Ensure that a generic feed can be rendered with a url """
         moksha.utils.feed_cache = FakeCache()
         feed = Feed()
-        rendered = feed(url='http://lewk.org/rss')
+        rendered = feed.display(url='http://lewk.org/rss')
         assert 'l e w k . o r g' in rendered, rendered
