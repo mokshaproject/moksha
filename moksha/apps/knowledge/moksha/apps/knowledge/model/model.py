@@ -55,7 +55,7 @@ class Fact(PolymorphicVerticalProperty, DeclarativeBase):
 
     type_map = {
         int: (u'integer', 'int_value'),
-        str: (u'char', 'char_value'),
+        #str: (u'char', 'char_value'),
         unicode: (u'char', 'char_value'),
         bool: (u'boolean', 'boolean_value'),
         datetime: (u'datetime', 'datetime_value'),
