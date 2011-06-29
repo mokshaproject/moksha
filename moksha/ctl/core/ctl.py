@@ -333,6 +333,7 @@ def develop():
 def restart():
     """ Stop, `python setup.py develop`, start.  """
     stop()  # We don't care if this fa
+    develop()
     return start()
 
 

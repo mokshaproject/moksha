@@ -28,6 +28,7 @@ import tw2.core.widgets
 from moksha.widgets.moksha_js import (
     tw1_moksha_js, tw1_moksha_extension_points_js,
     tw2_moksha_js, tw2_moksha_extension_points_js,
+    moksha_js, moksha_extension_points_js,
 )
 from moksha.api.widgets.live import moksha_socket
 
