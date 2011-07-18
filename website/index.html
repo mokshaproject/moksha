@@ -4,17 +4,35 @@
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <title>Moksha Project</title>
 
-<script type="text/javascript" src="js/jquery-1.1.3.1.pack.js"></script>
-<script type="text/javascript" src="js/jquery.spritely-0.3b.js"></script>
+<script type="text/JavaScript" src="js/jquery-1.6.1.min.js"></script>
+<script type="text/JavaScript" src="js/slimbox2.js"></script>
+<script type="text/JavaScript" src="js/cloud-carousel.1.0.5.min.js"></script>
 <script type="text/javascript">
-    $(document).ready(function(){
-            $('#bling-screen').sprite({fps: 2, no_of_frames: 21}).activeOnClick().active();
-    });
+$(document).ready(function(){
+
+  $("#moksha-screenshot-carousel").CloudCarousel( { 
+    minScale: 0.45,
+    reflHeight: 23,
+    reflGap:0,
+    xRadius: 400,
+    yRadius:25,
+    xPos: 200,
+    yPos: 120,
+    speed:0.05,
+    mouseWheel: false,
+    autoRotate: 'right',
+    autoRotateDelay: 7500,
+  });
+  $("#moksha-screenshot-carousel").css({"overflow":"visible"}).fadeIn();
+  
+});
 </script>
+
 <link rel="stylesheet" href="css/reset.css" />
 <link rel="stylesheet" href="css/text.css" />
 <link rel="stylesheet" href="css/960.css" />
 <link rel="stylesheet" href="css/moksha-website.css" />
+<link rel="stylesheet" href="css/slimbox2.css" />
 
 <link rel="shortcut icon" href="img/favicon.png" />
 </head>
@@ -37,11 +55,37 @@
     </div>
         <div class="grid_16">
         <h2>A web framework for highly-interactive, realtime apps.</h2>
+      </div>
+
+      <div id="moksha-screenshot-carousel">
+        <a href="img/moksha-screenshot-sine-of-the-times.gif"
+        rel='lightbox' title="Using Moksha with TurboGears2">
+        <img class="cloudcarousel"
+        src="img/moksha-screenshot-sine-of-the-times-thumbnail.gif"
+        width="380" height="294"
+        alt="Using Moksha with TurboGears2"
+        title="Using Moksha with TurboGears2"
+      </a>
+      <a href="img/moksha-screenshot-dashboard.gif"
+        rel='lightbox' title="The Moksha dashboard demo">
+        <img class="cloudcarousel"
+        src="img/moksha-screenshot-dashboard-thumbnail.gif"
+        width="380" height="294"
+        alt="The Moksha dashboard demo"
+        title="The Moksha dashboard demo" />
+      </a>
+      <a href="img/moksha-screenshot-narcissus.gif"
+        rel='lightbox' title="Narcissus is a server-log visualization app built with moksha">
+        <img class="cloudcarousel"
+        src="img/moksha-screenshot-narcissus-thumbnail.gif"
+        width="380" height="294"
+        alt="Narcissus is a server-log visualization app built with moksha">
+        title="Narcissus is a server-log visualization app built with moksha" />
+      </a>  
+      <div id="moksha-screenshot-title"></div>
+      <div id="moksha-screenshot-alt" ></div>
     </div>
-    <div class="grid_16" id="bling-frame">
-        &nbsp;
-        <div id="bling-screen">&nbsp;</div>
-    </div>
+    <div id="carousel-spacer">&nbsp;</div>
   </div>
   <div id="page">
     <div class="grid_10" id="content">
