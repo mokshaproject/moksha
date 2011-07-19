@@ -2,14 +2,14 @@
 Data Interpretation
 ===================
 
-Moksha provides various mechanisms that allows applications to easily interpret
-dynamic data, along with adding additional functionality to it.
+Moksha provides various mechanisms that allow applications to more easily interpret
+dynamic data and act on it.
 
 Collaborative glue
 ------------------
 
-Moksha will allow anything to be tagged, shared, discussed, annotated, rated,
-etc.
+Although it does not yet, Moksha will allow anything to be
+tagged, shared, discussed, annotated, rated, etc.
 
 Live streams
 ------------
@@ -23,12 +23,12 @@ Consumers
 ---------
 
 Moksha allows plugins to monitor arbitrary message `"topics"`, giving
-developers the ability to perform various actions upon various events.
+developers the ability to register actions on arbitrary events.
 
 Extension Points
 ----------------
 
-Gives developers the ability to add additional functionality to predictable
+Moksha gives developers the ability to add additional functionality to predictable
 patterns found within dynamic data streams.  For example, an extension point
 could find all occurences of known project names within a data feed, and easily
 turn them into a dynamic hover menu that could display related data.
