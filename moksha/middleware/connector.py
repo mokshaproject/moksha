@@ -19,10 +19,14 @@ import logging
 import pkg_resources
 import simplejson as json
 import urllib
+import time
+import os.path
+import threading
 
+from paste.deploy.converters import asbool
 from webob import Request, Response
 from pprint import pformat
-
+from tg import config
 
 log = logging.getLogger(__name__)
 
@@ -37,6 +41,8 @@ class MokshaConnectorMiddleware(object):
     """
 
     _connectors = {}
+    profile_id = 0
+    profile_id_lock = threading.Lock()
 
     def __init__(self, application):
         log.info('Creating MokshaConnectorMiddleware')
@@ -93,7 +99,7 @@ class MokshaConnectorMiddleware(object):
         return response(environ, start_response)
 
     def _run_connector(self, environ, request,
-                       conn, op, *path,
+                       conn_name, op, *path,
                        **remote_params):
         response = None
         # check last part of path to see if it is json data
@@ -121,7 +127,7 @@ class MokshaConnectorMiddleware(object):
         else:
             path = ''
 
-        conn = self._connectors.get(conn)
+        conn = self._connectors.get(conn_name)
 
         # pretty print output
         pretty_print = False
@@ -132,7 +138,51 @@ class MokshaConnectorMiddleware(object):
 
         if conn:
             conn_obj = conn['connector_class'](environ, request)
-            r = conn_obj._dispatch(op, path, remote_params, **dispatch_params)
+
+            r = None
+            if asbool(config.get('profile.connectors')):
+                import cProfile
+
+                directory = config.get('profile.dir', '')
+
+                # Make sure the id is unique for each thread
+                self.profile_id_lock.acquire()
+                prof_id = self.profile_id
+                self.profile_id += 1
+                self.profile_id_lock.release()
+
+                ip = request.remote_addr
+                timestamp = time.time()
+
+                prof_file_name = "connector_%s_%f_%s_%i.prof" % (conn_name, timestamp, ip, prof_id)
+                info_file_name = "connector_%s_%f_%s_%i.info" % (conn_name, timestamp, ip, prof_id)
+
+                # output call info
+                file_name = os.path.join(directory, info_file_name)
+                f = open(file_name, 'w')
+                f.write("{'name': '%s', 'op': '%s', 'path': '%s', 'remote_params': %s}" 
+                    % (conn_name, op, path, str(remote_params)))
+                f.close()
+
+                # in order to get the results back we need to pass an object
+                # by refrence which will be populated with the actual results
+                result = {'r': None}
+
+                # profile call
+                file_name = os.path.join(directory, prof_file_name)
+                cProfile.runctx("result['r'] = conn_obj._dispatch(op, path, remote_params, **dispatch_params)",
+                                None,
+                                {'conn_obj': conn_obj,
+                                 'op': op,
+                                 'path': path,
+                                 'remote_params': remote_params,
+                                 'dispatch_params': dispatch_params,
+                                 'result': result},
+                                file_name)
+
+                r = result['r']
+            else:
+                r = conn_obj._dispatch(op, path, remote_params, **dispatch_params)
 
             if pretty_print:
                 r = '<pre>' + pformat(r) + '</pre>'
