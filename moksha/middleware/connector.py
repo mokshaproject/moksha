@@ -22,6 +22,7 @@ import urllib
 import time
 import os.path
 import threading
+import json
 
 from paste.deploy.converters import asbool
 from webob import Request, Response
@@ -76,7 +77,7 @@ class MokshaConnectorMiddleware(object):
             # output profiling data
             file_name = os.path.join(directory, prof_file_name)
             f = open(file_name, 'w')
-            f.write("{'id': %s, 'start_time': %s, 'callback_start_time': %s, 'end_time': %s}"
+            f.write('{"id": "%s", "start_time": %s, "callback_start_time": %s, "end_time": %s}'
                     % (profile_id, p['start_time'], p['callback_start_time'], p['end_time']))
             f.close()
             return Response('{}')(environ, start_response)
@@ -186,8 +187,8 @@ class MokshaConnectorMiddleware(object):
                 # output call info
                 file_name = os.path.join(directory, info_file_name)
                 f = open(file_name, 'w')
-                f.write("{'name': '%s', 'op': '%s', 'path': '%s', 'remote_params': %s, 'ip': '%s', 'timestamp': %f, 'id_counter': %i, 'id': %s}"
-                    % (conn_name, op, path, str(remote_params), ip, timestamp, prof_id_counter, profile_id))
+                f.write('{"name": "%s", "op": "%s", "path": "%s", "remote_params": %s, "ip": "%s", "timestamp": %f, "id_counter": %i, "id": "%s"}'
+                    % (conn_name, op, path, json.dumps(remote_params), ip, timestamp, prof_id_counter, profile_id))
                 f.close()
 
                 # in order to get the results back we need to pass an object
