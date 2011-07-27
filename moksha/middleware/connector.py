@@ -41,12 +41,16 @@ class MokshaConnectorMiddleware(object):
     """
 
     _connectors = {}
-    profile_id = 0
-    profile_id_lock = threading.Lock()
+    profile_id_counter = 0
+    profile_id_counter_lock = threading.Lock()
 
     def __init__(self, application):
         log.info('Creating MokshaConnectorMiddleware')
         self.application = application
+
+        # ids of profile data we are waiting to collect and record
+        self.outstanding_profile_ids = {}
+
         self.load_connectors()
 
     def strip_script(self, environ, path):
@@ -62,6 +66,23 @@ class MokshaConnectorMiddleware(object):
 
         return path
 
+    def prof_collector(self, environ, request, start_response):
+        p = request.params
+        profile_id = p['id']
+        directory = config.get('profile.dir', '')
+        if self.outstanding_profile_ids.pop(profile_id, False):
+            prof_file_name = "jsonrequest_%s.jsprof" % profile_id
+
+            # output profiling data
+            file_name = os.path.join(directory, prof_file_name)
+            f = open(file_name, 'w')
+            f.write("{'id': %s, 'start_time': %s, 'callback_start_time': %s, 'end_time': %s}"
+                    % (profile_id, p['start_time'], p['callback_start_time'], p['end_time']))
+            f.close()
+            return Response('{}')(environ, start_response)
+
+        return Response(status='404 Not Found')(environ, start_response)
+
     def __call__(self, environ, start_response):
 
         request = Request(environ)
@@ -70,6 +91,9 @@ class MokshaConnectorMiddleware(object):
         if path.startswith('/moksha_connector'):
             s = path.split('/')[2:]
 
+            # check to see if we need to hand this off to the profile collector
+            if s[0] == 'prof_collector':
+                return self.prof_collector(environ, request, start_response)
 
             # since keys are not unique we need to condense them
             # into an actual dictionary with multiple entries becoming lists
@@ -146,16 +170,18 @@ class MokshaConnectorMiddleware(object):
                 directory = config.get('profile.dir', '')
 
                 # Make sure the id is unique for each thread
-                self.profile_id_lock.acquire()
-                prof_id = self.profile_id
-                self.profile_id += 1
-                self.profile_id_lock.release()
+                self.profile_id_counter_lock.acquire()
+                prof_id_counter = self.profile_id_counter
+                self.profile_id_counter += 1
+                self.profile_id_counter_lock.release()
 
                 ip = request.remote_addr
                 timestamp = time.time()
 
-                prof_file_name = "connector_%s_%f_%s_%i.prof" % (conn_name, timestamp, ip, prof_id)
-                info_file_name = "connector_%s_%f_%s_%i.info" % (conn_name, timestamp, ip, prof_id)
+                profile_id = "%s_%f_%s_%i" % (conn_name, timestamp, ip, prof_id_counter)
+                self.outstanding_profile_ids[profile_id] = True
+                prof_file_name = "connector_%s.prof" % profile_id
+                info_file_name = "connector_%s.info" % profile_id
 
                 # output call info
                 file_name = os.path.join(directory, info_file_name)
@@ -181,6 +207,9 @@ class MokshaConnectorMiddleware(object):
                                 file_name)
 
                 r = result['r']
+
+                # add profile id to results
+                r['moksha_profile_id'] = profile_id
             else:
                 r = conn_obj._dispatch(op, path, remote_params, **dispatch_params)
 
