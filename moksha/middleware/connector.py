@@ -186,8 +186,8 @@ class MokshaConnectorMiddleware(object):
                 # output call info
                 file_name = os.path.join(directory, info_file_name)
                 f = open(file_name, 'w')
-                f.write("{'name': '%s', 'op': '%s', 'path': '%s', 'remote_params': %s}" 
-                    % (conn_name, op, path, str(remote_params)))
+                f.write("{'name': '%s', 'op': '%s', 'path': '%s', 'remote_params': %s, 'ip': '%s', 'timestamp': %f, 'id_counter': %i}" 
+                    % (conn_name, op, path, str(remote_params), ip, timestamp, prof_id_counter))
                 f.close()
 
                 # in order to get the results back we need to pass an object
