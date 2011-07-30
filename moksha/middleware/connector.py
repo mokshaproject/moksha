@@ -17,12 +17,15 @@
 
 import logging
 import pkg_resources
-import simplejson as json
 import urllib
 import time
 import os.path
 import threading
-import json
+
+try:
+    import json
+except ImportError:
+    import simplejson as json
 
 from paste.deploy.converters import asbool
 from webob import Request, Response
