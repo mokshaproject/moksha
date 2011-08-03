@@ -169,8 +169,10 @@ class MokshaConnectorMiddleware(object):
 
             r = None
             if asbool(config.get('profile.connectors')):
-                import cProfile
-
+                try:
+		    import cProfile as profile
+                except ImportError:
+                    import profile
                 directory = config.get('profile.dir', '')
 
                 # Make sure the id is unique for each thread
@@ -200,7 +202,7 @@ class MokshaConnectorMiddleware(object):
 
                 # profile call
                 file_name = os.path.join(directory, prof_file_name)
-                cProfile.runctx("result['r'] = conn_obj._dispatch(op, path, remote_params, **dispatch_params)",
+                profile.runctx("result['r'] = conn_obj._dispatch(op, path, remote_params, **dispatch_params)",
                                 None,
                                 {'conn_obj': conn_obj,
                                  'op': op,
