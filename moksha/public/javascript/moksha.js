@@ -557,7 +557,7 @@ moksha = {
                                 'end_time'           : end_time};
 
                 // fire and forget the profile collector
-                moksha.json_load('/moksha_connector/prof_collector', profile_info, function(data){}, null, null);
+                moksha.json_load(moksha.url('/moksha_connector/prof_collector'), profile_info, function(data){}, null, null);
             }
             return moksha.json_load(path, params, profile_callback, $overlay_div, loading_icon);
         }
