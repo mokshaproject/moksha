@@ -27,7 +27,7 @@ import paver.virtual
 from paver.setuputils import install_distutils_tasks
 install_distutils_tasks()
 
-VERSION = '0.5.0'
+VERSION = '0.6.0'
 
 OLDHEADER = """
 # This program is free software: you can redistribute it and/or modify
