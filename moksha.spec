@@ -128,7 +128,10 @@ make -C docs html
 
 
 %check
-PYTHONPATH=$(pwd) paver test
+PYTHONPATH=$(pwd) python run_tests.py
+pushd moksha/apps/demo/MokshaJQPlotDemo/
+PYTHONPATH=$(pwd) python run_tests.py
+popd
 
 # Remove the tests
 %{__rm} -r %{buildroot}%{python_sitelib}/%{name}/tests
