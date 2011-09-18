@@ -17,7 +17,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='moksha',
-    version='0.6.0',
+    version='0.6.1',
     description='',
     author='',
     author_email='',

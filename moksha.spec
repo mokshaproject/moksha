@@ -2,7 +2,7 @@
 %{!?pyver: %define pyver %(%{__python} -c "import sys ; print sys.version[:3]")}
 
 Name:           moksha
-Version:        0.6.0
+Version:        0.6.1
 Release:        1%{?dist}
 Summary:        A platform for creating real-time web applications
 Group:          Applications/Internet
@@ -205,6 +205,9 @@ fi
 %doc docs/_build/html
 
 %changelog
+* Sun Sep 18 2011 Luke Macken <lmacken@redhat.com> 0.6.1-1
+- new package built with tito
+
 * Fri Aug 19 2011 Luke Macken <lmacken@redhat.com> - 0.6.0-1
 - 0.6.0 release
 - Update our dependencies to finally get the test suite running
