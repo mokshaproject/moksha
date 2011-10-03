@@ -38,6 +38,7 @@
         alphaPager: false,
         numericPager: false,
         filterControls: false,
+        morePager: false,
         more_link: null,
         loading_throbber: ["Loading",    // list of img urls or text
                            "Loading.",
@@ -403,6 +404,51 @@
         if (search_criteria.sort_key) {
             dispatch_data["sort_col"] = search_criteria.sort_key;
             dispatch_data["sort_order"] = search_criteria.sort_order;
+        }
+
+        self.connector_query(
+                      o.resource,
+                      o.resource_path,
+                      dispatch_data,
+                      results);
+    },
+
+    load_more_results: function(last_row, rows_per_page) {
+        var self = this;
+        var o = self.options;
+
+        if (!o.resource || !o.resource_path)
+            return;
+
+        var results = function(json) {
+            for (var i in json.rows) {
+                var row = json.rows[i];
+                self.append_row(row);
+            }
+
+            // reset based on returned values
+            o.total_rows = json.total_rows;
+            moksha.defer(self, function() {
+                                            self._process_controls();
+                                          });
+        }
+
+        var dispatch_data = {}
+
+        var filters = o.filters
+        if (typeof(filters) != 'undefined')
+            dispatch_data['filters'] = filters
+
+        var rows_per_page = o.rows_per_page
+        if (typeof(rows_per_page) != 'undefined')
+            dispatch_data['rows_per_page'] = rows_per_page
+
+        var start_row = last_row + 1;
+        dispatch_data['start_row'] = start_row
+
+        if (o.sort_key) {
+            dispatch_data["sort_col"] = o.sort_key;
+            dispatch_data["sort_order"] = o.sort_order;
         }
 
         self.connector_query(
@@ -878,30 +924,42 @@
           pager.append(page);
           return(pager);
       }
-  };
+  }
 
-$.extend( $.template.regx , {
-             moksha:/\@\{([\w-]+)(?:\:([\w\.]*)(?:\((.*?)?\))?)?\}/g
-           }
-);
+  $.ui.mokshagrid.prototype.controls.pager.pager_types.more = {
+      processElement: function($el) {
+          var $grid = $el.data('grid.moksha_grid');
+          var o = $grid.options;
+          if (!o.morePager)
+               return ""
 
-$.extend( $.template.helpers , {
-            index: function(v, i) {
-                       var result;
+          return this._generate_more_pager ($grid,
+                                            o.total_rows,
+                                            o.start_row,
+                                            o.rows_per_page,
+                                            o.visible_rows);
+      },
 
-                       try {
-                           result = v[i];
-                       } catch(err) {
-                           result = '&nbsp;';
-                       }
-                       return result;
-                   },
+      _generate_more_pager: function ($grid, total_rows, start_row, rows_per_page, visible_rows) {
+          var o = $grid.options;
 
-            filter: function(v, filter_cb) {
-                        return window[filter_cb](v);
-                    }
+          var last_row = visible_rows + start_row;
+          if (last_row == total_rows)
+              return "";
+
+          var pager = $('<span>');
+
+          var load_more = function() {
+              $grid.load_more_results(last_row, rows_per_page);
           }
-);
 
+          var more = $('<a href="javascript:void(0)"></a>').html('More');
+          more.click(load_more);
+
+          pager.append(more);
+
+          return(pager);
+      }
+  }
 
 })(jQuery);
