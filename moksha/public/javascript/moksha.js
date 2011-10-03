@@ -238,7 +238,7 @@ moksha = {
 
         var _goto = function(e) {
            var href = $(this).data('dynamic_href.moksha');
-           moksha.goto(href);
+           moksha.dynamic_goto(href);
 
            return false;
         }
@@ -412,6 +412,18 @@ moksha = {
             params = {}
 
         window.location.href = moksha.url(url, params);
+    },
+
+    /********************************************************************
+     * Take a url and target, attach the csrf hash if available and load
+     ********************************************************************/
+    dynamic_goto: function(url, params) {
+        if (typeof(params) != 'object')
+            params = {}
+
+        var new_path = moksha.url(url, params);
+        var current_path = location.pathname;
+        window.history.pushState({}, "", moksha.url(url, params));
     },
 
     /*
