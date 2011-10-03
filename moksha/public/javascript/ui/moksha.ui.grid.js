@@ -373,7 +373,7 @@
 
             for (var i in json.rows) {
                 var row = json.rows[i];
-                moksha.defer(self, self.append_row, [row]);
+                self.append_row(row);
             }
 
             // reset based on returned values
