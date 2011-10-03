@@ -98,12 +98,7 @@
         // store the widget for this element
         jQuery.data(self.element, 'mokshagrid', self);
 
-        // do nothing if we are asked to insert passed
-        // the number of rows being displayed
-        if (i >= o.rows_per_page || (i == -1  && row_count >= o.rows_per_page))
-            return;
-
-        var $new_row = jQuery(o.row_template.apply(row_data));
+        var $new_row = jQuery(jQuery.tmpl(o.row_template, row_data));
         moksha.update_marked_anchors($new_row);
 
         var $ph = self.$rowplaceholder;
@@ -445,7 +440,7 @@
       var container_div = jQuery('<div />');
       var html = unescape(container_div.append(rowtemplate).html());
 
-      o.row_template = jQuery.template(html, {regx:'moksha'});
+      o.row_template = jQuery.template(html);
 
       // create a blank row by taking the template HTML and replacing
       // the data inside the td's with a non breaking space
@@ -600,7 +595,7 @@
   $.ui.mokshagrid.prototype.controls.info_display = {
       _init: function($grid, $el) {
           var template_html = '<span>' + unescape($el.html()) + '<span>';
-          var $template = jQuery.template(template_html, {regx:'moksha'});
+          var $template = jQuery.template(template_html);
 
           // place in a data slot inside the element
           $el.data('info_display_template.moksha_grid', $template);
@@ -619,7 +614,7 @@
       },
 
       _generate_info_display: function($template, o) {
-          var $display = jQuery($template.apply(o));
+          var $display = jQuery(jQuery.tmpl($template, o));
           moksha.update_marked_anchors($display);
 
           return $display;
@@ -658,13 +653,13 @@
           return pager_obj.processElement.call(this.pager_types[type],
                                                $el);
       }
-  };
+  }
 
   $.ui.mokshagrid.prototype.controls.pager.pager_types.more_link = {
 
       _init: function($grid, $el) {
           var template_html = unescape($el.html());
-          var $template = jQuery.template(template_html, {regx:'moksha'});
+          var $template = jQuery.template(template_html);
 
           // place in a data slot inside the element
           $el.data('more_link_template.moksha_grid', $template);
@@ -685,7 +680,7 @@
       },
 
       _generate_more_pager: function($template, o) {
-          var $pager = jQuery($template.apply(o));
+          var $pager = jQuery(jQuery.tmpl($template, o));
           moksha.update_marked_anchors($pager);
 
           return $pager;
@@ -746,7 +741,7 @@
 
           return pager;
       }
-  };
+  }
 
   $.ui.mokshagrid.prototype.controls.pager.pager_types.numeric = {
       processElement: function($el) {
