@@ -38,6 +38,7 @@
         alphaPager: false,
         numericPager: false,
         filterControls: false,
+        morePager: false,
         more_link: null,
         loading_throbber: ["Loading",    // list of img urls or text
                            "Loading.",
@@ -98,12 +99,7 @@
         // store the widget for this element
         jQuery.data(self.element, 'mokshagrid', self);
 
-        // do nothing if we are asked to insert passed
-        // the number of rows being displayed
-        if (i >= o.rows_per_page || (i == -1  && row_count >= o.rows_per_page))
-            return;
-
-        var $new_row = jQuery(o.row_template.apply(row_data));
+        var $new_row = jQuery(jQuery.tmpl(o.row_template, row_data));
         moksha.update_marked_anchors($new_row);
 
         var $ph = self.$rowplaceholder;
@@ -377,7 +373,7 @@
 
             for (var i in json.rows) {
                 var row = json.rows[i];
-                moksha.defer(self, self.append_row, [row]);
+                self.append_row(row);
             }
 
             // reset based on returned values
@@ -417,6 +413,51 @@
                       results);
     },
 
+    load_more_results: function(last_row, rows_per_page) {
+        var self = this;
+        var o = self.options;
+
+        if (!o.resource || !o.resource_path)
+            return;
+
+        var results = function(json) {
+            for (var i in json.rows) {
+                var row = json.rows[i];
+                self.append_row(row);
+            }
+
+            // reset based on returned values
+            o.total_rows = json.total_rows;
+            moksha.defer(self, function() {
+                                            self._process_controls();
+                                          });
+        }
+
+        var dispatch_data = {}
+
+        var filters = o.filters
+        if (typeof(filters) != 'undefined')
+            dispatch_data['filters'] = filters
+
+        var rows_per_page = o.rows_per_page
+        if (typeof(rows_per_page) != 'undefined')
+            dispatch_data['rows_per_page'] = rows_per_page
+
+        var start_row = last_row + 1;
+        dispatch_data['start_row'] = start_row
+
+        if (o.sort_key) {
+            dispatch_data["sort_col"] = o.sort_key;
+            dispatch_data["sort_order"] = o.sort_order;
+        }
+
+        self.connector_query(
+                      o.resource,
+                      o.resource_path,
+                      dispatch_data,
+                      results);
+    },
+
     /* Signals */
     ready: function(event, user_data) {
 
@@ -445,7 +486,7 @@
       var container_div = jQuery('<div />');
       var html = unescape(container_div.append(rowtemplate).html());
 
-      o.row_template = jQuery.template(html, {regx:'moksha'});
+      o.row_template = jQuery.template(html);
 
       // create a blank row by taking the template HTML and replacing
       // the data inside the td's with a non breaking space
@@ -600,7 +641,7 @@
   $.ui.mokshagrid.prototype.controls.info_display = {
       _init: function($grid, $el) {
           var template_html = '<span>' + unescape($el.html()) + '<span>';
-          var $template = jQuery.template(template_html, {regx:'moksha'});
+          var $template = jQuery.template(template_html);
 
           // place in a data slot inside the element
           $el.data('info_display_template.moksha_grid', $template);
@@ -619,7 +660,7 @@
       },
 
       _generate_info_display: function($template, o) {
-          var $display = jQuery($template.apply(o));
+          var $display = jQuery(jQuery.tmpl($template, o));
           moksha.update_marked_anchors($display);
 
           return $display;
@@ -658,13 +699,13 @@
           return pager_obj.processElement.call(this.pager_types[type],
                                                $el);
       }
-  };
+  }
 
   $.ui.mokshagrid.prototype.controls.pager.pager_types.more_link = {
 
       _init: function($grid, $el) {
           var template_html = unescape($el.html());
-          var $template = jQuery.template(template_html, {regx:'moksha'});
+          var $template = jQuery.template(template_html);
 
           // place in a data slot inside the element
           $el.data('more_link_template.moksha_grid', $template);
@@ -685,7 +726,7 @@
       },
 
       _generate_more_pager: function($template, o) {
-          var $pager = jQuery($template.apply(o));
+          var $pager = jQuery(jQuery.tmpl($template, o));
           moksha.update_marked_anchors($pager);
 
           return $pager;
@@ -746,7 +787,7 @@
 
           return pager;
       }
-  };
+  }
 
   $.ui.mokshagrid.prototype.controls.pager.pager_types.numeric = {
       processElement: function($el) {
@@ -883,30 +924,42 @@
           pager.append(page);
           return(pager);
       }
-  };
+  }
 
-$.extend( $.template.regx , {
-             moksha:/\@\{([\w-]+)(?:\:([\w\.]*)(?:\((.*?)?\))?)?\}/g
-           }
-);
+  $.ui.mokshagrid.prototype.controls.pager.pager_types.more = {
+      processElement: function($el) {
+          var $grid = $el.data('grid.moksha_grid');
+          var o = $grid.options;
+          if (!o.morePager)
+               return ""
 
-$.extend( $.template.helpers , {
-            index: function(v, i) {
-                       var result;
+          return this._generate_more_pager ($grid,
+                                            o.total_rows,
+                                            o.start_row,
+                                            o.rows_per_page,
+                                            o.visible_rows);
+      },
 
-                       try {
-                           result = v[i];
-                       } catch(err) {
-                           result = '&nbsp;';
-                       }
-                       return result;
-                   },
+      _generate_more_pager: function ($grid, total_rows, start_row, rows_per_page, visible_rows) {
+          var o = $grid.options;
 
-            filter: function(v, filter_cb) {
-                        return window[filter_cb](v);
-                    }
+          var last_row = visible_rows + start_row;
+          if (last_row == total_rows)
+              return "";
+
+          var pager = $('<span>');
+
+          var load_more = function() {
+              $grid.load_more_results(last_row, rows_per_page);
           }
-);
 
+          var more = $('<a href="javascript:void(0)"></a>').html('More');
+          more.click(load_more);
+
+          pager.append(more);
+
+          return(pager);
+      }
+  }
 
 })(jQuery);

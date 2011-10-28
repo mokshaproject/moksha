@@ -2,7 +2,7 @@
 %{!?pyver: %define pyver %(%{__python} -c "import sys ; print sys.version[:3]")}
 
 Name:           moksha
-Version:        0.5.0
+Version:        0.6.0
 Release:        1%{?dist}
 Summary:        A platform for creating real-time web applications
 Group:          Applications/Internet
@@ -32,6 +32,19 @@ BuildRequires: python-repoze-what-quickstart
 BuildRequires: python-shove
 BuildRequires: python-bunch
 BuildRequires: TurboGears2
+BuildRequires: python-daemon
+
+BuildRequires: pyOpenSSL
+BuildRequires: python-babel
+BuildRequires: orbited
+BuildRequires: python-repoze-who-testutil
+
+%if 0%{?el5}
+BuildRequires: python-sqlite2
+BuildRequires: python-hashlib
+Requires: python-sqlite2
+Requires: python-hashlib
+%endif
 
 Requires: TurboGears2
 Requires: python-toscawidgets >= 0.9.1
@@ -51,6 +64,10 @@ Requires: python-BeautifulSoup
 Requires: python-twisted
 Requires: python-stomper
 Requires: python-daemon
+
+Requires: pyOpenSSL
+Requires: python-babel
+
 
 %description
 Moksha is a platform for creating real-time collaborative web applications.  It 
@@ -86,7 +103,7 @@ This package contains an Apache mod_wsgi configuration for Moksha.
 
 %{__sed} -i -e 's/$VERSION/%{version}/g' docs/conf.py
 make -C docs html
-%{__rm} docs/_build/html/.buildinfo
+#%{__rm} docs/_build/html/.buildinfo
 
 %install
 %{__rm} -rf %{buildroot}
@@ -127,7 +144,10 @@ make -C docs html
 
 
 %check
-PYTHONPATH=$(pwd) paver test
+PYTHONPATH=$(pwd) python run_tests.py
+pushd moksha/apps/demo/MokshaJQPlotDemo/
+PYTHONPATH=$(pwd):../../../../ python run_tests.py
+popd
 
 # Remove the tests
 %{__rm} -r %{buildroot}%{python_sitelib}/%{name}/tests
@@ -185,6 +205,11 @@ fi
 %doc docs/_build/html
 
 %changelog
+* Fri Aug 19 2011 Luke Macken <lmacken@redhat.com> - 0.6.0-1
+- 0.6.0 release
+- Update our dependencies to finally get the test suite running
+- Improve how we run our unit tests, to get them working on RHEL5
+
 * Wed Dec 15 2010 Luke Macken <lmacken@redhat.com> - 0.5.0-4
 - Add a logrotate configuration
 

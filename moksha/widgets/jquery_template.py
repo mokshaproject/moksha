@@ -17,5 +17,5 @@ from tw.api import JSLink
 from tw.jquery import jquery_js
 
 jquery_template_js = JSLink(modname=__name__,
-        filename='static/jquery.template.js',
+        filename='static/jquery.tmpl.js',
         javascript=[jquery_js])

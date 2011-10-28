@@ -17,7 +17,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='moksha',
-    version='0.5.0',
+    version='0.6.0',
     description='',
     author='',
     author_email='',
@@ -38,10 +38,10 @@ setup(
         "Sphinx",
         "Paver",
         "tw.forms",
-        "pytz",
+        #"pytz",
         "Babel",
         "pyOpenSSL",
-        "BeautifulSoup",
+        #"BeautifulSoup",
         "python-daemon",
         "repoze.what-quickstart",
         "repoze.what-pylons",

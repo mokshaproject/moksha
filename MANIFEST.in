@@ -4,6 +4,7 @@ include moksha.spec stop-moksha start-moksha orbited.cfg
 include LICENSE README AUTHORS COPYING
 include development.ini test.ini
 include setup.py pavement.py
+include run_tests.py
 
 graft moksha
 graft docs

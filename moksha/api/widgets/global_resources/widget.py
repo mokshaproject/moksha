@@ -52,16 +52,18 @@ class GlobalResourceInjectionWidget(Widget):
           moksha_userid = "${user_id}";
           moksha_debug = ${debug};
           moksha_profile = ${profile};
+          moksha_profile_connectors = ${profile_connectors};
         </script>
         """
     engine_name = 'mako'
 
-    params = ['base_url', 'csrf_token', 'user_id', 'debug', 'profile', 'csrf_trusted_domains']
+    params = ['base_url', 'csrf_token', 'user_id', 'debug', 'profile', 'profile_connectors', 'csrf_trusted_domains']
     base_url = '/'
     csrf_token = ''
     user_id = ''
     debug = 'false'
     profile = 'false'
+    profile_connectors = 'false'
 
     def __init__(self):
         super(GlobalResourceInjectionWidget, self).__init__()
@@ -110,6 +112,9 @@ class GlobalResourceInjectionWidget(Widget):
             d['debug'] = 'true'
         if asbool(config['global_conf'].get('profile')):
             d['profile'] = 'true'
+
+        if asbool(config['global_conf'].get('profile.connectors')):
+            d['profile_connectors'] = 'true'
 
         d['csrf_trusted_domains'] = self.csrf_trusted_domains_hash
 
