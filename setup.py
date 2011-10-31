@@ -27,6 +27,7 @@ setup(
     url='http://moksha.fedorahosted.org',
     install_requires=[
         "TurboGears2",
+        "webob==1.1",  # Temporary, until TG2 catches up.  (I hope).
         "ToscaWidgets",
         "zope.sqlalchemy",
         "sqlalchemy",
