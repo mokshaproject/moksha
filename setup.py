@@ -15,6 +15,9 @@
 
 from setuptools import setup, find_packages
 
+# This is required (oddly) to fix a python 2.7 bug with nose tests.
+import multiprocessing, logging
+
 setup(
     name='moksha',
     version='0.5.0',
