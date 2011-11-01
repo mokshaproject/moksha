@@ -43,7 +43,7 @@ setup(
         "fabulous",
         "Paver",
         "tw.forms",
-        #"pytz",
+        "pytz",
         "Babel",
         "pyOpenSSL",
         #"BeautifulSoup",
