@@ -414,16 +414,52 @@ moksha = {
         window.location.href = moksha.url(url, params);
     },
 
+
+    // Applys a mask in the form of '/*/path' where the wild card inserts the
+    // element from the source_url.
+    //
+    // example:
+    //     source_url = '/foo/bar/baz';
+    //     mask = '/alpha/*/beta';
+    //     url_mask(source_url, mask);
+    //     > '/alpha/bar/beta'
+    url_mask: function (source_url, mask) {
+       var result = '';
+       var split_mask = mask.split('/');
+       var split_source = source_url.split('/');
+       for (var i=0; i < split_mask.length; i++) {
+           if (i >= split_source.length)
+               return result;
+
+           if (split_mask[i] == '*')
+               result += split_source[i];
+           else
+               result += split_mask[i];
+           result += '/'
+       }
+       return result;
+    },
+
     /********************************************************************
-     * Take a url and target, attach the csrf hash if available and load
+     * Dynamically load a portion of the page
      ********************************************************************/
-    dynamic_goto: function(url, params) {
+    dynamic_goto: function(url, params, target, display_path) {
         if (typeof(params) != 'object')
             params = {}
 
-        var new_path = moksha.url(url, params);
         var current_path = location.pathname;
-        window.history.pushState({}, "", moksha.url(url, params));
+        display_path = moksha.url(display_path);
+
+        var masked_url = moksha.url_mask(current_path, display_path);
+
+        window.history.pushState({}, "", masked_url);
+        function load_finish(html) {
+            $(target).html(html);
+        }
+        moksha.html_load(url, params, load_finish);
+
+        // prevent link from reloading entire page if attached to onClick handler
+        return false;
     },
 
     /*
