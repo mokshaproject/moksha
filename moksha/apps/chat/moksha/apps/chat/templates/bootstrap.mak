@@ -1,3 +1,4 @@
+<%namespace name="tw" module="moksha.utils.mako"/>
 (function() {
 var gatherOptions = function(roomOptions, container) {
     var opts = {}
@@ -94,7 +95,7 @@ var loaded = function() {
 }
 
 $(document).ready(function(){
-    if (!window.WillowChat) { WillowChat = {} }; WillowChat.hostHeader = "${host}";
+    if (!window.WillowChat) { WillowChat = {} }; WillowChat.hostHeader = "${tw._('host')}";
     loaded();
 });
 

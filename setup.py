@@ -15,6 +15,9 @@
 
 from setuptools import setup, find_packages
 
+# This is required (oddly) to fix a python 2.7 bug with nose tests.
+import multiprocessing, logging
+
 setup(
     name='moksha',
     version='0.6.0',
@@ -23,11 +26,12 @@ setup(
     author_email='',
     url='http://moksha.fedorahosted.org',
     install_requires=[
-        "fabric",
         "TurboGears2",
+        "webob==1.1",  # Temporary, until TG2 catches up.  (I hope).
         "ToscaWidgets",
         "zope.sqlalchemy",
         "sqlalchemy",
+        "psutil",
         "Shove",
         "feedcache",
         "feedparser",
@@ -36,6 +40,7 @@ setup(
         "Twisted",
         "stomper",
         "Sphinx",
+        "fabulous",
         "Paver",
         "tw.forms",
         #"pytz",
@@ -49,9 +54,13 @@ setup(
         "Bunch",
         "Mako",
         "Genshi",
-        "tw2.core",
+        "tw2.core>=2.0b5",
         "tw2.forms",
+        "tw2.jquery>=2.0b6",
+        "tw2.jqplugins.ui",
+        "tw2.jqplugins.flot>=2.0a4",
         "tw2.jit",
+        "tw2.excanvas",
         #"repoze.squeeze", # Not hard requirements
         #"repoze.profile", # Not hard requirements
     ],

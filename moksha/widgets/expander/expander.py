@@ -20,8 +20,28 @@
 http://plugins.learningjquery.com/expander
 """
 
-from tw.api import JSLink
-from tw.jquery import jquery_js
+from tg import config
+from paste.deploy.converters import asbool
 
-expander_js = JSLink(filename='static/jquery.expander.js',
-                     modname=__name__, javascript=[jquery_js])
+import tw.api
+import tw.jquery
+import tw2.core as twc
+import tw2.jquery
+
+
+tw1_expander_js = tw.api.JSLink(
+    filename='static/jquery.expander.js',
+    modname=__name__,
+    javascript=[tw.jquery.jquery_js])
+
+
+tw2_expander_js = twc.JSLink(
+    filename='static/jquery.expander.js',
+    modname=__name__,
+    resources=[tw2.jquery.jquery_js])
+
+
+if asbool(config.get('moksha.use_tw2', False)):
+    expander_js = tw2_expander_js
+else:
+    expander_js = tw1_expander_js

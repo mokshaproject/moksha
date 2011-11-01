@@ -16,7 +16,7 @@ Moksha provides a `WSGI <http://wsgi.org>`_ (`PEP 333 <http://www.python.org/dev
 Messaging Hub
 -------------
 
-Moksha provides a message hub that allows for other applications, services, or users to communicate over a low-latency topic-based publish/subscribe message bus.  It's designed in such a way to facilitate a variety of different message flows, allowing for a combination of different message queueing brokers and protocols.
+Moksha provides a message hub that allows for other applications, services, or users to communicate over a low-latency topic-based publish/subscribe message bus.  It's designed in such a way as to facilitate a variety of different message flows, allowing for a combination of different message queueing brokers and protocols.
 
 Out of the box, Moksha utilizes `MorbidQ <http://www.morbidq.com/>`_, a lightweight message queue for bundled deployment, for it's message queueing needs.  With a 1-line change to Moksha's configuration file, you can integrate it with an existing `AMQP <http://amqp.org/>`_ broker, such as `Qpid <http://incubator.apache.org/qpid/>`_ or `RabbitMQ <http://rabbitmq.com>`_.
 
@@ -28,7 +28,7 @@ Low-latency Browser Socket
 --------------------------
 
 Moksha integrates with `Orbited <http://orbited.org>`_, a highly-scalable
-server that allows for asynchronous browser <-> server communication.  Moksha
+server that allows for asynchronous browser <-> server communication (Comet).  Moksha
 then makes it simple to create :doc:`LiveWidgets` that can publish and
 subscribe to arbitrary message topics in the :doc:`MokshaHub`.  This
 allows for the creation of very rich live web applications.
@@ -88,8 +88,8 @@ process incoming data.  One could then easily build state-machines, inference
 engines, or even forward/backward-chaning rule-driven expert systems.
 
 Moksha also provides a simple yet powerful API for creating
-:doc:`Producers` that can do basically anything at anytime.  It allows for
-the easy scripting of periodic tasks such as fetching data, polling resources,
+:doc:`Producers`.  With these, developers can script
+periodic tasks such as fetching data, polling resources,
 warming caches, sending notifications, analyzing databases, etc.  For example,
 Moksha provides a :doc:`FeedStream`, that automatically handles fetching,
 parsing, caching, and sending notifications for all known feeds at a regular

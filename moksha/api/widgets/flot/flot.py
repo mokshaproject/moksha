@@ -15,18 +15,47 @@
 #
 # Authors: Luke Macken <lmacken@redhat.com>
 
-from tw.jquery.flot import flot_js, excanvas_js, flot_css
-from moksha.api.widgets import LiveWidget
+from tg import config
+from paste.deploy.converters import asbool
 
-class LiveFlotWidget(LiveWidget):
+import tw.jquery.flot
+import tw2.jqplugins.flot
+import tw2.excanvas
+
+from moksha.api.widgets import TW1LiveWidget, TW2LiveWidget
+
+
+class TW1LiveFlotWidget(TW1LiveWidget):
     """ A live graphing widget """
     topic = None
     params = ['id', 'data', 'options', 'height', 'width', 'onmessage']
     onmessage = '$.plot($("#${id}"),json[0]["data"],json[0]["options"])'
-    template = '<div id="${id}" style="width:${width};height:${height};" />'
-    javascript = [flot_js, excanvas_js]
-    css = [flot_css]
+    template = "mako:moksha.api.widgets.flot.templates.flot"
+    javascript = [tw.jquery.flot.flot_js, tw.jquery.flot.excanvas_js]
+    css = [tw.jquery.flot.flot_css]
     height = '250px'
     width = '390px'
     options = {}
     data = [{}]
+
+
+class TW2LiveFlotWidget(TW2LiveWidget):
+    """ A live graphing widget """
+    topic = None
+    params = ['id', 'data', 'options', 'height', 'width', 'onmessage']
+    onmessage = '$.plot($("#${id}"),json[0]["data"],json[0]["options"])'
+    template = "mako:moksha.api.widgets.flot.templates.flot"
+    resources = [
+        tw2.jqplugins.flot.flot_js,
+        tw2.excanvas.excanvas_js
+    ]
+    height = '250px'
+    width = '390px'
+    options = {}
+    data = [{}]
+
+
+if asbool(config.get('moksha.use_tw2', False)):
+    LiveFlotWidget = TW2LiveFlotWidget
+else:
+    LiveFlotWidget = TW1LiveFlotWidget

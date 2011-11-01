@@ -43,11 +43,11 @@ def global_resources():
         from genshi import unescape, Markup
         return Markup(unescape(Markup(globs)))
     elif tg.config.default_renderer == 'mako':
-        return globs()
+        return globs.display()
     else:
         # If this gets called, and explodes, then you need to add support
         # for your templating engine here.
-        return globs()
+        return globs.display()
 
 class Controller(object):
     """Base class for a web application's controller.

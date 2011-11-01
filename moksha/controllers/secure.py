@@ -38,7 +38,7 @@ class SecureController(BaseController):
     def index(self):
         """Let the user know that's visiting a protected controller."""
         flash(_("Secure Controller here"))
-        if 'default_menu' in moksha.menus:
+        if 'default_menu' in moksha.utils.menus:
             tmpl_context.menu_widget = moksha.utils.menus['default_menu']
         else:
             tmpl_context.menu_widget = lambda: ''

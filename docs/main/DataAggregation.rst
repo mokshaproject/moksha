@@ -10,7 +10,7 @@ Messaging layer
 Moksha can communicate with various message brokers, using the `AMQP
 <http://amqp.org>`_ and/or `STOMP <http://stomp.codehaus.org/Protocol>`_
 protocols.  It also provides a simple API for producing and consuming messages,
-as well as allowing widgets to subscribe to live messages streams within the
+as well as allowing widgets to subscribe to live message streams within the
 users web browser.
 
 Caching layer

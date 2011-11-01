@@ -33,6 +33,8 @@ it is viewing.
 """
 
 from tg import config
+from paste.deploy.converters import asbool
+
 from tw.api import js_callback, Widget, JSLink, CSSLink
 from tw.jquery import jquery_js, jQuery
 from tw.jquery.dynatree import Dynatree
@@ -175,5 +177,9 @@ class MokshaFeedReaderWidget(LiveWidget):
             'accessKey': "H",
             }))
 
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " is not ready for tw2")
+else:
+    pass  # nothing in this file has changed yet.
 
 moksha_feedreader = MokshaFeedReaderWidget('moksha_feedreader')

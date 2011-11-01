@@ -1,3 +1,4 @@
+<%namespace name="tw" module="moksha.utils.mako"/>
 <%def name="add_panel(tabgroup)">
     % for t in tabgroup:
       % if t['type'] == 'Category':
@@ -14,4 +15,4 @@
     % endfor
 </%def>
 
-${add_panel(tabs)}
+${add_panel(tw._('tabs'))}

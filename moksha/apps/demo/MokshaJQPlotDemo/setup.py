@@ -6,6 +6,9 @@ except ImportError:
     use_setuptools()
     from setuptools import setup, find_packages
 
+# This is required to avert a strange python 2.7 bug
+import multiprocessing, logging
+
 setup(
     name='JQPlotDemo',
     version='0.2',

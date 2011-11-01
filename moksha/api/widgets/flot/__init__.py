@@ -13,4 +13,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from flot import LiveFlotWidget
+from flot import LiveFlotWidget, TW1LiveFlotWidget, TW2LiveFlotWidget

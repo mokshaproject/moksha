@@ -13,20 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tw.api import Widget
-from tw.jquery import jquery_js
+import tw.api
+import tw2.core as twc
+
 from moksha.lib.helpers import eval_app_config, ConfigWrapper
+
+from paste.deploy.converters import asbool
 from tg import config
-from tw.api import Widget
 
-from moksha.lib.helpers import eval_app_config, ConfigWrapper
 
-class AppListWidget(Widget):
+class TW1AppListWidget(tw.api.Widget):
     template = 'mako:moksha.api.widgets.containers.templates.layout_applist'
     params = ['category']
 
     def update_params(self, d):
-        super(AppListWidget, self).update_params(d)
+        super(TW1AppListWidget, self).update_params(d)
 
         # ignore categories that don't exist
         c = d['category']
@@ -42,9 +43,38 @@ class AppListWidget(Widget):
             if not found:
                 d['category'] = None
 
-applist_widget = AppListWidget('applist');
 
-class DashboardContainer(Widget):
+class TW2AppListWidget(twc.Widget):
+    template = 'mako:moksha.api.widgets.containers.templates.layout_applist'
+    category = twc.Param()
+
+    def prepare(self):
+        super(TW2AppListWidget, self).prepare()
+
+        # ignore categories that don't exist
+        c = self.category
+        if isinstance(c, basestring):
+            found = False
+            for cat in self.layout:
+                if cat['label'] == c:
+                    setattr(self, 'category', cat)
+                    found = True
+                    break
+
+            # ignore categories that don't exist
+            if not found:
+                setattr(self, 'category', None)
+
+
+if asbool(config.get('moksha.use_tw2', False)):
+    AppListWidget = TW2AppListWidget
+    applist_widget = AppListWidget(id='applist')
+else:
+    AppListWidget = TW1AppListWidget
+    applist_widget = AppListWidget('applist')
+
+
+class TW1DashboardContainer(tw.api.Widget):
     template = 'mako:moksha.api.widgets.containers.templates.dashboardcontainer'
     params = ['layout', 'applist_widget']
     css = []
@@ -55,7 +85,7 @@ class DashboardContainer(Widget):
     engine_name = 'mako'
 
     def update_params(self, d):
-        super(DashboardContainer, self).update_params(d)
+        super(TW1DashboardContainer, self).update_params(d)
         layout = eval_app_config(config.get(self.config_key, "None"))
 
         if not layout:
@@ -69,3 +99,33 @@ class DashboardContainer(Widget):
         d.layout = ConfigWrapper.process_wrappers(layout, d)
 
         return d
+
+
+class TW2DashboardContainer(twc.Widget):
+    template = 'mako:moksha.api.widgets.containers.templates.dashboardcontainer'
+    resources = []
+
+    layout = twc.Param(default=[])
+    config_key = twc.Param(default=None)
+
+    applist_widget = applist_widget
+
+    def prepare(self):
+        super(TW2DashboardContainer, self).prepare()
+        layout = eval_app_config(config.get(self.config_key, "None"))
+
+        if not layout:
+            if isinstance(self.layout, basestring):
+                layout = eval_app_config(self.layout)
+            else:
+                layout = self.layout
+
+        # Filter out any None's in the layout which signify apps which are
+        # not allowed to run with the current session's authorization level
+        self.layout = ConfigWrapper.process_wrappers(layout, self)
+
+
+if asbool(config.get('moksha.use_tw2', False)):
+    DashboardContainer = TW2DashboardContainer
+else:
+    DashboardContainer = TW1DashboardContainer

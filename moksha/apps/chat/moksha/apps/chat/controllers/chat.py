@@ -23,12 +23,15 @@ urlparse.uses_netloc.append('irc')
 
 from tg import expose, tmpl_context, config
 from pylons import request
+from paste.deploy.converters import asbool
 
 from moksha.lib.base import BaseController
 from moksha.apps.chat import LiveChatFrameWidget
 
-chat_frame_widget = LiveChatFrameWidget('chat_frame')
-
+if asbool(config.get('moksha.use_tw2', False)):
+    chat_frame_widget = LiveChatFrameWidget(id='chat_frame')
+else:
+    chat_frame_widget = LiveChatFrameWidget('chat_frame')
 
 class ChatController(BaseController):
 

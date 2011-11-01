@@ -20,18 +20,30 @@
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
 """
 
-from tw.api import Widget
+from tg import config
+from paste.deploy.converters import asbool
 
-class IFrameWidget(Widget):
+import tw.api
+import tw2.core as twc
+
+
+class TW1IFrameWidget(tw.api.Widget):
     params = ['id', 'url', 'title', 'height', 'width']
-    template = """
-      <h1>${title}</h1>
-      <iframe id="${id}" src="${url}" width="${width}" height="${height}">
-        <p>Your browser does not support iframes.</p>
-      </iframe>
-    """
+    template = "mako:moksha.widgets.templates.iframe"
     title = ''
     height = width = '100%'
-    engine_name = 'mako'
 
-iframe_widget = IFrameWidget('iframe_widget')
+
+class TW2IFrameWidget(twc.Widget):
+    params = ['id', 'url', 'title', 'height', 'width']
+    template = "mako:moksha.widgets.templates.iframe"
+    title = ''
+    height = width = '100%'
+
+
+if asbool(config.get('moksha.use_tw2', False)):
+    IFrameWidget = TW2IFrameWidget
+    iframe_widget = IFrameWidget(id='iframe_widget')
+else:
+    IFrameWidget = TW1IFrameWidget
+    iframe_widget = IFrameWidget('iframe_widget')
