@@ -77,16 +77,13 @@ if (typeof moksha_amqp_conn == 'undefined') {
 			moksha_amqp_queue.start();
 		% endif
 
-		/**
-		 * Note that it might be more elegant to use $(window).unload(...),
-		 * but jquery doesn't handle the event like we need to.
-		 *
-		 * Also, onbeforeunload might not be cross-browser compatible.  We
-		 * should look into this.   -- threebean
-		 */
-		window.onbeforeunload = function() {
+		// Note that $(window).unload(..) is insufficient.  The
+		// moksha/orbited resources are unloaded before we can
+		// explicitly close our connection.  We must use
+		// 'beforeunload' instead.
+		$(window).bind('beforeunload', function() {
 			moksha_amqp_conn._conn._orbited_conn.close();
-		};
+		});
 
 	});
 
