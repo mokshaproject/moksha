@@ -134,12 +134,13 @@ class TW2GlobalResourceInjectionWidget(twc.Widget):
     css = []
     template = "mako:moksha.api.widgets.global_resources.templates.global"
 
-    params = ['base_url', 'csrf_token', 'user_id', 'debug', 'profile', 'csrf_trusted_domains']
+    params = ['base_url', 'csrf_token', 'user_id', 'debug', 'profile', 'csrf_trusted_domains', 'profile_connectors']
     base_url = '/'
     csrf_token = ''
     user_id = ''
     debug = 'false'
     profile = 'false'
+    profile_connectors = 'false'
 
     @property
     def c(self):
@@ -192,7 +193,9 @@ class TW2GlobalResourceInjectionWidget(twc.Widget):
         if asbool(config.get('debug')):
             self.debug = 'true'
         if asbool(config['global_conf'].get('profile')):
-            self.profile = true
+            self.profile = 'true'
+        if asbool(config['global_conf'].get('profile.connectors')):
+            self.profile_connectors = 'true'
 
         self.csrf_trusted_domains = self.csrf_trusted_domains_hash
 
