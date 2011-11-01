@@ -1,18 +1,14 @@
-#bling-frame {
-  height: 475px;
-  width: 940px;
-  background: url('../img/bling-frame.png') center top no-repeat;
-  margin-bottom:-90px;
-  background-position: center top;
+#carousel-spacer {
+height:320px;
+width:940px;
 }
 
-#bling-screen {
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 56px;
-  height: 274px;
-  width: 380px;
-  background: url('../img/all-sprites.png');
+#moksha-screenshot-carousel {
+margin-left: auto;
+margin-right: auto;
+top: 125px;
+height: 274px;
+width: 380px;
 }
 
 ul {
