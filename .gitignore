@@ -11,6 +11,7 @@ mokshaenv
 *.db-journal
 .build
 *.egg-info
+*.egg
 *.pid
 rabbitmq-codegen
 rabbitmq-server
@@ -23,3 +24,5 @@ tg2-bootstrap.py
 dist
 build
 logs/*.log
+Paste*.egg
+moksha/tests/quickstarts/tg2app/devdata.db-journal

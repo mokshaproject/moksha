@@ -13,13 +13,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tw.api import JSLink
-from tw.jquery import jquery_js
+from tg import config
+from paste.deploy.converters import asbool
 
-moksha_js = JSLink(modname=__name__,
-        filename='static/moksha.js',
-        javascript=[jquery_js])
+import tw.api
+import tw.jquery
+import tw2.core as twc
+import tw2.jquery
 
-moksha_extension_points_js = JSLink(modname="moksha",
-        filename='public/javascript/moksha.extensions.js',
-        javascript=[moksha_js])
+tw1_moksha_js = tw.api.JSLink(
+    modname=__name__,
+    filename='static/moksha.js',
+    javascript=[tw.jquery.jquery_js])
+
+tw1_moksha_extension_points_js = tw.api.JSLink(
+    modname="moksha",
+    filename='public/javascript/moksha.extensions.js',
+    javascript=[tw1_moksha_js])
+
+tw2_moksha_js = twc.JSLink(
+    modname=__name__,
+    filename='static/moksha.js',
+    resources=[tw2.jquery.jquery_js])
+
+tw2_moksha_extension_points_js = twc.JSLink(
+    modname="moksha",
+    filename='public/javascript/moksha.extensions.js',
+    resources=[tw2_moksha_js])
+
+if asbool(config.get('moksha.use_tw2', False)):
+    moksha_js = tw2_moksha_js
+    moksha_extension_points_js = tw2_moksha_extension_points_js
+else:
+    moksha_js = tw1_moksha_js
+    moksha_extension_points_js = tw1_moksha_extension_points_js
+

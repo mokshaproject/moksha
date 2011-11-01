@@ -24,6 +24,7 @@ an in-memory cache, SQLite, memcached, Amazon S3, etc.
 Git
 ---
 
-Moksha will also make it simple to define data sources that should persist in a
+Although it does not yet, Moksha will also make it simple to define data
+sources that should persist in a
 git repository.  This allows developers to easily track, interpret, and
 reference revisions of arbitrary data sources.

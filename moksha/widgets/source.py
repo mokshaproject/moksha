@@ -25,13 +25,19 @@ returns the source code, in HTML.
 import moksha.utils
 import inspect
 
-from tw.api import Widget
+import tw.api
+import tw2.core as twc
+
 from twisted.python.reflect import namedAny
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
 
-class SourceCodeWidget(Widget):
+from tg import config
+from paste.deploy.converters import asbool
+
+
+class TW1SourceCodeWidget(tw.api.Widget):
     params = {
         'widget': 'The name of the widget',
         'module': 'Whether to display the entire module',
@@ -39,8 +45,7 @@ class SourceCodeWidget(Widget):
         'code': 'The actual rendered source code',
         'title': ' An optional title for the document',
     }
-    template = "${code}"
-    engine_name = 'mako'
+    template = "mako:moksha.widgets.templates.source"
     container_options = {'width': 625, 'height': 675, 'title': 'View Source',
                          'icon': 'comment.png', 'top': 50, 'left': 300}
     hidden = True
@@ -48,7 +53,7 @@ class SourceCodeWidget(Widget):
     title = None
 
     def update_params(self, d):
-        super(SourceCodeWidget, self).update_params(d)
+        super(TW1SourceCodeWidget, self).update_params(d)
         title = d.widget.__class__.__name__
         if not d.source:
             try:
@@ -65,4 +70,42 @@ class SourceCodeWidget(Widget):
             html_args['title'] = d.title
         d.code = highlight(d.source, PythonLexer(), HtmlFormatter(**html_args))
 
-code_widget = SourceCodeWidget('code_widget')
+
+class TW2SourceCodeWidget(twc.Widget):
+    widget = twc.Param("The name of the widget")
+    module = twc.Param("Whether to display the entire module")
+    source = twc.Param("Optional source code")
+    code = twc.Param("The actual rendered source code")
+    title = twc.Param("An optional title for the document")
+
+    template = "mako:moksha.widgets.templates.source"
+
+    container_options = {'width': 625, 'height': 675, 'title': 'View Source',
+                         'icon': 'comment.png', 'top': 50, 'left': 300}
+    hidden = True
+
+    def prepare(self):
+        super(TW2SourceCodeWidget, self).prepare()
+        title = self.widget.__class__.__name__
+        if not self.source:
+            try:
+                self.widget = moksha.utils.get_widget(self.widget)
+            except Exception, e:
+                self.widget = namedAny(self.widget)
+            if self.module:
+                obj = namedAny(self.widget.__module__)
+            else:
+                obj = self.widget.__class__
+            self.source = inspect.getsource(obj)
+        html_args = {'full': True}
+        if self.title:
+            html_args['title'] = self.title
+        self.code = highlight(self.source, PythonLexer(),
+                              HtmlFormatter(**html_args))
+
+if asbool(config.get('moksha.use_tw2', False)):
+    SourceCodeWidget = TW2SourceCodeWidget
+    code_widget = SourceCodeWidget(id='code_widget')
+else:
+    SourceCodeWidget = TW1SourceCodeWidget
+    code_widget = SourceCodeWidget('code_widget')

@@ -1,4 +1,16 @@
-#!/bin/bash -x
-echo "-------------- Trying to start up --------------" >> logs/moksha-hub.log
-nohup moksha-hub -v >> logs/moksha-hub.log 2>&1 < /dev/null & 
-echo $! >> moksha-hub.pid
+#!/bin/bash -e
+source ~/.bashrc
+export LOG=logs/moksha-hub.log
+
+echo "-------------- Trying to start up --------------" >> $LOG
+if test -z "$1"
+then
+        echo "No virtualenv argument supplied.  Aborting." >> $LOG
+        exit 1
+else
+        echo "Using virtualenv $1" >> $LOG
+fi
+source $WORKON_HOME/$1/bin/activate
+moksha-hub -v >> $LOG 2>&1 < /dev/null &
+echo $! > moksha-hub.pid
+exit 0

@@ -15,35 +15,87 @@
 #
 # Authors: Luke Macken <lmacken@redhat.com>
 
-from tw.api import Widget, JSLink, CSSLink
-from tw.jquery import jquery_js
+from tg import config
+from paste.deploy.converters import asbool
 
-from moksha.api.widgets.orbited import orbited_js
+import tw.api
+import tw.jquery
+import tw2.core as twc
+import tw2.jquery
 
-irc2_js = JSLink(filename='static/irc2.js',
-                 javascript=[orbited_js],
-                 modname=__name__)
+from moksha.api.widgets.orbited import tw1_orbited_js, tw2_orbited_js
 
-willowchat_js = JSLink(filename='static/willowchat.js',
-                       javascript=[jquery_js, irc2_js],
-                       modname=__name__)
+tw1_irc2_js = tw.api.JSLink(
+    filename='static/irc2.js',
+    javascript=[tw1_orbited_js],
+    modname=__name__)
+tw1_willowchat_js = tw.api.JSLink(
+    filename='static/willowchat.js',
+    javascript=[tw.jquery.jquery_js, tw1_irc2_js],
+    modname=__name__)
+tw1_gui_js = tw.api.JSLink(
+    filename='static/gui.js',
+    javascript=[tw1_willowchat_js],
+    modname=__name__)
+tw1_willowchat_css = tw.api.CSSLink(
+    filename='static/style.css',
+    modname=__name__)
 
-gui_js = JSLink(filename='static/gui.js',
-                javascript=[willowchat_js],
-                modname=__name__)
+tw2_irc2_js = twc.JSLink(
+    filename='static/irc2.js',
+    javascript=[tw2_orbited_js],
+    modname=__name__)
+tw2_willowchat_js = twc.JSLink(
+    filename='static/willowchat.js',
+    javascript=[tw2.jquery.jquery_js, tw2_irc2_js],
+    modname=__name__)
+tw2_gui_js = twc.JSLink(
+    filename='static/gui.js',
+    javascript=[tw2_willowchat_js],
+    modname=__name__)
+tw2_willowchat_css = twc.CSSLink(
+    filename='static/style.css',
+    modname=__name__)
 
-willowchat_css = CSSLink(filename='static/style.css', modname=__name__)
 
-
-class LiveChatWidget(Widget):
+class TW1LiveChatWidget(tw.api.Widget):
     name = 'Chat'
     params = ['bootstrap']
-    bootstrap = JSLink(link='/apps/chat/bootstrap')
-    template = '<div id="willowchat" reposition="true">${bootstrap}</div>'
+    bootstrap = tw.api.JSLink(link='/apps/chat/bootstrap')
+    template = "mako:moksha.apps.chat.templates.simple"
     visible = False
 
 
-class LiveChatFrameWidget(Widget):
+class TW1LiveChatFrameWidget(tw.api.Widget):
     template = 'mako:moksha.apps.chat.templates.chat'
-    javascript = [orbited_js, willowchat_js, irc2_js, gui_js, jquery_js]
-    css = [willowchat_css]
+    javascript = [tw1_orbited_js, tw1_willowchat_js, tw1_irc2_js, tw1_gui_js,
+                  tw.jquery.jquery_js]
+    css = [tw1_willowchat_css]
+
+
+class TW2LiveChatWidget(twc.Widget):
+    name = 'Chat'
+    params = ['bootstrap']
+    bootstrap = twc.JSLink(link='/apps/chat/bootstrap')
+    template = "mako:moksha.apps.chat.templates.simple"
+    visible = False
+
+
+class TW2LiveChatFrameWidget(twc.Widget):
+    template = 'mako:moksha.apps.chat.templates.chat'
+    resources = [
+        tw2_orbited_js,
+        tw2_willowchat_js,
+        tw2_irc2_js,
+        tw2_gui_js,
+        tw2.jquery.jquery_js,
+        tw2_willowchat_css,
+    ]
+
+
+if asbool(config.get('moksha.use_tw2', False)):
+    LiveChatWidget = TW2LiveChatWidget
+    LiveChatFrameWidget = TW2LiveChatFrameWidget
+else:
+    LiveChatWidget = TW1LiveChatWidget
+    LiveChatFrameWidget = TW1LiveChatFrameWidget

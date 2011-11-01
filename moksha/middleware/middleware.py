@@ -21,10 +21,12 @@ import moksha
 import moksha.utils
 import logging
 import pkg_resources
+import warnings
 
 from tg.controllers import WSGIAppController
 from shove import Shove
 from pylons import config
+from paste.deploy.converters import asbool
 from inspect import isclass
 from pylons.i18n import ugettext
 from paste.deploy import appconfig
@@ -170,25 +172,60 @@ class MokshaMiddleware(object):
                     }
 
     def load_widgets(self):
-        from moksha.api.widgets.live import LiveWidget, TW2LiveWidgetMeta
-        import tw2.core.widgets
+        """ Load widgets from entry points intelligently.
+
+        Widgets can be either tw1 widgets or tw2 widgets (with metaclass
+        magic).  They can effectively be rendered together and their middlewares
+        can live peacefully in the WSGI stack, but their javascript resources
+        may fight with one another.  Due to that, we force users to specify
+        moksha.use_tw2 = True|False in their .ini configuration.
+        """
+
         log.info('Loading moksha widgets')
+
+        if asbool(config.get('moksha.use_tw2', False)):
+            log.info('Preparing for tw2 widgets')
+            import tw2.core.widgets
+            from moksha.api.widgets.live import LiveWidgetMeta
+            def instantiate_widget(cls, name):
+                # First, a sanity check
+                if not isinstance(cls, tw2.core.widgets.WidgetMeta):
+                    warnings.warn("moksha.use_tw2 specified but encountered "+
+                                  "non-tw2 widget " + str(cls))
+                # TW2 widgets never *really* get instantiated.
+                #     The cake is a lie.
+                return cls
+
+            def is_live(widget):
+                return isinstance(widget, LiveWidgetMeta)
+        else:
+            log.info('Preparing for tw1 widgets')
+            import tw2.core.widgets
+            from moksha.api.widgets.live import LiveWidget
+            def instantiate_widget(cls, name):
+                # Sanity check
+                if isinstance(cls, tw2.core.widgets.WidgetMeta):
+                    warnings.warn("moksha.use_tw2 is False, but middleware "+
+                                  "found a tw2 widget " + str(cls))
+                    return cls
+
+                if not isclass(cls):
+                    return cls
+                return cls(name)
+
+            def is_live(widget):
+                return isinstance(widget, LiveWidget)
+
         for widget_entry in pkg_resources.iter_entry_points('moksha.widget'):
             log.info('Loading %s widget' % widget_entry.name)
             widget_class = widget_entry.load()
             widget_path = widget_entry.dist.location
-            if isinstance(widget_class, tw2.core.widgets.WidgetMeta):
-                widget = widget_class
-            elif isclass(widget_class):
-                widget = widget_class(widget_entry.name)
-            else:
-                widget = widget_class
+            widget = instantiate_widget(widget_class, widget_entry.name)
             moksha.utils._widgets[widget_entry.name] = {
                     'name': getattr(widget_class, 'name', widget_entry.name),
                     'widget': widget,
                     'path': widget_path,
-                    'live': (isinstance(widget, LiveWidget) or
-                             isinstance(widget, TW2LiveWidgetMeta)),
+                    'live': is_live(widget),
                     }
 
     def load_menus(self):
@@ -197,7 +234,10 @@ class MokshaMiddleware(object):
             log.info('Loading %s menu' % menu_entry.name)
             menu_class = menu_entry.load()
             menu_path = menu_entry.dist.location
-            moksha.utils.menus[menu_entry.name] = menu_class(menu_entry.name)
+            if asbool(config.get('moksha.use_tw2', False)):
+                moksha.utils.menus[menu_entry.name] = menu_class(id=menu_entry.name)
+            else:
+                moksha.utils.menus[menu_entry.name] = menu_class(menu_entry.name)
 
     def load_renderers(self):
         """ Load our template renderers with our application paths.

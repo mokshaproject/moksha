@@ -1,5 +1,5 @@
-
-<div id="${root_id}_tabs">
+<%namespace name="tw" module="moksha.utils.mako"/>
+<div id="${tw._('root_id')}_tabs">
 <%def name="display_category(cat)">
     % if cat.get('label'):
       <H4>${cat['label']}</H4>
@@ -32,14 +32,14 @@
     % endif
 </%def>
 
-% if tabs[0]['type'] != 'Category':
+% if tw._('tabs')[0]['type'] != 'Category':
     <%
        cat = {}
-       cat['apps'] = tabs
+       cat['apps'] = tw._('tabs')
     %>
     ${display_category(cat)}
 % else:
-    % for t in tabs:
+    % for t in tw._('tabs'):
         ${display_tab(t)}
     % endfor
 % endif

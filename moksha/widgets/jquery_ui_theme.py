@@ -1,6 +1,6 @@
 # This file is part of Moksha.
 # Copyright (C) 2008-2010  Red Hat, Inc.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -20,9 +20,32 @@
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
 """
 
-from tw.api import Widget, CSSLink, CSSLink
+from tg import config
+from paste.deploy.converters import asbool
 
-ui_theme_css = CSSLink(link='/css/jquery-ui/ui.theme.css', modname=__name__)
-ui_base_css = CSSLink(link='/css/jquery-ui/ui.base.css',
-                      css=[ui_theme_css],
-                      modname=__name__)
+import tw.api
+import tw2.core as twc
+
+
+tw1_ui_theme_css = tw.api.CSSLink(
+    link='/css/jquery-ui/ui.theme.css', modname=__name__)
+tw1_ui_base_css = tw.api.CSSLink(
+    link='/css/jquery-ui/ui.base.css',
+    css=[tw1_ui_theme_css],
+    modname=__name__)
+
+
+tw2_ui_theme_css = twc.CSSLink(
+    link='/css/jquery-ui/ui.theme.css', modname=__name__)
+tw2_ui_base_css = twc.CSSLink(
+    link='/css/jquery-ui/ui.base.css',
+    resources=[tw2_ui_theme_css],
+    modname=__name__)
+
+
+if asbool(config.get('moksha.use_tw2', False)):
+    ui_theme_css = tw2_ui_theme_css
+    ui_base_css = tw2_ui_base_css
+else:
+    ui_theme_css = tw1_ui_theme_css
+    ui_base_css = tw1_ui_base_css

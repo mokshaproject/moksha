@@ -18,7 +18,7 @@ stack.
 An Architecture
 ~~~~~~~~~~~~~~~
 Moksha brings many existing technologies together to create a next-generation
-web architecture that is designed to simplify the creation of create rich,
+web architecture that is designed to simplify the creation of rich,
 powerful, live web applications that can easily bridge existing services.
 
 A Hub

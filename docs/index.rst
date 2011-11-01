@@ -7,11 +7,11 @@ Moksha is a platform for creating live collaborative applications.  It provides
 a layer of cohesion and collaboration between existing applications, services,
 and communities.
 
-** Link to wiki, tickets, mailing lists, etc... 
+** Link to wiki, tickets, mailing lists, etc...
 ** be *the* homepage, let trac just be for tickets and wiki.
 
 :Homepage: http://moksha.fedorahosted.org
-:Demo Dashboard: http://65.49.60.166
+:Demo Dashboard: http://moksha.csh.rit.edu
 
 Vision
 ------

@@ -18,9 +18,12 @@
 from random import random
 from datetime import timedelta
 
+from tg import config
+from paste.deploy.converters import asbool
+
 from tw.api import CSSLink, JSLink, js_function
 
-from moksha.api.widgets import LiveWidget, TW2LiveWidget
+from moksha.api.widgets import TW1LiveWidget, TW2LiveWidget
 from moksha.api.streams import PollingDataStream
 
 import tw2.core
@@ -50,7 +53,7 @@ class TW2LiveGraphWidget(TW2LiveWidget):
         self.add_call(tw2.core.JSFuncCall('init_graph', self.id))
 
 
-class LiveGraphWidget(LiveWidget):
+class TW1LiveGraphWidget(TW1LiveWidget):
     """
     This is an example live graph widget based on Michael Carter's article
     "Scalable Real-Time Web Architecture, Part 2: A Live Graph with Orbited,
@@ -68,6 +71,12 @@ class LiveGraphWidget(LiveWidget):
     def update_params(self, d):
         super(LiveGraphWidget, self).update_params(d)
         self.add_call(js_function('init_graph')(self.id))
+
+
+if asbool(config.get('moksha.use_tw2', False)):
+    LiveGraphWidget = TW2LiveGraphWidget
+else:
+    LiveGraphWidget = TW1LiveGraphWidget
 
 
 class LiveGraphDataStream(PollingDataStream):

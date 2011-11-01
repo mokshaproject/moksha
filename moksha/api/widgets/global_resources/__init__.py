@@ -14,3 +14,10 @@
 # limitations under the License.
 
 from widget import *
+
+__all__ = [
+    'global_resources',
+    'GlobalResourceInjectionWidget',
+    'moksha_js',
+    'moksha_socket',
+]

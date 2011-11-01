@@ -76,7 +76,6 @@ class MokshaMetricsDataStream(PollingDataStream):
         return processors + 1
 
     def poll(self):
-        i = 0
         mem_data = {
             'data': [],
             'options': {
@@ -101,7 +100,7 @@ class MokshaMetricsDataStream(PollingDataStream):
             self.programs = self._find_programs()
             self.count = 0
 
-        for program in self.programs:
+        for i, program in enumerate(self.programs):
             total_mem_usage = float(program[MEM_TOTAL].split()[0])
             mem_data['data'].append({
                     'data': [[i, total_mem_usage]],
@@ -110,7 +109,6 @@ class MokshaMetricsDataStream(PollingDataStream):
                     })
             mem_data['options']['xaxis']['ticks'].append(
                     [i + 0.5, program[NAME]])
-            i += 1
 
         self.send_message('moksha_mem_metrics', [mem_data])
 

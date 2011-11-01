@@ -20,6 +20,12 @@ This is currently used by the `archive_tw_resources` setuptools command,
 which archives all of the resources used by all ToscaWidgets.
 """
 
+from tg import config
+from paste.deploy.converters import asbool
+
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError("No archive_tw_resources yet for tw2")
+
 import pkg_resources
 
 from tw.api import Widget

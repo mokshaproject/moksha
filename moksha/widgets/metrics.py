@@ -35,9 +35,12 @@ from tw.api import Widget, JSLink
 from tw.jquery.ui import ui_progressbar_js
 from tw.jquery.flot import flot_js, excanvas_js, flot_css
 
+from tg import config
+from paste.deploy.converters import asbool
+
 from moksha.api.hub import Consumer
 from moksha.api.widgets.flot import LiveFlotWidget
-from moksha.api.widgets.tw2.jit import LiveAreaChartWidget
+#from moksha.api.widgets.jit import LiveAreaChartWidget
 from moksha.api.widgets.buttons import buttons_css
 from moksha.api.streams import PollingDataStream
 from moksha.lib.helpers import defaultdict
@@ -45,19 +48,20 @@ from moksha.widgets.jquery_ui_theme import ui_base_css
 
 log = logging.getLogger('moksha.hub')
 
-class MokshaTW2CPUUsageWidget(LiveAreaChartWidget):
-    name = 'CPU Usage (with tw2.jit)'
-    topic = 'moksha_jit_cpu_metrics'
-    width = '300'
-    height = '300'
-    offset = 0
-    type = 'stacked'
-    container_options = {
-        'icon': 'chart.png', 'top': 400, 'left': 80, 'height': 310,
-        'iconize': False, 'minimize': False,
-    }
+### Commented out since there is *only* a tw2 implementation of this
+#class TW1MokshaAreaCPUUsageWidget(LiveAreaChartWidget):
+#    name = 'CPU Usage (with tw2.jit)'
+#    topic = 'moksha_jit_cpu_metrics'
+#    width = '300'
+#    height = '300'
+#    offset = 0
+#    type = 'stacked'
+#    container_options = {
+#        'icon': 'chart.png', 'top': 400, 'left': 80, 'height': 310,
+#        'iconize': False, 'minimize': False,
+#    }
 
-class MokshaMemoryUsageWidget(LiveFlotWidget):
+class TW1MokshaMemoryUsageWidget(LiveFlotWidget):
     name = 'Memory Usage'
     topic = 'moksha_mem_metrics'
     container_options = {
@@ -65,14 +69,23 @@ class MokshaMemoryUsageWidget(LiveFlotWidget):
             'iconize': False, 'minimize': False,
             }
 
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " is not ready for tw2")
+else:
+    MokshaMemoryUsageWidget = TW1MokshaMemoryUsageWidget
 
-class MokshaCPUUsageWidget(LiveFlotWidget):
+class TW1MokshaCPUUsageWidget(LiveFlotWidget):
     name = 'CPU Usage'
     topic = 'moksha_cpu_metrics'
     container_options = {
             'icon': 'chart.png', 'top': 80, 'left': 80, 'height': 310,
             'iconize': False, 'minimize': False,
             }
+
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " is not ready for tw2")
+else:
+    MokshaCPUUsageWidget = TW1MokshaCPUUsageWidget
 
 
 class MokshaMessageMetricsConsumer(Consumer):
@@ -90,7 +103,7 @@ class MokshaMessageMetricsConsumer(Consumer):
             log.error('No `topic` specified in moksha_message_metrics message')
 
 
-class MokshaMessageMetricsWidget(LiveFlotWidget):
+class TW1MokshaMessageMetricsWidget(LiveFlotWidget):
     """ A Moksha Message Benchmarking Widget.
 
     This widget will fire off a bunch of messages to a unique message topic.
@@ -175,7 +188,12 @@ class MokshaMessageMetricsWidget(LiveFlotWidget):
 
     def update_params(self, d):
         d.topic = str(uuid4())
-        super(MokshaMessageMetricsWidget, self).update_params(d)
+        super(TW1MokshaMessageMetricsWidget, self).update_params(d)
+
+if asbool(config.get('moksha.use_tw2', False)):
+    raise NotImplementedError(__name__ + " is not ready for tw2")
+else:
+    MokshaMessageMetricsWidget = TW1MokshaMessageMetricsWidget
 
 
 PID = 0
@@ -467,7 +485,7 @@ class MokshaMetricsDataStream(PollingDataStream):
 
 
 # @@ FIXME: We need to not insert two stomp widgets in this case...
-#class MokshaMetricsWidget(Widget):
+#class TW1MokshaMetricsWidget(Widget):
 #    children = [MokshaCPUUsageWidget('moksha_cpu'),
 #                MokshaMemoryUsageWidget('moksha_mem')]
 #    template = """
