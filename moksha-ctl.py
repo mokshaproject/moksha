@@ -65,7 +65,7 @@ if __name__ == '__main__':
     # Render the moksha logo.  Haters gonna hate.
     try:
         from fabulous import image
-        print image.Image("website/img/moksha-logo.png")
+        print image.Image("website/img/moksha-logo.png", width=80)
     except Exception as e:
         pass  # Oh well.
 
