@@ -127,6 +127,17 @@ def rebuild():
     cmd = 'mkvirtualenv --no-site-packages %s' % ctl_config['venv']
     _do_virtualenvwrapper_command(cmd)
 
+    # Do two things here:
+    #  - remove all *.pyc that exist in srcdir.
+    #  - remove all data/templates dirs that exist (mako caches).
+    for base, dirs, files in os.walk(ctl_config['moksha-src-dir']):
+        for fname in files:
+            if fname.endswith(".pyc"):
+                os.remove(os.path.sep.join([base, fname]))
+
+        if base.endswith('data/templates'):
+            shutil.rmtree(base)
+
     return install()
 
 
