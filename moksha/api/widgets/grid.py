@@ -93,8 +93,6 @@ class TW1Grid(tw.forms.FormField):
 
     def update_params(self, d):
         super(TW1Grid, self).update_params(d)
-        if not getattr(d,"id",None):
-            raise ValueError, "Moksha Grid is supposed to have id"
 
         if not d.filters:
             d.filters = {}
@@ -141,9 +139,6 @@ class TW2Grid(tw2.forms.widgets.FormField):
 
     def prepare(self):
         super(TW2Grid, self).prepare()
-
-        if not getattr(self, 'id', None):
-            raise ValueError, "Moksha Grid is supposed to have id"
 
         if not self.filters:
             self.filters = {}
