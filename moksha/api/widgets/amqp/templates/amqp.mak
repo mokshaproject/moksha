@@ -50,6 +50,7 @@ if (typeof moksha_amqp_conn == 'undefined') {
 		Orbited.settings.hostname = '${tw._("orbited_host")}';
 		Orbited.settings.streaming = true;
 
+		jsio.path.reverse();
 		jsio("import qpid_amqp as amqp");
 		jsio("from amqp.protocol import register");
 		// load the 0.10 version of the protocol
