@@ -44,12 +44,9 @@ def amqp_subscribe(topic):
     """
     sub = """
         moksha.debug("Subscribing to the '%(topic)s' topic");
-        moksha_amqp_queue.subscribe({
-            exchange: 'amq.topic',
-            remote_queue: moksha_amqp_remote_queue,
-            binding_key: '%(topic)s',
-            callback: moksha_amqp_on_message,
-        });
+        var receiver_%(topic)s = moksha_amqp_session.receiver('amq.topic/%(topic)s')
+        receiver_%(topic)s.onReady = raw_msg_callback;
+        receiver_%(topic)s.capacity(0xFFFFFFFF);
     """
     return ''.join([sub % {'topic': t} for t in listify(topic)])
 

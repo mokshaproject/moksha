@@ -22,7 +22,8 @@ if (typeof moksha_amqp_conn == 'undefined') {
 		}
 	}
 
-	function raw_msg_callback() {
+	// Globally scoped.
+	raw_msg_callback = function() {
 		var msg = this.fetch();
 		msg.header = msg.parsed_data._header;
 		msg.body = msg.parsed_data._body;
@@ -85,10 +86,6 @@ if (typeof moksha_amqp_conn == 'undefined') {
 			${tw._("onconnectedframe")}
 		% endif
 
-		var receiver = moksha_amqp_session.receiver('amq.topic/*')
-		receiver.onReady = raw_msg_callback;
-		receiver.capacity(0xFFFFFFFF);  // ??
-
 		// Note that $(window).unload(..) is insufficient.  The
 		// moksha/orbited resources are unloaded before we can
 		// explicitly close our connection.  We must use
@@ -102,9 +99,6 @@ if (typeof moksha_amqp_conn == 'undefined') {
 } else {
 	## Utilize the existing Moksha AMQP socket connection
 	${tw._("onconnectedframe")}
-	var receiver = moksha_amqp_session.receiver('amq.topic/*')
-	receiver.onReady = raw_msg_callback;
-	receiver.capacity(0xFFFFFFFF);  // ??
 }
 
 if (typeof moksha == 'undefined') {
