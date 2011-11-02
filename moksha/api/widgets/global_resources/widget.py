@@ -97,20 +97,17 @@ class TW1GlobalResourceInjectionWidget(tw.api.Widget):
         trusted_domain_hash = '{%s}' % ','.join(item_list) 
         self.csrf_trusted_domains_hash = trusted_domain_hash
 
+        if asbool(config.get('debug')):
+            self.debug = 'true'
+        if asbool(config['global_conf'].get('profile')):
+            self.profile = 'true'
+        if asbool(config['global_conf'].get('profile.connectors')):
+            self.profile_connectors = 'true'
+
     def update_params(self, d):
         super(TW1GlobalResourceInjectionWidget, self).update_params(d)
 
         d['base_url'] = url('/')
-
-        if asbool(config.get('debug')):
-            d['debug'] = 'true'
-        if asbool(config['global_conf'].get('profile')):
-            d['profile'] = 'true'
-
-        if asbool(config['global_conf'].get('profile.connectors')):
-            d['profile_connectors'] = 'true'
-
-        d['csrf_trusted_domains'] = self.csrf_trusted_domains_hash
 
         identity = request.environ.get('repoze.who.identity')
         if identity:
@@ -149,6 +146,13 @@ class TW2GlobalResourceInjectionWidget(twc.Widget):
 
     def __init__(self):
         super(TW2GlobalResourceInjectionWidget, self).__init__()
+        if asbool(config.get('debug')):
+            self.debug = 'true'
+        if asbool(config['global_conf'].get('profile')):
+            self.profile = 'true'
+        if asbool(config['global_conf'].get('profile.connectors')):
+            self.profile_connectors = 'true'
+
         for widget_entry in pkg_resources.iter_entry_points('moksha.global'):
             log.info('Loading global resource: %s' % widget_entry.name)
             loaded = widget_entry.load()
@@ -184,20 +188,12 @@ class TW2GlobalResourceInjectionWidget(twc.Widget):
             item_list.append('"%s": true' % domain)
         trusted_domain_hash = '{%s}' % ','.join(item_list)
         self.csrf_trusted_domains_hash = trusted_domain_hash
+        self.csrf_trusted_domains = self.csrf_trusted_domains_hash
 
     def prepare(self):
         super(TW2GlobalResourceInjectionWidget, self).prepare()
 
         self.base_url = url('/')
-
-        if asbool(config.get('debug')):
-            self.debug = 'true'
-        if asbool(config['global_conf'].get('profile')):
-            self.profile = 'true'
-        if asbool(config['global_conf'].get('profile.connectors')):
-            self.profile_connectors = 'true'
-
-        self.csrf_trusted_domains = self.csrf_trusted_domains_hash
 
         identity = request.environ.get('repoze.who.identity')
         if identity:
@@ -211,4 +207,3 @@ else:
     GlobalResourceInjectionWidget = TW1GlobalResourceInjectionWidget
 
 global_resources = GlobalResourceInjectionWidget()
-

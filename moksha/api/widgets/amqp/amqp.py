@@ -85,14 +85,14 @@ class TW1AMQPSocket(tw.api.Widget):
     def __init__(self, *args, **kw):
         self.notify = asbool(config.get('moksha.socket.notify', False))
         self.orbited_host = config.get('orbited_host', 'localhost')
-        self.orbited_port = config.get('orbited_port', 9000)
+        self.orbited_port = str(config.get('orbited_port', 9000))
         self.orbited_scheme = config.get('orbited_scheme', 'http')
         self.orbited_url = '%s://%s:%s' % (
             self.orbited_scheme, self.orbited_host, self.orbited_port)
         self.orbited_js = tw.api.JSLink(
             link=self.orbited_url + '/static/Orbited.js')
         self.amqp_broker_host = config.get('amqp_broker_host', 'localhost')
-        self.amqp_broker_port = config.get('amqp_broker_port', 5672)
+        self.amqp_broker_port = str(config.get('amqp_broker_port', 5672))
         self.amqp_broker_user = config.get('amqp_broker_user', 'guest')
         self.amqp_broker_pass = config.get('amqp_broker_pass', 'guest')
         super(TW1AMQPSocket, self).__init__(*args, **kw)
@@ -134,7 +134,7 @@ class TW2AMQPSocket(twc.Widget):
     orbited_host = twc.Param(
         default=config.get('orbited_host', 'localhost'))
     orbited_port = twc.Param(
-        default=config.get('orbited_port', 9000))
+        default=str(config.get('orbited_port', 9000)))
     orbited_scheme = twc.Param(
         default=config.get('orbited_scheme', 'http'))
     orbited_js = twc.Param(default=orbited_js)
@@ -142,7 +142,7 @@ class TW2AMQPSocket(twc.Widget):
     amqp_broker_host = twc.Param(
         default=config.get('amqp_broker_host', 'localhost'))
     amqp_broker_port = twc.Param(
-        default=config.get('amqp_broker_port', 5672))
+        default=str(config.get('amqp_broker_port', 5672)))
     amqp_broker_user = twc.Param(
         default=config.get('amqp_broker_user', 'guest'))
     amqp_broker_pass = twc.Param(
