@@ -28,14 +28,14 @@ if (typeof TCPSocket == 'undefined') {
 		function(){
 			## Create a new TCPSocket & Stomp client
 			stomp = new STOMPClient();
-			stomp.onopen = ${tw._('onopen')};
-			stomp.onclose = ${tw._('onclose')};
-			stomp.onerror = ${tw._('onerror')};
-			stomp.onerrorframe = ${tw._('onerrorframe')};
+			stomp.onopen = ${unicode(tw._('onopen'))};
+			stomp.onclose = ${unicode(tw._('onclose'))};
+			stomp.onerror = ${unicode(tw._('onerror'))};
+			stomp.onerrorframe = ${unicode(tw._('onerrorframe'))};
 			stomp.onconnectedframe = function(){
 				moksha_socket_busy = false;
 				$('body').triggerHandler('moksha.socket_ready');
-				${tw._('onconnectedframe')}
+				${unicode(tw._('onconnectedframe'))}
 			};
 			stomp.onmessageframe = function(f){
 				var dest = f.headers.destination;

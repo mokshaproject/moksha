@@ -84,14 +84,14 @@ class TW1StompWidget(tw.api.Widget):
     def __init__(self, *args, **kw):
         self.notify = asbool(config.get('moksha.socket.notify', False))
         self.orbited_host = config.get('orbited_host', 'localhost')
-        self.orbited_port = config.get('orbited_port', 9000)
+        self.orbited_port = str(config.get('orbited_port', 9000))
         self.orbited_scheme = config.get('orbited_scheme', 'http')
         self.orbited_url = '%s://%s:%s' % (
             self.orbited_scheme, self.orbited_host, self.orbited_port)
         self.orbited_js = tw.api.JSLink(
             link=self.orbited_url + '/static/Orbited.js')
         self.stomp_host = config.get('stomp_host', 'localhost')
-        self.stomp_port = config.get('stomp_port', 61613)
+        self.stomp_port = str(config.get('stomp_port', 61613))
         self.stomp_user = config.get('stomp_user', 'guest')
         self.stomp_pass = config.get('stomp_pass', 'guest')
         super(TW1StompWidget, self).__init__(*args, **kw)
@@ -138,7 +138,7 @@ class TW2StompWidget(twc.Widget):
     orbited_host = twc.Param(
         default=config.get('orbited_host', 'localhost'))
     orbited_port = twc.Param(
-        default=config.get('orbited_port', 9000))
+        default=str(config.get('orbited_port', 9000)))
     orbited_scheme = twc.Param(
         default=config.get('orbited_scheme', 'http'))
     orbited_js = twc.Param(default=orbited_js)
@@ -146,18 +146,18 @@ class TW2StompWidget(twc.Widget):
     stomp_host = twc.Param(
         default=config.get('stomp_host', 'localhost'))
     stomp_port = twc.Param(
-        default=config.get('stomp_port', 61613))
+        default=str(config.get('stomp_port', 61613)))
     stomp_user = twc.Param(
         default=config.get('stomp_user', 'guest'))
     stomp_pass = twc.Param(
         default=config.get('stomp_pass', 'guest'))
 
-    onopen = twc.Param(default=twc.JSSymbol(src="function(){}"))
-    onerror = twc.Param(default=twc.JSSymbol(src="function(){}"))
-    onclose = twc.Param(default=twc.JSSymbol(src="function(){}"))
-    onerrorframe = twc.Param(default=twc.JSSymbol(src="function(){}"))
-    onmessageframe = twc.Param(default=twc.JSSymbol(src=""))
-    onconnectedframe = twc.Param(default=twc.JSSymbol(src=""))
+    onopen = twc.Param(default=twc.js_callback("function(){}"))
+    onerror = twc.Param(default=twc.js_callback("function(){}"))
+    onclose = twc.Param(default=twc.js_callback("function(){}"))
+    onerrorframe = twc.Param(default=twc.js_callback("function(){}"))
+    onmessageframe = twc.Param(default='')
+    onconnectedframe = twc.Param(default='')
 
     template = "mako:moksha.api.widgets.stomp.templates.stomp"
 

@@ -43,10 +43,10 @@ if (typeof moksha_amqp_conn == 'undefined') {
 		Orbited.settings.streaming = true;
 		moksha_amqp_conn = new amqp.Connection({
 			% if tw._("send_hook"):
-				send_hook: function(data, frame) { ${tw._("send_hook")} },
+				send_hook: function(data, frame) { ${unicode(tw._("send_hook"))} },
 			% endif
 			% if tw._("receive_hook"):
-				recive_hook: function(data, frame) { ${tw._("receive_hook")} },
+				recive_hook: function(data, frame) { ${unicode(tw._("receive_hook"))} },
 			% endif
 			host: '${tw._("amqp_broker_host")}',
 			port: ${tw._("amqp_broker_port")},
@@ -73,7 +73,7 @@ if (typeof moksha_amqp_conn == 'undefined') {
 		});
 
 		% if tw._("onconnectedframe"):
-			${tw._("onconnectedframe")}
+			${unicode(tw._("onconnectedframe"))}
 			moksha_amqp_queue.start();
 		% endif
 
@@ -89,7 +89,7 @@ if (typeof moksha_amqp_conn == 'undefined') {
 
 } else {
 	## Utilize the existing Moksha AMQP socket connection
-	${tw._("onconnectedframe")}
+	${unicode(tw._("onconnectedframe"))}
 	moksha_amqp_queue.start();
 }
 
