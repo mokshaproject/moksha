@@ -90,9 +90,12 @@ class TW1Grid(tw.forms.FormField):
     alphaPager = False
     numericPager = False
     morePager = False
+    uid = None
 
     def update_params(self, d):
         super(TW1Grid, self).update_params(d)
+        if not getattr(d,"id",None):
+            raise ValueError, "Moksha Grid is supposed to have id"
 
         if not d.filters:
             d.filters = {}
@@ -106,7 +109,7 @@ class TW1Grid(tw.forms.FormField):
 
                 grid_d[p] = v
 
-        d['id'] += "-uuid" + str(uuid.uuid4())
+        d['id'] = self.__class__.__name__ + str(uuid.uuid4())
 
         self.add_call(when_ready(tw.jquery.jQuery("#%s" % d['id']).mokshagrid(grid_d)))
 
@@ -122,6 +125,7 @@ class TW2Grid(tw2.forms.widgets.FormField):
             'numericPager']
     hidden = True # hide from the moksha main menu
 
+    id = twc.Param(default=None)
     rows_per_page = twc.Param(default=10)
     page_num = twc.Param(default=1)
     total_rows = twc.Param(default=0)
@@ -136,8 +140,12 @@ class TW2Grid(tw2.forms.widgets.FormField):
     more_link = twc.Param(default=None)
     alphaPager = twc.Param(default=False)
     numericPager = twc.Param(default=False)
+    uid = twc.Param(default=None)
 
     def prepare(self):
+        """
+        Subclasses *must* call super as the last thing in their prepare() method
+        """
         super(TW2Grid, self).prepare()
 
         if not self.filters:
@@ -152,7 +160,7 @@ class TW2Grid(tw2.forms.widgets.FormField):
 
                 grid_d[p] = v
 
-        self.id += "-uuid" + str(uuid.uuid4())
+        self.id = self.__class__.__name__ + str(uuid.uuid4())
 
         self.add_call(when_ready(tw2.jquery.jQuery("#%s" % self.id).mokshagrid(grid_d)))
 
