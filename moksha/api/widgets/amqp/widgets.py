@@ -10,7 +10,6 @@ tw1_jsio_js = tw.api.JSLink(
 
 tw1_amqp_resources = tw.api.Link(
     filename='static/',
-    javascript=[tw1_jsio_js],
     modname=__name__)
 
 tw2_jsio_js = twc.JSLink(
@@ -19,11 +18,12 @@ tw2_jsio_js = twc.JSLink(
 
 tw2_amqp_resources=twc.DirLink(
     filename='static/',
-    resources=[tw2_jsio_js],
     modname=__name__)
 
 
 if asbool(config.get('moksha.use_tw2', False)):
     amqp_resources = tw2_amqp_resources
+    jsio_js = tw2_jsio_js
 else:
     amqp_resources = tw1_amqp_resources
+    jsio_js = tw1_jsio_js
