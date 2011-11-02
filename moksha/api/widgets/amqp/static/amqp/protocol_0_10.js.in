@@ -1,0 +1,1346 @@
+/*********************************************************
+ * Generated AMQP lowlevel protocol bindings
+ *
+ * We put this under the namespace
+ * amqp.protocol_<vermajor>_<version_minor> to
+ * seperate out the generated bindings from the high level
+ * bindings.
+ *
+ * Also note we use a notation that is easier for generated
+ * output but not as readable as hand written code.  Every
+ * section outputs a complete javascript block.
+ *********************************************************/
+
+(function(){
+
+jsio('import Class, bind');
+jsio('import jsio.logging');
+jsio('from jsio.interfaces import Protocol');
+jsio('import amqp.protocol');
+jsio('from amqp.protocol import DefaultsClass');
+
+
+
+/******* Module Properties ***********/
+var BUILD_DATE = '%(build_date)s';
+exports.BUILD_DATE = BUILD_DATE;
+
+var None = null;
+var protocol_header = 'AMQP';
+protocol_header += String.fromCharCode(1, 1, %(version_major)s, %(version_minor)s);
+
+var logger = jsio.logging.getLogger('AmqpProtocol%(version_major)s.%(version_minor)s' );
+
+var CONTROL_SEG_TYPE = 0;
+var COMMAND_SEG_TYPE = 1;
+var HEADER_SEG_TYPE = 2;
+var BODY_SEG_TYPE = 3;
+
+var version = {
+    major: %(version_major)s,
+    minor: %(version_minor)s,
+    toString: function(){return "%(version_major)s.%(version_minor)s"}
+};
+
+var default_port = 5672;
+%(constants)s
+
+var amqp_types = {};
+var amqp_typecodes = {};
+var amqp_classes = {};
+var amqp_classcodes = {};
+
+/******* Module Methods ***********/
+var lookup_type = function(typecode) {
+    return amqp_typecodes[typecode];
+}
+
+var lookup_class = function(classcode) {
+    return amqp_classcodes[classcode];
+}
+
+var get_header = function() {
+    return protocol_header;
+}
+
+var guess_type = function(value) {
+    if (typeof(value) == 'number') {
+        var sn = value.toString(10);
+        var absv = Math.abs(value);
+        if (vn.indexOf('.') == -1) {
+            if (absv < (1 << 7)) {
+                return new amqp_types['int8'](value);
+            } else if (absv < (1 << 15)) {
+                return new amqp_types['int16'](value);
+            } else if (absv < (1 << 31)) {
+                return new amqp_types['int32'](value);
+            } else if (absv < (1 << 63)) {
+                return new amqp_types['int64'](value);
+            }
+        } else {
+            // send as a double
+            return new amqp_types['double'](value);
+        }
+    } else if (typeof(value) == 'string') {
+        var l = value.length;
+        if (l < (1 << 8))
+            return new amqp_types['str8'](value);
+        else if (l < (1 << 16))
+            return new amqp_types['str16'](value);
+    } else if (typeof(value) == 'object' && value.encode) {
+        return value;
+    } else {
+        throw "Can not guess the value of '" + value + "' not yet handled in guess_type";
+    }
+}
+
+/******** Marshaler classes ***********/
+var Marshaler = Class(function() {
+     this.code = null;
+
+     this.init = function(value, is_type_encoded) {
+         if (typeof(is_type_encoded) == 'undefined')
+             is_type_encoded = true;
+
+         this._value = value;
+         this._is_type_encoded = is_type_encoded;
+     };
+
+     this.set_value = function(value) {
+         this._value = value;
+     };
+
+     this.decode = function(assembly) {
+
+     };
+
+     this.encode = function(assembly) {
+
+     };
+
+     // container types need to find the marshalers to decode their children
+    this.lookup_type = lookup_type;
+    this.guess_type = guess_type;
+
+    this.lookup_class = lookup_class;
+});
+
+var TypeMarshaler = Class(Marshaler, function(supr) {
+    this.code = null;
+
+    this.decode = function(assembly, decoder, size) {
+        return decoder.call(this, assembly, size);
+    };
+
+    this.encode = function(assembly, encoder, size) {
+        var code = null;
+        if (this._is_type_encoded)
+            code = this.code;
+
+        encoder.call(this, assembly, code, size, this._value);
+    };
+
+
+
+});
+
+var StructMarshaler = Class(Marshaler, function(supr) {
+    this.name = 'undefined_struct';
+    this.code = null;
+    this.pack_size = 0;
+    this.size = 0;
+    this.parent_class = null;
+    this.is_struct = true;
+
+    this.decode = function(assembly) {
+        var result = {};
+        // read size octet for session.header packing flags
+        var pack_size = this.pack_size;
+        var packing_flags = 0;
+        for (var i=0; i < pack_size; i++)
+            packing_flags += new amqp_types['int8']().decode(assembly) << (i*8);
+
+        for (var i in this.fields) {
+            if (packing_flags & this.fields[i][3]) {
+                var name = this.fields[i][0];
+                var type_class = this.fields[i][1];
+                var type_obj = new type_class();
+                var size = 0;
+
+                // if this is a struct we need to get the encoded size of the
+                // struct first
+                if (type_obj.is_struct)
+                    size = amqp.protocol.decode_int(assembly, type_obj.size);
+
+                result[name] = type_obj.decode(assembly);
+            }
+        }
+
+        return result;
+    }
+
+    this.encode = function(assembly) {
+        // we need to get the size of the struct
+        var struct_assembly = new amqp.protocol.Assembly({});
+        var values = this._value;
+
+        var packing_flags = 0;
+        for (var i in this.fields) {
+            var name = this.fields[i][0];
+            var type_class = this.fields[i][1];
+            var v = values[name];
+
+            if (typeof(v) != 'undefined') {
+                // special case bits
+                if(type_class == amqp_types['bit']) {
+                    if (v)
+                        packing_flags += (1 << i);
+                } else {
+                    packing_flags += (1 << i);
+                    new type_class(v, false).encode(struct_assembly);
+                }
+            }
+        }
+
+        var header = '';
+        if(this._is_type_encoded)
+            header += String.fromCharCode(this.parent_class.code, this.code)
+
+        var pf = amqp.protocol.int_to_bytestr(packing_flags, this.pack_size);
+        for (var i=pf.length - 1; i >= 0; i--)
+            header += pf[i];
+
+        struct_assembly.prepend(header);
+
+        var size = struct_assembly.get_size(false);
+        var enc_size = amqp.protocol.int_to_bytestr(size, 4);
+        struct_assembly.prepend(enc_size);
+        assembly.write(struct_assembly.get_data());
+
+    }
+});
+
+var HeaderSegmentMarshaler = Class(Marshaler, function(supr) {
+    this.encode = function(assembly, is_first_segment, is_last_segment, channel) {
+        var payload_assembly = new amqp.protocol.Assembly({});
+        var value = this._value;
+        for(var id in value) {
+            var s = this.parent_class.structs[id];
+            if(s)
+                new s(value[id]).encode(payload_assembly);
+        }
+
+        // find the size of our data structure
+        var payload_data = payload_assembly.get_data();
+
+        var frame = new Frame({assembly: assembly,
+                                   payload: payload_data,
+                                   parsed_data: {
+                                       frame_format_version: 0,
+                                       is_first_segment: is_first_segment,
+                                       is_last_segment: is_last_segment,
+                                       is_first_frame: true,
+                                       is_last_frame: true,
+                                       segment_type: HEADER_SEG_TYPE,
+                                       track: 1,
+                                       channel: channel,
+                                    }
+                                   });
+        frame.encode();
+        return frame;
+    }
+});
+
+var BodySegmentMarshaler = Class(Marshaler, function(supr) {
+    this.encode = function (assembly, is_first_segment, is_last_segment, channel) {
+        var frame = new Frame({assembly: assembly,
+                               payload: this._value,
+                               parsed_data: {
+                                       frame_format_version: 0,
+                                       is_first_segment: is_first_segment,
+                                       is_last_segment: is_last_segment,
+                                       is_first_frame: true,
+                                       is_last_frame: true,
+                                       segment_type: BODY_SEG_TYPE,
+                                       track: 1,
+                                       channel: channel
+                                    }
+                                });
+        frame.encode();
+        return frame;
+    }
+});
+
+var MessageMarshaler = Class(Marshaler, function(supr) {
+    this.seg_type = null;
+    this.code = null;
+    this.name = null;
+    this.parent_class = null;
+
+    this.init = function (value) {
+        supr(this, 'init', [value]);
+    }
+});
+
+var ControlMessageMarshaler = Class(MessageMarshaler, function (supr) {
+    this.seg_type = CONTROL_SEG_TYPE;
+    this.name = 'unknown_control',
+
+    this.init = function (value) {
+        supr(this, 'init', [value]);
+    };
+
+    this.decode = function(assembly) {
+        var result = {};
+        var packing_flags = new amqp_types['int8']().decode(assembly);
+        var packing_flags2 = new amqp_types['int8']().decode(assembly) << 8;
+        packing_flags += packing_flags2;
+
+        var fields = this.fields;
+        for (i in fields) {
+            if (packing_flags & fields[i][3]) {
+                var name = fields[i][0];
+                var type_class = fields[i][1];
+                result[name] = new type_class().decode(assembly);
+            }
+        }
+
+        return result;
+    };
+
+    this.encode = function(assembly) {
+        var packing_flags = 0;
+        var fields = this.fields;
+        var values = this._value;
+
+        for (var i in fields) {
+            var name = fields[i][0];
+            var type_class = fields[i][1];
+            var required = fields[i][2];
+            var v = values[name];
+
+            if (typeof(v) != 'undefined') {
+                // special case bits
+                if(type_class == amqp_types['bit']) {
+                    if (v)
+                        packing_flags += (1 << i);
+                } else {
+                    packing_flags += (1 << i);
+                    new type_class(v, false).encode(assembly);
+                }
+            } else if (required) {
+                throw "Parameter " + name + " is required for message" + this.parent_class.name + "." + this.name;
+            }
+        }
+
+        var header = String.fromCharCode(this.parent_class.code, this.code)
+        var pf = amqp.protocol.int_to_bytestr(packing_flags, 2);
+        for (var i=pf.length - 1; i >= 0; i--)
+            header += pf[i];
+
+        assembly.prepend(header);
+
+    }
+
+});
+
+var CommandMessageMarshaler = Class(ControlMessageMarshaler, function(supr) {
+    this.seg_type = COMMAND_SEG_TYPE;
+
+    this.init = function(value) {
+        supr(this, 'init', [value]);
+    };
+
+    this.decode = function(assembly) {
+        // read one octet for session.header packing flags
+        var session_packing_flags = new amqp_types['int8']().decode(assembly);
+
+        // we discard session struct right now
+        var session_struct = null;
+        if (session_packing_flags)
+            session_struct = new amqp_types['int8']().decode(assembly);
+
+        var result = supr(this, 'decode', [assembly]);
+        return result;
+    };
+
+    this.encode = function(assembly, values) {
+        var packing_flags = 0;
+        var values = this._value;
+
+        for (var i in this.fields) {
+            var name = this.fields[i][0];
+            var type = this.fields[i][1];
+            var v = values[name];
+
+            if (typeof(v) != 'undefined') {
+                // special case bits
+                if(type == amqp_types['bit']) {
+                    if (v)
+                        packing_flags += (1 << i);
+                } else {
+                    packing_flags += (1 << i);
+                    new type(v, false).encode(assembly);
+                }
+            }
+        }
+
+        var segments = this.segments;
+        if (typeof(segments) != 'undefined') {
+            // prepare segments for encoding
+            var available_segments = [];
+            for (var i in segments) {
+                var seg = segments[i];
+                var v = values[seg.name];
+                if (typeof(v) != 'undefined' || v != null)
+                    available_segments.push(seg);
+            }
+
+            // let upper frames know they need to indicate there are more segments
+            if (available_segments.length) {
+                assembly.set_metadata('has_multiple_segments', true);
+                var frames = [];
+                assembly.set_metadata('segment_frames', frames);
+                // encode segments
+                for (var i in available_segments) {
+                    var segment_assembly = new amqp.protocol.Assembly({});
+                    var seg = available_segments[i];
+                    var v = values[seg.name];
+                    // right now we only send on channel 0
+                    var channel = 0;
+                    var frame = new seg.marshaler(v).encode(segment_assembly, 0, i==available_segments.length-1, channel);
+                    frames.push(frame);
+                }
+            }
+        }
+
+        var header = String.fromCharCode(this.parent_class.code, this.code)
+        // FIXME: session headers are version dependent so we should
+        //        do this in a generate_session_header method
+        if (values['sync']) {
+            // request sync call
+            var sync_flags = amqp.protocol.int_to_bytestr(0x01,1);
+            // add twice since both packing flags and values = 1
+            header += sync_flags;
+            header += sync_flags;
+        } else {
+            // only add packing flag = 0
+            var sync_flags = amqp.protocol.int_to_bytestr(0x00,1);
+            header += sync_flags;
+            header += sync_flags;
+        }
+        var pf = amqp.protocol.int_to_bytestr(packing_flags, 2);
+        for (var i=pf.length - 1; i >= 0; i--)
+            header += pf[i];
+
+        assembly.prepend(header);
+    }
+});
+
+var Message = Class(amqp.protocol.Message, function (supr) {
+
+    this.decode_next_segment = function() {
+        supr(this, 'decode_next_segment');
+        var payload_size = this.assembly.get_metadata('payload_size');
+
+        switch(this._current_segment_type) {
+            case CONTROL_SEG_TYPE:
+            case COMMAND_SEG_TYPE:
+                this.decode_cls();
+                break;
+
+            case HEADER_SEG_TYPE:
+                this.decode_header(payload_size);
+                break;
+
+            case BODY_SEG_TYPE:
+                this.decode_body(payload_size);
+                break;
+
+            default:
+                throw "Invalid segment type encountered"
+        };
+    };
+
+    this.decode_cls = function() {
+        var a = this.assembly;
+        var cls_code = this.set('class_code', new amqp_types['uint8']().decode(a));
+        var message_code = this.set('message_code', new amqp_types['uint8']().decode(a));
+        this.class_code = cls_code;
+        this.code = message_code;
+
+        var cls = amqp_classcodes[cls_code];
+        this.parent_class = cls;
+        this.class_name = this.parent_class.name;
+
+        if (typeof(cls) === 'undefined')
+            throw('Class code (' + cls_code + ') is invalid. \
+                  This usually happens when a previous message was decoded \
+                  incorrectly or it contained a type which is not supported \
+                  yet');
+
+        var method = cls.message_codes[message_code];
+        var msg = new method();
+        this.marshaler = msg;
+        this.name = msg.name;
+
+        var results = msg.decode(a);
+        for (var k in results)
+            this.set(k, results[k]);
+    }
+
+    this.decode_header = function(payload_size) {
+        var a = this.assembly;
+        var header = {};
+
+        do {
+            var struct_size = new amqp_types['uint32']().decode(a);
+            var cls_code = this.set('class_code', new amqp_types['uint8']().decode(a));
+            var header_code = this.set('message_code', new amqp_types['uint8']().decode(a));
+
+            var cls = amqp_classcodes[cls_code];
+            this.parent_class = cls;
+
+            if (typeof(cls) === 'undefined')
+                throw('Class code (' + cls_code + ') is invalid. \
+                  This usually happens when a previous message was decoded \
+                  incorrectly or it contained a type which is not supported \
+                  yet');
+
+            var st = new cls.struct_codes[header_code]();
+            var values = st.decode(a);
+            var key = st.name;
+            header[key] = values;
+            payload_size = payload_size - (struct_size + 4);
+        } while (payload_size > 0);
+
+        this.set('_header', header);
+    }
+
+    this.decode_body = function(size) {
+        var a = this.assembly;
+        var data = a.read_byte(size);
+        this.set('_body', data);
+    }
+});
+
+var Frame = Class(DefaultsClass, function (supr) {
+    var defaults = {
+        assembly: null,
+        parsed_data: {},
+        contains_header: false,
+        payload: ''
+    }
+
+    this.init = function(options) {
+        supr(this, 'init', [options, defaults]);
+        if (!this.assembly)
+            this.assembly = new amqp.protocol.Assembly({});
+    }
+
+    this.decode = function() {
+        var assembly = this.assembly;
+
+        // Parse the header
+        if (this.contains_header)
+            this.set('header', amqp.protocol.decode_header(assembly));
+
+        // now the Frame
+        this.set('frame_format_version', assembly.read_bit(2));
+        assembly.read_bit(2);
+        this.set('is_first_segment', assembly.read_bit(1));
+        this.set('is_last_segment', assembly.read_bit(1));
+        this.set('is_first_frame', assembly.read_bit(1));
+        this.set('is_last_frame', assembly.read_bit(1));
+        this.set('segment_type', new amqp_types['uint8']().decode(assembly));
+        this.set('frame_size', new amqp_types['uint16']().decode(assembly));
+        assembly.read_byte(1);
+        assembly.read_bit(4);
+        this.set('track', assembly.read_bit(4));
+        this.set('channel', new amqp_types['uint16']().decode(assembly));
+        assembly.read_byte(4);
+        var payload_size = this.get('frame_size') - 12; // frame size - header size
+        this.set('payload_size', payload_size);
+    };
+
+    this.encode = function() {
+        var a = this.assembly;
+
+        // Add the header
+        if(this.contains_header)
+            a.write(get_header());
+
+        // now the Frame
+        var ffv = this.get('frame_format_version');
+        var next_byte = ffv << 6;
+
+        //next two bits are reserved while we add the rest of the bits
+        if(this.get('is_first_segment'))
+            next_byte += 1 << 3;
+        if(this.get('is_last_segment'))
+            next_byte += 1 << 2;
+        if(this.get('is_first_frame'))
+            next_byte += 1 << 1;
+        if(this.get('is_last_frame'))
+            next_byte += 1;
+
+        a.write(String.fromCharCode(next_byte));
+        var st = amqp.protocol.int_to_bytestr(this.get('segment_type'), 1);
+        a.write(st);
+
+        // set the frame size which is the size of the header +
+        // size field (2) + padding byte (1) + track field (1) +
+        // channel field (2) + padding bytes(4) + size of payload
+        var frame_size = a.get_size(false) + 10 + this.payload.length;
+        var fs = amqp.protocol.int_to_bytestr(frame_size, 2);
+        a.write(fs);
+        a.write(String.fromCharCode(0));
+        var t = amqp.protocol.int_to_bytestr(this.get('track'), 1);
+        a.write(t);
+        var ch = amqp.protocol.int_to_bytestr(this.get('channel'), 2);
+        a.write(ch);
+        a.write(String.fromCharCode(0,0,0,0));
+        a.write(this.payload);
+    }
+
+    this.get = function(key) {
+        return this.parsed_data[key];
+    }
+
+    this.set = function(key, value) {
+        this.parsed_data[key] = value;
+        return value;
+    }
+
+    this.get_assembly = function() {
+        return this.assembly;
+    }
+
+    this.get_data = function() {
+        return this.assembly.get_data();
+    }
+});
+
+/******* driver classes ********/
+var DEFAULT_DURABILITY = true;
+var CREDIT_FLOW_MODE = 0;
+var WINDOW_FLOW_MODE = 0;
+var BYTE_FLOW = 0;
+var MESSAGE_FLOW = 1;
+
+var MessagingHandshakeDriver = Class(function() {
+    this.init = function(handler, session, address) {
+        this._handler = handler;
+        var query_results = [];
+
+        var declare = function() {
+            var opts = address.options;
+            var props = opts['node-properties'];
+            if (typeof(props) == 'undefined')
+                props = {};
+
+            durable = props['durable'];
+            if (typeof(durable) == 'undefined')
+                durable = DEFAULT_DURABILITY;
+
+            var node_type = props['type'];
+            if(typeof(node_type) == 'undefined')
+                node_type = 'queue';
+
+            xprops = props['x-properties'];
+            if (typeof(xprops) == 'undefined')
+                xprops = {};
+
+            var bindings = xprops['bindings'];
+            if (typeof(bindings) == 'undefined')
+                bindings = [];
+
+            var declare_args = protocol.deep_copy_defaults(xargs);
+            delete declare_args['bindings'];
+
+            var msgs = [];
+            var subtype = null;
+            if (node_type == 'topic') {
+                msgs.push(amqp_classes.Exchange.declare({exchange: name,
+                                                         durable: durable,
+                                                         arguments: declare_args}));
+                /* FIXME: python bindings make it look like this can be something
+                          other than topic */
+                subtype = 'topic';
+            } else if (node_type == 'queue') {
+                msgs.push(amqp_classes.Queue.declare({queue: name,
+                                                     durable:durable,
+                                                     arguments: declare_args}));
+                for(b in bindings) {
+                    var baddr = new protocol.AddressParser(bindings[b]);
+                    msg.push(amqp_classes.Exchange.bind({queue: name,
+                                                         exchange: baddr.name,
+                                                         binding_key: baddr.subject,
+                                                         arguments: badder.options
+                                                        }));
+                }
+            } else {
+                throw('unrecognized type, must be topic or queue: ' + node_type);
+            }
+
+            for (m in msgs) {
+                session.send(msgs[m]);
+            }
+
+            handler.do_link(node_type, subtype);
+
+        };
+
+        var do_resolved = function(query_results) {
+            var er = query_results[0];
+            var qr = query_results[1];
+
+            if(er.not_found && !qr.queue && handler.check_policy(address.options.create)) {
+                declare();
+            } else if (qr.queue) {
+                handler.do_link('queue');
+            } else {
+                handler.do_link('topic', er.type);
+            }
+        };
+
+        var exchange_query_results = function(results) {
+            query_results.push(results);
+            return true;
+        };
+
+        var queue_query_results = function(results) {
+            query_results.push(results);
+            do_resolved(query_results);
+            return true;
+        };
+
+        /* query the name to see if a node exists */
+        session.Exchange('query', {name: address.name});
+        session._conn._conn_driver.subscribe('execution',
+                                             'result',
+                                             null,
+                                             exchange_query_results,
+                                             true);
+
+        session.Queue('query', {name: address.name});
+        session._conn._conn_driver.subscribe('execution',
+                                             'result',
+                                             null,
+                                             queue_query_results,
+                                             true);
+    }
+});
+
+var Sender = Class(amqp.protocol.Sender, function(supr) {
+    this.init = function(session, index, source, options) {
+        supr(this, 'init', [session, index, source, options]);
+        this._ready = false;
+        this.driver = new MessagingHandshakeDriver(this,
+                                                   session,
+                                                   this.addr);
+    };
+
+    this._construct_transfer = function(payload, msg_props) {
+        if (!msg_props)
+            msg_props = {};
+
+        var msg = amqp_classes.Message.transfer({destination: this._exchange,
+                                                 _body: payload,
+                                                 _header: {
+                                                     delivery_properties: {
+                                                         routing_key: this._routing_key,
+                                                     },
+                                                     message_properties: msg_props
+                                                 }
+                                                });
+        return msg;
+    };
+
+    this._dispatch_one = function(msg) {
+       this._sess._sess_driver.send(msg);
+    };
+
+    this.check_policy = function(policy) {
+        if(policy == 'always' || policy == 'sender')
+            return true;
+
+        return false;
+    };
+
+    this.do_link = function(type, subtype) {
+        if (type == 'topic') {
+            this._exchange = this.addr.name;
+            this._routing_key = this.addr.subject;
+        } else if (type == 'queue') {
+            this._exchange = '';
+            this._routing_key = this.addr.name;
+        }
+
+        this._ready = true;
+        this.sync();
+    };
+});
+
+var Receiver = Class(amqp.protocol.Receiver, function(supr) {
+    this.init = function(session, index, source, options) {
+        supr(this, 'init', [session, index, source, options]);
+        this._ready = false;
+        this.driver = new MessagingHandshakeDriver(this,
+                                                   session,
+                                                   this.addr);
+    };
+
+    this.grant = function() {
+        if (!this._grant_pending)
+            return;
+
+        this._grant_pending = false;
+        this._sess.Message('flow',
+                           {destination: this.destination,
+                            unit: BYTE_FLOW,
+                            value: this._capacity});
+
+        this._sess.Message('flow',
+                           {destination: this.destination,
+                            unit: MESSAGE_FLOW,
+                            value: this._capacity});
+
+    };
+
+    this.check_policy = function(policy) {
+        if(policy == 'always' || policy == 'receiver')
+            return true;
+
+        return false;
+    };
+
+    this.do_link = function(type, subtype) {
+        if (type == 'topic') {
+            this._queue = this._sess.name + '.' + this._index;
+            this._sess.Queue('declare', {queue: this._queue,
+                                         durable: DEFAULT_DURABILITY,
+                                         exclusive: true,
+                                         auto_delete: true});
+
+            var f = this.addr.subject_to_filter();
+            if (this.addr.options.filter) {
+                if (f)
+                    throw "Filter '" +  this.addr.options.filter + "' and subject '"+ this.addr.subject + "' are both set.  Only one should be set";
+
+                f = this.addr.options.filter;
+            }
+
+            if (!f && subtype == 'topic')
+                f = '#';
+
+            this._sess.Exchange('bind', {exchange: this.addr.name,
+                                         queue: this._queue,
+                                         binding_key: f});
+
+
+
+        } else if (type == 'queue') {
+            this._queue = this.addr.name;
+        }
+
+        this._sess.Message('subscribe', {queue: this._queue,
+                                         destination: this.destination});
+
+        this._sess.Message('set_flow_mode', {destination: this.destination,
+                                             flow_mode: CREDIT_FLOW_MODE});
+
+        this.grant();
+    };
+});
+
+
+var Session = Class(amqp.protocol.DefaultsClass, function(supr) {
+    var defaults = {
+        uuid: null,
+        connection: null
+    };
+
+    this.init = function(options) {
+        supr(this, 'init', [options, defaults]);
+        this.name = options.uuid;
+        this._conn = options.connection;
+        this._defered = [];
+        this._ready = false;
+        this._outgoing = [];
+
+        var _me = this;
+
+        // setup the session handshake sequence
+        // FIXME: Handle already existing connections
+        this._conn.subscribe('session',
+                             'attached',
+                             0,
+                             function(frame) {
+                                 var msg = frame.get('msg');
+                                 var flush = amqp_classes.Session.flush({expected: false,
+                                                                         confirmed: false,
+                                                                         completed: true});
+
+                                 _me._conn.send(flush);
+                             },
+                             true
+                            );
+
+        this._conn.subscribe('session',
+                             'completed',
+                             0,
+                             function(frame) {
+                                 var msg = frame.get('msg');
+                                 var known_completed = amqp_classes.Session.known_completed({});
+
+                                 _me._conn.send(known_completed);
+                                 var request_timeout = amqp_classes.Session.request_timeout({timeout: 400});
+
+                                 _me._conn.send(request_timeout);
+                             },
+                             true
+                            );
+
+        this._conn.subscribe('session',
+                             'timeout',
+                             0,
+                             function(frame) {
+                                 var msg = frame.get('msg');
+                                 var command_point = amqp_classes.Session.command_point({command_id: 0,
+                                                                                         command_offset:0});
+
+                                 _me._conn.send(command_point);
+
+                                 for(var i=0; i<_me._defered.length; i++)
+                                     _me._conn.send(_me._defered[i]);
+
+                                 _me._ready = true;
+                             },
+                             true
+                            );
+
+        var attach = amqp_classes.Session.attach({name: this.name});
+        this._conn.send(attach);
+
+    };
+
+    this.Receiver = Receiver;
+    this.Sender = Sender;
+
+    this.send = function(msg) {
+        if (this._ready)
+            this._conn.send(msg);
+        else
+            this._defered.push(msg);
+    };
+
+    this.Queue = function(command_name, params) {
+        var queue_msg = amqp_classes.Queue[command_name](params);
+        this.send(queue_msg);
+    };
+
+    this.Exchange = function(command_name, params) {
+        var ex_msg = amqp_classes.Exchange[command_name](params);
+        this.send(ex_msg);
+    };
+
+    this.Message = function(command_name, params) {
+        var message_msg = amqp_classes.Message[command_name](params);
+        this.send(message_msg);
+    };
+
+    this.link_receiver = function(recv) {
+        this.Exchange('query',{'name': this.name});
+        sst.write_query(QueueQuery(name), do_action)
+    }
+});
+
+var Connection = Class(DefaultsClass, function(supr) {
+    var defaults = {
+        host: 'localhost',
+        port: 9000,
+        username: '',
+        password: '',
+        send_hook: function() {},
+        recive_hook: function() {},
+        socket_cls: null,
+        channel_max: 32767,
+        max_frame_size: 65535,
+        heartbeat_min: 0,
+        heartbeat_max: 120
+    }
+
+    this.statecode = {
+        CLOSED: 0,
+        CONNECTING: 1,
+        HANDSHAKE_STAGE_1: 2,
+        CONNECTED: 3,
+        NEGOTIATED: 4
+    }
+
+    this.init = function(options) {
+        supr(this, 'init', [options, defaults]);
+        this._prenegotiation_msg_queue = [];
+
+        this._socket = new this.socket_cls();
+        this.state = this.statecode.CLOSED;
+        this._dispatch_table = {};
+        this._incomming = {};
+
+        this._socket.onopen = bind(this, function() {
+            console.log('connection opened!');
+
+            // Handshake
+            this.state = this.statecode.HANDSHAKE_STAGE_1;
+            protocol_header = this.get_header();
+
+            this._raw_send(protocol_header);
+        });
+
+        var process_data = function(data) {
+            var sc = this.statecode;
+            var assembly = null;
+
+            if (data instanceof amqp.protocol.Assembly)
+                assembly = data;
+            else
+                assembly = new amqp.protocol.Assembly({data: data});
+
+            assembly.mark_start(); // debug metadata
+
+            switch(this.state) {
+                case sc.HANDSHAKE_STAGE_1:
+                    this.state = sc.CONNECTED;
+                    var frame = new Frame({assembly: assembly,
+                                           contains_header: true});
+                    frame.decode();
+
+                    var track = frame.get('track');
+                    var type = frame.get('segment_type');
+
+                    if (track != 0)
+                        throw "Expecting a control frame but recived a command during stage 1 of the handshake";
+                    if (type != 0)
+                        throw "Recived the wrong control code during stage 1 of the handshake";
+
+                    this._process_frame(frame,
+                                        bind(this,
+                                             this._process_handshake_stage_1));
+
+                    break;
+
+                case sc.CONNECTED:
+                case sc.NEGOTIATED:
+                    // dispatch from here
+                    var frame = new Frame({assembly: assembly,
+                                           contains_header: false});
+
+                    frame.decode();
+
+                    this._process_frame(frame,
+                                        bind(this,
+                                             this._process_dispatch));
+
+                    break;
+
+                default:
+                    throw "State code 0x" + _me.state.toString(16) + " is not implemented by amqp.Connecton";
+
+            }
+
+
+            // check for more frames
+            if (!assembly.eof())
+                process_data.call(this, assembly);
+
+        };
+
+        this._socket.onread = bind(this, process_data);
+
+        this._socket.onclose = function(code) {
+            console.log('Connection Closed [' + code + ']');
+        };
+
+        /* implicitly start when created */
+        this.start();
+    };
+
+    this._process_frame = function(frame,
+                                  complete_cb) {
+
+        // Process is outlined in the flowchart in
+        // docs/misc/frame_decoding.dia
+
+        var is_first_frame = frame.get('is_first_frame');
+        var is_last_frame = frame.get('is_last_frame');
+        var is_first_segment = frame.get('is_first_segment');
+        var is_last_segment = frame.get('is_last_segment');
+        var channel = frame.get('channel');
+        var track = frame.get('track');
+        var id = channel + '.' + track;
+
+        var msg = this._incomming[id];
+        if (is_first_frame && is_first_segment) {
+            if (msg)
+                throw "Error: Message collision - channel " + channel + " track " + track + " already has a partial message in the queue";
+
+            msg = new Message({});
+            this._incomming[id] = msg;
+        }
+
+        msg.add_frame(frame);
+
+        if (is_last_frame) {
+            msg.decode_next_segment();
+            if (is_last_segment) {
+                complete_cb(msg);
+                delete this._incomming[id];
+            }
+        }
+    };
+
+    this._process_handshake_stage_1 = function(msg) {
+        if (this.recive_hook)
+            this.recive_hook(msg);
+
+        var srv_properties = msg.get('server_properties');
+        var mechanisms = msg.get('mechanisms');
+        var locales = msg.get('locales');
+
+        // send start-ok response
+        // FIXME: Support other auth mechanisms
+
+        var start_ok_msg = amqp_classes.Connection.start_ok({
+                client_properties: {
+                    product: 'qpid kamaloka javascript client',
+                    platform: navigator.userAgent
+                },
+                mechanism: 'ANONYMOUS',
+                locale: 'en_US',
+                response: ''
+        });
+
+        this.subscribe('connection',
+                       'tune',
+                       0,
+                       this.handle_tune_cmd);
+
+        this._send_handshake(start_ok_msg);
+    };
+
+    this._process_dispatch = function(msg) {
+        if (this.recive_hook)
+            this.recive_hook(msg);
+
+        var cls_code = msg.get_class_code();
+        var message_code = msg.get_code();
+        var track = msg.get('track');
+        var channel = msg.get('channel');
+        var id = '';
+
+        id = cls_code + '.' + message_code;
+
+        var callbacks = this._dispatch_table[id];
+        if (callbacks) {
+            var discard_pile = [];
+            for (var i in callbacks) {
+                var cb = callbacks[i][0];
+                var discard = callbacks[i][1];
+                var ch = callbacks[i][2];
+                if (typeof(ch) != undefined && ch != null)
+                    if (ch != channel) // we are looking for a specific channel
+                        continue;
+
+                if (discard)
+                    delete callbacks[i];
+
+                if (cb) {
+                    var handled = cb.call(this, msg);
+                    if (handled)
+                        break;
+                }
+            }
+
+        }
+    };
+
+    this.unsubscribe = function(id) {
+         var callback_list = this._dispatch_table[id[0]];
+         delete callback_list[id[1]];
+    };
+
+    this.subscribe = function (cls_name, msg_name, channel, callback, discard) {
+        var cls = amqp_classes[cls_name];
+        var cls_code = cls.code;
+        var msg_code = cls.messages[msg_name.toUpperCase()];
+        var id = cls_code + '.' + msg_code;
+        var callback_list = this._dispatch_table[id];
+
+        if (!callback_list)
+            callback_list = []
+
+        var index = callback_list.length;
+        callback_list.push([callback, discard, channel]);
+
+        this._dispatch_table[id] = callback_list;
+
+        return [id, index];
+    };
+
+    this.get_state = function() {
+        return this.state;
+    };
+
+    this.lookup_type = lookup_type;
+
+    this.get_header = get_header;
+
+    this.guess_type = guess_type;
+
+    this._raw_send = function (msg) {
+        this._socket.send(msg);
+    };
+
+    this.send = function(message, is_negotiating) {
+        // queue messages if we are still negotiating
+        if (!is_negotiating && !(this.state == this.statecode.NEGOTIATED)) {
+            this._prenegotiation_msg_queue.push(message);
+            return;
+        }
+
+        this._send(message);
+    };
+
+    this._send = function (message) {
+        message.encode();
+
+        // FIXME: break up if size is too big
+        var size = message.get_size();
+        var payload = message.get_data(size);
+        var msg_type = message.get_type();
+        var code = message.get_code();
+        var cls_code = message.get_class_code();
+        var segment_type = msg_type;
+        var channel = 0;
+        var track = msg_type;
+        var has_multiple_segments = message.has_multiple_segments();
+        var is_last_segment = !has_multiple_segments;
+
+        // FIXME: get module version from the header info
+        //        and work with segments and multiple frames
+        var frame = new Frame({
+            parsed_data: {
+                frame_format_version: 0,
+                is_first_segment: true,
+                is_last_segment: is_last_segment,
+                is_first_frame: true,
+                is_last_frame: true,
+                segment_type: segment_type, // control
+                track: track,
+                channel: channel,
+                message_code: code,
+                class_code: cls_code,
+                msg: message
+            },
+            payload: payload
+        });
+
+        frame.encode();
+        var data = frame.get_data();
+        var debug_frames = [frame];
+        if(has_multiple_segments) {
+            var seg_frames = message.get_segment_frames();
+            for (var i in seg_frames) {
+                debug_frames.push(seg_frames[i]);
+                var seg_data = seg_frames[i].get_data();
+                data = data + seg_data;
+            }
+        }
+
+        // FIXME: have message do the framing
+        message._frames = debug_frames;
+
+        this._raw_send(data);
+        if (this.send_hook) {
+            this.send_hook(message);
+        }
+    };
+
+    this._send_handshake = this._send;
+
+    this.start = function() {
+        if (this.state != this.statecode.CLOSED)
+            return;
+
+        this.state = this.statecode.CONNECTING;
+        this._socket.open(this.host, this.port, isBinary=true);
+    };
+
+    this.handle_tune_cmd = function (frame) {
+
+        var channel_max = frame.get('channel_max');
+        var max_frame_size = frame.get('max_frame_size');
+        var heartbeat_min = frame.get('heartbeat_min');
+        var heartbeat_max = frame.get('heartbeat_max');
+
+        if (this.channel_max > channel_max)
+            this.channel_max = channel_max;
+
+        if (this.max_frame_size > max_frame_size)
+            this.max_frame_size = max_frame_size;
+
+        if (this.heartbeat_min > heartbeat_min)
+            this.heartbeat_min = heartbeat_min;
+
+        if (this.heartbeat_max > heartbeat_max)
+            this.heartbeat_max = heartbeat_max;
+
+        /* FIXME: allow setting and handling of heartbeat */
+        var tune_ok_msg = amqp_classes.Connection.tune_ok({
+            channel_max: this.channel_max,
+            max_frame_size: this.max_frame_size
+        });
+
+        this._send_handshake(tune_ok_msg);
+
+        this.subscribe('connection', 'open_ok', 0, this.handle_open_ok_cmd, true);
+        var open_msg = amqp_classes.Connection.open({virtual_host:''});
+        this._send_handshake(open_msg);
+    };
+
+    this.handle_open_ok_cmd = function (frame) {
+        this.state = this.statecode.NEGOTIATED;
+        for (var i = 0; i < this._prenegotiation_msg_queue.length; i++)
+            this.send(this._prenegotiation_msg_queue[i]);
+    };
+
+    this.create_session = function(uuid) {
+        var sess = new Session({uuid: uuid,
+                                connection: this});
+
+        return sess;
+    };
+});
+
+
+/******* AMQP Protocol MetaData ********/
+%(types)s
+%(amqp_classes)s
+
+exports.version = version;
+
+exports.lookup_type = lookup_type;
+exports.lookup_class = lookup_class;
+exports.get_header = get_header;
+exports.guess_type = guess_type;
+
+exports.amqp_types = amqp_types;
+exports.amqp_typecodes = amqp_typecodes;
+exports.amqp_classes = amqp_classes;
+exports.amqp_classcodes = amqp_classcodes;
+
+exports.Frame = Frame;
+exports.Connection = Connection;
+
+})();

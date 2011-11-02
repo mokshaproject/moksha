@@ -21,6 +21,14 @@ if (typeof moksha_amqp_conn == 'undefined') {
 			}
 		}
 	}
+
+	// Globally scoped.
+	raw_msg_callback = function() {
+		var msg = this.fetch();
+		msg.header = msg.parsed_data._header;
+		msg.body = msg.parsed_data._body;
+		moksha_amqp_on_message(msg);
+	}
 }
 
 ## Register our topic callbacks
@@ -41,6 +49,13 @@ if (typeof moksha_amqp_conn == 'undefined') {
 		Orbited.settings.port = ${tw._('orbited_port')};
 		Orbited.settings.hostname = '${tw._("orbited_host")}';
 		Orbited.settings.streaming = true;
+
+		jsio.path.reverse();
+		jsio("import qpid_amqp as amqp");
+		jsio("from amqp.protocol import register");
+		// load the 0.10 version of the protocol
+		register("amqp.protocol_0_10");
+
 		moksha_amqp_conn = new amqp.Connection({
 			% if tw._("send_hook"):
 				send_hook: function(data, frame) { ${tw._("send_hook")} },
@@ -52,6 +67,7 @@ if (typeof moksha_amqp_conn == 'undefined') {
 			port: ${tw._("amqp_broker_port")},
 			username: '${tw._("amqp_broker_user")}',
 			password: '${tw._("amqp_broker_pass")}',
+			socket_cls: Orbited.TCPSocket,
 		});
 		moksha_amqp_conn.start();
 
@@ -66,15 +82,9 @@ if (typeof moksha_amqp_conn == 'undefined') {
 				auto_delete: true,
 				exclusive: true,
 		});
-		moksha_amqp_queue = moksha_amqp_session.create_local_queue({
-				name: 'local_queue',
-				auto_delete: true,
-				exclusive: true,
-		});
 
 		% if tw._("onconnectedframe"):
 			${tw._("onconnectedframe")}
-			moksha_amqp_queue.start();
 		% endif
 
 		// Note that $(window).unload(..) is insufficient.  The
@@ -82,7 +92,7 @@ if (typeof moksha_amqp_conn == 'undefined') {
 		// explicitly close our connection.  We must use
 		// 'beforeunload' instead.
 		$(window).bind('beforeunload', function() {
-			moksha_amqp_conn._conn._orbited_conn.close();
+			moksha_amqp_conn._conn_driver._socket.close();
 		});
 
 	});
@@ -90,24 +100,22 @@ if (typeof moksha_amqp_conn == 'undefined') {
 } else {
 	## Utilize the existing Moksha AMQP socket connection
 	${tw._("onconnectedframe")}
-	moksha_amqp_queue.start();
 }
 
+
 if (typeof moksha == 'undefined') {
+
+	/* Create a lookup table of amqp senders we can reuse */
+	if (typeof moksha_amqp_senders == 'undefined') {moksha_amqp_senders = {};}
+
 	moksha = {
 		/* Send an AMQP message to a given topic */
 		send_message: function(topic, body) {
-			moksha_amqp_session.Message('transfer', {
-				accept_mode: 1,
-				acquire_mode: 1, 
-				destination: 'amq.topic',
-				_body: $.toJSON(body),
-				_header: {
-					delivery_properties: {
-						routing_key: topic
-					}
-				}
-			});
+			if (typeof moksha_amqp_senders[topic] == 'undefined') {
+				moksha_amqp_senders[topic] = moksha_amqp_session.sender(
+					'amq.topic/' + topic);
+			}
+			moksha_amqp_senders[topic].send(body);
 		},
 	}
 }
