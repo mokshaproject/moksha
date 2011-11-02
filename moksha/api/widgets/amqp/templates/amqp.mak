@@ -101,12 +101,20 @@ if (typeof moksha_amqp_conn == 'undefined') {
 	${tw._("onconnectedframe")}
 }
 
+
 if (typeof moksha == 'undefined') {
+
+	/* Create a lookup table of amqp senders we can reuse */
+	if (typeof moksha_amqp_senders == 'undefined') {moksha_amqp_senders = {};}
+
 	moksha = {
 		/* Send an AMQP message to a given topic */
 		send_message: function(topic, body) {
-			var sender = moksha_amqp_session.sender('amq.topic/' + topic);
-			sender.send(body);
+			if (typeof moksha_amqp_senders[topic] == 'undefined') {
+				moksha_amqp_senders[topic] = moksha_amqp_session.sender(
+					'amq.topic/' + topic);
+			}
+			moksha_amqp_senders[topic].send(body);
 		},
 	}
 }
