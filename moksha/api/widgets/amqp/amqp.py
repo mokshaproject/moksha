@@ -35,8 +35,7 @@ from moksha.widgets.notify import moksha_notify
 from moksha.widgets.moksha_js import tw1_moksha_js, tw2_moksha_js
 from moksha.widgets.json import tw1_jquery_json_js, tw2_jquery_json_js
 
-from widgets import tw1_kamaloka_qpid_js, tw2_kamaloka_qpid_js
-
+from widgets import tw1_amqp_resources, tw2_amqp_resources
 
 def amqp_subscribe(topic):
     """ Return a javascript callback that subscribes to a given topic,
@@ -70,7 +69,7 @@ def amqp_unsubscribe(topic):
 
 class TW1AMQPSocket(tw.api.Widget):
     callbacks = ['onconnectedframe', 'onmessageframe']
-    javascript = [tw1_jquery_json_js, tw1_moksha_js, tw1_kamaloka_qpid_js]
+    javascript = [tw1_jquery_json_js, tw1_moksha_js, tw1_amqp_resources]
     params = callbacks[:] + ['topics', 'notify', 'orbited_host',
             'orbited_port', 'orbited_url', 'orbited_js', 'amqp_broker_host',
             'amqp_broker_port', 'amqp_broker_user', 'amqp_broker_pass',
@@ -126,7 +125,7 @@ class TW1AMQPSocket(tw.api.Widget):
 #         They should both inherit from an abstract CometSocket! -- threebean
 class TW2AMQPSocket(twc.Widget):
     callbacks = ['onconnectedframe', 'onmessageframe']
-    resources = [tw2_jquery_json_js, tw2_moksha_js, tw2_kamaloka_qpid_js]
+    resources = [tw2_jquery_json_js, tw2_moksha_js, tw2_amqp_resources]
     topics = twc.Variable()
     notify = twc.Param(
         default=asbool(config.get('moksha.socket.notify', False)))
