@@ -238,7 +238,7 @@ moksha = {
 
         var _goto = function(e) {
            var href = $(this).data('dynamic_href.moksha');
-           moksha.goto(href);
+           moksha.dynamic_goto(href);
 
            return false;
         }
@@ -412,6 +412,54 @@ moksha = {
             params = {}
 
         window.location.href = moksha.url(url, params);
+    },
+
+
+    // Applys a mask in the form of '/*/path' where the wild card inserts the
+    // element from the source_url.
+    //
+    // example:
+    //     source_url = '/foo/bar/baz';
+    //     mask = '/alpha/*/beta';
+    //     url_mask(source_url, mask);
+    //     > '/alpha/bar/beta'
+    url_mask: function (source_url, mask) {
+       var result = '';
+       var split_mask = mask.split('/');
+       var split_source = source_url.split('/');
+       for (var i=0; i < split_mask.length; i++) {
+           if (i >= split_source.length)
+               return result;
+
+           if (split_mask[i] == '*')
+               result += split_source[i];
+           else
+               result += split_mask[i];
+           result += '/'
+       }
+       return result;
+    },
+
+    /********************************************************************
+     * Dynamically load a portion of the page
+     ********************************************************************/
+    dynamic_goto: function(url, params, target, display_path) {
+        if (typeof(params) != 'object')
+            params = {}
+
+        var current_path = location.pathname;
+        display_path = moksha.url(display_path);
+
+        var masked_url = moksha.url_mask(current_path, display_path);
+
+        window.history.pushState({}, "", masked_url);
+        function load_finish(html) {
+            $(target).html(html);
+        }
+        moksha.html_load(url, params, load_finish);
+
+        // prevent link from reloading entire page if attached to onClick handler
+        return false;
     },
 
     /*
