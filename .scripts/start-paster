@@ -1,5 +1,4 @@
 #!/bin/bash -e
-source ~/.bashrc
 export LOG=logs/paster.log
 
 echo "-------------- Trying to start up --------------" >> $LOG
@@ -10,7 +9,11 @@ then
 else
         echo "Using virtualenv $1" >> $LOG
 fi
-source $WORKON_HOME/$1/bin/activate
+
+if test -z "$VIRTUAL_ENV"
+then
+        source $WORKON_HOME/$1/bin/activate
+fi
 paster serve development.ini >> $LOG 2>&1 < /dev/null &
 echo $! > paster.pid
 exit 0

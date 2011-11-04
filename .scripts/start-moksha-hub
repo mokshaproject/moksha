@@ -1,5 +1,4 @@
 #!/bin/bash -e
-source ~/.bashrc
 export LOG=logs/moksha-hub.log
 
 echo "-------------- Trying to start up --------------" >> $LOG
@@ -10,7 +9,12 @@ then
 else
         echo "Using virtualenv $1" >> $LOG
 fi
-source $WORKON_HOME/$1/bin/activate
+
+if test -z "$VIRTUAL_ENV"
+then
+        source $WORKON_HOME/$1/bin/activate
+fi
+
 moksha-hub -v >> $LOG 2>&1 < /dev/null &
 echo $! > moksha-hub.pid
 exit 0
