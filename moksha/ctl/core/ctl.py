@@ -20,6 +20,15 @@ PRETTY_PREFIX = "[" + c.magenta("moksha-ctl") + "] "
 
 @decorator.decorator
 def _with_virtualenv(func, *args, **kwargs):
+
+    # If sys has the 'real_prefix' attribute, then we are most likely already
+    # running in a virtualenv, in which case we do not need to switch it up.
+    # http://groups.google.com/group/python-virtualenv/browse_thread/thread/e30029b2e50ae17a?pli=1
+    if hasattr(sys, 'real_prefix'):
+        return func(*args, **kwargs)
+
+    # Otherwise, we'll use the handy virtualenvcontext module to switch it up
+    # for us.
     import virtualenvcontext
     with virtualenvcontext.VirtualenvContext(ctl_config['venv']):
         return func(*args, **kwargs)

@@ -61,6 +61,7 @@ setup(
         "tw2.jqplugins.flot>=2.0a4",
         "tw2.jit",
         "tw2.excanvas",
+        "virtualenvwrapper",
         #"repoze.squeeze", # Not hard requirements
         #"repoze.profile", # Not hard requirements
     ],
