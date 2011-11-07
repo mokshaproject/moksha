@@ -48,6 +48,7 @@ if (typeof moksha_amqp_conn == 'undefined') {
 	$.getScript("${tw._('orbited_url')}/static/Orbited.js", function() {
 		Orbited.settings.port = ${tw._('orbited_port')};
 		Orbited.settings.hostname = '${tw._("orbited_host")}';
+		Orbited.settings.protocol = '${tw._("orbited_scheme")}';
 		Orbited.settings.streaming = true;
 
 		jsio.path.reverse();
