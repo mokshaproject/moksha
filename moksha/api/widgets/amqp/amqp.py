@@ -44,9 +44,9 @@ def amqp_subscribe(topic):
     """
     sub = """
         moksha.debug("Subscribing to the '%(topic)s' topic");
-        var receiver_%(topic)s = moksha_amqp_session.receiver('amq.topic/%(topic)s')
-        receiver_%(topic)s.onReady = raw_msg_callback;
-        receiver_%(topic)s.capacity(0xFFFFFFFF);
+        var receiver = moksha_amqp_session.receiver('amq.topic/%(topic)s')
+        receiver.onReady = raw_msg_callback;
+        receiver.capacity(0xFFFFFFFF);
     """
     return ''.join([sub % {'topic': t} for t in listify(topic)])
 
