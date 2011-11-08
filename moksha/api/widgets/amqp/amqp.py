@@ -72,7 +72,7 @@ class TW1AMQPSocket(tw.api.Widget):
     params = callbacks[:] + ['topics', 'notify', 'orbited_host',
             'orbited_port', 'orbited_url', 'orbited_js', 'amqp_broker_host',
             'amqp_broker_port', 'amqp_broker_user', 'amqp_broker_pass',
-            'send_hook', 'recieve_hook']
+            'send_hook', 'recieve_hook', 'moksha_domain']
     onconnectedframe = ''
     onmessageframe = ''
     send_hook = ''
@@ -91,6 +91,7 @@ class TW1AMQPSocket(tw.api.Widget):
             self.orbited_scheme, self.orbited_host, self.orbited_port)
         self.orbited_js = tw.api.JSLink(
             link=self.orbited_url + '/static/Orbited.js')
+        self.moksha_domain = config.get('moksha.domain', 'localhost')
         self.amqp_broker_host = config.get('amqp_broker_host', 'localhost')
         self.amqp_broker_port = str(config.get('amqp_broker_port', 5672))
         self.amqp_broker_user = config.get('amqp_broker_user', 'guest')
@@ -138,6 +139,9 @@ class TW2AMQPSocket(twc.Widget):
     orbited_scheme = twc.Param(
         default=config.get('orbited_scheme', 'http'))
     orbited_js = twc.Param(default=orbited_js)
+
+    moksha_domain = twc.Param(
+        default=config.get('moksha.domain', 'localhost'))
 
     amqp_broker_host = twc.Param(
         default=config.get('amqp_broker_host', 'localhost'))

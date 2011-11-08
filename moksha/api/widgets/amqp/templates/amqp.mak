@@ -44,7 +44,9 @@ if (typeof moksha_amqp_conn == 'undefined') {
 
 ## Create a new AMQP client
 if (typeof moksha_amqp_conn == 'undefined') {
-	document.domain = document.domain;
+
+	document.domain = '${tw._('moksha_domain')}';
+
 	$.getScript("${tw._('orbited_url')}/static/Orbited.js", function() {
 		Orbited.settings.port = ${tw._('orbited_port')};
 		Orbited.settings.hostname = '${tw._("orbited_host")}';
