@@ -64,6 +64,7 @@ def bootstrap():
         reqs = [
             'python-setuptools', 'python-qpid', 'qpid-cpp-server',
             'python-psutil', 'ccze',  # ccze is awesome
+            'openssl-devel',
         ]
         ret = ret and not os.system(
             'sudo yum install -q -y ' + ' '.join(reqs))
