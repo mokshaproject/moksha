@@ -150,7 +150,7 @@ _extensions.prototype = {
         var js_script_tag = jQuery('<script />');
 
         var attrs ={'type':'text/javascript',
-                    'src': 'moksha_extension_point?' + 'exttype=' + data.type
+                    'src': moksha.url('/moksha_extension_point', {'exttype': data.type})
                    };
 
         js_script_tag.attr(attrs);
