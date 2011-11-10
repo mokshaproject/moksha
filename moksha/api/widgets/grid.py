@@ -71,8 +71,7 @@ class TW1Grid(tw.forms.FormField):
     params= ['rows_per_page', 'page_num', 'total_rows',
             'filters', 'unique_key', 'sort_key', 'sort_order',
             'row_template', 'resource', 'resource_path',
-            'loading_throbber', 'uid', 'more_link', 'alphaPager',
-            'numericPager', 'morePager']
+            'loading_throbber', 'uid', 'more_link']
     hidden = True # hide from the moksha main menu
 
     rows_per_page = 10
@@ -87,9 +86,7 @@ class TW1Grid(tw.forms.FormField):
     resource_path = None
     loading_throbber = None
     more_link = None
-    alphaPager = False
-    numericPager = False
-    morePager = False
+
     uid = None
 
     def update_params(self, d):
@@ -121,8 +118,7 @@ class TW2Grid(tw2.forms.widgets.FormField):
     params= ['rows_per_page', 'page_num', 'total_rows',
             'filters', 'unique_key', 'sort_key', 'sort_order',
             'row_template', 'resource', 'resource_path',
-            'loading_throbber', 'uid', 'more_link', 'alphaPager',
-            'numericPager']
+            'loading_throbber', 'uid', 'more_link']
     hidden = True # hide from the moksha main menu
 
     id = twc.Param(default=None)
@@ -137,10 +133,8 @@ class TW2Grid(tw2.forms.widgets.FormField):
     resource = twc.Param(default=None)
     resource_path = twc.Param(default=None)
     loading_throbber = twc.Param(default=None)
-    more_link = twc.Param(default=None)
-    alphaPager = twc.Param(default=False)
-    numericPager = twc.Param(default=False)
     uid = twc.Param(default=None)
+    more_link = twc.Param(default=None)
 
     def prepare(self):
         """

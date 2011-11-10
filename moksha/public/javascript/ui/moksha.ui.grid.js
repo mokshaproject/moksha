@@ -35,10 +35,7 @@
         blankRowClass: 'moksha-grid-blank-row',
         rowClass: 'moksha-grid-row',
         pagerPageLimit: 5,
-        alphaPager: false,
-        numericPager: false,
         filterControls: false,
-        morePager: false,
         more_link: null,
         loading_throbber: ["Loading",    // list of img urls or text
                            "Loading.",
@@ -737,9 +734,6 @@
       processElement: function($el) {
           var $grid = $el.data('grid.moksha_grid');
 
-          if (!$grid.options.alphaPager)
-              return "";
-
           return this._generate_alpha_pager($grid);
       },
 
@@ -793,8 +787,6 @@
       processElement: function($el) {
           var $grid = $el.data('grid.moksha_grid');
           var o = $grid.options;
-          if (!o.numericPager)
-               return ""
 
           return this._generate_numerical_pager($grid,
                                                 o.total_rows,
@@ -930,8 +922,6 @@
       processElement: function($el) {
           var $grid = $el.data('grid.moksha_grid');
           var o = $grid.options;
-          if (!o.morePager)
-               return ""
 
           return this._generate_more_pager ($grid,
                                             o.total_rows,
