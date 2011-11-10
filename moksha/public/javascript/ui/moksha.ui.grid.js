@@ -35,7 +35,6 @@
         blankRowClass: 'moksha-grid-blank-row',
         rowClass: 'moksha-grid-row',
         pagerPageLimit: 5,
-        filterControls: false,
         more_link: null,
         loading_throbber: ["Loading",    // list of img urls or text
                            "Loading.",
@@ -188,7 +187,7 @@
 
         // setup the search criteria
         var search_criteria = {
-            filters: o.filters,
+            filters: jQuery.extend(true, {}, o.filters),
             start_row: start_row,
             rows_per_page: rpp,
             sort_key: o.sort_key,
@@ -229,7 +228,7 @@
             self.options.page_num = sc.page_num;
 
         if (typeof(sc.filters) != 'undefined')
-            self.options.filters = sc.filters;
+            self.options.filters = jQuery.extend(true, self.options.filters, sc.filters);
 
         if (typeof(sc.sort_key) != 'undefined')
             self.options.sort_key = sc.sort_key;
@@ -611,12 +610,14 @@
           var self = this;
           var o = $grid.options;
 
-          var onChange = function() {
-              o.filters[this.name] = this.value;
+          var onChange = function(e) {
+              var filters = e.data;
+              filters[this.name] = this.value;
+              $grid.options.filters = filters;
               $grid.request_data_refresh();
           }
 
-          filters.change(onChange);
+          filters.change(o.filters, onChange);
 
           // set the defaults
           $.each(filters, function (i, f) {
