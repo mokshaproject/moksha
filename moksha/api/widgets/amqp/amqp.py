@@ -69,10 +69,11 @@ class TW1AMQPSocket(tw.api.Widget):
     callbacks = ['onconnectedframe', 'onmessageframe']
     javascript = [tw1_jquery_json_js, tw1_moksha_js,
                   tw1_amqp_resources, tw1_jsio_js]
-    params = callbacks[:] + ['topics', 'notify', 'orbited_host',
-            'orbited_port', 'orbited_url', 'orbited_js', 'amqp_broker_host',
-            'amqp_broker_port', 'amqp_broker_user', 'amqp_broker_pass',
-            'send_hook', 'recieve_hook', 'moksha_domain']
+    params = callbacks[:] + [
+        'topics', 'notify', 'orbited_host', 'orbited_scheme',
+        'orbited_port', 'orbited_url', 'orbited_js', 'amqp_broker_host',
+        'amqp_broker_port', 'amqp_broker_user', 'amqp_broker_pass',
+        'send_hook', 'recieve_hook', 'moksha_domain']
     onconnectedframe = ''
     onmessageframe = ''
     send_hook = ''
