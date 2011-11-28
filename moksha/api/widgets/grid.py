@@ -135,6 +135,7 @@ class TW2Grid(tw2.forms.widgets.FormField):
     loading_throbber = twc.Param(default=None)
     uid = twc.Param(default=None)
     more_link = twc.Param(default=None)
+    onReady = None
 
     def prepare(self):
         """
@@ -148,7 +149,7 @@ class TW2Grid(tw2.forms.widgets.FormField):
         grid_d = {}
         for p in self.params:
             v = getattr(self, p)
-            if v:
+            if v is not None:
                 if isinstance(v, dict):
                     v = json.dumps(v)
 
@@ -156,7 +157,13 @@ class TW2Grid(tw2.forms.widgets.FormField):
 
         self.id = self.__class__.__name__ + str(uuid.uuid4())
 
+        onready = getattr(self, 'onReady')
+        if onready:
+            grid_d['loadOnCreate'] = False
+
         self.add_call(when_ready(tw2.jquery.jQuery("#%s" % self.id).mokshagrid(grid_d)))
+        if onready:
+            self.add_call(when_ready(onready))
 
 if asbool(config.get('moksha.use_tw2', False)):
     Grid = TW2Grid

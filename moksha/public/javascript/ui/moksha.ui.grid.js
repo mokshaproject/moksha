@@ -36,6 +36,7 @@
         rowClass: 'moksha-grid-row',
         pagerPageLimit: 5,
         more_link: null,
+        loadOnCreate: true,
         loading_throbber: ["Loading",    // list of img urls or text
                            "Loading.",
                            "Loading..",
@@ -545,7 +546,9 @@
       $pager_bottom_placeholder.insertAfter(self.element);
       self.$pager_bottom_placeholder = $pager_bottom_placeholder;
 
-      self.request_data_refresh();
+      self._process_controls();
+      if (o.loadOnCreate)
+          self.request_data_refresh();
     },
 
     _generate_table: function() {
