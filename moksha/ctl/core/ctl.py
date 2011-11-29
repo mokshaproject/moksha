@@ -217,7 +217,7 @@ def install_apps():
 @_reporter
 @_with_virtualenv
 def install_app(app):
-    """ Install a particular app.  $ fab install_app:metrics """
+    """ Install a particular app.  $ ./moksha-ctl.py install_app:metrics """
 
     dirname = "/".join([ctl_config['moksha-src-dir'], ctl_config['apps-dir'], app])
     with utils.DirectoryContext(dirname):
