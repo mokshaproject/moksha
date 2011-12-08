@@ -1,9 +1,13 @@
 
 import os
 import tg
+
 from tg import config
 from paste.deploy import appconfig
 from paste.deploy.converters import asbool
+
+import tw2.core.command
+import tw.core.command
 
 # If 'moksha' doesn't show up anywhere, we likely haven't loaded any config.
 if not any(['moksha' in key for key in config.keys()]):
@@ -31,11 +35,6 @@ if not any(['moksha' in key for key in config.keys()]):
 
 
 if asbool(config.get('moksha.use_tw2', False)):
-    import tw2.core.command
-    Parent = tw2.core.command.archive_tw2_resources
+    archive_moksha_resources = tw2.core.command.archive_tw2_resources
 else:
-    import tw.core.command
-    Parent = tw.core.command.archive_tw_resources
-
-class archive_moksha_resources(Parent):
-    pass
+    archive_moksha_resources = tw.core.command.archive_tw_resources
