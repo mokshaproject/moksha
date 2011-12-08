@@ -54,7 +54,7 @@ setup(
         "Bunch",
         "Mako",
         "Genshi",
-        "tw2.core>=2.0b5",
+        "tw2.core>=2.0b11",
         "tw2.forms",
         "tw2.jquery>=2.0b6",
         "tw2.jqplugins.ui",
@@ -87,9 +87,16 @@ setup(
     [paste.app_install]
     main = pylons.util:PylonsInstaller
 
-    # Pulls in all widgets.  Used by the `archive_tw_resources` command.
+    # Pulls in all widgets.  Used by the `archive_moksha_resources` command.
     [toscawidgets.widgets]
     widgets = moksha.widgets.all
+
+    # Pulls in all widgets.  Used by the `archive_moksha_resources` command.
+    [tw2.widgets]
+    widgets = moksha.widgets.all
+
+    [distutils.commands]
+    archive_moksha_resources = moksha.distutils.command:archive_moksha_resources
 
     [moksha.widget]
     code_widget = moksha.widgets.source:code_widget

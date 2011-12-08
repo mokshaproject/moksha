@@ -20,15 +20,10 @@ This is currently used by the `archive_tw_resources` setuptools command,
 which archives all of the resources used by all ToscaWidgets.
 """
 
-from tg import config
-from paste.deploy.converters import asbool
-
-if asbool(config.get('moksha.use_tw2', False)):
-    raise NotImplementedError("No archive_tw_resources yet for tw2")
-
 import pkg_resources
 
 from tw.api import Widget
+from tw2.core.widgets import WidgetMeta
 from inspect import isclass
 
 __all__ = []
@@ -36,7 +31,7 @@ __all__ = []
 for entry_point in ('moksha.widget', 'moksha.menu', 'moksha.global'):
     for widget_entry in pkg_resources.iter_entry_points(entry_point):
         widget_class = widget_entry.load()
-        if isclass(widget_class):
+        if isclass(widget_class) and not isinstance(widget_class, WidgetMeta):
             widget = widget_class(widget_entry.name)
         else:
             widget = widget_class
