@@ -504,6 +504,9 @@ moksha = {
 
                     try {
                         var b = base_split[i];
+                        if (b == '')
+                            break;
+
                         var d = dir_split[i];
                     } catch (e) {
                         should_exit = false;
