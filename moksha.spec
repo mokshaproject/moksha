@@ -2,7 +2,7 @@
 %{!?pyver: %define pyver %(%{__python} -c "import sys ; print sys.version[:3]")}
 
 Name:           moksha
-Version:        0.6.0
+Version:        0.6.1
 Release:        1%{?dist}
 Summary:        A platform for creating real-time web applications
 Group:          Applications/Internet
