@@ -17,8 +17,6 @@
 
 import moksha.utils
 
-from tw.api import Widget
-from tw.jquery import jQuery
 from tg import expose, tmpl_context, config
 from paste.deploy.converters import asbool
 
