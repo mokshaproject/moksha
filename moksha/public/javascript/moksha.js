@@ -456,7 +456,7 @@ moksha = {
         function load_finish(html) {
             $(target).html(html);
         }
-        moksha.html_load(url, params, load_finish);
+        moksha.html_load(moksha.url(url), params, load_finish);
 
         // prevent link from reloading entire page if attached to onClick handler
         return false;
