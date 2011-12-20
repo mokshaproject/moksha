@@ -454,7 +454,7 @@ moksha = {
 
         window.history.pushState({}, "", masked_url);
         function load_finish(html) {
-            $(target).html(html);
+            $(target).html(moksha.filter_resources(html));
         }
         moksha.html_load(moksha.url(url), params, load_finish);
 
