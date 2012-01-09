@@ -350,6 +350,7 @@
 
             // place the results inside the element
             $(c).html(results);
+            $(c).show();
           }
 
         this._foreach_controls(f, true);
