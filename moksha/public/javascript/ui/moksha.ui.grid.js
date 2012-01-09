@@ -368,16 +368,16 @@
 
             }
 
-            for (var i in json.rows) {
-                var row = json.rows[i];
-                self.append_row(row);
-            }
-
             // reset based on returned values
             o.total_rows = json.total_rows;
             o.start_row = json.start_row;
             o.first_visible_row = o.start_row + 1; // user visible index always starts with 1 not 0
             o.rows_per_pager = json.rows_per_page;
+
+            for (var i in json.rows) {
+                var row = json.rows[i];
+                self.append_row(row);
+            }
 
             moksha.defer(self, function() {
                                             self._process_controls();
