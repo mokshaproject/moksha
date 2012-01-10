@@ -945,7 +945,7 @@
           var pager = $('<span>');
 
           var load_more = function() {
-              $grid.load_more_results(last_row, rows_per_page);
+              $grid.load_more_results(last_row-1, rows_per_page);
           }
 
           var more = $('<a href="javascript:void(0)"></a>').html('More');
