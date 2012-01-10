@@ -22,6 +22,7 @@
         rows_per_page: 10,
         page_num: 1,
         total_rows: 0,
+        start_row: 0,
         first_visible_row: 1, // 1 based index
         last_visible_row: 1, // 1 based index
         visible_rows: 0,
