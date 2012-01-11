@@ -617,8 +617,18 @@
 
           var onChange = function(e) {
               var filters = e.data;
+              var o = $grid.options;
               filters[this.name] = this.value;
-              $grid.options.filters = filters;
+              o.filters = filters;
+
+              // reset pagination
+              o.page_num = 1;
+              o.total_rows = 0;
+              o.start_row = 0;
+              o.first_visible_row = 1; // 1 based index
+              o.last_visible_row = 1; // 1 based index
+              o.visible_rows = 0;
+
               $grid.request_data_refresh();
           }
 
