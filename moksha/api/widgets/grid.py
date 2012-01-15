@@ -161,9 +161,10 @@ class TW2Grid(tw2.forms.widgets.FormField):
         if onready:
             grid_d['loadOnCreate'] = False
 
-        self.add_call(when_ready(tw2.jquery.jQuery("#%s" % self.id).mokshagrid(grid_d)))
         if onready:
-            self.add_call(when_ready(onready))
+            self.add_call(when_ready("%s; %s;" % (tw2.jquery.jQuery("#%s" % self.id).mokshagrid(grid_d), onready)))
+        else:
+            self.add_call(when_ready(tw2.jquery.jQuery("#%s" % self.id).mokshagrid(grid_d)))
 
 if asbool(config.get('moksha.use_tw2', False)):
     Grid = TW2Grid
