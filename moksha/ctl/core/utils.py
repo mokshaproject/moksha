@@ -1,31 +1,17 @@
 """ Various moksha-ctl utils.  Mostly context managers. """
 
 import os
+import subprocess
+import sys
 
 
 def install_distributions(distributions):
     """ Installs distributions with pip! """
 
-    import pip.commands.install
-
-    command = pip.commands.install.InstallCommand()
-    opts, args = command.parser.parse_args()
-
-    opts.use_mirrors = True
-    opts.mirrors = [
-        'b.pypi.python.org',
-        'c.pypi.python.org',
-        'd.pypi.python.org',
-        'e.pypi.python.org',
-    ]
-    opts.build_dir = os.path.expanduser('~/.pip/build')
-    try:
-        os.mkdir(opts.build_dir)
-    except OSError as e:
-        pass
-
-    requirement_set = command.run(opts, distributions)
-    requirement_set.install([])
+    pipsecutable = os.path.sep.join(
+        sys.executable.split(os.path.sep)[:-1] + ['pip'])
+    cmd = '%s install %s' % (pipsecutable, ' '.join(distributions))
+    status = subprocess.call(cmd, shell=True)
 
 
 class DirectoryContext(object):
