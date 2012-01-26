@@ -4,7 +4,6 @@ import subprocess
 import os
 import sys
 import shutil
-import psutil
 
 # Local imports
 import config
@@ -292,6 +291,8 @@ def start(service=None):
 def stop(service=None):
     """ Stop paster, orbited, and moksha-hub.  """
 
+    import psutil  # Gotta make sure bootstrap has happened
+
     def stopfail(msg):
         print PRETTY_PREFIX + " [ " + c.red('FAIL') + " ]", msg
 
@@ -395,8 +396,11 @@ def _wtffail(msg):
 
 @_in_srcdir
 def wtf():
-    import virtualenvcontext
     """ Debug a busted moksha environment. """
+
+    import virtualenvcontext
+    import psutil  # Gotta make sure bootstrap has happened
+
     wtfwin, wtffail = _wtfwin, _wtffail
 
     wtfwin(' venv is set to "%s"' % ctl_config['venv'])
