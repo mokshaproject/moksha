@@ -186,6 +186,8 @@ def install_hacks():
     """ Install dependencies with weird workarounds. """
 
     distributions = [
+        'WebOb==1.0.8',
+        'Pylons==1.0',
         'Extremes',
         'tg.devtools',
         'orbited',

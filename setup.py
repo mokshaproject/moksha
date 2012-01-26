@@ -1,6 +1,6 @@
 # This file is part of Moksha.
 # Copyright (C) 2008-2010  Red Hat, Inc.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -28,8 +28,9 @@ setup(
     author_email='',
     url='http://moksha.fedorahosted.org',
     install_requires=[
+        "Pylons==1.0",   # Temporary, until TG2 catches up.  (I hope).
+        "webob==1.0.8",  # Temporary, until TG2 catches up.  (I hope).
         "TurboGears2",
-        "webob==1.1",  # Temporary, until TG2 catches up.  (I hope).
         "ToscaWidgets",
         "zope.sqlalchemy",
         "sqlalchemy",
