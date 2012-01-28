@@ -78,6 +78,7 @@ def bootstrap():
     ret = ret and not os.system('sudo pip -q install virtualenvwrapper')
     ret = ret and not os.system('sudo pip -q install virtualenvcontext')
     ret = ret and not os.system('sudo pip -q install fabulous')
+    ret = ret and not os.system('sudo service qpidd start')
 
     try:
         os.mkdir(os.path.expanduser('~/.virtualenvs'))
