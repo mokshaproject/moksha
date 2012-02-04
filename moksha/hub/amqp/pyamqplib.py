@@ -16,6 +16,7 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 
 import logging
+from paste.deploy.converters import asbool
 
 try:
     import amqplib.client_0_8 as amqp
@@ -32,11 +33,24 @@ NONPERSISTENT_DELIVERY = PERSISTENT_DELIVERY = range(1, 3)
 class AMQPLibHub(BaseAMQPHub):
     """ An AMQPHub implemention using the amqplib module """
 
-    def __init__(self, broker, username=None, password=None, ssl=False, threaded=False):
-        self.conn = amqp.Connection(host=broker, ssl=ssl, use_threading=threaded,
-                                    userid=username, password=password)
+    def __init__(self, config):
+
+        broker = config.get('amqp_broker')
+        ssl = asbool(config.get('amqp_broker_ssl', False))
+        use_threading = asbool(config.get('amqp_broker_threaded', False))
+        username = config.get('amqp_broker_username', 'guest')
+        password = config.get('amqp_broker_password', 'guest')
+
+        self.conn = amqp.Connection(
+            host=broker,
+            ssl=ssl,
+            use_threading=threaded,
+            userid=username,
+            password=password
+        )
         self.channel = self.conn.channel()
         self.channel.access_request('/data', active=True, write=True, read=True)
+        super(AMQPLibHub, self).__init__(config)
 
     @trace
     def create_queue(self, queue, exchange='amq.fanout', durable=True,
@@ -59,16 +73,28 @@ class AMQPLibHub(BaseAMQPHub):
     def queue_bind(self, queue, exchange, routing_key=''):
         self.channel.queue_bind(queue, exchange, routing_key=routing_key)
 
-    # Since queue_name == routing_key, should we just make this method
-    # def send_message(self, queue, message) ?
-    def send_message(self, message, exchange='amq.fanout', routing_key='', 
-                     delivery_mode=PERSISTENT_DELIVERY, **kw):
+
+    def send_message(self, topic, message, **headers):
         """
         Send an AMQP message to a given exchange with the specified routing key 
         """
-        msg = amqp.Message(message, **kw)
-        msg.properties["delivery_mode"] = delivery_mode
-        self.channel.basic_publish(msg, exchange, routing_key=routing_key)
+        msg = amqp.Message(message, **headers)
+        msg.properties["delivery_mode"] = headers.get(
+            "delivery_mode", PERSISTENT_DELIVERY)
+        self.channel.basic_publish(
+            msg,
+            headers.get('exchange', 'amq.topic'),
+            routing_key=topic
+        )
+        super(AMQPLibHub, self).send_message(topic, message, **headers)
+
+    def subscribe(self, topic, callback):
+        queue_name = str(uuid.uuid4())
+        self.queue_declare(queue=queue_name, exclusive=True,
+                           auto_delete=True)
+        self.exchange_bind(queue_name, binding_key=topic)
+        self.queue_subscribe(queue_name, callback)
+        super(AMQPLibHub, self).subscribe(topic, callback)
 
     @trace
     def get_message(self, queue):

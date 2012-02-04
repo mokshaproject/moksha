@@ -22,8 +22,11 @@ class MessagingHub(object):
     This class represents the base functionality of the protocol-level hubs.
     """
 
-    def send_message(self, topic, message):
-        raise NotImplementedError
+    def __init__(self, config):
+        pass
+
+    def send_message(self, topic, message, **headers):
+        pass
 
     def subscribe(self, topic, callback):
-        raise NotImplementedError
+        pass

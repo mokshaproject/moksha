@@ -30,7 +30,6 @@ import logging
 log = logging.getLogger('moksha.hub')
 
 from moksha.hub.hub import MokshaHub
-from moksha.hub.amqp.pyamqplib import AMQPLibHub
 from moksha.lib.helpers import listify, create_app_engine, json
 from sqlalchemy.orm import sessionmaker
 
@@ -44,35 +43,14 @@ class Consumer(object):
     def __init__(self):
         self.hub = MokshaHub()
         self.log = log
-        if self.hub.amqp_broker and not self.hub.stomp_broker:
-            for topic in listify(self.topic):
-                log.debug('Subscribing to consumer topic %s' % topic)
 
-                if isinstance(self.hub, AMQPLibHub):
-                    # AMQPLibHub specific 
-                    queue_name = str(uuid.uuid4())
-                    self.hub.queue_declare(queue=queue_name, exclusive=True,
-                            auto_delete=True)
-                    self.hub.exchange_bind(queue_name, binding_key=topic)
-                    if self.jsonify:
-                        self.hub.queue_subscribe(queue_name, self._consume_json)
-                    else:
-                        self.hub.queue_subscribe(queue_name, self._consume)
-                else:
-                    # Assume we're using Qpid then.
-                    server_queue_name = 'moksha_consumer_' + self.hub.session.name
-                    self.hub.queue_declare(queue=server_queue_name, exclusive=True,
-                            auto_delete=True)
-                    self.hub.exchange_bind(server_queue_name, binding_key=topic)
-                    local_queue_name = 'moksha_consumer_' + self.hub.session.name
-                    self.hub.local_queue = self.hub.session.incoming(local_queue_name)
-                    self.hub.message_subscribe(queue=server_queue_name,
-                                           destination=local_queue_name)
-                    self.hub.local_queue.start()
-                    if self.jsonify:
-                        self.hub.local_queue.listen(self._consume_json)
-                    else:
-                        self.hub.local_queue.listen(self._consume)
+        callback = self._consume
+        if self.jsonify:
+            callback = self._consume_json
+
+        for topic in listify(self.topic):
+            log.debug('Subscribing to consumer topic %s' % topic)
+            self.hub.subscribe(topic, callback)
 
         # If the consumer specifies an 'app', then setup `self.engine` to
         # be a SQLAlchemy engine, along with a configured DBSession
@@ -119,7 +97,7 @@ class Consumer(object):
 
     def send_message(self, topic, message):
         try:
-            self.hub.send_message(topic, message, jsonify=self.jsonify)
+            self.hub.send_message(topic, message)
         except Exception, e:
             log.error('Cannot send message: %s' % e)
 
