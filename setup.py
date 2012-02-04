@@ -71,7 +71,12 @@ setup(
     include_package_data=True,
     test_suite='nose.collector',
     #namespace_packages=['moksha'],
-    tests_require=['WebTest', 'BeautifulSoup'],
+    tests_require=[
+        'WebTest',
+        'BeautifulSoup',
+        'nose',
+        'coverage',
+    ],
     #package_data=find_package_data(exclude=['ez_setup']),
     message_extractors = {'moksha': [
             ('**.py', 'python', None),
