@@ -142,7 +142,6 @@ class MokshaHub:
             super(MokshaHub, self).send_message(topic, message)
 
 
-    # XXX - is this necessary?  It should be considered for removal.
     def close(self):
         try:
             super(MokshaHub, self).close()
