@@ -27,9 +27,9 @@ entries for a specific feed, and will send the data to the specified ``topic``.
 
 from tg import config
 from shove import Shove
+from kitchen.text.converters import to_unicode
 
 from moksha.api.hub import Consumer
-from moksha.lib.helpers import to_unicode
 
 class MokshaFeedConsumer(Consumer):
 

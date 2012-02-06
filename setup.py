@@ -55,6 +55,7 @@ setup(
         "repoze.what-pylons",
         "repoze.tm2",
         "Bunch",
+        "kitchen",
         "Mako",
         "Genshi",
         "tw2.core>=2.0b11",
