@@ -89,6 +89,38 @@ class TestConsumer:
         self.hub.topics[cons.topic] = self.hub.topics.get(cons.topic, [])
         self.hub.topics[cons.topic].append(cons().consume)
 
+    def test_abstract(self):
+        """ Ensure that conumsers with no consume method raise exceptions. """
+
+        class StillAbstractConsumer(moksha.api.hub.consumer.Consumer):
+            pass
+
+        try:
+            c = StillAbstractConsumer()
+            c.consume("foo")
+            assert(False)
+        except NotImplementedError as e:
+            pass
+
+    def test_receive_without_json(self):
+        """ Try sending/receiving messages without jsonifying. """
+
+        messages_received = []
+
+        class TestConsumer(moksha.api.hub.consumer.Consumer):
+            jsonify = False
+            topic = self.a_topic
+
+            def consume(self, message):
+                messages_received.append(message)
+
+        self.fake_register_consumer(TestConsumer)
+
+        # Now, send a generic message to that topic, and see if we get one.
+        self.hub.send_message(topic=self.a_topic, message=secret)
+        sleep(sleep_duration)
+        eq_(len(messages_received), 1)
+
     def test_receive_str(self):
         """ Send a message  Consume and verify it. """
 
