@@ -193,6 +193,7 @@ def install_hacks():
         'Extremes',
         'tg.devtools',
         'orbited',
+        'BeautifulSoup',
     ]
 
     # This automatically uses --use-mirrors
