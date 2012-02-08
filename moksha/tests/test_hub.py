@@ -203,3 +203,56 @@ class TestConsumer:
 
         sleep(sleep_duration)
         eq_(len(messages_received), n_messages)
+
+
+class TestProducer:
+
+    def setUp(self):
+        from moksha.hub.reactor import reactor
+        self.hub = MokshaHub()
+        self.reactor = reactor
+        self.a_topic = a_topic = str(uuid4())
+
+    def tearDown(self):
+        self.hub.close()
+
+    def fake_register_producer(self, prod):
+        """ Fake register a producer, not by entry-point like usual.
+
+        Registering producers is a little easier than registering consumers.
+        The MokshaHub doesn't even keep track of the .poll method callbacks.  We
+        simply instantiate the producer (and it registers itself with the hub).
+
+        But then, we need to manually start the epoll reactor.  The tricky part
+        here is that reactor.run() is a blocking operation.  So that our test
+        case actually terminates, we register a callback on the reactor that
+        kills it `n` seconds after it starts up.
+        """
+
+        def callback():
+            sleep(sleep_duration)
+            self.reactor.stop()
+
+        self.reactor.callWhenRunning(callback)
+
+        return prod()
+
+    def test_produce_str(self):
+        """ Produce a string. """
+
+        messages_received = []
+        def callback(json):
+            messages_received.append(json.body[1:-1])
+
+        self.hub.subscribe(topic=self.a_topic, callback=callback)
+
+        class TestProducer(moksha.api.hub.producer.PollingProducer):
+            topic = self.a_topic
+            frequency = sleep_duration / 2.0
+            def poll(self):
+                self.send_message(self.topic, secret)
+
+        self.fake_register_producer(TestProducer)
+
+        self.reactor.run()
+        eq_(len(messages_received), 1)
