@@ -44,7 +44,6 @@ from moksha.api.widgets.flot import LiveFlotWidget
 from moksha.api.widgets.buttons import buttons_css
 from moksha.api.streams import PollingDataStream
 from moksha.lib.helpers import defaultdict
-from moksha.widgets.jquery_ui_theme import ui_base_css
 
 log = logging.getLogger('moksha.hub')
 
@@ -182,7 +181,7 @@ class TW1MokshaMessageMetricsWidget(LiveFlotWidget):
         }
     """
     javascript = [excanvas_js, flot_js, ui_progressbar_js]
-    css = [ui_base_css, flot_css, buttons_css]
+    css = [flot_css, buttons_css]
     container_options = {'icon': 'chart.png', 'left': 550, 'top': 80,
                          'height': 500}
 
