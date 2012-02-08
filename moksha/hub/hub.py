@@ -251,7 +251,7 @@ class CentralMokshaHub(MokshaHub):
         self.consumers = []
         for topic in self.topics:
             for i, consumer in enumerate(self.topics[topic]):
-                c = consumer()
+                c = consumer(self)
                 self.consumers.append(c)
                 self.topics[topic][i] = c.consume
 
@@ -263,7 +263,7 @@ class CentralMokshaHub(MokshaHub):
             for producer in pkg_resources.iter_entry_points(entry):
                 producer_class = producer.load()
                 log.info('Loading %s producer' % producer_class.__name__)
-                producer_obj = producer_class()
+                producer_obj = producer_class(self)
                 self.producers.append(producer_obj)
 
     @trace

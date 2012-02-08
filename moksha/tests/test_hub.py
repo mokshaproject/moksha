@@ -87,7 +87,7 @@ class TestConsumer:
         add this consumer to the list of consumers of which the Hub is aware.
         """
         self.hub.topics[cons.topic] = self.hub.topics.get(cons.topic, [])
-        self.hub.topics[cons.topic].append(cons().consume)
+        self.hub.topics[cons.topic].append(cons(self.hub).consume)
 
     def test_abstract(self):
         """ Ensure that conumsers with no consume method raise exceptions. """
@@ -96,7 +96,7 @@ class TestConsumer:
             pass
 
         try:
-            c = StillAbstractConsumer()
+            c = StillAbstractConsumer(self.hub)
             c.consume("foo")
             assert(False)
         except NotImplementedError as e:
@@ -235,7 +235,7 @@ class TestProducer:
 
         self.reactor.callWhenRunning(callback)
 
-        return prod()
+        return prod(self.hub)
 
     def test_produce_str(self):
         """ Produce a string. """

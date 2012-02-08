@@ -29,7 +29,6 @@ import uuid
 import logging
 log = logging.getLogger('moksha.hub')
 
-from moksha.hub.hub import MokshaHub
 from moksha.lib.helpers import listify, create_app_engine, json
 from sqlalchemy.orm import sessionmaker
 
@@ -40,8 +39,8 @@ class Consumer(object):
     # Automatically decode JSON data
     jsonify = True
 
-    def __init__(self):
-        self.hub = MokshaHub()
+    def __init__(self, hub):
+        self.hub = hub
         self.log = log
 
         callback = self._consume
