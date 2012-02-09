@@ -254,5 +254,17 @@ class TestProducer:
 
         self.fake_register_producer(TestProducer)
 
+        # This should run for `sleep_duration` seconds
         self.reactor.run()
+
+        # We also need to sleep for `sleep_duration` seconds after the reactor
+        # has stopped, not because the messages still need to get where they're
+        # going, but so that the `messages_received` object can sync between
+        # python threads.
+
+        # It has already been updated in callback(json) at this point, but it
+        # hasn't yet propagated to this context.
+        sleep(sleep_duration)
+
+        # Finally, the check.  Did we get our message?
         eq_(len(messages_received), 1)
