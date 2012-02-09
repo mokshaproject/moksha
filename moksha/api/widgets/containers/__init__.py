@@ -14,4 +14,5 @@
 # limitations under the License.
 
 from dashboardcontainer import *
+from tabbedcontainer import *
 
