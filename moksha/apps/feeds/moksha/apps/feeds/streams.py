@@ -297,14 +297,14 @@ class MokshaFeedStream(PollingDataStream):
     #frequency = timedelta(minutes=1)
     now = False
 
-    def __init__(self):
+    def __init__(self, hub):
         enabled = asbool(config.get('moksha.feedaggregator', False))
         if not enabled:
             log.info('Moksha Feed Aggregator disabled')
             return
         else:
             self.frequency = int(config.get('feed.poll_frequency', 900))
-        super(MokshaFeedStream, self).__init__()
+        super(MokshaFeedStream, self).__init__(hub)
 
     def poll(self):
         """ Poll all feeds in our feed cache """

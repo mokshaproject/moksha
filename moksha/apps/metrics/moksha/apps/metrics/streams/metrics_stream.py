@@ -41,13 +41,13 @@ class MokshaMetricsDataStream(PollingDataStream):
     # Unless we are monitoring apache, only poll for pids once
     poll_for_new_pids = False
 
-    def __init__(self):
+    def __init__(self, hub):
         if not asbool(config.get('moksha.metrics_stream', False)):
             log.info('Moksha Metrics Stream disabled')
             return
         self.programs = self._find_programs()
         self.processors = self._find_processors()
-        super(MokshaMetricsDataStream, self).__init__()
+        super(MokshaMetricsDataStream, self).__init__(hub)
 
     def _find_programs(self):
         programs = []
