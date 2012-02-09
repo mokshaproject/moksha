@@ -30,8 +30,6 @@ import tw2.jquery
 import tw2.jqplugins.ui
 
 from moksha.lib.helpers import when_ready
-from moksha.widgets.json import (
-    tw1_jquery_json_js, tw2_jquery_json_js)
 from moksha.widgets.jquery_template import (
     tw1_jquery_template_js, tw2_jquery_template_js)
 
@@ -40,7 +38,7 @@ tw1_moksha_ui_grid_js = tw.api.JSLink(
     modname='moksha',
     javascript=[tw.jquery.ui_core.jquery_ui_core_js,
                 tw1_jquery_template_js,
-                tw1_jquery_json_js])
+               ])
 
 tw1_moksha_ui_popup_js = tw.api.JSLink(
     filename='public/javascript/ui/moksha.ui.popup.js',
@@ -52,7 +50,7 @@ tw2_moksha_ui_grid_js = twc.JSLink(
     modname='moksha',
     resources=[tw2.jqplugins.ui.jquery_ui_js,
                tw2_jquery_template_js,
-               tw2_jquery_json_js])
+              ])
 
 tw2_moksha_ui_popup_js = twc.JSLink(
     filename='public/javascript/ui/moksha.ui.popup.js',

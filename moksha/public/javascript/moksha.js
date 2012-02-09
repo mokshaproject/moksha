@@ -856,7 +856,7 @@ moksha = {
                 accept_mode: 1,
                 acquire_mode: 1, 
                 destination: 'amq.topic',
-                _body: $.toJSON(body),
+                _body: JSON.stringify(body),
                 _header: {
                     delivery_properties: {
                         routing_key: topic
@@ -864,7 +864,7 @@ moksha = {
                 }
             });
         } else {
-            stomp.send($.toJSON(body), topic)
+            stomp.send(JSON.stringify(body), topic)
         }
     },
 

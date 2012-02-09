@@ -173,7 +173,7 @@
     connector_query: function(connector, path, dispatch_data, callback) {
         path = '/query/' + path;
         if (dispatch_data)
-            path = path + '/' + $.toJSON(dispatch_data);
+            path = path + '/' + JSON.stringify(dispatch_data);
 
         moksha.connector_load(connector, path, {}, callback, this.$overlay_div);
     },
@@ -261,7 +261,7 @@
                         var value = options[key];
 
                         try {
-                            eval_line += $.toJSON(value);
+                            eval_line += JSON.stringify(value);
                         } catch(err) {
                             continue;
                         }

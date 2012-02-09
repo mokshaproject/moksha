@@ -33,7 +33,6 @@ from moksha.api.widgets.orbited import orbited_js
 from moksha.lib.helpers import defaultdict, listify
 from moksha.widgets.notify import moksha_notify
 from moksha.widgets.moksha_js import tw1_moksha_js, tw2_moksha_js
-from moksha.widgets.json import tw1_jquery_json_js, tw2_jquery_json_js
 
 from widgets import tw1_amqp_resources, tw2_amqp_resources
 from widgets import tw1_jsio_js, tw2_jsio_js
@@ -67,7 +66,7 @@ def amqp_unsubscribe(topic):
 
 class TW1AMQPSocket(tw.api.Widget):
     callbacks = ['onconnectedframe', 'onmessageframe']
-    javascript = [tw1_jquery_json_js, tw1_moksha_js,
+    javascript = [tw1_moksha_js,
                   tw1_amqp_resources, tw1_jsio_js]
     params = callbacks[:] + [
         'topics', 'notify', 'orbited_host', 'orbited_scheme',
@@ -126,7 +125,7 @@ class TW1AMQPSocket(tw.api.Widget):
 #         They should both inherit from an abstract CometSocket! -- threebean
 class TW2AMQPSocket(twc.Widget):
     callbacks = ['onconnectedframe', 'onmessageframe']
-    resources = [tw2_jquery_json_js, tw2_moksha_js,
+    resources = [tw2_moksha_js,
                  tw2_amqp_resources, tw2_jsio_js]
     topics = twc.Variable()
     notify = twc.Param(
