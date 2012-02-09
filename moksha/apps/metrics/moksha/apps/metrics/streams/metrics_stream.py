@@ -22,7 +22,7 @@ from tg import config
 from paste.deploy.converters import asbool
 
 from moksha.lib.helpers import defaultdict
-from moksha.api.streams import PollingDataStream
+from moksha.api.hub.producer import PollingProducer
 
 log = logging.getLogger('moksha.hub')
 
@@ -30,7 +30,7 @@ PID = 0
 NAME = -1
 MEM_TOTAL = -2
 
-class MokshaMetricsDataStream(PollingDataStream):
+class MokshaMetricsProducer(PollingProducer):
     frequency = 3
     procs = ('orbited', 'paster', 'moksha', 'httpd', 'qpidd')
     cpu_usage = defaultdict(list)
@@ -47,7 +47,7 @@ class MokshaMetricsDataStream(PollingDataStream):
             return
         self.programs = self._find_programs()
         self.processors = self._find_processors()
-        super(MokshaMetricsDataStream, self).__init__(hub)
+        super(MokshaMetricsProducer, self).__init__(hub)
 
     def _find_programs(self):
         programs = []

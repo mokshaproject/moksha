@@ -37,7 +37,7 @@ from shove import Shove
 from tg import config
 
 from moksha.hub import MokshaHub
-from moksha.api.streams import PollingDataStream
+from moksha.api.hub.producer import PollingProducer
 
 log = logging.getLogger('moksha.hub')
 
@@ -288,7 +288,7 @@ class FeederFactory(protocol.ClientFactory):
             self.protocol.start(group)
 
 
-class MokshaFeedStream(PollingDataStream):
+class MokshaFeedStream(PollingProducer):
     """
     If you expose your feed widget on the moksha.widget entry point,
     then Moksha will automatically handle polling it.  Upon new entries,

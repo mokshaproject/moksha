@@ -3,7 +3,7 @@ import pkg_resources
 
 from datetime import timedelta
 
-from moksha.api.streams import PollingDataStream
+from moksha.api.hub.producer import PollingProducer
 from moksha.pastetemplate import MokshaStreamTemplate
 
 from base import QuickstartTester, setup_quickstart, teardown_quickstart
@@ -51,8 +51,8 @@ class TestStreamQuickstart(QuickstartTester):
 
     def test_polling_datastream(self):
         stream = self.get_stream()
-        assert isinstance(stream, PollingDataStream) or \
-               issubclass(stream, PollingDataStream)
+        assert isinstance(stream, PollingProducer) or \
+               issubclass(stream, PollingProducer)
 
     def test_stream_frequency(self):
         stream = self.get_stream()

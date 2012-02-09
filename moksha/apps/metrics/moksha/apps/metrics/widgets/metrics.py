@@ -19,7 +19,7 @@
 ===============================================
 
 This module contains Moksha-specific widgets and
-DataStreams that provide live statistics of
+Producers that provide live statistics of
 Moksha's memory and CPU usage.
 
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>

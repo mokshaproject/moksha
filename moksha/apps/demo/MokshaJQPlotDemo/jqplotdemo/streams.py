@@ -1,7 +1,7 @@
-from moksha.api.streams import PollingDataStream
+from moksha.api.hub.producer import PollingProducer
 from jqplotdemo.controllers.plots import get_plot_data, make_data, get_pie_data
 
-class JQPlotDemoStream(PollingDataStream):
+class JQPlotDemoStream(PollingProducer):
     frequency = 1.0
 
     def poll(self):

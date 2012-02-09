@@ -5,11 +5,11 @@ log = logging.getLogger('moksha.hub')
 from datetime import timedelta
 from kitchen.text.converters import to_unicode
 
-from moksha.api.streams import PollingDataStream
+from moksha.api.hub.producer import PollingProducer
 from moksha.apps.knowledge.model import Entity
 from moksha.lib.helpers import listify, defaultdict
 
-class TopicsStream(PollingDataStream):
+class TopicsStream(PollingProducer):
     frequency = timedelta(hours=1)
     topic = 'org.moksha.topics.new'
     now = True

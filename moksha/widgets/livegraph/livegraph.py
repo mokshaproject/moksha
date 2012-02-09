@@ -24,7 +24,7 @@ from paste.deploy.converters import asbool
 from tw.api import CSSLink, JSLink, js_function
 
 from moksha.api.widgets import TW1LiveWidget, TW2LiveWidget
-from moksha.api.streams import PollingDataStream
+from moksha.api.hub.producer import PollingProducer
 
 import tw2.core
 import tw2.core.resources as res
@@ -79,7 +79,7 @@ else:
     LiveGraphWidget = TW1LiveGraphWidget
 
 
-class LiveGraphDataStream(PollingDataStream):
+class LiveGraphProducer(PollingProducer):
     """
     This is the main data producer for our live graph widget.
     """

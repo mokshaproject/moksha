@@ -19,7 +19,7 @@
 ===============================================
 
 This module contains Moksha-specific widgets and
-DataStreams that provide live statistics of
+Producers that provide live statistics of
 Moksha's memory and CPU usage.
 
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
@@ -42,7 +42,7 @@ from moksha.api.hub import Consumer
 from moksha.api.widgets.flot import LiveFlotWidget
 #from moksha.api.widgets.jit import LiveAreaChartWidget
 from moksha.api.widgets.buttons import buttons_css
-from moksha.api.streams import PollingDataStream
+from moksha.api.hub.producer import PollingProducer
 from moksha.lib.helpers import defaultdict
 
 log = logging.getLogger('moksha.hub')
@@ -199,7 +199,7 @@ PID = 0
 NAME = -1
 MEM_TOTAL = -2
 
-class MokshaMetricsDataStream(PollingDataStream):
+class MokshaMetricsProducer(PollingProducer):
     frequency = 3
     procs = ('orbited', 'paster', 'moksha', 'httpd')
     cpu_usage = defaultdict(list)
@@ -213,7 +213,7 @@ class MokshaMetricsDataStream(PollingDataStream):
     def __init__(self, hub):
         self.programs = self._find_programs()
         self.processors = self._find_processors()
-        super(MokshaMetricsDataStream, self).__init__(hub)
+        super(MokshaMetricsProducer, self).__init__(hub)
 
     def _find_programs(self):
         programs = []
