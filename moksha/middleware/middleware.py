@@ -460,9 +460,11 @@ class MokshaMiddleware(object):
 
 def make_moksha_middleware(app):
 
-    if asbool(config.get('moksha.connectors', True)):
-        from moksha.middleware import MokshaConnectorMiddleware
-        app = MokshaConnectorMiddleware(app)
+    if asbool(config.get('moksha.connectors', False)):
+        raise NotImplementedError(
+            "moksha.connectors has moved to fedora-community"
+        )
+
     if asbool(config.get('moksha.extensionpoints', True)):
         from moksha.middleware import MokshaExtensionPointMiddleware
         app = MokshaExtensionPointMiddleware(app)

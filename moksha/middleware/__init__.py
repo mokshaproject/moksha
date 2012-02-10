@@ -14,10 +14,9 @@
 # limitations under the License.
 
 from middleware import MokshaMiddleware, make_moksha_middleware
-from connector import MokshaConnectorMiddleware
 from extensionpoint import MokshaExtensionPointMiddleware
 from csrf import CSRFProtectionMiddleware
 
-__all__ = ('MokshaMiddleware', 'MokshaConnectorMiddleware',
+__all__ = ('MokshaMiddleware',
            'MokshaExtensionPointMiddleware', 'CSRFProtectionMiddleware',
            'make_moksha_middleware')

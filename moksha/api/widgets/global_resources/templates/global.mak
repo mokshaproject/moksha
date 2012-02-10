@@ -9,5 +9,4 @@
   moksha_userid = "${tw._('user_id')}";
   moksha_debug = ${tw._('debug')};
   moksha_profile = ${tw._('profile')};
-  moksha_profile_connectors = ${tw._('profile_connectors')};
 </script>
