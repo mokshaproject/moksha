@@ -13,8 +13,6 @@ class MokshaMasterTemplate(Template):
             var('stream_name', 'The name of the stream', default=None),
             var('consumer', 'Include an exmaple consumer', default=False),
             var('consumer_name', 'The name of the consumer', default=None),
-            var('connector', 'Include an example connector', default=None),
-            var('connector_name', 'The name of the connector', default=None),
             var('controller', 'Include an example controller', default=None),
             var('controller_name', 'The name of the controller', default=None),
     ]
@@ -89,22 +87,6 @@ class MokshaConsumerTemplate(Template):
             package_logger = 'app'
         vars['package_logger'] = package_logger
         vars['consumer_name'] = vars['package'].title() + 'Consumer'
-
-
-class MokshaConnectorTemplate(Template):
-    summary = 'Moksha Connector Quickstart Template'
-    _template_dir = 'templates/moksha/connector'
-    template_renderer = staticmethod(paste_script_template_renderer)
-    vars = []
-
-    def pre(self, command, output_dir, vars):
-        """Called before template is applied."""
-        package_logger = vars['package']
-        if package_logger == 'root':
-            # Rename the app logger in the rare case a project is named 'root'
-            package_logger = 'app'
-        vars['package_logger'] = package_logger
-        vars['connector_name'] = vars['package'].title() + 'Connector'
 
 
 class MokshaControllerTemplate(Template):
