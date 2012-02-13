@@ -22,13 +22,6 @@ expensive operations.
 
 Moksha also provides recipies for integrating with nginx & memcached.
 
-Resource layer
---------------
-
-Moksha provides an API for interacting with other API's.  A developer is able
-to easily create or utilize connectors for existing external resources and
-services.
-
 Moksha Feed API
 ---------------
 
