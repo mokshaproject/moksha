@@ -140,6 +140,33 @@ class TestConsumer:
         sleep(sleep_duration)
         eq_(messages_received, [secret])
 
+    def test_receive_str_double(self):
+        """ Send a message.  Have two consumers consume it. """
+
+        messages_received = []
+
+        class TestConsumer1(moksha.api.hub.consumer.Consumer):
+            topic = self.a_topic
+
+            def consume(self, message):
+                messages_received.append(message['body'])
+
+
+        class TestConsumer2(moksha.api.hub.consumer.Consumer):
+            topic = self.a_topic
+
+            def consume(self, message):
+                messages_received.append(message['body'])
+
+        self.fake_register_consumer(TestConsumer1)
+        self.fake_register_consumer(TestConsumer2)
+
+        # Now, send a generic message to that topic, and see if the consumer
+        # processed it.
+        self.hub.send_message(topic=self.a_topic, message=secret)
+        sleep(sleep_duration)
+        eq_(messages_received, [secret, secret])
+
     def test_receive_dict(self):
         """ Send a dict with a message.  Consume, extract, and verify it. """
 
