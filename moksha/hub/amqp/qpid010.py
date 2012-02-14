@@ -47,6 +47,7 @@ class QpidAMQPHub(BaseAMQPHub):
         self.connection.start()
         log.info("Connected to AMQP Broker %s" % self.host)
         self.session = self.connection.session(str(uuid4()))
+        self.local_queues = []
         super(QpidAMQPHub, self).__init__()
 
     def set_broker(self, broker):
@@ -101,16 +102,23 @@ class QpidAMQPHub(BaseAMQPHub):
             pass
 
     def subscribe(self, topic, callback):
-        server_queue_name = 'moksha_consumer_' + self.session.name
+        queue_name = '_'.join([
+            "moksha_consumer", self.session.name, str(uuid4()),
+        ])
+        server_queue_name = local_queue_name = queue_name
+
         self.queue_declare(queue=server_queue_name, exclusive=True,
                            auto_delete=True)
         self.exchange_bind(server_queue_name, binding_key=topic)
-        local_queue_name = 'moksha_consumer_' + self.session.name
-        self.local_queue = self.session.incoming(local_queue_name)
+
+        self.local_queues.append(self.session.incoming(local_queue_name))
+
         self.message_subscribe(queue=server_queue_name,
                                destination=local_queue_name)
-        self.local_queue.start()
-        self.local_queue.listen(callback)
+
+        self.local_queues[-1].start()
+        self.local_queues[-1].listen(callback)
+
         super(QpidAMQPHub, self).subscribe(topic, callback)
 
     def close(self):
