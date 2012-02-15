@@ -23,7 +23,7 @@ options(
         install_requires=["Moksha"],
         entry_points={
             'moksha.stream': (
-                'moksha_metrics = moksha.apps.metrics.streams:MokshaMetricsDataStream',
+                'moksha_metrics = moksha.apps.metrics.streams:MokshaMetricsProducer',
             ),
             'moksha.consumer': (
                 'moksha_message_metrics = moksha.apps.metrics.consumers:MokshaMessageMetricsConsumer',

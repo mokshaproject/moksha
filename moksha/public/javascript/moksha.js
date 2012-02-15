@@ -591,30 +591,6 @@ moksha = {
         return uri;
     },
 
-    connector_load: function(resource, method, params, callback, $overlay_div, loading_icon) {
-        var path = moksha.url('/moksha_connector/' + resource + '/' + method);
-
-        if (moksha_profile_connectors == true) {
-            var start_time = new Date().getTime();
-            var profile_callback = function(data) {
-                var profile_id = data['moksha_profile_id'];
-                var callback_start_time = new Date().getTime();
-                callback(data);
-                var end_time = new Date().getTime();
-
-                profile_info = {'id'                 : profile_id, 
-                                'start_time'         : start_time,
-                                'callback_start_time': callback_start_time,
-                                'end_time'           : end_time};
-
-                // fire and forget the profile collector
-                moksha.json_load(moksha.url('/moksha_connector/prof_collector'), profile_info, function(data){}, null, null);
-            }
-            return moksha.json_load(path, params, profile_callback, $overlay_div, loading_icon);
-        }
-
-        return moksha.json_load(path, params, callback, $overlay_div, loading_icon);
-    },
 
     json_load: function(path, params, callback, $overlay_div, loading_icon) {
        return moksha.ajax_load(path, params, callback, $overlay_div, 'json', loading_icon);
@@ -856,7 +832,7 @@ moksha = {
                 accept_mode: 1,
                 acquire_mode: 1, 
                 destination: 'amq.topic',
-                _body: $.toJSON(body),
+                _body: JSON.stringify(body),
                 _header: {
                     delivery_properties: {
                         routing_key: topic
@@ -864,7 +840,7 @@ moksha = {
                 }
             });
         } else {
-            stomp.send($.toJSON(body), topic)
+            stomp.send(JSON.stringify(body), topic)
         }
     },
 

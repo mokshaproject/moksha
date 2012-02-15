@@ -41,6 +41,7 @@ from repoze.what.predicates import  (Not, Predicate, All, Any,
                                      has_permission, in_all_groups,
                                      in_any_group, in_group, is_user,
                                      not_anonymous)
+from kitchen.text.converters import to_unicode as kitchen_unicode
 
 from moksha.exc import MokshaConfigNotFound
 
@@ -816,12 +817,9 @@ def to_unicode(obj, encoding='utf-8', errors='replace'):
     """
     :deprecated: by to_unicode in http://python-kitchen.fedorahosted.org
     """
-    if isinstance(obj, basestring):
-        if not isinstance(obj, unicode):
-            obj = unicode(obj, encoding, errors)
-    elif hasattr(obj, 'string') and isinstance(obj.string, NavigableString):
-        return obj.string.decode(encoding, errors)
-    return obj
+    deprecation("to_unicode is deprecated in favor of "
+                "kitchen.text.coverters.to_unicode().")
+    return kitchen_unicode(obj, encoding, errors)
 
 
 def replace_app_header(app, header_name, value):

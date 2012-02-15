@@ -26,9 +26,9 @@ import logging
 from tg import expose, tmpl_context
 from pylons import cache
 from orbited import json
+from kitchen.text.converters import to_unicode
 
 from moksha.lib.base import Controller
-from moksha.lib.helpers import to_unicode
 from moksha.widgets.feeds import feed_entries_tree, moksha_feedreader
 
 from tg import expose, validate

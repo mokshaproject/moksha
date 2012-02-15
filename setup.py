@@ -55,6 +55,7 @@ setup(
         "repoze.what-pylons",
         "repoze.tm2",
         "Bunch",
+        "kitchen",
         "Mako",
         "Genshi",
         "tw2.core>=2.0b11",
@@ -71,7 +72,12 @@ setup(
     include_package_data=True,
     test_suite='nose.collector',
     #namespace_packages=['moksha'],
-    tests_require=['WebTest', 'BeautifulSoup'],
+    tests_require=[
+        'WebTest',
+        'BeautifulSoup',
+        'nose',
+        'coverage',
+    ],
     #package_data=find_package_data(exclude=['ez_setup']),
     message_extractors = {'moksha': [
             ('**.py', 'python', None),
@@ -116,7 +122,6 @@ setup(
     moksha.livewidget = moksha.pastetemplate:MokshaLiveWidgetTemplate
     moksha.stream = moksha.pastetemplate:MokshaStreamTemplate
     moksha.consumer = moksha.pastetemplate:MokshaConsumerTemplate
-    moksha.connector = moksha.pastetemplate:MokshaConnectorTemplate
     moksha.controller = moksha.pastetemplate:MokshaControllerTemplate
 
     """,

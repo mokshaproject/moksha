@@ -35,9 +35,6 @@ options(
             {{if livewidget}}'moksha.widget': (
                 '{{package}} = moksha.widgets.{{package}}.widgets:{{widget_name}}',
             ),{{endif}}
-            {{if connector}}'moksha.connector': (
-                '{{package}} = moksha.apps.{{package}}.connector:{{connector_name}}'
-            ),{{endif}}
             {{if controller}}'moksha.application': (
                 '{{package}} = moksha.apps.{{package}}.controllers:{{controller_name}}'
             ),{{endif}}

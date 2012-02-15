@@ -22,7 +22,7 @@ from tg import config
 from paste.deploy.converters import asbool
 
 from moksha.lib.helpers import defaultdict
-from moksha.api.streams import PollingDataStream
+from moksha.api.hub.producer import PollingProducer
 
 log = logging.getLogger('moksha.hub')
 
@@ -30,7 +30,7 @@ PID = 0
 NAME = -1
 MEM_TOTAL = -2
 
-class MokshaMetricsDataStream(PollingDataStream):
+class MokshaMetricsProducer(PollingProducer):
     frequency = 3
     procs = ('orbited', 'paster', 'moksha', 'httpd', 'qpidd')
     cpu_usage = defaultdict(list)
@@ -41,13 +41,13 @@ class MokshaMetricsDataStream(PollingDataStream):
     # Unless we are monitoring apache, only poll for pids once
     poll_for_new_pids = False
 
-    def __init__(self):
+    def __init__(self, hub):
         if not asbool(config.get('moksha.metrics_stream', False)):
             log.info('Moksha Metrics Stream disabled')
             return
         self.programs = self._find_programs()
         self.processors = self._find_processors()
-        super(MokshaMetricsDataStream, self).__init__()
+        super(MokshaMetricsProducer, self).__init__(hub)
 
     def _find_programs(self):
         programs = []

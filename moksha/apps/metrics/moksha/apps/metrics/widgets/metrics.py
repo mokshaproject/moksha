@@ -19,7 +19,7 @@
 ===============================================
 
 This module contains Moksha-specific widgets and
-DataStreams that provide live statistics of
+Producers that provide live statistics of
 Moksha's memory and CPU usage.
 
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
@@ -33,7 +33,6 @@ from uuid import uuid4
 import tw.jquery.ui
 import tw.jquery.flot
 
-import tw2.jqplugins.ui
 import tw2.jqplugins.flot
 import tw2.excanvas
 
@@ -41,7 +40,6 @@ import tw2.excanvas
 from moksha.api.widgets.flot import TW1LiveFlotWidget, TW2LiveFlotWidget
 #from moksha.api.widgets.jit import LiveAreaChartWidget
 from moksha.api.widgets.buttons import tw1_buttons_css, tw2_buttons_css
-from moksha.widgets.jquery_ui_theme import tw1_ui_base_css, tw2_ui_base_css
 
 #import tw2.core.resources as res
 #class MokshaTW2CPUUsageWidget(LiveAreaChartWidget):
@@ -147,7 +145,6 @@ class TW1MokshaMessageMetricsWidget(TW1LiveFlotWidget):
         tw.jquery.ui.ui_progressbar_js
     ]
     css = [
-        tw1_ui_base_css,
         tw.jquery.flot.flot_css,
         tw1_buttons_css
     ]
@@ -195,11 +192,6 @@ class TW2MokshaMessageMetricsWidget(TW2LiveFlotWidget):
         tw2.excanvas.excanvas_js,
         tw2.jquery.jquery_js,
         tw2.jqplugins.flot.flot_js,
-        tw2.jqplugins.ui.jquery_ui_js,
-        # tw2.jqplugins.ui has its own theming subsystem.
-        #   not sure how to integrate that with moksha yet.
-        #tw2.jqplugins.ui.jquery_ui_css,
-        tw2_ui_base_css,
         tw2_buttons_css,
     ]
     container_options = {'icon': 'chart.png', 'left': 550, 'top': 80,

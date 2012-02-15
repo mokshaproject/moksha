@@ -26,6 +26,7 @@ from moksha.hub.amqp.base import BaseAMQPHub
 
 log = logging.getLogger('moksha.hub')
 
+
 class QpidAMQPHub(BaseAMQPHub):
     """
      Initialize the Moksha Hub.
@@ -35,8 +36,8 @@ class QpidAMQPHub(BaseAMQPHub):
 
     """
 
-    def __init__(self, broker, **kw):
-        self.set_broker(broker)
+    def __init__(self):
+        self.set_broker(self.config.get('amqp_broker'))
         self.socket = connect(self.host, self.port)
         if self.url.scheme == URL.AMQPS:
             self.socket = ssl(self.socket)
@@ -46,6 +47,8 @@ class QpidAMQPHub(BaseAMQPHub):
         self.connection.start()
         log.info("Connected to AMQP Broker %s" % self.host)
         self.session = self.connection.session(str(uuid4()))
+        self.local_queues = []
+        super(QpidAMQPHub, self).__init__()
 
     def set_broker(self, broker):
         self.url = URL(broker)
@@ -60,10 +63,14 @@ class QpidAMQPHub(BaseAMQPHub):
             default_port = 5672
         self.port = self.url.port or default_port
 
-    def send_message(self, topic, message, exchange='amq.topic', **headers):
+    def send_message(self, topic, message, **headers):
+        headers['routing_key'] = headers.get('routing_key', topic)
         props = self.session.delivery_properties(**headers)
         msg = Message(props, message)
-        self.session.message_transfer(destination=exchange, message=msg)
+        self.session.message_transfer(
+            destination=headers.get('exchange', 'amq.topic'),
+            message=msg)
+        super(QpidAMQPHub, self).send_message(topic, message, **headers)
 
     def subscribe_queue(self, server_queue_name, local_queue_name):
         queue = self.session.incoming(local_queue_name)
@@ -93,6 +100,26 @@ class QpidAMQPHub(BaseAMQPHub):
         except SessionClosed:
             log.debug("Accepted message on closed session: %s" % message.id)
             pass
+
+    def subscribe(self, topic, callback):
+        queue_name = '_'.join([
+            "moksha_consumer", self.session.name, str(uuid4()),
+        ])
+        server_queue_name = local_queue_name = queue_name
+
+        self.queue_declare(queue=server_queue_name, exclusive=True,
+                           auto_delete=True)
+        self.exchange_bind(server_queue_name, binding_key=topic)
+
+        self.local_queues.append(self.session.incoming(local_queue_name))
+
+        self.message_subscribe(queue=server_queue_name,
+                               destination=local_queue_name)
+
+        self.local_queues[-1].start()
+        self.local_queues[-1].listen(callback)
+
+        super(QpidAMQPHub, self).subscribe(topic, callback)
 
     def close(self):
         self.session.close(timeout=2)

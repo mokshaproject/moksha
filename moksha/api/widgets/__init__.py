@@ -15,6 +15,5 @@
 
 from live import TW2LiveWidget, TW1LiveWidget, LiveWidget, moksha_socket
 from util import *
-from grid import Grid
 from placeholder import Placeholder
 from selectable import Selectable

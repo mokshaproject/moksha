@@ -15,7 +15,6 @@ It currently provides the following functionality
     * Loads all application configuration
     * Initializes the :doc:`LiveWidget` callback registry
     * Initializes applications data models
-    * Sets up the moksha resource connectors
 
 Using the MokshaMiddleware
 --------------------------

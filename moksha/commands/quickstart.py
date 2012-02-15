@@ -36,7 +36,6 @@ Example usage::
     #no_input = False
 
     livewidget = False
-    connector = False
     consumer = False
     stream = False
 
@@ -49,9 +48,6 @@ Example usage::
     parser.add_option("-l", "--livewidget",
             help='Create an example Moksha LiveWidget',
             action="store_true", dest="livewidget")
-    parser.add_option("-c", "--connector",
-            help='Create an example Moksha Connector',
-            action="store_true", dest="connector")
     parser.add_option("-u", "--consumer",
             help='Create an example Moksha Consumer',
             action="store_true", dest="consumer")
@@ -125,8 +121,6 @@ Example usage::
             cmd_args.append('--template=moksha.stream')
         if self.consumer:
             cmd_args.append('--template=moksha.consumer')
-        if self.connector:
-            cmd_args.append('--template=moksha.connector')
         if self.controller:
             cmd_args.append('--template=moksha.controller')
 
@@ -135,7 +129,6 @@ Example usage::
         #    cmd_args.append("-q")
         cmd_args.append(self.name)
         cmd_args.append("livewidget=%s" % self.livewidget)
-        cmd_args.append("connector=%s" % self.connector)
         cmd_args.append("consumer=%s" % self.consumer)
         cmd_args.append("controller=%s" % self.controller)
         cmd_args.append("stream=%s" % self.stream)
@@ -143,7 +136,6 @@ Example usage::
         cmd_args.append("widget_name=%s" % self.package.title() + 'Widget')
         cmd_args.append("stream_name=%s" % self.package.title() + 'Stream')
         cmd_args.append("consumer_name=%s" % self.package.title() + 'Consumer')
-        cmd_args.append("connector_name=%s" % self.package.title() + 'Connector')
         cmd_args.append("controller_name=%s" % self.package.title() + 'Controller')
         command.run(cmd_args)
 

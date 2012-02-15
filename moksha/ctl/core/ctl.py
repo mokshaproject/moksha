@@ -64,6 +64,7 @@ def bootstrap():
             'python-setuptools', 'python-qpid', 'qpid-cpp-server',
             'python-psutil', 'ccze',  # ccze is awesome
             'openssl-devel',
+            'python-devel',
         ]
         ret = ret and not os.system(
             'sudo yum install -q -y ' + ' '.join(reqs))
@@ -192,6 +193,7 @@ def install_hacks():
         'Extremes',
         'tg.devtools',
         'orbited',
+        'BeautifulSoup',
     ]
 
     # This automatically uses --use-mirrors

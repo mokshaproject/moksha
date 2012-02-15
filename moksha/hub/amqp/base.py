@@ -25,19 +25,18 @@ class BaseAMQPHub(MessagingHub):
     """
     conn = None
 
-    def __init__(self, host, port, username, password):
+    def __init__(self):
         """ Initialize a connection to a specified broker.
 
         This method must set self.channel to an active channel.
         """
-        raise NotImplementedError
+        pass
 
-    def send_message(self, topic, message, exchange=None,
-                     routing_key=None, **headers):
-        raise NotImplementedError
+    def send_message(self, topic, message, **headers):
+        pass
 
-    def subscribe(self, queue, callback, no_ack=True):
-        raise NotImplementedError
+    def subscribe(self, topic, callback):
+        pass
 
     def create_queue(self, queue, exchange, durable, exclusive, auto_delete):
         raise NotImplementedError

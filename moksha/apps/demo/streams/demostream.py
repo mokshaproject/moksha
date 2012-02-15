@@ -24,9 +24,9 @@ from random import random
 from datetime import timedelta
 
 from moksha.api.widgets.feed import Feed
-from moksha.api.streams import PollingDataStream
+from moksha.api.hub.producer import PollingProducer
 
-class MokshaDemoDataStream(PollingDataStream):
+class MokshaDemoProducer(PollingProducer):
     """
     This class provides the default Moksha demo with some fake data to render
     """
@@ -45,7 +45,7 @@ class MokshaDemoDataStream(PollingDataStream):
     def __init__(self, *args, **kw):
         self.feed = Feed(url='http://doggdot.us/rss')
         self.feed_entries = self.feed.entries()
-        super(MokshaDemoDataStream, self).__init__(*args, **kw)
+        super(MokshaDemoProducer, self).__init__(*args, **kw)
 
     def poll(self):
         self.n += 1
@@ -102,4 +102,4 @@ class MokshaDemoDataStream(PollingDataStream):
 
     def stop(self):
         self.feed.close()
-        super(MokshaDemoDataStream, self).stop()
+        super(MokshaDemoProducer, self).stop()

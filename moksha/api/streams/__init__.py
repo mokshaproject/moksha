@@ -12,5 +12,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+""" moksha.api.streams is deprecated.  Use moksha.api.hub.producer """
 
-from datastream import DataStream, PollingDataStream
+from moksha.lib.helpers import deprecation
+deprecation(__doc__)
+
+from moksha.api.hub.producer import Producer, PollingProducer
+
+DataStream = Producer
+PollingDataStream = PollingProducer
+
+

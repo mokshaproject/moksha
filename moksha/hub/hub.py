@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 # Authors: Luke Macken <lmacken@redhat.com>
+#          Ralph Bean  <rbean@redhat.com>
 
 
 import os
@@ -47,48 +48,78 @@ log = logging.getLogger('moksha.hub')
 
 _hub = None
 
-class MokshaHub(StompHub, AMQPHub):
+class MokshaHubMeta(type):
+    """ Make the MokshaHub class extend any number of base classes. """
 
-    topics = None # {topic_name: [callback,]}
+    def __new__(meta, name, bases, dct):
+        global config
+
+        possible_bases = {
+            'amqp_broker': AMQPHub,
+            'stomp_broker': StompHub,
+        }
+
+        broker_vals = [config.get(k, None) for k in possible_bases.keys()]
+
+        # If we're running outside of middleware and hub, load config
+        if not any(broker_vals):
+            config_path = get_moksha_config_path()
+            if not config_path:
+                print """
+                    Cannot find Moksha configuration!  Place a development.ini or production.ini
+                    in /etc/moksha or in the current directory.
+                """
+                return
+
+            cfg = appconfig('config:' + config_path)
+            config.update(cfg)
+            broker_vals = [config.get(k, None) for k in possible_bases.keys()]
+
+        # If there are no brokers defined.. that's a problem.
+        if not any(broker_vals):
+            log.warning("No brokers defined.  You're going to have problems.")
+
+        if len(filter(None, broker_vals)) > 1:
+            log.warning("Running with multiple brokers.  "
+                        "This mode is experimental and may or may not work")
+
+        bases += tuple([
+            b for k, b in possible_bases.items() if config.get(k, None)
+        ])
+
+        # This is a bottom-out case where no brokers are defined.
+        # A traceback will occur later when code tries to reference method that
+        # don't exist, but we'd rather have the code crash there than here.
+        if not bases:
+            bases = (object,)
+
+        return type.__new__(meta, name, bases, dct)
+
+
+class MokshaHub:
+    __metaclass__ = MokshaHubMeta
+
+    topics = None  # {topic_name: [callback,]}
 
     def __init__(self, topics=None):
         global config
-        self.amqp_broker = config.get('amqp_broker', None)
-        self.stomp_broker = config.get('stomp_broker', None)
-
-        # If we're running outside of middleware and hub, load config
-        if not self.amqp_broker and not self.stomp_broker:
-            config = get_moksha_appconfig()
-            self.amqp_broker = config.get('amqp_broker', None)
-            self.stomp_broker = config.get('stomp_broker', None)
-
-        if self.amqp_broker and self.stomp_broker:
-            log.warning("Running with both a STOMP and AMQP broker. "
-                        "This mode is experimental and may or may not work")
+        self.config = config
 
         if not self.topics:
             self.topics = defaultdict(list)
 
-        if topics:
-            for topic, callbacks in topics.iteritems():
-                if not isinstance(callbacks, list):
-                    callbacks = [callbacks]
-                for callback in callbacks:
-                    self.topics[topic].append(callback)
+        if topics == None:
+            topics = {}
 
-        if self.amqp_broker:
-            AMQPHub.__init__(self, self.amqp_broker,
-                             username=config.get('amqp_broker_user', 'guest'),
-                             password=config.get('amqp_broker_pass', 'guest'),
-                             ssl=config.get('amqp_broker_ssl', False))
+        for topic, callbacks in topics.iteritems():
+            if not isinstance(callbacks, list):
+                callbacks = [callbacks]
 
-        if self.stomp_broker:
-            log.info('Initializing STOMP support')
-            StompHub.__init__(self, self.stomp_broker,
-                              port=config.get('stomp_port', 61613),
-                              username=config.get('stomp_user', 'guest'),
-                              password=config.get('stomp_pass', 'guest'),
-                              topics=self.topics.keys())
+            for callback in callbacks:
+                self.topics[topic].append(callback)
+
+        super(MokshaHub, self).__init__()
+
 
     def send_message(self, topic, message, jsonify=True):
         """ Send a message to a specific topic.
@@ -98,35 +129,39 @@ class MokshaHub(StompHub, AMQPHub):
         :jsonify: To automatically encode non-strings to JSON
 
         """
+
+        if jsonify:
+            message = json.encode(message)
+
         if not isinstance(topic, list):
             topics = [topic]
         else:
             topics = topic
+
         for topic in topics:
-            if jsonify:
-                message = json.encode(message)
-            if self.amqp_broker:
-                AMQPHub.send_message(self, topic, message, routing_key=topic)
-            elif self.stomp_broker:
-                StompHub.send_message(self, topic, message)
+            super(MokshaHub, self).send_message(topic, message)
+
 
     def close(self):
-        if self.amqp_broker:
-            try:
-                AMQPHub.close(self)
-            except Exception, e:
-                log.warning('Exception when closing AMQPHub: %s' % str(e))
+        try:
+            super(MokshaHub, self).close()
+        except Exception, e:
+            log.warning('Exception when closing MokshaHub: %s' % str(e))
+
 
     def watch_topic(self, topic, callback):
         """
         This method will cause the specified `callback` to be executed with
         each message that goes through a given topic.
         """
+
         log.debug('watch_topic(%s)' % locals())
+
         if len(self.topics[topic]) == 0:
-            if self.stomp_broker:
-                self.subscribe(topic)
+            self.subscribe(topic, callback)
+
         self.topics[topic].append(callback)
+
 
     def consume_amqp_message(self, message):
         self.message_accept(message)
@@ -136,9 +171,12 @@ class MokshaHub(StompHub, AMQPHub):
             # If we receive an AMQP message without a toipc, don't proxy it to STOMP
             return
 
-        if self.stomp_broker:
+        # TODO -- this isn't extensible.  how should forwarding work if there
+        # are three broker types enabled?
+        if isinstance(self, StompHub):
             StompHub.send_message(self, topic.encode('utf8'),
                                   message.body.encode('utf8'))
+
 
     def consume_stomp_message(self, message):
         topic = message['headers'].get('destination')
@@ -171,29 +209,33 @@ class CentralMokshaHub(MokshaHub):
         self.topics = defaultdict(list)
         self.__init_consumers()
 
-        MokshaHub.__init__(self)
+        super(CentralMokshaHub, self).__init__()
 
-        if self.amqp_broker:
+        # TODO -- consider moving this to the AMQP specific modules
+        if isinstance(self, AMQPHub):
             self.__init_amqp()
 
         self.__run_consumers()
         self.__init_producers()
 
+    # TODO -- consider moving this to the AMQP specific modules
     def __init_amqp(self):
         # Ok this looks odd at first.  I think this is only used when we are briding stomp/amqp,
         # Since each producer and consumer opens up their own AMQP connections anyway
-        if self.stomp_broker:
-            log.debug("Initializing local AMQP queue...")
-            self.server_queue_name = 'moksha_hub_' + self.session.name
-            self.queue_declare(queue=self.server_queue_name,
-                               exclusive=True, auto_delete=True)
-            self.exchange_bind(self.server_queue_name, binding_key='#')
-            self.local_queue_name = 'moksha_hub'
-            self.local_queue = self.session.incoming(self.local_queue_name)
-            self.message_subscribe(queue=self.server_queue_name,
-                                   destination=self.local_queue_name)
-            self.local_queue.start()
-            self.local_queue.listen(self.consume_amqp_message)
+        if not isinstance(self, StompHub):
+            return
+
+        log.debug("Initializing local AMQP queue...")
+        self.server_queue_name = 'moksha_hub_' + self.session.name
+        self.queue_declare(queue=self.server_queue_name,
+                           exclusive=True, auto_delete=True)
+        self.exchange_bind(self.server_queue_name, binding_key='#')
+        self.local_queue_name = 'moksha_hub'
+        self.local_queue = self.session.incoming(self.local_queue_name)
+        self.message_subscribe(queue=self.server_queue_name,
+                               destination=self.local_queue_name)
+        self.local_queue.start()
+        self.local_queue.listen(self.consume_amqp_message)
 
     def __init_consumers(self):
         """ Initialize all Moksha Consumer objects """
@@ -209,7 +251,7 @@ class CentralMokshaHub(MokshaHub):
         self.consumers = []
         for topic in self.topics:
             for i, consumer in enumerate(self.topics[topic]):
-                c = consumer()
+                c = consumer(self)
                 self.consumers.append(c)
                 self.topics[topic][i] = c.consume
 
@@ -221,7 +263,7 @@ class CentralMokshaHub(MokshaHub):
             for producer in pkg_resources.iter_entry_points(entry):
                 producer_class = producer.load()
                 log.info('Loading %s producer' % producer_class.__name__)
-                producer_obj = producer_class()
+                producer_obj = producer_class(self)
                 self.producers.append(producer_obj)
 
     @trace
@@ -261,12 +303,13 @@ def main():
     """ The main MokshaHub method """
     setup_logger('-v' in sys.argv or '--verbose' in sys.argv)
     config_path = get_moksha_config_path()
-    if not config_path: 
+    if not config_path:
         print """
             Cannot find Moksha configuration!  Place a development.ini or production.ini
             in /etc/moksha or in the current directory.
         """
         return
+
     cfg = appconfig('config:' + config_path)
     config.update(cfg)
 

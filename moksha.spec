@@ -3,7 +3,7 @@
 
 Name:           moksha
 Version:        0.6.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A platform for creating real-time web applications
 Group:          Applications/Internet
 License:        ASL 2.0
@@ -58,7 +58,6 @@ Requires: python-paver
 Requires: python-tw-forms
 Requires: python-morbid
 Requires: pytz
-Requires: pyevent
 Requires: python-repoze-who-testutil
 Requires: python-BeautifulSoup
 Requires: python-twisted
@@ -205,6 +204,9 @@ fi
 %doc docs/_build/html
 
 %changelog
+* Thu Feb 09 2012 Luke Macken <lmacken@redhat.com> - 0.6.0-2
+- Remove the pyevent requirement
+
 * Fri Aug 19 2011 Luke Macken <lmacken@redhat.com> - 0.6.0-1
 - 0.6.0 release
 - Update our dependencies to finally get the test suite running

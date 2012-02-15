@@ -37,7 +37,7 @@ from shove import Shove
 from tg import config
 
 from moksha.hub import MokshaHub
-from moksha.api.streams import PollingDataStream
+from moksha.api.hub.producer import PollingProducer
 
 log = logging.getLogger('moksha.hub')
 
@@ -288,7 +288,7 @@ class FeederFactory(protocol.ClientFactory):
             self.protocol.start(group)
 
 
-class MokshaFeedStream(PollingDataStream):
+class MokshaFeedStream(PollingProducer):
     """
     If you expose your feed widget on the moksha.widget entry point,
     then Moksha will automatically handle polling it.  Upon new entries,
@@ -297,14 +297,14 @@ class MokshaFeedStream(PollingDataStream):
     #frequency = timedelta(minutes=1)
     now = False
 
-    def __init__(self):
+    def __init__(self, hub):
         enabled = asbool(config.get('moksha.feedaggregator', False))
         if not enabled:
             log.info('Moksha Feed Aggregator disabled')
             return
         else:
             self.frequency = int(config.get('feed.poll_frequency', 900))
-        super(MokshaFeedStream, self).__init__()
+        super(MokshaFeedStream, self).__init__(hub)
 
     def poll(self):
         """ Poll all feeds in our feed cache """

@@ -19,7 +19,6 @@ from datetime import timedelta
 from sqlalchemy.orm import sessionmaker
 from twisted.internet.task import LoopingCall
 
-from moksha.hub.hub import MokshaHub
 from moksha.lib.helpers import create_app_engine
 
 log = logging.getLogger('moksha.hub')
@@ -27,8 +26,8 @@ log = logging.getLogger('moksha.hub')
 class DataStream(object):
     """ The parent DataStream class. """
 
-    def __init__(self):
-        self.hub = MokshaHub()
+    def __init__(self, hub):
+        self.hub = hub
         self.log = log
 
         # If the stream specifies an 'app', then setup `self.engine` to
@@ -61,8 +60,8 @@ class PollingDataStream(DataStream):
     frequency = None # Either a timedelta object, or the number of seconds
     now = False
 
-    def __init__(self):
-        super(PollingDataStream, self).__init__()
+    def __init__(self, hub):
+        super(PollingDataStream, self).__init__(hub)
         self.timer = LoopingCall(self.poll)
         if isinstance(self.frequency, timedelta):
             seconds = self.frequency.seconds + \

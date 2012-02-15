@@ -28,7 +28,6 @@ from moksha.api.widgets.orbited import orbited_host, orbited_port, orbited_url
 from moksha.api.widgets.orbited import orbited_js
 from moksha.lib.helpers import defaultdict
 from moksha.widgets.notify import moksha_notify
-from moksha.widgets.json import tw1_jquery_json_js, tw2_jquery_json_js
 
 tw1_stomp_js = tw.api.JSLink(
     link=orbited_url + '/static/protocols/stomp/stomp.js')
@@ -63,7 +62,7 @@ def stomp_unsubscribe(topic):
 class TW1StompWidget(tw.api.Widget):
     callbacks = ['onopen', 'onerror', 'onerrorframe', 'onclose',
                  'onconnectedframe', 'onmessageframe']
-    javascript = [tw1_jquery_json_js]
+    javascript = []
     params = callbacks[:] + ['topics', 'notify', 'orbited_host',
             'orbited_port', 'orbited_url', 'orbited_js', 'stomp_host',
             'stomp_port', 'stomp_user', 'stomp_pass']
@@ -129,7 +128,7 @@ class TW1StompWidget(tw.api.Widget):
 class TW2StompWidget(twc.Widget):
     callbacks = ['onopen', 'onerror', 'onerrorframe', 'onclose',
                  'onconnectedframe', 'onmessageframe']
-    resources = [tw2_jquery_json_js]
+    resources = []
     topics = twc.Variable()
     notify = twc.Param(
         default=asbool(config.get('moksha.socket.notify', False)))

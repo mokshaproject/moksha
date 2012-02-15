@@ -26,36 +26,47 @@ from moksha.hub.messaging import MessagingHub
 
 log = logging.getLogger('moksha.hub')
 
+
 class StompHub(MessagingHub, ReconnectingClientFactory):
     username = None
     password = None
     proto = None
     frames = None
 
-    def __init__(self, host, port, username, password, topics=None):
-        self.username = username
-        self.password = password
-        self._topics = topics or []
+    def __init__(self, config):
+        self._topics = self.topics.keys()
         self._frames = []
 
+        port = config.get('stomp_port', 61613),
+        host = config.get('stomp_broker')
+
+        self.username = config.get('stomp_user', 'guest'),
+        self.password = config.get('stomp_pass', 'guest'),
+
         reactor.connectTCP(host, int(port), self)
+
+        super(StompHub, self).__init__(config)
+
 
     def buildProtocol(self, addr):
         self.proto = StompProtocol(self, self.username, self.password)
         return self.proto
 
+
     def connected(self):
         for topic in self._topics:
             log.debug('Subscribing to %s topic' % topic)
-            self.subscribe(topic)
+            self.subscribe(topic, callback=lambda msg: None)
         self._topics = []
         for frame in self._frames:
             log.debug('Flushing queued frame')
             self.proto.transport.write(frame.pack())
         self._frames = []
 
+
     def clientConnectionLost(self, connector, reason):
         log.info('Lost connection.  Reason: %s' % reason)
+
 
     def clientConnectionFailed(self, connector, reason):
         log.error('Connection failed. Reason: %s' % reason)
@@ -63,7 +74,7 @@ class StompHub(MessagingHub, ReconnectingClientFactory):
                                                          connector,
                                                          reason)
 
-    def send_message(self, topic, message):
+    def send_message(self, topic, message, **headers):
         f = stomper.Frame()
         f.unpack(stomper.send(topic, message))
         if not self.proto:
@@ -72,9 +83,16 @@ class StompHub(MessagingHub, ReconnectingClientFactory):
         else:
             self.proto.transport.write(f.pack())
 
-    def subscribe(self, topic):
+        super(StompHub, self).send_message(topic, message, **headers)
+
+
+    def subscribe(self, topic, callback):
+        # FIXME -- note, the callback is just thrown away here.
+        log.warn("STOMP callback thrown away.")
         if not self.proto:
             if topic not in self._topics:
                 self._topics.append(topic)
         else:
             self.proto.subscribe(topic)
+
+        super(StompHub, self).subscribe(topic, callback)

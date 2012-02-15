@@ -51,13 +51,13 @@ class TW1GlobalResourceInjectionWidget(tw.api.Widget):
     css = []
     template = "mako:moksha.api.widgets.global_resources.templates.global"
 
-    params = ['base_url', 'csrf_token', 'user_id', 'debug', 'profile', 'profile_connectors', 'csrf_trusted_domains']
+    params = ['base_url', 'csrf_token', 'user_id', 'debug', 'profile',
+              'csrf_trusted_domains']
     base_url = '/'
     csrf_token = ''
     user_id = ''
     debug = 'false'
     profile = 'false'
-    profile_connectors = 'false'
 
     def __init__(self):
         super(TW1GlobalResourceInjectionWidget, self).__init__()
@@ -101,8 +101,6 @@ class TW1GlobalResourceInjectionWidget(tw.api.Widget):
             self.debug = 'true'
         if asbool(config['global_conf'].get('profile')):
             self.profile = 'true'
-        if asbool(config['global_conf'].get('profile.connectors')):
-            self.profile_connectors = 'true'
 
     def update_params(self, d):
         super(TW1GlobalResourceInjectionWidget, self).update_params(d)
@@ -131,13 +129,13 @@ class TW2GlobalResourceInjectionWidget(twc.Widget):
     css = []
     template = "mako:moksha.api.widgets.global_resources.templates.global"
 
-    params = ['base_url', 'csrf_token', 'user_id', 'debug', 'profile', 'csrf_trusted_domains', 'profile_connectors']
+    params = ['base_url', 'csrf_token', 'user_id', 'debug', 'profile',
+              'csrf_trusted_domains',]
     base_url = '/'
     csrf_token = ''
     user_id = ''
     debug = 'false'
     profile = 'false'
-    profile_connectors = 'false'
 
     @property
     def c(self):
@@ -150,8 +148,6 @@ class TW2GlobalResourceInjectionWidget(twc.Widget):
             self.debug = 'true'
         if asbool(config['global_conf'].get('profile')):
             self.profile = 'true'
-        if asbool(config['global_conf'].get('profile.connectors')):
-            self.profile_connectors = 'true'
 
         for widget_entry in pkg_resources.iter_entry_points('moksha.global'):
             log.info('Loading global resource: %s' % widget_entry.name)
