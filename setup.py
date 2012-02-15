@@ -62,6 +62,7 @@ setup(
         "tw2.jquery>=2.0b6",
         "tw2.jqplugins.ui",
         "tw2.jqplugins.flot>=2.0a4",
+        "tw2.jqplugins.gritter>=2.0b4",
         "tw2.jit",
         "tw2.excanvas",
         #"repoze.squeeze", # Not hard requirements

@@ -27,11 +27,11 @@ from paste.deploy.converters import asbool
 
 import tw.api
 import tw2.core as twc
+from tw2.jqplugins.gritter import gritter_resources, gritter_callback
 
 from moksha.api.widgets.orbited import orbited_host, orbited_port, orbited_url
 from moksha.api.widgets.orbited import orbited_js
 from moksha.lib.helpers import defaultdict, listify
-from moksha.widgets.notify import moksha_notify
 from moksha.widgets.moksha_js import tw1_moksha_js, tw2_moksha_js
 from moksha.widgets.json import tw1_jquery_json_js, tw2_jquery_json_js
 
@@ -173,15 +173,15 @@ class TW2AMQPSocket(twc.Widget):
         }
 
         if self.notify:
-            for resource in reversed(moksha_notify.resources):
-                if resource not in self.resources:
-                    self.resources.append(resource)
+            self.resources += gritter_resources
 
         for callback in self.callbacks:
             cbs = ''
 
             if self.notify and callback in notifications:
-                cbs += '$.jGrowl("%s");' % notifications[callback]
+                cbs += "$(%s);" % str(gritter_callback(
+                    title="AMQP Socket", text=notifications[callback]
+                ))
 
             if len(moksha.utils.livewidgets[callback]):
                 if callback == 'onmessageframe':

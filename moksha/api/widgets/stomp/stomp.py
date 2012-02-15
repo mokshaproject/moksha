@@ -27,8 +27,9 @@ import tw2.core as twc
 from moksha.api.widgets.orbited import orbited_host, orbited_port, orbited_url
 from moksha.api.widgets.orbited import orbited_js
 from moksha.lib.helpers import defaultdict
-from moksha.widgets.notify import moksha_notify
 from moksha.widgets.json import tw1_jquery_json_js, tw2_jquery_json_js
+
+from tw2.jqplugins.gritter import gritter_resources, gritter_callback
 
 tw1_stomp_js = tw.api.JSLink(
     link=orbited_url + '/static/protocols/stomp/stomp.js')
@@ -118,12 +119,11 @@ class TW1StompWidget(tw.api.Widget):
                 if cbs:
                     d[callback] = cbs
 
-        if d.notify:
-            moksha_notify.register_resources()
-            d.onopen = tw.api.js_callback('function() { $.jGrowl("Moksha live socket connected") }')
-            d.onerror = tw.api.js_callback('function(error) { $.jGrowl("Moksha Live Socket Error: " + error) }')
-            d.onerrorframe = tw.api.js_callback('function(f) { $.jGrowl("Error frame received from Moksha Socket: " + f) }')
-            d.onclose = tw.api.js_callback('function(c) { $.jGrowl("Moksha Socket Closed") }')
+        # NOTE -- d.notify (used to be $.jGrowl, now $.gritter) is disabled for
+        # tw1.  moksha.widgets.notify was removed in favor of
+        # tw2.jqplugins.gritter.  This cripples our tw1 widgets in favor of
+        # cleaning out the moksha codebase and looking forwards to a tw2-only
+        # moksha.
 
 
 class TW2StompWidget(twc.Widget):
@@ -185,12 +185,21 @@ class TW2StompWidget(twc.Widget):
                 if cbs:
                     setattr(self, callback, cbs)
 
+        notifications = {
+            'onopen': 'Moksha live socket connected.',
+            'onerror': 'Moksha live socket error.',
+            'onerrorframe': 'Error frame received.',
+            'onclose': 'Moksha socket closed.',
+        }
+
         if self.notify:
-            moksha_notify.req().prepare()  # Inject moksha_notify resources.
-            self.onopen = twc.js_callback('function() { $.jGrowl("Moksha live socket connected") }')
-            self.onerror = twc.js_callback('function(error) { $.jGrowl("Moksha Live Socket Error: " + error) }')
-            self.onerrorframe = twc.js_callback('function(f) { $.jGrowl("Error frame received from Moksha Socket: " + f) }')
-            self.onclose = twc.js_callback('function(c) { $.jGrowl("Moksha Socket Closed") }')
+            # Inject moksha_notify resources.
+            self.resources += gritter_resources
+
+            # Build and set callbacks
+            for attr, msg in notifications.iteritems():
+                callback = gritter_callback(title="STOMP Socket", text=msg)
+                setattr(self, attr, callback)
 
 if asbool(config.get('moksha.use_tw2', False)):
     StompWidget = TW2StompWidget
