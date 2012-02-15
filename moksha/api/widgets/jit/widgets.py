@@ -1,5 +1,7 @@
 # Authors: Ralph Bean <ralph.bean@gmail.com
 
+import warnings
+
 from tw.jquery.flot import flot_js, excanvas_js, flot_css
 from moksha.api.widgets import TW2LiveWidget
 from tw2.jit import AreaChart
@@ -16,5 +18,5 @@ class TW2LiveAreaChartWidget(AreaChart, TW2LiveWidget):
 if asbool(config.get('moksha.use_tw2', False)):
     LiveAreaChartWidget = TW2LiveAreaChartWidget
 else:
-    # Probably never will be
-    raise NotImplementedError(__name__ + " is not ready for tw1")
+    warnings.warn(__name__ + " is not ready for tw1")
+    LiveAreaChartWidget = None
