@@ -168,9 +168,22 @@ class TW2AMQPSocket(twc.Widget):
         self.topics = []
         self.onmessageframe = defaultdict(str)  # {topic: 'js callbacks'}
 
+        notifications = {
+            'onconnectedframe': "Moksha Live socket connected",
+        }
+
+        if self.notify:
+            for resource in reversed(moksha_notify.resources):
+                if resource not in self.resources:
+                    self.resources.append(resource)
+
         for callback in self.callbacks:
+            cbs = ''
+
+            if self.notify and callback in notifications:
+                cbs += '$.jGrowl("%s");' % notifications[callback]
+
             if len(moksha.utils.livewidgets[callback]):
-                cbs = ''
                 if callback == 'onmessageframe':
                     for topic in moksha.utils.livewidgets[callback]:
                         self.topics.append(topic)
@@ -182,8 +195,8 @@ class TW2AMQPSocket(twc.Widget):
                             cbs += '$(%s);' % str(cb)
                         else:
                             cbs += str(cb)
-                if cbs:
-                    setattr(self, callback, cbs)
+            if cbs:
+                setattr(self, callback, cbs)
 
 
 if asbool(config.get('moksha.use_tw2', False)):

@@ -124,4 +124,7 @@ if (typeof moksha == 'undefined') {
 }
 
 });
+% if tw._("notify"):
+	$.jGrowl.defaults.position = 'bottom-right';
+% endif
 </script>
