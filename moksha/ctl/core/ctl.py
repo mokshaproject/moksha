@@ -65,6 +65,7 @@ def bootstrap():
             'python-psutil', 'ccze',  # ccze is awesome
             'openssl-devel',
             'python-devel',
+            'python-zmq',
         ]
         ret = ret and not os.system(
             'sudo yum install -q -y ' + ' '.join(reqs))
@@ -251,7 +252,12 @@ def link_qpid_libs():
     location = 'lib/python{major}.{minor}/site-packages'.format(
         major=sys.version_info.major, minor=sys.version_info.minor)
     template = 'ln -s /usr/{location}/{lib} {workon}/{venv}/{location}/'
-    for lib in ['qpid', 'mllib']:
+    system_libs = [
+        'qpid',
+        'mllib',
+        'zmq',
+    ]
+    for lib in system_libs:
         cmd = template.format(
             location=location, venv=ctl_config['venv'], lib=lib,
             workon=os.getenv("WORKON_HOME"))

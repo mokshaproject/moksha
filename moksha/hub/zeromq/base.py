@@ -15,18 +15,23 @@
 #
 # Authors: Luke Macken <lmacken@redhat.com>
 
-class MessagingHub(object):
-    """
-    A generic messaging hub.
+from moksha.hub.messaging import MessagingHub
 
-    This class represents the base functionality of the protocol-level hubs.
+class BaseZMQHub(MessagingHub):
+    """
+    A skeleton class for what we expect from a zeromq implementation.
+    This allows us to bounce between different zeromq modules without too much
+    pain and suffering.
     """
 
     def __init__(self):
-        pass
+        super(BaseZMQHub, self).__init__()
 
     def send_message(self, topic, message, **headers):
-        pass
+        super(BaseZMQHub, self).send_message(topic, message, **headers)
 
     def subscribe(self, topic, callback):
-        pass
+        super(BaseZMQHub, self).subscribe(topic, callback)
+
+    def close(self):
+        super(BaseZMQHub, self).close()

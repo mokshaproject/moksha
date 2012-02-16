@@ -1,6 +1,6 @@
 # This file is part of Moksha.
 # Copyright (C) 2008-2010  Red Hat, Inc.
-#
+# 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -12,21 +12,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-# Authors: Luke Macken <lmacken@redhat.com>
 
-class MessagingHub(object):
-    """
-    A generic messaging hub.
+"""
+Here is where we configure which zeromq hub implementation we are going to use.
+"""
 
-    This class represents the base functionality of the protocol-level hubs.
-    """
-
-    def __init__(self):
-        pass
-
-    def send_message(self, topic, message, **headers):
-        pass
-
-    def subscribe(self, topic, callback):
-        pass
+from zeromq import ZMQHub

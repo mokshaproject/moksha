@@ -43,6 +43,7 @@ except ImportError: # Twisted 8.2.0 on RHEL5
 from moksha.lib.helpers import trace, defaultdict, get_moksha_config_path, get_moksha_appconfig
 from moksha.hub.amqp import AMQPHub
 from moksha.hub.stomp import StompHub
+from moksha.hub.zeromq import ZMQHub
 
 log = logging.getLogger('moksha.hub')
 
@@ -57,6 +58,7 @@ class MokshaHubMeta(type):
         possible_bases = {
             'amqp_broker': AMQPHub,
             'stomp_broker': StompHub,
+            'zmq_enabled': ZMQHub,
         }
 
         broker_vals = [config.get(k, None) for k in possible_bases.keys()]

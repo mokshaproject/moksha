@@ -42,6 +42,7 @@ setup(
         "orbited==0.7.10",
         "Twisted",
         "stomper",
+        "txZMQ",
         "Sphinx",
         "fabulous",
         "Paver",
