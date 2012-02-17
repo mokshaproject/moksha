@@ -25,9 +25,19 @@ from nose.tools import eq_, assert_true, assert_false
 
 
 # Some constants used throughout the hub tests
-sleep_duration = 0.5
+sleep_duration = 1
 secret = "secret_message"
 
+
+from moksha.hub.reactor import reactor as _reactor
+
+def simulate_reactor(duration=sleep_duration):
+    """ Simulate running the reactor for `duration` milliseconds """
+    global _reactor
+    start = time()
+    while time() - start < duration:
+        _reactor.doPoll(0.0001)
+        _reactor.runUntilCurrent()
 
 class TestHub:
 
@@ -51,8 +61,13 @@ class TestHub:
             messages_received.append(json.body[1:-1])
 
         self.hub.subscribe(topic=self.topic, callback=callback)
-        self.hub.send_message(topic=self.topic, message=secret)
         sleep(sleep_duration)
+
+        self.hub.send_message(topic=self.topic, message=secret)
+
+        simulate_reactor(sleep_duration)
+        sleep(sleep_duration)
+
         eq_(messages_received, [secret])
 
     def test_hub_no_subscription(self):
@@ -64,6 +79,7 @@ class TestHub:
             messages_received.append(json.body[1:-1])
 
         self.hub.send_message(topic=self.topic, message=secret)
+        simulate_reactor(sleep_duration)
         sleep(sleep_duration)
         eq_(messages_received, [])
 
@@ -88,6 +104,7 @@ class TestConsumer:
         """
         self.hub.topics[cons.topic] = self.hub.topics.get(cons.topic, [])
         self.hub.topics[cons.topic].append(cons(self.hub).consume)
+        sleep(sleep_duration)
 
     def test_abstract(self):
         """ Ensure that conumsers with no consume method raise exceptions. """
@@ -118,6 +135,7 @@ class TestConsumer:
 
         # Now, send a generic message to that topic, and see if we get one.
         self.hub.send_message(topic=self.a_topic, message=secret)
+        simulate_reactor(sleep_duration)
         sleep(sleep_duration)
         eq_(len(messages_received), 1)
 
@@ -137,6 +155,7 @@ class TestConsumer:
         # Now, send a generic message to that topic, and see if the consumer
         # processed it.
         self.hub.send_message(topic=self.a_topic, message=secret)
+        simulate_reactor(sleep_duration)
         sleep(sleep_duration)
         eq_(messages_received, [secret])
 
@@ -164,6 +183,7 @@ class TestConsumer:
         # Now, send a generic message to that topic, and see if the consumer
         # processed it.
         self.hub.send_message(topic=self.a_topic, message=secret)
+        simulate_reactor(sleep_duration)
         sleep(sleep_duration)
         eq_(messages_received, [secret, secret])
 
@@ -185,6 +205,7 @@ class TestConsumer:
         # Now, send a generic message to that topic, and see if the consumer
         # processed it.
         self.hub.send_message(topic=self.a_topic, message=obj)
+        simulate_reactor(sleep_duration)
         sleep(sleep_duration)
         eq_(messages_received, [secret])
 
@@ -206,7 +227,9 @@ class TestConsumer:
         for i in range(n_messages):
             self.hub.send_message(topic=self.a_topic, message=secret)
 
+        simulate_reactor(sleep_duration)
         sleep(sleep_duration)
+
         eq_(len(messages_received), n_messages)
 
     def test_receive_n_dicts(self):
@@ -228,27 +251,20 @@ class TestConsumer:
         for i in range(n_messages):
             self.hub.send_message(topic=self.a_topic, message=obj)
 
+        simulate_reactor(sleep_duration)
         sleep(sleep_duration)
+
         eq_(len(messages_received), n_messages)
 
 
 class TestProducer:
 
     def setUp(self):
-        from moksha.hub.reactor import reactor
         self.hub = MokshaHub()
-        self.reactor = reactor
         self.a_topic = a_topic = str(uuid4())
 
     def tearDown(self):
         self.hub.close()
-
-    def simulate_reactor(self, duration=sleep_duration):
-        """ Simulate running the reactor for `duration` milliseconds """
-        start = time()
-        while time() - start < duration:
-            self.reactor.doPoll(0.0001)
-            self.reactor.runUntilCurrent()
 
     def fake_register_producer(self, prod):
         """ Fake register a producer, not by entry-point like usual.
@@ -270,7 +286,7 @@ class TestProducer:
 
         class TestProducer(moksha.api.hub.producer.PollingProducer):
             topic = self.a_topic
-            frequency = sleep_duration / 10.5
+            frequency = sleep_duration / 10.9
             def poll(self):
                 self.send_message(self.topic, secret)
 
@@ -278,7 +294,7 @@ class TestProducer:
         self.fake_register_producer(TestProducer)
 
         # Go!
-        self.simulate_reactor(duration=sleep_duration)
+        simulate_reactor(duration=sleep_duration)
 
         # Ok.
 
