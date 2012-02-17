@@ -56,7 +56,7 @@ class TestHub:
         eq_(messages_received, [secret])
 
     def test_hub_no_subscription(self):
-        "Test that if we don't receive messages we're not subscribed for."
+        "Test that we don't receive messages we're not subscribed for."
 
         messages_received = []
 
