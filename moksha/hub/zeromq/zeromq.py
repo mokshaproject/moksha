@@ -18,8 +18,9 @@
 from paste.deploy.converters import asbool
 
 import logging
-import zmq
+import time
 import txZMQ
+import zmq
 
 from moksha.hub.zeromq.base import BaseZMQHub
 
@@ -31,7 +32,7 @@ class ZMQHub(BaseZMQHub):
     def __init__(self):
         self.validate_config(self.config)
 
-        self.context = zmq.Context()
+        self.context = zmq.Context(1)
 
         # Set up the publishing socket
         self.pub_socket = self.context.socket(zmq.PUB)
@@ -48,6 +49,11 @@ class ZMQHub(BaseZMQHub):
         self.sub_endpoints = [
             txZMQ.ZmqEndpoint("connect", ep) for ep in _endpoints
         ]
+
+        # This is required so that the publishing socket can fully set itself up
+        # before we start trying to send messages on it.  This is a documented
+        # zmq issue that they do not plan to fix.
+        time.sleep(1)
 
         super(ZMQHub, self).__init__()
 
