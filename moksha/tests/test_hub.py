@@ -17,7 +17,7 @@
 
 import moksha
 
-from time import sleep
+from time import sleep, time
 from uuid import uuid4
 
 from moksha.hub import MokshaHub
@@ -243,29 +243,24 @@ class TestProducer:
     def tearDown(self):
         self.hub.close()
 
+    def simulate_reactor(self, duration=sleep_duration):
+        """ Simulate running the reactor for `duration` milliseconds """
+        start = time()
+        while time() - start < duration:
+            self.reactor.doPoll(0.0001)
+            self.reactor.runUntilCurrent()
+
     def fake_register_producer(self, prod):
         """ Fake register a producer, not by entry-point like usual.
 
         Registering producers is a little easier than registering consumers.
         The MokshaHub doesn't even keep track of the .poll method callbacks.  We
         simply instantiate the producer (and it registers itself with the hub).
-
-        But then, we need to manually start the epoll reactor.  The tricky part
-        here is that reactor.run() is a blocking operation.  So that our test
-        case actually terminates, we register a callback on the reactor that
-        kills it `n` seconds after it starts up.
         """
-
-        def callback():
-            sleep(sleep_duration)
-            self.reactor.stop()
-
-        self.reactor.callWhenRunning(callback)
-
         return prod(self.hub)
 
-    def test_produce_str(self):
-        """ Produce a string. """
+    def test_produce_ten_strs(self):
+        """ Produce ten strings. """
 
         messages_received = []
         def callback(json):
@@ -275,14 +270,17 @@ class TestProducer:
 
         class TestProducer(moksha.api.hub.producer.PollingProducer):
             topic = self.a_topic
-            frequency = sleep_duration / 2.0
+            frequency = sleep_duration / 10.5
             def poll(self):
                 self.send_message(self.topic, secret)
 
+        # Ready?
         self.fake_register_producer(TestProducer)
 
-        # This should run for `sleep_duration` seconds
-        self.reactor.run()
+        # Go!
+        self.simulate_reactor(duration=sleep_duration)
+
+        # Ok.
 
         # We also need to sleep for `sleep_duration` seconds after the reactor
         # has stopped, not because the messages still need to get where they're
@@ -293,5 +291,9 @@ class TestProducer:
         # hasn't yet propagated to this context.
         sleep(sleep_duration)
 
-        # Finally, the check.  Did we get our message?
-        eq_(len(messages_received), 1)
+        # Finally, the check.  Did we get our ten messages?
+        eq_(len(messages_received), 10)
+
+    def test_idempotence(self):
+        """ Test that running the same test twice still works. """
+        return self.test_produce_str()
