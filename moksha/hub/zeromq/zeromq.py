@@ -27,6 +27,12 @@ from moksha.hub.zeromq.base import BaseZMQHub
 log = logging.getLogger('moksha.hub')
 
 
+class ZMQMessage(object):
+    def __init__(self, topic, body):
+        self.topic = topic
+        self.body = body
+
+
 class ZMQHub(BaseZMQHub):
 
     def __init__(self):
@@ -80,8 +86,12 @@ class ZMQHub(BaseZMQHub):
         for endpoint in self.sub_endpoints:
             log.info("Subscribing to %s on '%r'" % (topic, endpoint))
             s = txZMQ.ZmqSubConnection(self.twisted_zmq_factory, endpoint)
+
+            def intercept(body, topic):
+                return callback(ZMQMessage(topic, body))
+
+            s.gotMessage = intercept
             s.subscribe(topic)
-            s.gotMessage = callback
         super(ZMQHub, self).subscribe(topic, callback)
 
     def close(self):
