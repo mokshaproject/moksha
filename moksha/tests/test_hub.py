@@ -296,4 +296,4 @@ class TestProducer:
 
     def test_idempotence(self):
         """ Test that running the same test twice still works. """
-        return self.test_produce_str()
+        return self.test_produce_ten_strs()
