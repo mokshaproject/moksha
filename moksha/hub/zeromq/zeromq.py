@@ -37,6 +37,7 @@ class ZMQHub(BaseZMQHub):
 
     def __init__(self):
         self.validate_config(self.config)
+        self.strict = asbool(self.config.get('zmq_strict', False))
 
         self.context = zmq.Context(1)
 
@@ -87,11 +88,28 @@ class ZMQHub(BaseZMQHub):
             log.info("Subscribing to %s on '%r'" % (topic, endpoint))
             s = txZMQ.ZmqSubConnection(self.twisted_zmq_factory, endpoint)
 
-            def intercept(body, topic):
-                return callback(ZMQMessage(topic, body))
+            def intercept(_body, _topic):
+                """ The purpose of this intercept callback is twofold:
+
+                 - Callbacks from txZMQ are called with two arguments, body and
+                   topic but moksha is expecting an object which has a 'body'
+                   attribute.  We create that object and pass it on here.
+                 - 0mq topic-matching works differently than AMQP and STOMP.
+                   By default, subscribing to 'abc' will get you messages
+                   tagged 'abc' but also messages sent on the topic 'abcfoo'
+                   and 'abcbar'.  Moksha introduces a custom parameter
+                   'strict' (zmq_strict in the config file) that disallows
+                   this behavior.
+                """
+
+                if self.strict and _topic != topic:
+                    return None
+
+                return callback(ZMQMessage(_topic, _body))
 
             s.gotMessage = intercept
             s.subscribe(topic)
+
         super(ZMQHub, self).subscribe(topic, callback)
 
     def close(self):
