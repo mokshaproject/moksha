@@ -187,6 +187,38 @@ class TestConsumer:
         sleep(sleep_duration)
         eq_(messages_received, [secret, secret])
 
+    def test_receive_str_near_miss(self):
+        """ Send a message.  Three consumers.  Only one receives. """
+
+        messages_received = []
+
+        class BaseConsumer(moksha.api.hub.consumer.Consumer):
+            topic = self.a_topic
+
+            def consume(self, message):
+                messages_received.append(message['body'])
+
+        class Consumer1(BaseConsumer):
+            pass
+
+        class Consumer2(BaseConsumer):
+            topic = BaseConsumer.topic[:-1]
+
+        class Consumer3(BaseConsumer):
+            topic = BaseConsumer.topic + "X"
+
+
+        self.fake_register_consumer(Consumer1)
+        self.fake_register_consumer(Consumer2)
+        self.fake_register_consumer(Consumer3)
+
+        # Now, send a generic message to that topic, and see if Consumer1
+        # processed it but that Consumer2 and Consumer3 didn't
+        self.hub.send_message(topic=self.a_topic, message=secret)
+        simulate_reactor(sleep_duration)
+        sleep(sleep_duration)
+        eq_(messages_received, [secret])
+
     def test_receive_dict(self):
         """ Send a dict with a message.  Consume, extract, and verify it. """
 
