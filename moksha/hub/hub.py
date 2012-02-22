@@ -53,45 +53,51 @@ log = logging.getLogger('moksha.hub')
 
 _hub = None
 
+def find_hub_extensions():
+    """ Return a tuple of hub extensions found in the config file. """
+    global config
+
+    possible_bases = {
+        'amqp_broker': AMQPHub,
+        'stomp_broker': StompHub,
+        'zmq_enabled': ZMQHub,
+    }
+
+    broker_vals = [config.get(k, None) for k in possible_bases.keys()]
+
+    # If we're running outside of middleware and hub, load config
+    if not any(broker_vals):
+        config_path = get_moksha_config_path()
+        if not config_path:
+            print """
+                Cannot find Moksha configuration!  Place a development.ini or production.ini
+                in /etc/moksha or in the current directory.
+            """
+            return
+
+        cfg = appconfig('config:' + config_path)
+        config.update(cfg)
+        broker_vals = [config.get(k, None) for k in possible_bases.keys()]
+
+    # If there are no brokers defined.. that's a problem.
+    if not any(broker_vals):
+        log.warning("No brokers defined.  You're going to have problems.")
+
+    if len(filter(None, broker_vals)) > 1:
+        log.warning("Running with multiple brokers.  "
+                    "This mode is experimental and may or may not work")
+
+    return tuple([
+        b for k, b in possible_bases.items() if config.get(k, None)
+    ])
+
 class MokshaHubMeta(type):
     """ Make the MokshaHub class extend any number of base classes. """
 
     def __new__(meta, name, bases, dct):
-        global config
 
-        possible_bases = {
-            'amqp_broker': AMQPHub,
-            'stomp_broker': StompHub,
-            'zmq_enabled': ZMQHub,
-        }
-
-        broker_vals = [config.get(k, None) for k in possible_bases.keys()]
-
-        # If we're running outside of middleware and hub, load config
-        if not any(broker_vals):
-            config_path = get_moksha_config_path()
-            if not config_path:
-                print """
-                    Cannot find Moksha configuration!  Place a development.ini or production.ini
-                    in /etc/moksha or in the current directory.
-                """
-                return
-
-            cfg = appconfig('config:' + config_path)
-            config.update(cfg)
-            broker_vals = [config.get(k, None) for k in possible_bases.keys()]
-
-        # If there are no brokers defined.. that's a problem.
-        if not any(broker_vals):
-            log.warning("No brokers defined.  You're going to have problems.")
-
-        if len(filter(None, broker_vals)) > 1:
-            log.warning("Running with multiple brokers.  "
-                        "This mode is experimental and may or may not work")
-
-        bases += tuple([
-            b for k, b in possible_bases.items() if config.get(k, None)
-        ])
+        # Add new parent classes after inspecting the config file
+        bases += find_hub_extensions()
 
         # This is a bottom-out case where no brokers are defined.
         # A traceback will occur later when code tries to reference method that
