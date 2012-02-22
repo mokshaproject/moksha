@@ -77,7 +77,7 @@ class TW2LiveWidget(tw2.core.Widget):
         if not self.topic:
             raise MokshaException('You must specify a `topic` to subscribe to')
 
-        self.topic = isinstance(self.topic, list) and self.topic or [self.topic]
+        topics = isinstance(self.topic, list) and self.topic or [self.topic]
 
         backend_lookup = {
             'stomp': StompWidget.callbacks,
@@ -87,11 +87,11 @@ class TW2LiveWidget(tw2.core.Widget):
 
         for callback in callbacks:
             if callback == 'onmessageframe':
-                for topic in self.topic:
+                for topic in topics:
                     cb = getattr(self, 'onmessage').replace('${id}', self.id)
                     moksha.utils.livewidgets[callback][topic].append(cb)
             elif callback == 'onconnectedframe':
-                moksha.utils.livewidgets[callback].append(subscribe_topics(self.topic))
+                moksha.utils.livewidgets[callback].append(subscribe_topics(topics))
             elif getattr(self, callback, None):
                 moksha.utils.livewidgets[callback].append(getattr(self, callback))
 
