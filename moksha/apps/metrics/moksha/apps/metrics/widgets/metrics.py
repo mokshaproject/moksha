@@ -198,7 +198,7 @@ class TW2MokshaMessageMetricsWidget(TW2LiveFlotWidget):
                          'height': 500}
 
     def prepare(self):
-        self.topic = str(uuid.uuid4())
+        self.topic = str(uuid4())
         super(TW2MokshaMessageMetricsWidget, self).prepare()
 
 
