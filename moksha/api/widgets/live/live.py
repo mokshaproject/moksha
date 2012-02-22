@@ -31,6 +31,8 @@ from moksha.api.widgets.stomp import (
     StompWidget, stomp_subscribe, stomp_unsubscribe)
 from moksha.api.widgets.amqp import (
     AMQPSocket, amqp_subscribe, amqp_unsubscribe)
+from moksha.api.widgets.websocket import (
+    WebSocketWidget, websocket_subscribe, websocket_unsubscribe)
 
 import tw2.core.params as pm
 import tw2.core.widgets
@@ -82,6 +84,7 @@ class TW2LiveWidget(tw2.core.Widget):
         backend_lookup = {
             'stomp': StompWidget.callbacks,
             'amqp': AMQPSocket.callbacks,
+            'websocket': WebSocketWidget.callbacks,
         }
         callbacks = backend_lookup[self.backend]
 
@@ -90,7 +93,7 @@ class TW2LiveWidget(tw2.core.Widget):
                 for topic in topics:
                     cb = getattr(self, 'onmessage').replace('${id}', self.id)
                     moksha.utils.livewidgets[callback][topic].append(cb)
-            elif callback == 'onconnectedframe':
+            elif callback in ['onconnectedframe', 'onopen']:
                 moksha.utils.livewidgets[callback].append(subscribe_topics(topics))
             elif getattr(self, callback, None):
                 moksha.utils.livewidgets[callback].append(getattr(self, callback))
@@ -114,13 +117,15 @@ class TW2LiveWidget(tw2.core.Widget):
         backend_lookup = {
             'stomp': stomp_subscribe,
             'amqp': amqp_subscribe,
+            'websocket': websocket_subscribe,
         }
         try:
             return backend_lookup[backend](topics)
         except KeyError:
             raise MokshaException("Unknown `moksha.livesocket.backend` %r. "
-                                  "Valid backends are currently 'amqp' and "
-                                  "'stomp'." % backend)
+                                  "Valid backends are currently %s" % (
+                                    backend, ", ".join(backend_lookup.keys())
+                                  ))
 
     @classmethod
     def unsubscribe_topics(cls, topics):
@@ -128,13 +133,15 @@ class TW2LiveWidget(tw2.core.Widget):
         backend_lookup = {
             'stomp': stomp_unsubscribe,
             'amqp': amqp_unsubscribe,
+            'websocket': websocket_unsubscribe,
         }
         try:
             return backend_lookup[backend](topics)
         except KeyError:
             raise MokshaException("Unknown `moksha.livesocket.backend` %r. "
-                                  "Valid backends are currently 'amqp' and "
-                                  "'stomp'." % backend)
+                                  "Valid backends are currently %s" % (
+                                    backend, ", ".join(backend_lookup.keys())
+                                  ))
 
 
 class TW1LiveWidget(Widget):
@@ -170,6 +177,10 @@ class TW1LiveWidget(Widget):
             callbacks = StompWidget.callbacks
         elif self.backend == 'amqp':
             callbacks = AMQPSocket.callbacks
+        elif self.backend == 'websocket':
+            warnings.warn("No tw1 websocket support yet")
+            callbacks = []
+
         for callback in callbacks:
             if callback == 'onmessageframe':
                 for topic in topics:

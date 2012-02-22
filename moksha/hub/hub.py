@@ -19,6 +19,7 @@
 
 import os
 import sys
+import simplejson
 
 # Look in the current directory for egg-info
 if os.getcwd() not in sys.path:
@@ -39,6 +40,9 @@ try:
 except ImportError: # Twisted 8.2.0 on RHEL5
     class ReactorNotRunning(object):
         pass
+
+from twisted.internet import protocol
+from txws import WebSocketFactory
 
 from moksha.lib.helpers import trace, defaultdict, get_moksha_config_path, get_moksha_appconfig
 from moksha.hub.amqp import AMQPHub
@@ -219,6 +223,62 @@ class CentralMokshaHub(MokshaHub):
 
         self.__run_consumers()
         self.__init_producers()
+        self.__init_websocket_server()
+
+    def __init_websocket_server(self):
+        if self.config.get('moksha.livesocket.backend', 'amqp') != 'websocket':
+            return
+        log.info("Enabling websocket server")
+
+        port = int(self.config.get('moksha.livesocket.websocket.port', 0))
+        if not port:
+            raise ValueError("websocket is backend, but no port set")
+
+        class RelayProtocol(protocol.Protocol):
+            moksha_hub = self
+
+            def dataReceived(self, data):
+                """ Messages sent from the browser arrive here.
+
+                This hook:
+                  1) Acts on any special control messages
+                  2) Forwards messages onto the zeromq hub
+                """
+
+                try:
+                    json = simplejson.loads(data)
+
+                    if json['topic'] == '__topic_subscribe__':
+                        # If this is a custom control message, then subscribe.
+                        def send_to_websocket(zmq_message):
+                            """ Callback.  Sends a message to the browser """
+                            msg = simplejson.dumps({
+                                'topic': zmq_message.topic,
+                                'body': simplejson.loads(zmq_message.body),
+                            })
+                            self.transport.write(msg)
+
+                        _topic = json['body']
+                        log.info("Websocket subscribing to %r." % _topic)
+                        self.moksha_hub.subscribe(_topic, send_to_websocket)
+                    else:
+                        # Else, simply forward on the message through the hub.
+                        self.moksha_hub.send_message(
+                            json['topic'],
+                            json['body'],
+                        )
+
+                except Exception as e:
+                    import traceback
+                    log.error(traceback.format_exc())
+
+
+        class RelayFactory(protocol.Factory):
+            def buildProtocol(self, addr):
+                return RelayProtocol()
+
+        reactor.listenTCP(port, WebSocketFactory(RelayFactory()))
+        log.info("Websocket server set to run on port %r" % port)
 
     # TODO -- consider moving this to the AMQP specific modules
     def __init_amqp(self):

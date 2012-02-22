@@ -23,13 +23,16 @@ from live import (
 )
 from moksha.api.widgets.stomp import StompWidget
 from moksha.api.widgets.amqp import AMQPSocket
+from moksha.api.widgets.websocket import WebSocketWidget
 
 livesocket_backend = pylons.config.get('moksha.livesocket.backend', 'stomp').lower()
 if livesocket_backend == 'stomp':
     moksha_socket = StompWidget
 elif livesocket_backend == 'amqp':
     moksha_socket = AMQPSocket
+elif livesocket_backend == 'websocket':
+    moksha_socket = WebSocketWidget
 else:
     raise Exception("Unknown `moksha.livesocket.backend` %r.  Available backends: "
-                    "stomp, amqp" % livesocket_backend)
+                    "stomp, amqp, websocket" % livesocket_backend)
 del(livesocket_backend)

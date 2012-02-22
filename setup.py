@@ -43,6 +43,7 @@ setup(
         "Twisted",
         "stomper",
         "txZMQ",
+        "txWS",
         "Sphinx",
         "fabulous",
         "Paver",
