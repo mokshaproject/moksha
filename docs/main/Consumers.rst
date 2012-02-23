@@ -35,6 +35,13 @@ Creating
 
    Wildcard topics do not work using STOMP.
 
+.. note::
+
+   If you're using 0mq and ``zmq_strict`` is set to False in your config file,
+   then your topic will behave like it usually does with 0mq.  i.e.: `foo` will
+   match `foobar`, `foobaz, and `foo`.  If ``zmq_strict`` is set to True then
+   `foo` will match only `foo` and not `foobaz` or `foobar`.
+
 Installing
 ----------
 

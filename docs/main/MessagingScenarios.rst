@@ -12,7 +12,6 @@ Cons:
 
 .. image:: ../_static/moksha-messaging-stomp-amqp.png
 
-
 Pros
     - STOMP/AMQP broker bridging
 Cons
@@ -27,6 +26,17 @@ Pros:
     - Flexibility and power of AMQP queues, exchanges, routing keys, etc.
 Cons:
     - Relatively new and not 100% complete JavaScript bindings
+
+.. image:: ../_static/moksha-messaging-0mq.png
+
+Pros:
+    - Uses native WebSockets, not a giant javascript shim
+    - Blazing fast.  ~100 times faster hub processing
+    - Distributed.  No central broker
+    - Only `moksha-hub` and the WSGI stack.  No orbited, no broker.
+Cons:
+    - Uses native WebSockets, not supported on all browsers
+    - No built in persistance or delivery guarantee
 
 .. seealso::
 

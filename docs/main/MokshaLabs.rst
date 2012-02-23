@@ -10,7 +10,6 @@ The Moksha Labs is an experimental R&D playground for reusable apps & widgets.
    Feeds
    CSRFProtection
    MokshaContainerWidgets
-   Connectors
    Blueprint
 
    #../apps/MokshaMenus

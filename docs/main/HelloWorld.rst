@@ -208,7 +208,7 @@ One of the features that makes Moksha unique in the web framework world is that
 it encorporates a Message Broker into the mix, allowing you to create highly
 responsive and interactive web applications.
 
-Traditionally, the messaging world is full of acronyms (AMQP, STOMP) and
+Traditionally, the messaging world is full of acronyms (AMQP, STOMP, 0mq) and
 complexity (queues, exchanges, binding keys, flow control).  Moksha, on the
 other hand, aims to provide a high level abstraction on top of these concepts,
 while offering a trivial API for people to utilize them with ease.

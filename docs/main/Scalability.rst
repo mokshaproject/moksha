@@ -33,6 +33,8 @@ production environment:
 - WSGI/TG2 frontends
 - Orbited proxies
 - AMQP message brokers
-- Moksha hub (Feed fetchers / Data pollers / AMQP hooks & triggers)
+- 0mq message fabric
+- Moksha hub (Feed fetchers / Data pollers / AMQP hooks & triggers / WebSocket
+  Server)
 - memcached daemons
 - Databases

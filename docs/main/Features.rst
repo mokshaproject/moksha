@@ -18,7 +18,7 @@ Messaging Hub
 
 Moksha provides a message hub that allows for other applications, services, or users to communicate over a low-latency topic-based publish/subscribe message bus.  It's designed in such a way as to facilitate a variety of different message flows, allowing for a combination of different message queueing brokers and protocols.
 
-Out of the box, Moksha utilizes `MorbidQ <http://www.morbidq.com/>`_, a lightweight message queue for bundled deployment, for it's message queueing needs.  With a 1-line change to Moksha's configuration file, you can integrate it with an existing `AMQP <http://amqp.org/>`_ broker, such as `Qpid <http://incubator.apache.org/qpid/>`_ or `RabbitMQ <http://rabbitmq.com>`_.
+Out of the box, Moksha utilizes `MorbidQ <http://www.morbidq.com/>`_, a lightweight message queue for bundled deployment, for it's message queueing needs.  With a 1-line change to Moksha's configuration file, you can integrate it with an existing `AMQP <http://amqp.org/>`_ broker, such as `Qpid <http://incubator.apache.org/qpid/>`_ or `RabbitMQ <http://rabbitmq.com>`_.  With similarly small configuration changes, you can integrate it with a `0mq <http://www.zeormq.org>`_ messaging fabric.
 
 .. seealso::
 
@@ -32,6 +32,10 @@ server that allows for asynchronous browser <-> server communication (Comet).  M
 then makes it simple to create :doc:`LiveWidgets` that can publish and
 subscribe to arbitrary message topics in the :doc:`MokshaHub`.  This
 allows for the creation of very rich live web applications.
+
+Moksha also packs a built-in WebSocket server and Live Widget mixin as an
+alternative to the Orbited (Comet) pattern.  The WebSocket pattern is compatible
+with only the 0mq messaging backend.
 
 Plugin Infrastructure
 ---------------------
@@ -63,16 +67,6 @@ subscribe to message :doc:`Topics`.
 
    :doc:`Widgets`
 
-Resource Connectors
--------------------
-
-Moksha offers a Resource Layer that trivializes interacting with external
-services in an intelligent and efficient manner.
-
-.. seealso::
-
-   :doc:`Connectors`
-
 Highly Scalable Architecture
 ----------------------------
 
@@ -84,7 +78,7 @@ Expert System
 
 :doc:`MokshaHub` gives you Expert System-like functionality by providing
 APIs for interacting with a variety of knowledge bases (SQLAlchemy models,
-Resource Connectors, Caches, Message Queues, etc), and can easily monitor and
+Caches, Message Queues, etc), and can easily monitor and
 process incoming data.  One could then easily build state-machines, inference
 engines, or even forward/backward-chaning rule-driven expert systems.
 

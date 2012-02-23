@@ -74,7 +74,14 @@ open protocols.
 `Qpid <http://incubator.apache.org/qpid/>`_ is a message broker daemon that
 receives, stores, and routes messages using the AMQP protocol.
 
+`0mq <http://www.zeromq.org/>`_
+-------------------------------
+
+`0mq <http://www.zeromq.org/>`_ is a socket library that acts as a concurrency
+framework.  Think `"spicy sockets on steroids"`.  It is one the pluggable
+messaging backends for the :doc:`MokshaHub` alongside AMQP and STOMP.
+
 `Twisted <http://twistedmatrix.com>`_
 -------------------------------------
 
-Twisted is an event-driven networking engine written in Python.  It is the core engine for the :doc:`MokshaHub`, which reacts to incoming messages, as well as runs our :doc:`Producers`.
+Twisted is an event-driven networking engine written in Python.  It is the core engine for the :doc:`MokshaHub`, which reacts to incoming messages (:doc:`Consumers`), runs our :doc:`Producers`, and drives the :doc:`WebSocket` Server (if it is enabled).

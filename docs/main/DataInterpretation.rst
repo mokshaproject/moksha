@@ -15,9 +15,9 @@ Live streams
 ------------
 
 Any data source, even if moksha has to occasionally poll it, can be displayed
-as a 'live' widget.  "Data streams", or Producers,  can also easily expose
-themselves through an AMQP or STOMP message queue, allowing other applications
-and services to interact with new data, as it is discovered.
+as a 'live' widget.  :doc:`Producers` can also easily expose
+themselves through an AMQP/STOMP message queue or 0mq message filter, allowing
+other applications and services to interact with new data, as it is discovered.
 
 Consumers
 ---------

@@ -74,7 +74,13 @@ uses a little bit of jQuery to add and remove feed entries from a list.
 Live Widget Interaction
 -----------------------
 
+Live Widget speaking AMQP or STOMP
+
 .. image:: ../_static/live_widget_interaction.png
+
+Live Widget speaking WebSocket to 0mq
+
+.. image:: ../_static/live_widget_interaction_websocket.png
 
 Dependency on GlobalResourceInjectionWidget
 -------------------------------------------
