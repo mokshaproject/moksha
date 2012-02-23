@@ -51,11 +51,11 @@ make it look something like this:
 
         """
 
-After modifying your entry-points, you'll need to re-generate your project's `egg-info`.  A number of the `fabric` commands can do this for you, in particular:
+After modifying your entry-points, you'll need to re-generate your project's `egg-info`.  The `moksha-ctl.py` command has a number of subcommands that can do this for you, in particular:
 
 .. code-block:: bash
 
-    $ fab -H localhost egg_info
+    $ ./moksha-ctl.py egg_info
 
 Alternatively, you can do it yourself.
 

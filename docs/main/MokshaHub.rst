@@ -27,7 +27,9 @@ CentralMokshaHub
 
 The :class:`CentralMokshaHub` is the primary consumer of all message ``topics``.
 It runs outside of the Moksha WSGI application stack, and is automatically
-started by the ``$ fab start`` command (and can be started manually by running ``moksha-hub``).
+started by the ``$ ./moksha-ctl.py start`` or
+``$ ./moksha-ctl.py start:moksha-hub``
+commands (and can be started manually by running ``moksha-hub``).
 
 The :class:`CentralMokshaHub` currently handles the following tasks:
 

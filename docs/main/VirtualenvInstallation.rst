@@ -20,14 +20,14 @@ For Fedora/Red Hat/CentOS based environments:
 
 .. code-block:: bash
 
-    # yum -y install python-virtualenv gcc openssl-devel fabric
+    # yum -y install python-virtualenv gcc openssl-devel
     # yum-builddep -y python-lxml pyOpenSSL python-sqlite2
 
 On Ubuntu/Debian:
 
 .. code-block:: bash
 
-   # apt-get install git python-dev python-virtualenv fabric
+   # apt-get install git python-dev python-virtualenv
 
 
 Getting the code
@@ -43,7 +43,8 @@ Bootstrapping the environment
 
 .. code-block:: bash
 
-    $ fab -H localhost bootstrap
+    $ ./moksha-ctl.py bootstrap
+    $ ./moksha-ctl.py rebuild
 
 .. note::
    This script takes care of setting up your TurboGears2 virtual environment.
@@ -55,18 +56,31 @@ Starting
 
 .. code-block:: bash
 
-    $ fab -H localhost start
+    $ ./moksha-ctl.py start
+
+You can also automatically tail the logs after starting by appending another
+subcommand.
+
+.. code-block:: bash
+
+    $ ./moksha-ctl.py restart logs
 
 Stopping
 ~~~~~~~~
 
 .. code-block:: bash
 
-    $ fab -H localhost stop
+    $ ./moksha-ctl.py stop
+
+Debugging
+~~~~~~~~~
+
+.. code-block:: bash
+    $ ./moksha-ctl.py wtf
 
 .. note::
-    The fabric script `fabfile.py` contains a number of utilities.  You can see
-    a list by running ``$ fab --list``.
+    The ./moksha-ctl.py script contains a number of utilities.  You can see
+    a list by running ``$ ./moksha-ctl.py --help``.
 
 Using Moksha
 ~~~~~~~~~~~~
