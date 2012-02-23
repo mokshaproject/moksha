@@ -1,4 +1,19 @@
 #!/usr/bin/env python
+""" Speed test script for evaluating amqp and zmq.
+
+Run this with amqp enabled in `development.ini` and again with zmq enabled.
+At the time this script was authored, zmq appeared to be (in the raw) ~85 times
+faster than amqp.
+
+In order to make things 'fair', you can stand up and run the
+``tools/zmq_broker.py`` script to act as a zmq repeater (a fake broker) for the
+moksha-hub.  This way, twice as many zmq messages need to be sent (as is the
+case in amqp where the broker (qpidd) is mandatory).  In this case, zmq appeared
+to be ~65 times faster than amqp.
+
+    Author: Ralph Bean <rbean@redhat.com>
+
+"""
 
 from moksha.hub import MokshaHub, find_hub_extensions
 from moksha.tests.test_hub import simulate_reactor
