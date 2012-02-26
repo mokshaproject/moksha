@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-:mod:`moksha.api.widgets.websocket` - An AMQP driven live Moksha socket
+:mod:`moksha.api.widgets.websocket` - An "WebSocket" Live Moksha socket
 ==================================================================
 
 .. moduleauthor:: Ralph Bean <rbean@redhat.com>
