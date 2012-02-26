@@ -24,6 +24,7 @@ import moksha.utils
 
 from tg import config
 from paste.deploy.converters import asbool
+import warnings
 
 import tw.api
 import tw2.core as twc
@@ -66,7 +67,7 @@ class TW2WebSocketWidget(twc.Widget):
     ws_host = twc.Param(
         default=config.get('moksha.livesocket.websocket.host', 'localhost'))
     ws_port = twc.Param(
-        default=config.get('moksha.livesocket.websocket.port', 9998))
+        default=config.get('moksha.livesocket.websocket.port', '9998'))
 
     callbacks = [
         "onopen", "onclose", "onerror",
