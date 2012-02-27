@@ -10,7 +10,7 @@ if (typeof moksha_amqp_conn == 'undefined') {
 		var dest = msg.header.delivery_properties.routing_key;
 		var json = null;
 		try {
-			var json = $.parseJSON(msg.body);
+			var json = JSON.parse(msg.body);
 		} catch(err) {
 			moksha.error("Unable to decode JSON message body");
 			moksha.error(msg);
