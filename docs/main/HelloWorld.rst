@@ -361,9 +361,9 @@ people to send their own messages to the `helloworld` topic:
            <form onsubmit="return send_msg()">
                <input name="text" id="text"/>
            </form>
-   
+
            <ul id="data"/>
-   
+
            <script>
                function send_msg() {
                    moksha.send_message('helloworld', {'msg': $('#text').val()});
@@ -462,7 +462,7 @@ Then we create a simple template that displays the entries.
 .. code-block:: html
 
    <h1>Entries in the HelloWorld model</h1>
-   
+
    <ul>
      % for entry in entries:
          <li>${str(entry.id)} - ${entry.message} - ${str(entry.timestamp)}</li>

@@ -64,5 +64,5 @@ AMQP Broker in your``/etc/orbited.cfg``
 .. note::
 
    AMQP support in Moksha has been tested with `Qpid <http://qpid.apache.org>`_.
-      
+
       `RabbitMQ <http://rabbitmq.com>`_ support is under development.  See the :doc:`RabbitMQ` documentation for details on testing it.

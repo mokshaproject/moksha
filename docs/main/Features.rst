@@ -51,7 +51,7 @@ Widget Creation API
 
 `ToscaWidgets <http://toscawidgets.org>`_ provides a powerful API for creating
 reusable "Widgets", which are essentially just bundles of HTML, JavaScript,
-CSS, and render-time logic.  The ToscaWidgets WSGI Middleware is also integrated 
+CSS, and render-time logic.  The ToscaWidgets WSGI Middleware is also integrated
 into Moksha, which handles intelligently injecting Widget resources.
 
 Moksha also provides a variety of other Widgets, including a :doc:`LiveWidget`

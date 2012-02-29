@@ -32,18 +32,18 @@ You will first need to wrap the MokshaMiddleware around your application.
    @@ -1,6 +1,8 @@
     # -*- coding: utf-8 -*-
     """WSGI middleware initialization for the JQPlotDemo application."""
-    
+
    +from moksha.middleware import make_moksha_middleware
    +
     from jqplotdemo.config.app_cfg import base_config
     from jqplotdemo.config.environment import load_environment
-    
+
    @@ -32,7 +34,7 @@ def make_app(global_conf, full_stack=True, **app_conf):
 
         """
    -    app = make_base_app(global_conf, full_stack=True, **app_conf)
    +    app = make_base_app(global_conf, full_stack=True, wrap_app=make_moksha_middleware, **app_conf)
-        
+
         # Wrap your base TurboGears 2 application with custom middleware here
 
 
@@ -67,7 +67,7 @@ adding the global_resources, identity, and the moksha_socket to the
    @@ -5,7 +5,8 @@ from tw.api import js_function
     from tg import expose, flash, require, url, request, redirect, tmpl_context
     from pylons.i18n import ugettext as _, lazy_ugettext as l_
-    
+
    -from jqplotdemo.lib.base import BaseController
    +from moksha.lib.base import BaseController
    +
@@ -90,7 +90,7 @@ Inject the global resources
 Moksha has a Global Resource Injection Widget that automatically handles
 injecting any JavaScript, CSS or Widgets that you want.  In this example,
 as you will see below, there are a couple of widgets on the `[moksha.global]`
-entry-point.  
+entry-point.
 
 By adding the line of code below to your master template, Moksha will ensure
 that your global resources are always injected.
@@ -155,7 +155,7 @@ JavaScript callback, which will get run with each new message.
    -from tw.jquery.jqplot import AsynchronousJQPlotWidget
    +from tw.jquery.jqplot import AsynchronousJQPlotWidget, JQPlotWidget
    +from moksha.api.widgets.live import LiveWidget
-    
+
    -plot_widget = AsynchronousJQPlotWidget(id='plot_widget',
    +class LiveJQPlotWidget(JQPlotWidget, LiveWidget):
    +    """ A live plotting Widget, powered by Moksha & tw.jquery.JQPlot
@@ -172,7 +172,7 @@ JavaScript callback, which will get run with each new message.
    -        src_url='plots', interval=2000)
    +        topic='jqplot.demo.plot')
    +
-    
+
    -pie_widget = AsynchronousJQPlotWidget(id='pie_widget',
    +pie_widget = LiveJQPlotWidget(id='pie_widget',
             extra_js=[tw.jquery.jqplot.jqp_pie_js],
@@ -197,7 +197,7 @@ all of the widgets can share.
    --- a/setup.py
    +++ b/setup.py
    @@ -43,5 +43,13 @@ setup(
-    
+
         [paste.app_install]
         main = pylons.util:PylonsInstaller
    +
@@ -221,46 +221,46 @@ To start the message producing data stream, you will need to run the ``moksha-hu
 
    Running your app inside of Moksha
    ---------------------------------
-   
+
    The above example shows how you can easily use Moksha within your existing app.
    Moksha also allows lets you run your app inside of it.  Moksha is preconfigured
    to run in an Apache & mod_wsgi environment, which will handle loading and
    mounting your apps within itself.
-   
-   
+
+
    .. warning::
-   
+
       If you're running your app inside of Moksha, you must ensure that you
       are not running the MokshaMiddleware inside of your app first.  This
       currently leads to a fun infinite WSGI middleware loop :)
-   
+
       So if you're creating a new app, don't worry about this, but for the above
       example, just remove the `wrap_app=make_moksha_middleware` from your
       `jqplotdemo/config/middleware.py`
-   
-   
+
+
    Create your WSGI app
    ~~~~~~~~~~~~~~~~~~~~
-   
+
    If your app is already WSGI-mountable, then don't worry about this.  For a TurboGears2 app, it's as easy as:
-   
+
    .. code-block:: diff
-   
+
       --- /dev/null
       +++ b/jqplotdemo/wsgi.py
       @@ -0,0 +1,2 @@
       +from paste.deploy import loadapp
       +application = loadapp('config:/etc/moksha/conf.d/jqplotdemo/production.ini')
-   
-   
+
+
    Make a production configuration
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   
+
    In production we want to make sure any caches are setup in the right spot.
    We base the `production.ini` on our existing `development.ini`, and make a tiny tweak.
-   
+
    .. code-block:: diff
-   
+
       --- development.ini
       +++ production.in
       @@ -23,7 +23,7 @@
@@ -269,41 +269,41 @@ To start the message producing data stream, you will need to run the ``moksha-hu
       -cache_dir = %(here)s/data
       +cache_dir = /var/cache/moksha/jqplotdemo/data
        beaker.session.key = jqplotdemo
-   
+
    .. code-block:: diff
-   
-      --- a/ MANIFEST.in      
-      +++ b/ MANIFEST.in      
+
+      --- a/ MANIFEST.in
+      +++ b/ MANIFEST.in
       @@ -2,3 +2,4 @@ recursive-include jqplotdemo/public *
        include jqplotdemo/public/favicon.ico
        recursive-include jqplotdemo/i18n *
        recursive-include jqplotdemo/templates *
       +include production.ini
-   
-   
+
+
    Integrate your TG2/WSGI app into Moksha
    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   
+
    You can plug your WSGI application into Moksha by using the `moksha.wsgiapp`
    entry-point.
-   
+
    .. code-block:: diff
-   
-      --- a/ setup.py 
-      +++ b/ setup.py 
+
+      --- a/ setup.py
+      +++ b/ setup.py
       @@ -47,6 +47,9 @@ setup(
            [moksha.stream]
            jqplot_stream = jqplotdemo.streams:JQPlotDemoStream
-       
+
       +    [moksha.wsgiapp]
       +    jqplotdemo = jqplotdemo.wsgi:application
       +
            [moksha.global]
            moksha_socket = moksha.api.widgets:moksha_socket
-   
-   
+
+
    .. seealso::
-   
+
       :doc:`PluginEntryPoints`
-   
-   
+
+

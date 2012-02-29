@@ -10,9 +10,9 @@ piece of Moksha, and will grow more features in the future.
 
    $ moksha --help
    Usage: moksha [command]
-   
+
     The Moksha Command-line Interface
-   
+
    Options:
      -h, --help  show this help message and exit
      --start     Start Moksha
