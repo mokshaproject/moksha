@@ -46,7 +46,7 @@ var default_port = 5672;
 
 // The minimum size (in bytes) which can be     agreed upon as the maximum frame size.
 var MIN_MAX_FRAME_SIZE = 4096;
- 
+
 
 var amqp_types = {};
 var amqp_typecodes = {};
@@ -1745,9 +1745,9 @@ amqp_classes['connection'] = new function(){
     this.struct_codes = {};
     this.messages = {};
     this.message_codes = {};
-    
 
-    
+
+
     // start connection negotiation
     this.messages['START'] = 0x1;
     this.messages['start'] = Class(ControlMessageMarshaler, function(s) {
@@ -1756,7 +1756,7 @@ amqp_classes['connection'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
         // server properties
         this.fields.push(['server_properties', amqp_types['map'], false, 1]);
 
@@ -1778,7 +1778,7 @@ amqp_classes['connection'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
         // client properties
         this.fields.push(['client_properties', amqp_types['map'], false, 1]);
 
@@ -1803,7 +1803,7 @@ amqp_classes['connection'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
         // security challenge data
         this.fields.push(['challenge', amqp_types['vbin32'], true, 1]);
 
@@ -1819,7 +1819,7 @@ amqp_classes['connection'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
         // security response data
         this.fields.push(['response', amqp_types['vbin32'], true, 1]);
 
@@ -1835,7 +1835,7 @@ amqp_classes['connection'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
         // proposed maximum channels
         this.fields.push(['channel_max', amqp_types['uint16'], false, 1]);
 
@@ -1860,7 +1860,7 @@ amqp_classes['connection'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
         // negotiated maximum channels
         this.fields.push(['channel_max', amqp_types['uint16'], true, 1]);
 
@@ -1882,7 +1882,7 @@ amqp_classes['connection'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
         // virtual host name
         this.fields.push(['virtual_host', amqp_types['str8'], true, 1]);
 
@@ -1904,7 +1904,7 @@ amqp_classes['connection'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
         // alternate hosts which may be used in         the case of failure
         this.fields.push(['known_hosts', amqp_types['array'], false, 1]);
 
@@ -1920,7 +1920,7 @@ amqp_classes['connection'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
         // server to connect to
         this.fields.push(['host', amqp_types['str16'], true, 1]);
 
@@ -1939,7 +1939,7 @@ amqp_classes['connection'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
     ;
     });
     this.message_codes[0xa] = this.messages['heartbeat'];
@@ -1952,7 +1952,7 @@ amqp_classes['connection'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
         // the numeric reply code
         this.fields.push(['reply_code', amqp_types['uint16'], true, 1]);
 
@@ -1971,7 +1971,7 @@ amqp_classes['connection'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
     ;
     });
     this.message_codes[0xc] = this.messages['close_ok'];
@@ -1980,7 +1980,7 @@ amqp_classes['connection'] = new function(){
 }();
 
 amqp_classes['Connection'] = new function(){
-   
+
     this.start = function(params) {
         return new amqp.protocol.Message({marshaler: new amqp_classes['connection'].messages['start'](),
                                           parsed_data: params});
@@ -2055,7 +2055,7 @@ amqp_classes['session'] = new function(){
     this.struct_codes = {};
     this.messages = {};
     this.message_codes = {};
-    
+
     this.structs['HEADER'] = 0;
     this.structs['header'] = Class(StructMarshaler, function(s) {
         this.code = 0;
@@ -2064,7 +2064,7 @@ amqp_classes['session'] = new function(){
         this.size = 1;
         this.parent_class = this_class;
         this.fields = [];
-        
+
         // request notification of completion
         this.fields.push(['sync', amqp_types['bit'], false, 1]);
 
@@ -2080,7 +2080,7 @@ amqp_classes['session'] = new function(){
         this.size = 0;
         this.parent_class = this_class;
         this.fields = [];
-        
+
         // None
         this.fields.push(['command_id', amqp_types['sequence_no'], true, 1]);
 
@@ -2092,7 +2092,7 @@ amqp_classes['session'] = new function(){
     this.struct_codes[0] = this.structs['command_fragment'];
 
 
-    
+
     // attach to the named session
     this.messages['ATTACH'] = 0x1;
     this.messages['attach'] = Class(ControlMessageMarshaler, function(s) {
@@ -2101,7 +2101,7 @@ amqp_classes['session'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
         // the session name
         this.fields.push(['name', amqp_types['vbin16'], true, 1]);
 
@@ -2120,7 +2120,7 @@ amqp_classes['session'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
         // the session name
         this.fields.push(['name', amqp_types['vbin16'], true, 1]);
 
@@ -2136,7 +2136,7 @@ amqp_classes['session'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
         // the session name
         this.fields.push(['name', amqp_types['vbin16'], true, 1]);
 
@@ -2152,7 +2152,7 @@ amqp_classes['session'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
         // the session name
         this.fields.push(['name', amqp_types['vbin16'], true, 1]);
 
@@ -2171,7 +2171,7 @@ amqp_classes['session'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
         // the requested timeout
         this.fields.push(['timeout', amqp_types['uint32'], false, 1]);
 
@@ -2187,7 +2187,7 @@ amqp_classes['session'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
         // the execution timeout
         this.fields.push(['timeout', amqp_types['uint32'], false, 1]);
 
@@ -2203,7 +2203,7 @@ amqp_classes['session'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
         // the command-id of the next command
         this.fields.push(['command_id', amqp_types['sequence_no'], true, 1]);
 
@@ -2222,7 +2222,7 @@ amqp_classes['session'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
         // expected commands
         this.fields.push(['commands', amqp_types['sequence_set'], true, 1]);
 
@@ -2241,7 +2241,7 @@ amqp_classes['session'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
         // entirely confirmed commands
         this.fields.push(['commands', amqp_types['sequence_set'], false, 1]);
 
@@ -2260,7 +2260,7 @@ amqp_classes['session'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
         // completed commands
         this.fields.push(['commands', amqp_types['sequence_set'], false, 1]);
 
@@ -2279,7 +2279,7 @@ amqp_classes['session'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
         // commands known to be complete
         this.fields.push(['commands', amqp_types['sequence_set'], false, 1]);
 
@@ -2295,7 +2295,7 @@ amqp_classes['session'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
         // request notification of expected commands
         this.fields.push(['expected', amqp_types['bit'], false, 1]);
 
@@ -2317,7 +2317,7 @@ amqp_classes['session'] = new function(){
         this.parent_class = this_class;
         this.fields = [];
 
-        
+
         // None
         this.fields.push(['commands', amqp_types['sequence_set'], false, 1]);
 
@@ -2329,7 +2329,7 @@ amqp_classes['session'] = new function(){
 }();
 
 amqp_classes['Session'] = new function(){
-   
+
     this.attach = function(params) {
         return new amqp.protocol.Message({marshaler: new amqp_classes['session'].messages['attach'](),
                                           parsed_data: params});
@@ -2409,9 +2409,9 @@ amqp_classes['execution'] = new function(){
     this.struct_codes = {};
     this.messages = {};
     this.message_codes = {};
-    
 
-    
+
+
     // request notification of completion for issued commands
     this.messages['SYNC'] = 0x1;
     this.messages['sync'] = Class(CommandMessageMarshaler, function(s) {
@@ -2421,9 +2421,9 @@ amqp_classes['execution'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
 
-        
+
+
 
     });
     this.message_codes[0x1] = this.messages['sync'];
@@ -2437,7 +2437,7 @@ amqp_classes['execution'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['command_id', amqp_types['sequence_no'], true, 1]);
 
@@ -2445,7 +2445,7 @@ amqp_classes['execution'] = new function(){
         this.fields.push(['value', amqp_types['struct32'], false, 2]);
 
 
-        
+
 
     });
     this.message_codes[0x2] = this.messages['result'];
@@ -2459,7 +2459,7 @@ amqp_classes['execution'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // error code indicating the         type of error
         this.fields.push(['error_code', amqp_types['uint16'], true, 1]);
 
@@ -2482,7 +2482,7 @@ amqp_classes['execution'] = new function(){
         this.fields.push(['error_info', amqp_types['map'], false, 64]);
 
 
-        
+
 
     });
     this.message_codes[0x3] = this.messages['exception'];
@@ -2491,7 +2491,7 @@ amqp_classes['execution'] = new function(){
 }();
 
 amqp_classes['Execution'] = new function(){
-   
+
     this.sync = function(params) {
         return new amqp.protocol.Message({marshaler: new amqp_classes['execution'].messages['sync'](),
                                           parsed_data: params});
@@ -2521,7 +2521,7 @@ amqp_classes['message'] = new function(){
     this.struct_codes = {};
     this.messages = {};
     this.message_codes = {};
-    
+
     this.structs['DELIVERY_PROPERTIES'] = 0x1;
     this.structs['delivery_properties'] = Class(StructMarshaler, function(s) {
         this.code = 0x1;
@@ -2530,7 +2530,7 @@ amqp_classes['message'] = new function(){
         this.size = 4;
         this.parent_class = this_class;
         this.fields = [];
-        
+
         // controls discard of unroutable messages
         this.fields.push(['discard_unroutable', amqp_types['bit'], false, 1]);
 
@@ -2579,7 +2579,7 @@ amqp_classes['message'] = new function(){
         this.size = 4;
         this.parent_class = this_class;
         this.fields = [];
-        
+
         // None
         this.fields.push(['first', amqp_types['bit'], false, 1]);
 
@@ -2601,7 +2601,7 @@ amqp_classes['message'] = new function(){
         this.size = 2;
         this.parent_class = this_class;
         this.fields = [];
-        
+
         // the name of the exchange to reply to
         this.fields.push(['exchange', amqp_types['str8'], false, 1]);
 
@@ -2620,7 +2620,7 @@ amqp_classes['message'] = new function(){
         this.size = 4;
         this.parent_class = this_class;
         this.fields = [];
-        
+
         // length of the body segment in bytes
         this.fields.push(['content_length', amqp_types['uint64'], false, 1]);
 
@@ -2660,7 +2660,7 @@ amqp_classes['message'] = new function(){
         this.size = 4;
         this.parent_class = this_class;
         this.fields = [];
-        
+
         // None
         this.fields.push(['transfers', amqp_types['sequence_set'], true, 1]);
 
@@ -2676,7 +2676,7 @@ amqp_classes['message'] = new function(){
         this.size = 4;
         this.parent_class = this_class;
         this.fields = [];
-        
+
         // None
         this.fields.push(['offset', amqp_types['uint64'], false, 1]);
 
@@ -2685,7 +2685,7 @@ amqp_classes['message'] = new function(){
     this.struct_codes[0x5] = this.structs['message_resume_result'];
 
 
-    
+
     // transfer a message
     this.messages['TRANSFER'] = 0x1;
     this.messages['transfer'] = Class(CommandMessageMarshaler, function(s) {
@@ -2695,7 +2695,7 @@ amqp_classes['message'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // message destination
         this.fields.push(['destination', amqp_types['str8'], false, 1]);
 
@@ -2706,7 +2706,7 @@ amqp_classes['message'] = new function(){
         this.fields.push(['acquire_mode', amqp_types['uint8'], true, 4]);
 
 
-        
+
         this.segments.push({
             name: '_header',
             marshaler: Class(HeaderSegmentMarshaler, function(s) {
@@ -2733,12 +2733,12 @@ amqp_classes['message'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['transfers', amqp_types['sequence_set'], true, 1]);
 
 
-        
+
 
     });
     this.message_codes[0x2] = this.messages['accept'];
@@ -2752,7 +2752,7 @@ amqp_classes['message'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['transfers', amqp_types['sequence_set'], true, 1]);
 
@@ -2763,7 +2763,7 @@ amqp_classes['message'] = new function(){
         this.fields.push(['text', amqp_types['str8'], false, 4]);
 
 
-        
+
 
     });
     this.message_codes[0x3] = this.messages['reject'];
@@ -2777,7 +2777,7 @@ amqp_classes['message'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['transfers', amqp_types['sequence_set'], true, 1]);
 
@@ -2785,7 +2785,7 @@ amqp_classes['message'] = new function(){
         this.fields.push(['set_redelivered', amqp_types['bit'], false, 2]);
 
 
-        
+
 
     });
     this.message_codes[0x4] = this.messages['release'];
@@ -2799,12 +2799,12 @@ amqp_classes['message'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['transfers', amqp_types['sequence_set'], true, 1]);
 
 
-        
+
 
     });
     this.message_codes[0x5] = this.messages['acquire'];
@@ -2818,7 +2818,7 @@ amqp_classes['message'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['destination', amqp_types['str8'], false, 1]);
 
@@ -2826,7 +2826,7 @@ amqp_classes['message'] = new function(){
         this.fields.push(['resume_id', amqp_types['str16'], true, 2]);
 
 
-        
+
 
     });
     this.message_codes[0x6] = this.messages['resume'];
@@ -2840,7 +2840,7 @@ amqp_classes['message'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['queue', amqp_types['str8'], true, 1]);
 
@@ -2866,7 +2866,7 @@ amqp_classes['message'] = new function(){
         this.fields.push(['arguments', amqp_types['map'], false, 128]);
 
 
-        
+
 
     });
     this.message_codes[0x7] = this.messages['subscribe'];
@@ -2880,12 +2880,12 @@ amqp_classes['message'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['destination', amqp_types['str8'], true, 1]);
 
 
-        
+
 
     });
     this.message_codes[0x8] = this.messages['cancel'];
@@ -2899,7 +2899,7 @@ amqp_classes['message'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['destination', amqp_types['str8'], false, 1]);
 
@@ -2907,7 +2907,7 @@ amqp_classes['message'] = new function(){
         this.fields.push(['flow_mode', amqp_types['uint8'], true, 2]);
 
 
-        
+
 
     });
     this.message_codes[0x9] = this.messages['set_flow_mode'];
@@ -2921,7 +2921,7 @@ amqp_classes['message'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['destination', amqp_types['str8'], false, 1]);
 
@@ -2932,7 +2932,7 @@ amqp_classes['message'] = new function(){
         this.fields.push(['value', amqp_types['uint32'], false, 4]);
 
 
-        
+
 
     });
     this.message_codes[0xa] = this.messages['flow'];
@@ -2946,12 +2946,12 @@ amqp_classes['message'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['destination', amqp_types['str8'], false, 1]);
 
 
-        
+
 
     });
     this.message_codes[0xb] = this.messages['flush'];
@@ -2965,12 +2965,12 @@ amqp_classes['message'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['destination', amqp_types['str8'], false, 1]);
 
 
-        
+
 
     });
     this.message_codes[0xc] = this.messages['stop'];
@@ -2979,7 +2979,7 @@ amqp_classes['message'] = new function(){
 }();
 
 amqp_classes['Message'] = new function(){
-   
+
     this.transfer = function(params) {
         return new amqp.protocol.Message({marshaler: new amqp_classes['message'].messages['transfer'](),
                                           parsed_data: params});
@@ -3054,9 +3054,9 @@ amqp_classes['tx'] = new function(){
     this.struct_codes = {};
     this.messages = {};
     this.message_codes = {};
-    
 
-    
+
+
     // select standard transaction mode
     this.messages['SELECT'] = 0x1;
     this.messages['select'] = Class(CommandMessageMarshaler, function(s) {
@@ -3066,9 +3066,9 @@ amqp_classes['tx'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
 
-        
+
+
 
     });
     this.message_codes[0x1] = this.messages['select'];
@@ -3082,9 +3082,9 @@ amqp_classes['tx'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
 
-        
+
+
 
     });
     this.message_codes[0x2] = this.messages['commit'];
@@ -3098,9 +3098,9 @@ amqp_classes['tx'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
 
-        
+
+
 
     });
     this.message_codes[0x3] = this.messages['rollback'];
@@ -3109,7 +3109,7 @@ amqp_classes['tx'] = new function(){
 }();
 
 amqp_classes['Tx'] = new function(){
-   
+
     this.select = function(params) {
         return new amqp.protocol.Message({marshaler: new amqp_classes['tx'].messages['select'](),
                                           parsed_data: params});
@@ -3139,7 +3139,7 @@ amqp_classes['dtx'] = new function(){
     this.struct_codes = {};
     this.messages = {};
     this.message_codes = {};
-    
+
     this.structs['XA_RESULT'] = 0x1;
     this.structs['xa_result'] = Class(StructMarshaler, function(s) {
         this.code = 0x1;
@@ -3148,7 +3148,7 @@ amqp_classes['dtx'] = new function(){
         this.size = 4;
         this.parent_class = this_class;
         this.fields = [];
-        
+
         // None
         this.fields.push(['status', amqp_types['uint16'], true, 1]);
 
@@ -3164,7 +3164,7 @@ amqp_classes['dtx'] = new function(){
         this.size = 4;
         this.parent_class = this_class;
         this.fields = [];
-        
+
         // implementation specific format code
         this.fields.push(['format', amqp_types['uint32'], true, 1]);
 
@@ -3186,7 +3186,7 @@ amqp_classes['dtx'] = new function(){
         this.size = 4;
         this.parent_class = this_class;
         this.fields = [];
-        
+
         // The current transaction timeout value
         this.fields.push(['timeout', amqp_types['uint32'], true, 1]);
 
@@ -3202,7 +3202,7 @@ amqp_classes['dtx'] = new function(){
         this.size = 4;
         this.parent_class = this_class;
         this.fields = [];
-        
+
         // array of xids to be recovered
         this.fields.push(['in_doubt', amqp_types['array'], true, 1]);
 
@@ -3211,7 +3211,7 @@ amqp_classes['dtx'] = new function(){
     this.struct_codes[0x3] = this.structs['recover_result'];
 
 
-    
+
     // Select dtx mode
     this.messages['SELECT'] = 0x1;
     this.messages['select'] = Class(CommandMessageMarshaler, function(s) {
@@ -3221,9 +3221,9 @@ amqp_classes['dtx'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
 
-        
+
+
 
     });
     this.message_codes[0x1] = this.messages['select'];
@@ -3237,7 +3237,7 @@ amqp_classes['dtx'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // Transaction xid
         this.fields.push(['xid', this.parent_class.structs['xid'], true, 1]);
 
@@ -3248,7 +3248,7 @@ amqp_classes['dtx'] = new function(){
         this.fields.push(['resume', amqp_types['bit'], false, 4]);
 
 
-        
+
 
     });
     this.message_codes[0x2] = this.messages['start'];
@@ -3262,7 +3262,7 @@ amqp_classes['dtx'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // Transaction xid
         this.fields.push(['xid', this.parent_class.structs['xid'], true, 1]);
 
@@ -3273,7 +3273,7 @@ amqp_classes['dtx'] = new function(){
         this.fields.push(['suspend', amqp_types['bit'], false, 4]);
 
 
-        
+
 
     });
     this.message_codes[0x3] = this.messages['end'];
@@ -3287,7 +3287,7 @@ amqp_classes['dtx'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // Transaction xid
         this.fields.push(['xid', this.parent_class.structs['xid'], true, 1]);
 
@@ -3295,7 +3295,7 @@ amqp_classes['dtx'] = new function(){
         this.fields.push(['one_phase', amqp_types['bit'], false, 2]);
 
 
-        
+
 
     });
     this.message_codes[0x4] = this.messages['commit'];
@@ -3309,12 +3309,12 @@ amqp_classes['dtx'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // Transaction xid
         this.fields.push(['xid', this.parent_class.structs['xid'], true, 1]);
 
 
-        
+
 
     });
     this.message_codes[0x5] = this.messages['forget'];
@@ -3328,12 +3328,12 @@ amqp_classes['dtx'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // Transaction xid
         this.fields.push(['xid', this.parent_class.structs['xid'], true, 1]);
 
 
-        
+
 
     });
     this.message_codes[0x6] = this.messages['get_timeout'];
@@ -3347,12 +3347,12 @@ amqp_classes['dtx'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // Transaction xid
         this.fields.push(['xid', this.parent_class.structs['xid'], true, 1]);
 
 
-        
+
 
     });
     this.message_codes[0x7] = this.messages['prepare'];
@@ -3366,9 +3366,9 @@ amqp_classes['dtx'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
 
-        
+
+
 
     });
     this.message_codes[0x8] = this.messages['recover'];
@@ -3382,12 +3382,12 @@ amqp_classes['dtx'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // Transaction xid
         this.fields.push(['xid', this.parent_class.structs['xid'], true, 1]);
 
 
-        
+
 
     });
     this.message_codes[0x9] = this.messages['rollback'];
@@ -3401,7 +3401,7 @@ amqp_classes['dtx'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // Transaction xid
         this.fields.push(['xid', this.parent_class.structs['xid'], true, 1]);
 
@@ -3409,7 +3409,7 @@ amqp_classes['dtx'] = new function(){
         this.fields.push(['timeout', amqp_types['uint32'], true, 2]);
 
 
-        
+
 
     });
     this.message_codes[0xa] = this.messages['set_timeout'];
@@ -3418,7 +3418,7 @@ amqp_classes['dtx'] = new function(){
 }();
 
 amqp_classes['Dtx'] = new function(){
-   
+
     this.select = function(params) {
         return new amqp.protocol.Message({marshaler: new amqp_classes['dtx'].messages['select'](),
                                           parsed_data: params});
@@ -3483,7 +3483,7 @@ amqp_classes['exchange'] = new function(){
     this.struct_codes = {};
     this.messages = {};
     this.message_codes = {};
-    
+
     this.structs['EXCHANGE_QUERY_RESULT'] = 0x1;
     this.structs['exchange_query_result'] = Class(StructMarshaler, function(s) {
         this.code = 0x1;
@@ -3492,7 +3492,7 @@ amqp_classes['exchange'] = new function(){
         this.size = 4;
         this.parent_class = this_class;
         this.fields = [];
-        
+
         // indicate the exchange type
         this.fields.push(['type', amqp_types['str8'], false, 1]);
 
@@ -3517,7 +3517,7 @@ amqp_classes['exchange'] = new function(){
         this.size = 4;
         this.parent_class = this_class;
         this.fields = [];
-        
+
         // indicate an unknown exchange
         this.fields.push(['exchange_not_found', amqp_types['bit'], false, 1]);
 
@@ -3538,7 +3538,7 @@ amqp_classes['exchange'] = new function(){
     this.struct_codes[0x2] = this.structs['exchange_bound_result'];
 
 
-    
+
     // verify exchange exists, create if needed
     this.messages['DECLARE'] = 0x1;
     this.messages['declare'] = Class(CommandMessageMarshaler, function(s) {
@@ -3548,7 +3548,7 @@ amqp_classes['exchange'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['exchange', amqp_types['str8'], true, 1]);
 
@@ -3571,7 +3571,7 @@ amqp_classes['exchange'] = new function(){
         this.fields.push(['arguments', amqp_types['map'], false, 64]);
 
 
-        
+
 
     });
     this.message_codes[0x1] = this.messages['declare'];
@@ -3585,7 +3585,7 @@ amqp_classes['exchange'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['exchange', amqp_types['str8'], true, 1]);
 
@@ -3593,7 +3593,7 @@ amqp_classes['exchange'] = new function(){
         this.fields.push(['if_unused', amqp_types['bit'], false, 2]);
 
 
-        
+
 
     });
     this.message_codes[0x2] = this.messages['delete'];
@@ -3607,12 +3607,12 @@ amqp_classes['exchange'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // the exchange name
         this.fields.push(['name', amqp_types['str8'], false, 1]);
 
 
-        
+
 
     });
     this.message_codes[0x3] = this.messages['query'];
@@ -3626,7 +3626,7 @@ amqp_classes['exchange'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['queue', amqp_types['str8'], true, 1]);
 
@@ -3640,7 +3640,7 @@ amqp_classes['exchange'] = new function(){
         this.fields.push(['arguments', amqp_types['map'], false, 8]);
 
 
-        
+
 
     });
     this.message_codes[0x4] = this.messages['bind'];
@@ -3654,7 +3654,7 @@ amqp_classes['exchange'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['queue', amqp_types['str8'], true, 1]);
 
@@ -3665,7 +3665,7 @@ amqp_classes['exchange'] = new function(){
         this.fields.push(['binding_key', amqp_types['str8'], true, 4]);
 
 
-        
+
 
     });
     this.message_codes[0x5] = this.messages['unbind'];
@@ -3679,7 +3679,7 @@ amqp_classes['exchange'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // the exchange name
         this.fields.push(['exchange', amqp_types['str8'], false, 1]);
 
@@ -3693,7 +3693,7 @@ amqp_classes['exchange'] = new function(){
         this.fields.push(['arguments', amqp_types['map'], false, 8]);
 
 
-        
+
 
     });
     this.message_codes[0x6] = this.messages['bound'];
@@ -3702,7 +3702,7 @@ amqp_classes['exchange'] = new function(){
 }();
 
 amqp_classes['Exchange'] = new function(){
-   
+
     this.declare = function(params) {
         return new amqp.protocol.Message({marshaler: new amqp_classes['exchange'].messages['declare'](),
                                           parsed_data: params});
@@ -3747,7 +3747,7 @@ amqp_classes['queue'] = new function(){
     this.struct_codes = {};
     this.messages = {};
     this.message_codes = {};
-    
+
     this.structs['QUEUE_QUERY_RESULT'] = 0x1;
     this.structs['queue_query_result'] = Class(StructMarshaler, function(s) {
         this.code = 0x1;
@@ -3756,7 +3756,7 @@ amqp_classes['queue'] = new function(){
         this.size = 4;
         this.parent_class = this_class;
         this.fields = [];
-        
+
         // None
         this.fields.push(['queue', amqp_types['str8'], true, 1]);
 
@@ -3786,7 +3786,7 @@ amqp_classes['queue'] = new function(){
     this.struct_codes[0x1] = this.structs['queue_query_result'];
 
 
-    
+
     // declare queue
     this.messages['DECLARE'] = 0x1;
     this.messages['declare'] = Class(CommandMessageMarshaler, function(s) {
@@ -3796,7 +3796,7 @@ amqp_classes['queue'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['queue', amqp_types['str8'], true, 1]);
 
@@ -3819,7 +3819,7 @@ amqp_classes['queue'] = new function(){
         this.fields.push(['arguments', amqp_types['map'], false, 64]);
 
 
-        
+
 
     });
     this.message_codes[0x1] = this.messages['declare'];
@@ -3833,7 +3833,7 @@ amqp_classes['queue'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['queue', amqp_types['str8'], true, 1]);
 
@@ -3844,7 +3844,7 @@ amqp_classes['queue'] = new function(){
         this.fields.push(['if_empty', amqp_types['bit'], false, 4]);
 
 
-        
+
 
     });
     this.message_codes[0x2] = this.messages['delete'];
@@ -3858,12 +3858,12 @@ amqp_classes['queue'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['queue', amqp_types['str8'], true, 1]);
 
 
-        
+
 
     });
     this.message_codes[0x3] = this.messages['purge'];
@@ -3877,12 +3877,12 @@ amqp_classes['queue'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // the queried queue
         this.fields.push(['queue', amqp_types['str8'], true, 1]);
 
 
-        
+
 
     });
     this.message_codes[0x4] = this.messages['query'];
@@ -3891,7 +3891,7 @@ amqp_classes['queue'] = new function(){
 }();
 
 amqp_classes['Queue'] = new function(){
-   
+
     this.declare = function(params) {
         return new amqp.protocol.Message({marshaler: new amqp_classes['queue'].messages['declare'](),
                                           parsed_data: params});
@@ -3926,7 +3926,7 @@ amqp_classes['file'] = new function(){
     this.struct_codes = {};
     this.messages = {};
     this.message_codes = {};
-    
+
     this.structs['FILE_PROPERTIES'] = 0x1;
     this.structs['file_properties'] = Class(StructMarshaler, function(s) {
         this.code = 0x1;
@@ -3935,7 +3935,7 @@ amqp_classes['file'] = new function(){
         this.size = 4;
         this.parent_class = this_class;
         this.fields = [];
-        
+
         // MIME content type
         this.fields.push(['content_type', amqp_types['str8'], false, 1]);
 
@@ -3968,7 +3968,7 @@ amqp_classes['file'] = new function(){
     this.struct_codes[0x1] = this.structs['file_properties'];
 
 
-    
+
     // specify quality of service
     this.messages['QOS'] = 0x1;
     this.messages['qos'] = Class(CommandMessageMarshaler, function(s) {
@@ -3978,7 +3978,7 @@ amqp_classes['file'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // pre-fetch window in octets
         this.fields.push(['prefetch_size', amqp_types['uint32'], false, 1]);
 
@@ -3989,7 +3989,7 @@ amqp_classes['file'] = new function(){
         this.fields.push(['global', amqp_types['bit'], false, 4]);
 
 
-        
+
 
     });
     this.message_codes[0x1] = this.messages['qos'];
@@ -4003,9 +4003,9 @@ amqp_classes['file'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
 
-        
+
+
 
     });
     this.message_codes[0x2] = this.messages['qos_ok'];
@@ -4019,7 +4019,7 @@ amqp_classes['file'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['queue', amqp_types['str8'], false, 1]);
 
@@ -4042,7 +4042,7 @@ amqp_classes['file'] = new function(){
         this.fields.push(['arguments', amqp_types['map'], false, 64]);
 
 
-        
+
 
     });
     this.message_codes[0x3] = this.messages['consume'];
@@ -4056,12 +4056,12 @@ amqp_classes['file'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['consumer_tag', amqp_types['str8'], false, 1]);
 
 
-        
+
 
     });
     this.message_codes[0x4] = this.messages['consume_ok'];
@@ -4075,12 +4075,12 @@ amqp_classes['file'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['consumer_tag', amqp_types['str8'], false, 1]);
 
 
-        
+
 
     });
     this.message_codes[0x5] = this.messages['cancel'];
@@ -4094,7 +4094,7 @@ amqp_classes['file'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // staging identifier
         this.fields.push(['identifier', amqp_types['str8'], false, 1]);
 
@@ -4102,7 +4102,7 @@ amqp_classes['file'] = new function(){
         this.fields.push(['content_size', amqp_types['uint64'], false, 2]);
 
 
-        
+
 
     });
     this.message_codes[0x6] = this.messages['open'];
@@ -4116,12 +4116,12 @@ amqp_classes['file'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // already staged amount
         this.fields.push(['staged_size', amqp_types['uint64'], false, 1]);
 
 
-        
+
 
     });
     this.message_codes[0x7] = this.messages['open_ok'];
@@ -4135,9 +4135,9 @@ amqp_classes['file'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
 
-        
+
+
         this.segments.push({
             name: '_header',
             marshaler: Class(HeaderSegmentMarshaler, function(s) {
@@ -4164,7 +4164,7 @@ amqp_classes['file'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['exchange', amqp_types['str8'], false, 1]);
 
@@ -4181,7 +4181,7 @@ amqp_classes['file'] = new function(){
         this.fields.push(['identifier', amqp_types['str8'], false, 16]);
 
 
-        
+
 
     });
     this.message_codes[0x9] = this.messages['publish'];
@@ -4195,7 +4195,7 @@ amqp_classes['file'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['reply_code', amqp_types['uint16'], false, 1]);
 
@@ -4209,7 +4209,7 @@ amqp_classes['file'] = new function(){
         this.fields.push(['routing_key', amqp_types['str8'], false, 8]);
 
 
-        
+
         this.segments.push({
             name: '_header',
             marshaler: Class(HeaderSegmentMarshaler, function(s) {
@@ -4236,7 +4236,7 @@ amqp_classes['file'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['consumer_tag', amqp_types['str8'], false, 1]);
 
@@ -4256,7 +4256,7 @@ amqp_classes['file'] = new function(){
         this.fields.push(['identifier', amqp_types['str8'], false, 32]);
 
 
-        
+
 
     });
     this.message_codes[0xb] = this.messages['deliver'];
@@ -4270,7 +4270,7 @@ amqp_classes['file'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['delivery_tag', amqp_types['uint64'], false, 1]);
 
@@ -4278,7 +4278,7 @@ amqp_classes['file'] = new function(){
         this.fields.push(['multiple', amqp_types['bit'], false, 2]);
 
 
-        
+
 
     });
     this.message_codes[0xc] = this.messages['ack'];
@@ -4292,7 +4292,7 @@ amqp_classes['file'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['delivery_tag', amqp_types['uint64'], false, 1]);
 
@@ -4300,7 +4300,7 @@ amqp_classes['file'] = new function(){
         this.fields.push(['requeue', amqp_types['bit'], false, 2]);
 
 
-        
+
 
     });
     this.message_codes[0xd] = this.messages['reject'];
@@ -4309,7 +4309,7 @@ amqp_classes['file'] = new function(){
 }();
 
 amqp_classes['File'] = new function(){
-   
+
     this.qos = function(params) {
         return new amqp.protocol.Message({marshaler: new amqp_classes['file'].messages['qos'](),
                                           parsed_data: params});
@@ -4389,7 +4389,7 @@ amqp_classes['stream'] = new function(){
     this.struct_codes = {};
     this.messages = {};
     this.message_codes = {};
-    
+
     this.structs['STREAM_PROPERTIES'] = 0x1;
     this.structs['stream_properties'] = Class(StructMarshaler, function(s) {
         this.code = 0x1;
@@ -4398,7 +4398,7 @@ amqp_classes['stream'] = new function(){
         this.size = 4;
         this.parent_class = this_class;
         this.fields = [];
-        
+
         // MIME content type
         this.fields.push(['content_type', amqp_types['str8'], false, 1]);
 
@@ -4419,7 +4419,7 @@ amqp_classes['stream'] = new function(){
     this.struct_codes[0x1] = this.structs['stream_properties'];
 
 
-    
+
     // specify quality of service
     this.messages['QOS'] = 0x1;
     this.messages['qos'] = Class(CommandMessageMarshaler, function(s) {
@@ -4429,7 +4429,7 @@ amqp_classes['stream'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // pre-fetch window in octets
         this.fields.push(['prefetch_size', amqp_types['uint32'], false, 1]);
 
@@ -4443,7 +4443,7 @@ amqp_classes['stream'] = new function(){
         this.fields.push(['global', amqp_types['bit'], false, 8]);
 
 
-        
+
 
     });
     this.message_codes[0x1] = this.messages['qos'];
@@ -4457,9 +4457,9 @@ amqp_classes['stream'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
 
-        
+
+
 
     });
     this.message_codes[0x2] = this.messages['qos_ok'];
@@ -4473,7 +4473,7 @@ amqp_classes['stream'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['queue', amqp_types['str8'], false, 1]);
 
@@ -4493,7 +4493,7 @@ amqp_classes['stream'] = new function(){
         this.fields.push(['arguments', amqp_types['map'], false, 32]);
 
 
-        
+
 
     });
     this.message_codes[0x3] = this.messages['consume'];
@@ -4507,12 +4507,12 @@ amqp_classes['stream'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['consumer_tag', amqp_types['str8'], false, 1]);
 
 
-        
+
 
     });
     this.message_codes[0x4] = this.messages['consume_ok'];
@@ -4526,12 +4526,12 @@ amqp_classes['stream'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['consumer_tag', amqp_types['str8'], false, 1]);
 
 
-        
+
 
     });
     this.message_codes[0x5] = this.messages['cancel'];
@@ -4545,7 +4545,7 @@ amqp_classes['stream'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['exchange', amqp_types['str8'], false, 1]);
 
@@ -4559,7 +4559,7 @@ amqp_classes['stream'] = new function(){
         this.fields.push(['immediate', amqp_types['bit'], false, 8]);
 
 
-        
+
         this.segments.push({
             name: '_header',
             marshaler: Class(HeaderSegmentMarshaler, function(s) {
@@ -4586,7 +4586,7 @@ amqp_classes['stream'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['reply_code', amqp_types['uint16'], false, 1]);
 
@@ -4600,7 +4600,7 @@ amqp_classes['stream'] = new function(){
         this.fields.push(['routing_key', amqp_types['str8'], false, 8]);
 
 
-        
+
         this.segments.push({
             name: '_header',
             marshaler: Class(HeaderSegmentMarshaler, function(s) {
@@ -4627,7 +4627,7 @@ amqp_classes['stream'] = new function(){
         this.fields = [];
         this.segments = [];
 
-        
+
         // None
         this.fields.push(['consumer_tag', amqp_types['str8'], false, 1]);
 
@@ -4641,7 +4641,7 @@ amqp_classes['stream'] = new function(){
         this.fields.push(['queue', amqp_types['str8'], true, 8]);
 
 
-        
+
         this.segments.push({
             name: '_header',
             marshaler: Class(HeaderSegmentMarshaler, function(s) {
@@ -4663,7 +4663,7 @@ amqp_classes['stream'] = new function(){
 }();
 
 amqp_classes['Stream'] = new function(){
-   
+
     this.qos = function(params) {
         return new amqp.protocol.Message({marshaler: new amqp_classes['stream'].messages['qos'](),
                                           parsed_data: params});

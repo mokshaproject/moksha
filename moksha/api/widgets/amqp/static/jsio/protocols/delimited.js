@@ -14,7 +14,7 @@ exports.DelimitedProtocol = Class(jsio.interfaces.Protocol, function(supr) {
     this.connectionMade = function() {
         logger.debug('connectionMade');
     }
-    
+
     this.dataReceived = function(data) {
         logger.debug('dataReceived:(' + data.length + ')', data);
         logger.debug('last 2:', data.slice(data.length-2));

@@ -39,8 +39,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 //var utf8 = this.utf8 = exports;
 
-exports.UnicodeCodecError = function (message) { 
-	this.message = message; 
+exports.UnicodeCodecError = function (message) {
+	this.message = message;
 };
 
 var UnicodeCodecError = exports.UnicodeCodecError;

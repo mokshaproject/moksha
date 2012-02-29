@@ -1,5 +1,5 @@
 jsio('import Class, bind');
-jsio('import jsio.std.uri as uri'); 
+jsio('import jsio.std.uri as uri');
 jsio('import jsio.std.base64 as base64');
 jsio('import jsio.logging');
 jsio('import .errors');
@@ -19,7 +19,7 @@ exports.registerTransport = function(name, transport) {
 exports.chooseTransport = function(url, options) {
 	// NOTE: override just for testing.
 	//return exports.allTransports.jsonp;
-	
+
 	var test = location.toString().match('file://');
 	if (test && test.index === 0) {
 		logger.debug('Detected Local file, choosing transport jsonp')
@@ -32,12 +32,12 @@ exports.chooseTransport = function(url, options) {
 			return exports.allTransports.xhr;
 		}
 	} catch(e) {}
-	
+
 	if (uri.isSameDomain(url, location.toString())) {
 		logger.debug('Detected same domain, chosing transport xhr');
 		return exports.allTransports.xhr;
 	}
-	
+
 	logger.debug('Detected cross-domain; no xdomain xhr capabilities present; choosing transport jsonp');
 	return exports.allTransports.jsonp
 
@@ -67,12 +67,12 @@ var baseTransport = Class(exports.Transport, function(supr) {
 			ct:'application/javascript'
 		};
 	}
-	
+
 	this.handshake = function(url, options) {
 		logger.debug('handshake:', url, options);
 		this._makeRequest('send', url + '/handshake', this._handshakeArgs, this.handshakeSuccess, this.handshakeFailure);
 	}
-	
+
 	this.comet = function(url, sessionKey, lastEventId, options) {
 		logger.debug('comet:', url, sessionKey, lastEventId, options);
 		args = {
@@ -81,7 +81,7 @@ var baseTransport = Class(exports.Transport, function(supr) {
 		}
 		this._makeRequest('comet', url + '/comet', args, this.cometSuccess, this.cometFailure);
 	}
-	
+
 	this.send = function(url, sessionKey, data, options) {
 		logger.debug('send:', url, sessionKey, data, options);
 		args = {
@@ -99,7 +99,7 @@ exports.registerTransport('xhr', Class(baseTransport, function(supr) {
 			: window.ActiveXObject ? new ActiveXObject("Msxml2.XMLHTTP")
 			: null;
 	}
-	
+
 	var abortXHR = function(xhr) {
 		logger.debug('aborting XHR');
 		try {
@@ -113,16 +113,16 @@ exports.registerTransport('xhr', Class(baseTransport, function(supr) {
 			logger.debug('error aborting xhr', e);
 		}
 	}
-	
+
 	this.init = function() {
 		supr(this, 'init');
-		
+
 		this._xhr = {
 			'send': createXHR(),
 			'comet': createXHR()
 		};
 	}
-	
+
 	this.abort = function() {
 		var xhr;
 		for(var i in this._xhr) {
@@ -131,21 +131,21 @@ exports.registerTransport('xhr', Class(baseTransport, function(supr) {
 			}
 		}
 	}
-	
+
 	this.encodePacket = function(packetId, data, options) {
 		// we don't need to base64 encode things unless there's a null character in there
 		return data.indexOf('\0') == -1 ? [ packetId, 0, data ] : [ packetId, 1, base64.encode(data) ];
 	}
-	
+
 	this._onReadyStateChange = function(rType, cb, eb) {
 		try {
 			var xhr = this._xhr[rType];
 			if(xhr.readyState != 4) { return; }
-			if(xhr.status != 200) { 
+			if(xhr.status != 200) {
 				logger.debug('XHR failed with status ', xhr.status);
 				eb();
 			}
-			
+
 			logger.debug('XHR data received');
 			cb(eval(xhr.responseText));
 		} catch(e) {
@@ -156,7 +156,7 @@ exports.registerTransport('xhr', Class(baseTransport, function(supr) {
 			logger.debug('done handling XHR error');
 		}
 	}
-	
+
 	/**
 	 * even though we encode the POST body as in application/x-www-form-urlencoded
 	 */
@@ -182,7 +182,7 @@ exports.registerTransport('xhr', Class(baseTransport, function(supr) {
 exports.registerTransport('jsonp', Class(baseTransport, function(supr) {
 
 	var logger = jsio.logging.getLogger('csp.transports.jsonp');
-	
+
 	var createIframe = function() {
 		var i = document.createElement("iframe");
 		with(i.style) { display = 'block'; width = height = border = margin = padding = '0'; overflow = visibility = 'hidden'; }
@@ -191,7 +191,7 @@ exports.registerTransport('jsonp', Class(baseTransport, function(supr) {
 		document.body.appendChild(i);
 		return i;
 	}
-	
+
 	var abortIframe = function(ifr) {
 		var win = ifr.contentWindow, doc = win.document;
 		logger.debug('removing scripts');
@@ -206,7 +206,7 @@ exports.registerTransport('jsonp', Class(baseTransport, function(supr) {
 		win['cb' + (ifr.cbId - 1)] = function(){};
 		win['eb' + (ifr.cbId - 1)] = function(){};
 	}
-	
+
 	var removeIframe = function(ifr) {
 		$setTimeout(function() {
 			if(ifr && ifr.parentNode) { ifr.parentNode.removeChild(ifr); }
@@ -220,11 +220,11 @@ exports.registerTransport('jsonp', Class(baseTransport, function(supr) {
 			'comet': createIframe()
 		};
 	}
-	
+
 	this.encodePacket = function(packetId, data, options) {
 		return [ packetId, 1, base64.encode(data) ];
 	}
-	
+
 	this.abort = function() {
 		for(var i in this._ifr) {
 			if(this._ifr.hasOwnProperty(i)) {
@@ -234,7 +234,7 @@ exports.registerTransport('jsonp', Class(baseTransport, function(supr) {
 			}
 		}
 	}
-	
+
 	this._makeRequest = function(rType, url, args, cb, eb) {
 		args.n = Math.random();
 		$setTimeout(bind(this, function() {
@@ -248,9 +248,9 @@ exports.registerTransport('jsonp', Class(baseTransport, function(supr) {
 				if(scriptTag && scriptTag.readyState != 'loaded') { return; }
 				logger.debug('in onFinish');
 				if (!completed) { logger.debug('error making request:', fullUrl); }
-				
+
 				abortIframe(ifr);
-				
+
 				if (!completed) {
 					logger.debug('calling eb');
 					eb.apply(null, arguments);
@@ -270,7 +270,7 @@ exports.registerTransport('jsonp', Class(baseTransport, function(supr) {
 				case 'comet': args.bs = ';'; args.bp = 'cb' + jsonpId; break;
 			}
 			var fullUrl = url + '?' + uri.buildQuery(args);
-			
+
 			if(BrowserDetect.isWebKit) {
 				doc.open();
 				doc.write('<scr'+'ipt src="'+fullUrl+'"></scr'+'ipt>');
@@ -289,10 +289,10 @@ exports.registerTransport('jsonp', Class(baseTransport, function(supr) {
 			killLoadingBar();
 		}), 0);
 	}
-	
+
 	function killLoadingBar() {
-	
+
 	}
-	
+
 }));
 

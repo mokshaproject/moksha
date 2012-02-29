@@ -7,13 +7,13 @@
     var pre_jsioImport = [
         // Insert pre-require dependancies here
     ];
-	
+
 	if(typeof exports == 'undefined') {
 		var jsio = window.jsio = bind(this, _jsioImport, window, '');
 	} else {
 		var jsio = GLOBAL.jsio = bind(this, _jsioImport, GLOBAL, '');
 	}
-	
+
 	var modulePathCache = {}
 	function getModulePathPossibilities(pathString) {
 		var segments = pathString.split('.')
@@ -29,7 +29,7 @@
 		}
 		return out;
 	}
-	
+
 	jsio.path = ['.'];
 	jsio.__env = typeof node !== 'undefined' && typeof process !== 'undefined' && process.version ? 'node' : 'browser';
 	switch(jsio.__env) {
@@ -59,7 +59,7 @@
 				readFile: function() {},
 				eval: function(src) { return eval(src); }
 			}
-			
+
 			if(typeof eval('(function(){})') == 'undefined') {
 				RUNTIME.eval = function(src) {
 					try {
@@ -70,11 +70,11 @@
 					}
 				}
 			}
-			
+
 			modulePathCache.jsio = cwd;
 			break;
 	}
-	
+
 	function browser_findScript() {
 		try {
 			var scripts = document.getElementsByTagName('script');
@@ -84,7 +84,7 @@
 			}
 		} catch(e) {}
 	}
-	
+
 	function browser_getLog() {
 		if (typeof console != 'undefined' && console.log) {
 			return console.log;
@@ -92,7 +92,7 @@
 			return browser_oldLog;
 		}
 	}
-	
+
 	function browser_oldLog() {
 		var shouldScroll = document.body.scrollHeight == document.body.scrollTop + document.body.clientHeight;
 		var d = document.createElement('div');
@@ -110,7 +110,7 @@
 			window.scrollTo(0, 10000);
 		}
 	}
-	
+
 	function $each(i, context, f) {
 		if(!f) { f = context; context = this; }
 		for(var j in i) {
@@ -119,7 +119,7 @@
 			}
 		}
 	}
-	
+
 	function bind(context, method/*, args... */) {
 		var args = Array.prototype.slice.call(arguments, 2);
 		return function(){
@@ -127,7 +127,7 @@
 			return method.apply(context, args.concat(Array.prototype.slice.call(arguments, 0)))
 		}
 	};
-	
+
 	function $setTimeout(f, t/*, args... */) {
 		var args = Array.prototype.slice.call(arguments, 2);
 		return setTimeout(function() {
@@ -138,7 +138,7 @@
 			}
 		}, t)
 	}
-	
+
 	function $setInterval(f, t/*, args... */) {
 		var args = Array.prototype.slice.call(arguments, 2);
 		return setInterval(function() {
@@ -149,7 +149,7 @@
 			}
 		}, t)
 	}
-	
+
 	function Class(parent, proto) {
 		if(!parent) { throw new Error('parent or prototype not provided'); }
 		if(!proto) { proto = parent; }
@@ -162,8 +162,8 @@
 					}
 				}
 			}
-			parent = parent[0]; 
-		} else { 
+			parent = parent[0];
+		} else {
 			proto.prototype = parent.prototype;
 		}
 
@@ -181,7 +181,7 @@
 		cls.prototype.constructor = cls;
 		return cls;
 	}
-	
+
 	var strDuplicate = function(str, num) {
 	    var out = "";
 	    for (var i = 0; i < num; ++ i) {
@@ -193,14 +193,14 @@
 	    // Doesn't work in node correctly.
 	    //		return new Array(num + 1).join(str);
 	}
-	
+
 	switch(jsio.__env) {
 		case 'node':
 			var nodeWrapper = {
 //				include: include,
 				require: require
 			};
-			
+
 			var stringifyPretty = function(item) { return _stringify(true, item, 1); }
 			var stringify = function(item) { return _stringify(false, item); }
 			var _stringify = function(pretty, item, tab) {
@@ -223,7 +223,7 @@
 						}
 						str.push(value);
 					}
-					
+
 					if(pretty && str.length > 1) {
 						var spacer = strDuplicate('\t', tab);
 						return '{\n' + spacer + str.join(',\n' + spacer) + '\n' + strDuplicate('\t', tab - 1) + '}';
@@ -233,11 +233,11 @@
 				}
 				return item + "";
 			}
-			
-			var log = function() { 
+
+			var log = function() {
 				RUNTIME.write(Array.prototype.slice.call(arguments, 0).map(stringifyPretty).join(' ') + "\n");
 			}
-			
+
 			window = GLOBAL;
 			var compile = function(context, args) {
 				try {
@@ -248,7 +248,7 @@
 					}
 					throw e;
 				}
-				
+
 				try {
 					fn.call(context.exports, context);
 				} catch(e) {
@@ -266,7 +266,7 @@
 				var fn = RUNTIME.eval("(function(_){with(_){with(_.window){delete _;(function(){" + args.src + "\n}).call(this)}}})", args.location);
 				fn.call(context.exports, context);
 			}
-			
+
 			var cwd = RUNTIME.cwd();
 			var makeRelative = function(path) {
 				var i = path.match('^' + cwd);
@@ -294,9 +294,9 @@
 				}
 				throw new Error("Module not found: " + pathString + "\n(looked in " + paths + ")");
 			}
-			
+
 			var segments = __filename.split('/');
-			
+
 			var jsioPath = segments.slice(0,segments.length-2).join('/');
 			if (jsioPath) {
 				jsio.path.push(jsioPath);
@@ -304,23 +304,23 @@
 			} else {
 				modulePathCache.jsio = '.';
 			}
-			
+
 			jsio.__path = makeRelative(RUNTIME.argv[1]);
 			break;
 		default:
 			var log = browser_getLog();
-			
+
 			var compile = function(context, args) {
 				var code = "(function(_){with(_){delete _;(function(){"
 					+ args.src
 					+ "\n}).call(this)}})\n//@ sourceURL=" + args.location;
-				
+
 				try { var fn = RUNTIME.eval(code); } catch(e) {
 					if(e instanceof SyntaxError) {
-						var src = 'javascript:document.open();document.write("<scr"+"ipt src=\'' 
+						var src = 'javascript:document.open();document.write("<scr"+"ipt src=\''
 							+ args.location
 							+ '\'></scr"+"ipt>")';
-						
+
 						var callback = function() {
 							var el = document.createElement('iframe');
 							with(el.style) { position = 'absolute'; top = left = '-999px'; width = height = '1px'; visibility = 'hidden'; }
@@ -329,7 +329,7 @@
 								document.body.appendChild(el);
 							}, 0);
 						}
-						
+
 						if(document.body) { callback(); }
 						else { window.addEventListener('load', callback, false); }
 						throw new Error("forcing halt on load of " + args.location);
@@ -350,13 +350,13 @@
 				var fn = RUNTIME.eval(f);
 				fn.call(context.exports, context);
 			}
-			
+
 			var createXHR = function() {
-				return window.XMLHttpRequest ? new XMLHttpRequest() 
+				return window.XMLHttpRequest ? new XMLHttpRequest()
 					: window.ActiveXObject ? new ActiveXObject("Msxml2.XMLHTTP")
 					: null;
 			}
-			
+
 			var getModuleSourceAndPath = function(pathString) {
                 if (preloaded_source[pathString]) {
                     return preloaded_source[pathString];
@@ -391,18 +391,18 @@
 				}
 				throw new Error("Module not found: " + pathString + " (looked in " + paths.join(', ') + ")");
 			}
-			
+
 			var makeRelative = function(path) {
 				return path.replace(cwd + '/', '').replace(cwd, '');
 			}
-			
+
 			jsio.__path = makeRelative(window.location.toString());
-			
+
 			break;
 	}
 	jsio.basePath = jsio.path[jsio.path.length-1];
 	var modules = {bind: bind, Class: Class, log: log, jsio:jsio};
-	
+
 	function makeAbsoluteURL(url, location) {
 		if (/^[A-Za-z]*:\/\//.test(url)) { return url; } // already absolute
 		var prefix = location.protocol + '//' + location.host;
@@ -411,7 +411,7 @@
 		var result = location.pathname.match(/\/*(.*?\/?)\/*$/);
 		var parts = result ? result[1].split('/') : [];
 		parts.pop();
-		
+
 		var urlParts = url.split('/');
 		while(true) {
 			if(urlParts[0] == '.') {
@@ -422,12 +422,12 @@
 				break;
 			}
 		}
-		
+
 		var pathname = parts.join('/');
 		if(pathname) pathname += '/';
 		return prefix + '/' + pathname + urlParts.join('/');
 	}
-	
+
 	function resolveRelativePath(pkg, path) {
 		if(pkg.charAt(0) == '.') {
 			pkg = pkg.substring(1);
@@ -436,7 +436,7 @@
 				pkg = pkg.slice(1);
 				segments.pop();
 			}
-			
+
 			var prefix = segments.join('.');
 			if (prefix) {
 				return prefix + '.' + pkg;
@@ -444,7 +444,7 @@
 		}
 		return pkg;
 	}
-	
+
 	function _jsioImport(context, path, what) {
 		// parse the what statement
 		var match, imports = [];
@@ -465,11 +465,11 @@
 				throw new Error("Syntax error: " + what);
 			}
 		}
-		
+
 		// import each item in the what statement
 		for(var i = 0, item, len = imports.length; (item = imports[i]) || i < len; ++i) {
 			var pkg = item.from;
-			
+
 			// eval any packages that we don't know about already
 			var segments = pkg.split('.');
 			if(!(pkg in modules)) {
@@ -493,7 +493,7 @@
 					for(var j in modules.jsio) {
 					    newContext.jsio[j] = modules.jsio[j];
 					}
-					
+
 					// TODO: FIX for "trailing ." case
 					var tmp = result.location.split('/');
 					newContext.jsio.__dir = makeRelative(tmp.slice(0,tmp.length-1).join('/'));
@@ -536,21 +536,21 @@
 				}
 			}
 		}
-		
+
 	}
-	
+
 	// create the internal require function bound to a local context
 	var _localContext = {};
 	var _jsio = _localContext.jsio = bind(this, _jsioImport, _localContext, 'jsio');
 
-	_jsio('import jsio.env');	
+	_jsio('import jsio.env');
 	jsio.listen = function(server, transportName, opts) {
 		var listenerClass = _jsio.env.getListener(transportName);
 		var listener = new listenerClass(server, opts);
 		listener.listen();
 		return listener;
 	}
-	
+
 	jsio.connect = function(protocolInstance, transportName, opts) {
 		var connector = new (_jsio.env.getConnector(transportName))(protocolInstance, opts);
 		connector.connect();
@@ -560,9 +560,9 @@
 		_jsio('import .interfaces');
 		return new jsio.interfaces.Server(protocolClass);
 	}
-	
+
     for (var i =0, target; target=pre_jsioImport[i]; ++i) {
-        jsio.require(target);    
+        jsio.require(target);
     }
 })();
 

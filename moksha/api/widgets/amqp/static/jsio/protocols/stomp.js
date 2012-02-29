@@ -44,7 +44,7 @@ exports.StompProtocol = Class(BufferedProtocol, function(supr) {
     this.frameReceived = function(frame) {
         logger.info('frame received', frame);
     }
-    
+
     this.bufferUpdated = function() {
         logger.debug('bufferUpdated');
         var counter = 0;
@@ -108,7 +108,7 @@ exports.StompProtocol = Class(BufferedProtocol, function(supr) {
                     /* FALL THROUGH and LOOP */
             }
         }
-        
+
     }
 
 })
@@ -148,7 +148,7 @@ var StompFrame = exports.StompFrame = Class(function() {
         for (key in this._headers) {
             ++i;
         }
-        return sprintf("[StompFrame method(%s), num-headers(%d), body-length(%d)]", 
+        return sprintf("[StompFrame method(%s), num-headers(%d), body-length(%d)]",
                        this._method, i, this._body.length);
     }
     this.getContentLength = function() {

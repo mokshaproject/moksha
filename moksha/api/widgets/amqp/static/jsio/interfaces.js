@@ -10,7 +10,7 @@ exports.Protocol = Class(function() {
 
     this.connectionLost = function(reason) {
     }
-    
+
     this.connectionFailed = function() {
 
     }
@@ -26,7 +26,7 @@ exports.Server = Class(function() {
     this.buildProtocol = function() {
         return new this._protocolClass();
     }
-    
+
 });
 
 exports.Transport = Class(function() {
@@ -43,7 +43,7 @@ exports.Listener = Class(function() {
 		this._server = server;
 		this._opts = opts || {};
 	}
-	
+
 	this.onConnect = function(transport) {
 		var p = this._server.buildProtocol();
 		p.transport = transport;
@@ -52,7 +52,7 @@ exports.Listener = Class(function() {
 		transport.makeConnection(p);
 		p.connectionMade();
 	}
-	
+
 	this.listen = function() { throw new Error('Abstract class'); }
 	this.stop = function() {}
 });
@@ -62,20 +62,20 @@ exports.Connector = Class(function() {
 		this._protocol = protocol;
 		this._opts = opts;
 	}
-	
+
 	this.onConnect = function(transport) {
 		transport.makeConnection(this._protocol);
 		this._protocol.transport = transport;
 		this._protocol.connectionMade();
 	}
-	
+
 	this.getProtocol = function() { return this._protocol; }
 });
 
 exports.PubSub = Class(function() {
 	this.publish = function(signal) {
 		if(!this._subscribers) { return; }
-		
+
 		var args = Array.prototype.slice.call(arguments, 1);
 		if(this._subscribers.__any) {
 			var anyArgs = [signal].concat(args);
@@ -83,13 +83,13 @@ exports.PubSub = Class(function() {
 				sub.apply(window, args);
 			}
 		}
-		
-		if(!this._subscribers[signal]) { return; }		
+
+		if(!this._subscribers[signal]) { return; }
 		for(var i = 0, sub; sub = this._subscribers[signal][i]; ++i) {
 			sub.apply(window, args);
 		}
 	}
-	
+
 	this.subscribe = function(signal) {
 		if(!this._subscribers) { this._subscribers = {}; }
 		if(!this._subscribers[signal]) { this._subscribers[signal] = []; }

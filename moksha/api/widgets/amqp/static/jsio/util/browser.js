@@ -8,7 +8,7 @@ $.create = function(params) {
 	var doc = (params.win || window).document;
 	if(!params) { params = 'div'; }
 	if(typeof params == 'string') { return doc.createElement(params); }
-	
+
 	var el = doc.createElement(params.tag || 'div');
 	if(params.style) { $.style(el, params.style); }
 	if(params.attrs) {
@@ -34,14 +34,14 @@ $.addClass = function(el, classNames) {
 	if(typeof classNames == "string") {
 		classNames = classNames.split(' ');
 	}
-	
+
 	var current = ' ' + el.className + ' ';
 	for(var i = 0, len = classNames.length, c; (c = classNames[i]) || i < len; ++i) {
 		if(current.indexOf(' '+c+' ') == -1) {
 			current += c + ' ';
 		}
 	}
-	
+
 	el.className = current;
 	return $;
 }
@@ -60,7 +60,7 @@ $.style = function(el, style) {
 		for(var i = 0, o; o = el[i]; ++i) { $.style(o, style); }
 		return;
 	}
-	
+
 	el = $.id(el);
 	for(prop in style) {
 		switch(prop) {
@@ -79,7 +79,7 @@ $.style = function(el, style) {
 
 $.onEvent = function(el, name, f) {
 	el = $.id(el);
-	if(el.addEventListener) { 
+	if(el.addEventListener) {
 		el.addEventListener(name, f, false);
 	} else {
 		el.attachEvent('on' + name, function(e) {

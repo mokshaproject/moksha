@@ -73,7 +73,7 @@ IRCClient = function() {
     self.onclose = function() {}
     self.onerror = function(command) {}
     self.onresponse = function(command) {}     // used for numerical replies
-                            
+
     self.connect = function(hostname, port) {
         log.debug("connect");
         conn = self._createTransport();
@@ -95,7 +95,7 @@ IRCClient = function() {
         self.onclose()
     }
     self.ident = function(nickname, modes, real_name) {
-        send("USER", nickname + " " + modes + " :" + real_name) 
+        send("USER", nickname + " " + modes + " :" + real_name)
     }
     self.nick = function(nickname) {
         send("NICK", nickname)
@@ -194,7 +194,7 @@ IRCClient = function() {
                 return self.onerror(command)
             else
                 return self.onresponse(command)
-        } 
+        }
         if (command.type == "PRIVMSG") {
             msg = command.args[1]
             if (msg.charCodeAt(0) == 1 && msg.charCodeAt(msg.length-1) == 1) {

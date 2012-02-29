@@ -12,11 +12,11 @@ exports.RTJPProtocol = Class(DelimitedProtocol, function(supr) {
 	this.connectionMade = function() {
 		logger.debug("connectionMade");
 	}
-	
+
 	var error = function(e) {
 		logger.warn('Error: ', e, e.traceback);
 	}
-	
+
 	// Inherit and overwrite
 	this.frameReceived = function(id, name, args) {
 	}

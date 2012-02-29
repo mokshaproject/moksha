@@ -5,7 +5,7 @@
 // Seems to be an MIT-like license, with linking in source code required
 // License:
 //   As long as you leave the copyright notice of the original script, or link
-//   back to this website, you can use any of the content published on this 
+//   back to this website, you can use any of the content published on this
 //   website free of charge for any use: commercial or noncommercial.
 //   (http://www.webtoolkit.info/licence.html 9/18/09)
 
@@ -14,14 +14,14 @@
 
 
 var sprintfWrapper = {
- 
+
     init : function () {
- 
+
         if (typeof arguments == "undefined") { return null; }
         if (arguments.length < 1) { return null; }
         if (typeof arguments[0] != "string") { return null; }
         if (typeof RegExp == "undefined") { return null; }
- 
+
         var string = arguments[0];
         var exp = new RegExp(/(%([%]|(\-)?(\+|\x20)?(0)?(\d+)?(\.(\d)?)?([bcdfosxX])))/g);
         var matches = new Array();
@@ -32,14 +32,14 @@ var sprintfWrapper = {
         var matchPosEnd = 0;
         var newString = '';
         var match = null;
- 
+
         while (match = exp.exec(string)) {
             if (match[9]) { convCount += 1; }
- 
+
             stringPosStart = matchPosEnd;
             stringPosEnd = exp.lastIndex - match[0].length;
             strings[strings.length] = string.substring(stringPosStart, stringPosEnd);
- 
+
             matchPosEnd = exp.lastIndex;
             matches[matches.length] = {
                 match: match[0],
@@ -54,16 +54,16 @@ var sprintfWrapper = {
             };
         }
         strings[strings.length] = string.substring(matchPosEnd);
- 
+
         if (matches.length == 0) { return string; }
         if ((arguments.length - 1) < convCount) { return null; }
- 
+
         var code = null;
         var match = null;
         var i = null;
- 
+
         for (i=0; i<matches.length; i++) {
- 
+
             if (matches[i].code == '%') { substitution = '%' }
             else if (matches[i].code == 'b') {
                 matches[i].argument = String(Math.abs(parseInt(matches[i].argument)).toString(2));
@@ -100,17 +100,17 @@ var sprintfWrapper = {
             else {
                 substitution = matches[i].match;
             }
- 
+
             newString += strings[i];
             newString += substitution;
- 
+
         }
         newString += strings[i];
- 
+
         return newString;
- 
+
     },
- 
+
     convert : function(match, nosign){
         if (nosign) {
             match.sign = '';
@@ -134,5 +134,5 @@ var sprintfWrapper = {
         }
     }
 }
- 
+
 exports.sprintf = sprintfWrapper.init;

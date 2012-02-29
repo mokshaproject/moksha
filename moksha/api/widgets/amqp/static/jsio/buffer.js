@@ -11,7 +11,7 @@ var EmptyBufferError = exports.EmptyBufferError = Class(function () {
 exports.Buffer = Class(function(supr) {
 
     this.init = function(rawBuffer) {
-        
+
         this._rawBuffer = !!rawBuffer ? rawBuffer : "";
     }
 
@@ -27,7 +27,7 @@ exports.Buffer = Class(function(supr) {
     this.peekBytes = function(num) {
         if (!!num)
             return this._rawBuffer.slice(0, num);
-        else 
+        else
             return this._rawBuffer;
     }
 
@@ -55,7 +55,7 @@ exports.Buffer = Class(function(supr) {
 		this._rawBuffer = "";
 		return temp;
 	}
-	
+
     this.consumeLine = function(delimiter) {
         delimiter = !!delimiter ? delimiter : "\n"
         var output = this.peekLine(delimiter);

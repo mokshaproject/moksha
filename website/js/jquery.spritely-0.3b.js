@@ -78,7 +78,7 @@
 				}
 			} else if (options.type == 'pan') {
 				if (!$._spritely.instances[el_id]['_stopped']) {
-					if (options.dir == 'left') { 
+					if (options.dir == 'left') {
 						$._spritely.instances[el_id]['l'] = ($._spritely.instances[el_id]['l'] - (options.speed || 1)) || 0;
 					} else {
 						$._spritely.instances[el_id]['l'] = ($._spritely.instances[el_id]['l'] + (options.speed || 1)) || 0;
@@ -116,7 +116,7 @@
 			return bgX;
 		},
 		get_rel_pos: function(pos, w) {
-			// return the position of an item relative to a background 
+			// return the position of an item relative to a background
 			// image of width given by w
 			var r = pos;
 			if (pos < 0) {
@@ -288,7 +288,7 @@
 				var t = r(options.top, options.bottom);
 				var l = r(options.left, options.right);
 				$('#' + el_id).animate({
-					top: t + 'px', 
+					top: t + 'px',
 					left: l + 'px'
 				}, options.speed)
 			}
@@ -307,7 +307,7 @@
 					.remove()
 					.appendTo("body");
 			});
-		
+
 		},
 		spSet: function(prop_name, prop_value) {
 			var el_id = $(this).attr('id');
@@ -333,7 +333,7 @@
 					$(this).css('background-position', '0 ' + bp_top);
 				}
 			});
-			return this;		
+			return this;
 		},
 		spStart: function() {
 			$(this).each(function() {
@@ -344,7 +344,7 @@
 					$(this).spSet('fps', fps);
 				}
 			});
-			return this;		
+			return this;
 		},
 		spToggle: function() {
 			var el_id = $(this).attr('id');
@@ -355,7 +355,7 @@
 			} else {
 				$(this).spStop(stopped_f1);
 			}
-			return this;		
+			return this;
 		},
 		fps: function(fps) {
 			$(this).each(function() {
@@ -425,4 +425,4 @@
 // Stop IE6 re-loading background images continuously
 try {
   document.execCommand("BackgroundImageCache", false, true);
-} catch(err) {} 
+} catch(err) {}

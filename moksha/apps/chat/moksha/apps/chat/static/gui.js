@@ -10,7 +10,7 @@ if (!WillowChat.guis) {
 
 if (!WillowChat.guis.map) {
     WillowChat.guis.map = {}
-} 
+}
 var ENTER_KEY = 13
 WillowChat.guis.map.simple = WillowChat.guis.SimpleGui = function(wc, opts) {
     var self = this;
@@ -19,8 +19,8 @@ WillowChat.guis.map.simple = WillowChat.guis.SimpleGui = function(wc, opts) {
 //    logger.enabled = true;
     var username = null;
     var presence = {}
-    
-    $('#nickname').focus();    
+
+    $('#nickname').focus();
     $('#nickname').keypress( function(e) {
         var key = e.charCode || e.keyCode || 0
         if (key == ENTER_KEY) {
@@ -87,13 +87,13 @@ WillowChat.guis.map.simple = WillowChat.guis.SimpleGui = function(wc, opts) {
             .attr("id", "user_" + newname)
             .html(newname);
     }
-    
+
     var addName = function (name) {
         presence[name] = 1
         $('<div class="user_entry" id="user_' + name + '">' + name + '</div>')
             .appendTo("#presenceList");
     };
-    
+
     var removeName = function (name) {
         delete presence[name];
         $(".user_list #user_" + name).remove()
@@ -126,7 +126,7 @@ WillowChat.guis.map.simple = WillowChat.guis.SimpleGui = function(wc, opts) {
         wc.connect( {
             username: username
         })
-        wc.onConnect = function(data) { 
+        wc.onConnect = function(data) {
             /* This is somewhat important -- without this IE can run into some
              * issues with reconnecting
              */
@@ -148,12 +148,12 @@ WillowChat.guis.map.simple = WillowChat.guis.SimpleGui = function(wc, opts) {
                 addName(wc.presence[i]);
             }
             sortNames();
-            logger.debug('connected', data, wc.presence) 
+            logger.debug('connected', data, wc.presence)
         }
-        wc.onMessage = function(sender, message) { 
-            logger.debug('msg', sender, message); 
+        wc.onMessage = function(sender, message) {
+            logger.debug('msg', sender, message);
             var messagediv = $('<div class="message"></div>');
-        
+
             if (sender == username) {
                 messagediv.addClass("self");
             }
@@ -167,7 +167,7 @@ WillowChat.guis.map.simple = WillowChat.guis.SimpleGui = function(wc, opts) {
         }
         wc.onAction = function(s, m) { logger.debug('action', s, m); }
 
-        wc.onJoin = function(joiner) { 
+        wc.onJoin = function(joiner) {
             logger.debug('join', joiner);
             addName(joiner);
             sortNames();
@@ -176,8 +176,8 @@ WillowChat.guis.map.simple = WillowChat.guis.SimpleGui = function(wc, opts) {
                 .appendTo("#history");
             scrollDown();
         }
-        wc.onLeave = function(leaver) { 
-            logger.debug('leave', leaver); 
+        wc.onLeave = function(leaver) {
+            logger.debug('leave', leaver);
             removeName(leaver);
             $("<div class='informative part'></div>")
                 .html("<span class='user'>" + leaver + '</span> left')

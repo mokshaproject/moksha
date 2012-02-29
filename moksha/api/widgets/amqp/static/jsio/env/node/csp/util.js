@@ -63,11 +63,11 @@ var Class = exports.Class = function(parent, proto) {
 				};
 			};
 		};
-		parent = parent[0]; 
+		parent = parent[0];
 	} else {
 		proto.prototype = parent.prototype;
 	};
-	
+
 	var cls = function() { if(this.init) { this.init.apply(this, arguments); }}
 	cls.prototype = new proto(function(context, method, args) {
 		var args = args || [];

@@ -4,7 +4,7 @@ jsio('import jsio.logging');
 var logger = jsio.logging.getLogger('uri');
 
 
-var attrs = [ 
+var attrs = [
 	"source",
 	"protocol",
 	"authority",
@@ -28,7 +28,7 @@ exports.Uri = Class(function(supr) {
 			this['_' + attr] = uriData[attr];
 		}
 	}
-	
+
 	for (var i = 0, attr; attr = attrs[i]; ++i) {
 		(function(attr) {
 			var fNameSuffix = attr.charAt(0).toUpperCase() + attr.slice(1);
@@ -40,7 +40,7 @@ exports.Uri = Class(function(supr) {
 			}
 		}).call(this, attr);
 	}
-	
+
 	this.toString = this.render = function() {
 		// XXX: implement in terms of the keys. Reasonable fallbacks?
 		return this._source;

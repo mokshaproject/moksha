@@ -60,7 +60,7 @@ exports.BrowserDetect = new function() {
 			versionSearch: "Mozilla"
 		}
 	];
-	
+
 	var dataOS = [
 		{
 			string: navigator.platform,
@@ -81,7 +81,7 @@ exports.BrowserDetect = new function() {
 			subString: "Linux"
 		}
 	];
-	
+
 	function searchString(data) {
 		for (var i=0,item;item=data[i];i++)	{
 			var dataString = item.string;
@@ -95,13 +95,13 @@ exports.BrowserDetect = new function() {
 				return item.identity;
 		}
 	}
-	
+
 	function searchVersion(dataString) {
 		var index = dataString.indexOf(versionSearchString);
 		if (index == -1) return;
 		return parseFloat(dataString.substring(index+versionSearchString.length+1));
 	}
-	
+
 	this.browser = searchString(dataBrowser) || "unknown";
 	this.version = searchVersion(navigator.userAgent)
 		|| searchVersion(navigator.appVersion)

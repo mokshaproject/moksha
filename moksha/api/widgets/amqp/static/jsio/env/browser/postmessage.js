@@ -3,7 +3,7 @@ jsio('from jsio.util.browser import $');
 
 exports.Listener = Class(jsio.interfaces.Listener, function(supr) {
     var ID = 0;
-    
+
     this.init = function() {
         supr(this, 'init', arguments);
         this._clients = {};
@@ -12,7 +12,7 @@ exports.Listener = Class(jsio.interfaces.Listener, function(supr) {
             this._opts.clientUrl = require.__dir + '/networkConsole.html';
         }
     }
-    
+
     this.listen = function() {
         $.onEvent(window, 'message', bind(this, '_onMessage'));
         this._button = document.createElement('a');
@@ -22,9 +22,9 @@ exports.Listener = Class(jsio.interfaces.Listener, function(supr) {
             window.open(this._opts.clientUrl, 'W' + (ID++));
         }));
     }
-    
+
     this.getButton = function() { return this._button; }
-    
+
     this._onMessage = function(evt) {
         log("SERVER RECEIVED", evt.data)
         var name = evt.source.name;
@@ -54,7 +54,7 @@ exports.Connector = Class(jsio.interfaces.Connector, function() {
         $.onEvent(window, 'message', bind(this, '_onMessage'));
         window.opener.postMessage(JSON.stringify({type:"open"}), '*');
     }
-    
+
     this._onMessage = function(evt) {
         log("CLIENT RECEIVED", evt.data)
         var data = eval('(' + evt.data + ')');
@@ -80,20 +80,20 @@ exports.Transport = Class(jsio.interfaces.Transport, function() {
     this.init = function(win) {
         this._win = win;
     }
-    
+
     this.makeConnection = function(protocol) {
         this._protocol = protocol;
     }
-    
+
     this.write = function(data, encoding) {
         console.log('write', data);
         this._win.postMessage(JSON.stringify({type: 'data', payload: data}), '*');
     }
-    
+
     this.loseConnection = function(protocol) {
         this._win.postMessage(JSON.stringify({type: 'close', code: 301}), '*');
     }
-    
+
     this.onData = function() { this._protocol.dataReceived.apply(this._protocol, arguments); }
     this.onClose = function() { this._protocol.connectionLost.apply(this._protocol, arguments); }
 });

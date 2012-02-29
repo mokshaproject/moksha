@@ -69,7 +69,7 @@ WillowChat.util.setup = function() {
 
 
 
-WillowChat.BaseClient = function() { 
+WillowChat.BaseClient = function() {
     var self = this;
     self.readyState = self.READY_STATE_INITIALIZED;
     self.onUsernameTaken = function() { };
@@ -81,8 +81,8 @@ WillowChat.BaseClient = function() {
     self.onLeave = function() { };
     self.onAction = function() { };
     self.onRename = function() { };
-} 
- 
+}
+
 WillowChat.BaseClient.prototype.connect = function(options) {
     var self = this;
     if (!this.doConnect) {
@@ -100,7 +100,7 @@ WillowChat.BaseClient.prototype.connect = function(options) {
     var port = options.port
     if (!port) {
         port = 6667
-    }    
+    }
     if (!hostname) {
         if (!self.opts.addr) {
             throw new Error("missing connection information");
@@ -164,7 +164,7 @@ WillowChat.clients.IRCClient.prototype.doConnect = function(username, roomId, ho
     var irc = self._conn
     // By default, assume the irc server is on the same host as the willowchat
     // server
-    
+
     function parseName(identity) {
         // TODO remove privileges from name head.
         return identity.split("!", 1)[0];
@@ -219,7 +219,7 @@ WillowChat.clients.IRCClient.prototype.doConnect = function(username, roomId, ho
         }
         self.onPresence()
     };
-    
+
     irc.onPRIVMSG = function(command) {
         var sender = parseName(command.prefix);
         var target = command.args[0];
@@ -238,7 +238,7 @@ WillowChat.clients.IRCClient.prototype.doConnect = function(username, roomId, ho
         var responseCode = parseInt(command.type);
         if (responseCode == 353) {
             // 353 is the code for RPL_NAMEREPLY.
-        
+
             // The args are:
             //
             // """
@@ -247,7 +247,7 @@ WillowChat.clients.IRCClient.prototype.doConnect = function(username, roomId, ho
             //
             //   - "@" is used for secret channels, "*" for private
             //     channels, and "=" for others (public channels).
-            // """ -- rfc2812    
+            // """ -- rfc2812
             var channel = command.args[2];
             if (channel != self.roomId)
                 return;
@@ -302,7 +302,7 @@ WillowChat.clients.IRCClient.prototype.rename = function(newUserName) {
             break;
         default:
             throw new Error("invalid readyState")
-    }    
+    }
 }
 
 WillowChat.clients.IRCClient.prototype.sendMessage = function(msg) {

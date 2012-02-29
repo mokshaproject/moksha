@@ -305,7 +305,7 @@
         $(this).remove();
         if(container.hasClass("draggable")) container.mb_BringToFront();
         $(".iconLabel").remove();
-        if(opt.onRestore) opt.onRestore(container);        
+        if(opt.onRestore) opt.onRestore(container);
       })
               .bind("mouseenter",function(){
         var label="<div class='iconLabel'>"+$(this).attr("contTitle")+"</div>";

@@ -1,7 +1,7 @@
 /*
 
 console = new amqp.qmf.Console({brokerConnected: function(broker){},
-                                brokerDisconnected: function(broker){}, 
+                                brokerDisconnected: function(broker){},
                                 newPackage: function(name){},
                                 newClass: function(kind, classKey){},
                                 newAgent: function(agent){},

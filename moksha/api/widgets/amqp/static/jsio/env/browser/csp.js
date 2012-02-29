@@ -22,16 +22,16 @@ var Transport = Class(jsio.interfaces.Transport, function() {
     this.init = function(conn) {
         this._conn = conn;
     }
-    
+
     this.makeConnection = function(protocol) {
         this._conn.onread = bind(protocol, 'dataReceived');
         this._conn.ondisconnect = bind(protocol, 'connectionLost'); // TODO: map error codes
     }
-	
+
     this.write = function(data, encoding) {
         this._conn.write(data);
     }
-    
+
     this.loseConnection = function(protocol) {
         this._conn.close();
     }

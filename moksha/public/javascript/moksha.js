@@ -86,7 +86,7 @@ moksha = {
         var head_pos = moksha.find_head_tags(fragment);
         var in_head = function(pos) {
             var i = -1;
-            
+
             for(i in head_pos) {
                 low = head_pos[i][0];
                 high = head_pos[i][1];
@@ -830,7 +830,7 @@ moksha = {
         if (typeof(moksha_amqp_session) != 'undefined') {
             moksha_amqp_session.Message('transfer', {
                 accept_mode: 1,
-                acquire_mode: 1, 
+                acquire_mode: 1,
                 destination: 'amq.topic',
                 _body: JSON.stringify(body),
                 _header: {

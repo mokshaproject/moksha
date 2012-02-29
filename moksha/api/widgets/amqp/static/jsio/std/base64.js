@@ -56,7 +56,7 @@ var alphabet_inverse = new RegExp('[^' + alphabet + ']');
 
 
 
-var Base64CodecError = exports.Base64CodecError = function (message) { 
+var Base64CodecError = exports.Base64CodecError = function (message) {
 	this.message = message;
 };
 Base64CodecError.prototype.toString = function () {
@@ -81,8 +81,8 @@ exports.encode = function (bytes) {
 		out_array.push(
 			alphabet.charAt((newchars >> 18) & 077),
 			alphabet.charAt((newchars >> 12) & 077),
-			alphabet.charAt((newchars >> 6)  & 077), 
-			alphabet.charAt((newchars)       & 077));      
+			alphabet.charAt((newchars >> 6)  & 077),
+			alphabet.charAt((newchars)       & 077));
 	};
 	shorten(out_array, padding.length);
 	return out_array.join('');
@@ -106,7 +106,7 @@ exports.decode = function (b64text) {
 			(decode_map[b64text.charAt(i+3)]));
 		out_array.push(
 			(newchars >> 020) & 0xFF,
-			(newchars >> 010) & 0xFF, 
+			(newchars >> 010) & 0xFF,
 			(newchars)        & 0xFF);
 	};
 	shorten(out_array, padding.length);

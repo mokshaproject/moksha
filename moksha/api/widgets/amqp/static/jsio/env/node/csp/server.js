@@ -26,7 +26,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
- 
+
 // Make the dependancies work rather or not this file was used as a
 // node module or a jsio module.
 
@@ -142,7 +142,7 @@ csp.Session = Class(function() {
 					// string of spaces of length prebufferSize
 					this.variables.prebuffer = (new Array(prebufferSize+1)).join(' ');
 				};
-			};	
+			};
 		};
 	};
 	this.isStreaming = function () {
@@ -162,7 +162,7 @@ csp.Session = Class(function() {
 	};
 	this.resetTimeoutTimer = function () {
 		myClearTimeout(this.timeoutTimer);
-		// Give the client 50% longer than the duration of a comet request before 
+		// Give the client 50% longer than the duration of a comet request before
 		// we time them out.
 		var timeout = 1000 * parseInt(this.variables.duration) * 1.5;
 		this.timeoutTimer = $setTimeout(bind(this, this.teardownSession), timeout);
@@ -455,7 +455,7 @@ csp.Server = Class(process.EventEmitter, function () {
 			}
 			catch (err) {
 				if (err instanceof CSPError) {
-					renderError(response, err.code, err.message);					 
+					renderError(response, err.code, err.message);
 				} else {
 					debug('Unexpected Error: ', err.message);
 					renderError(response, 500, 'Unknown Server error');

@@ -8,7 +8,7 @@ exports.Protocol = Class(jsio.interfaces.Protocol, function() {
         logger.debug('in connectionMade');
         this.transport.write('Welcome')
     }
-    
+
     this.dataReceived = function(data) {
         logger.debug('dataReceived:', data);
         this.transport.write('Echo: ' + data);

@@ -13,7 +13,7 @@ exports.BufferedProtocol = Class(Protocol, function(supr) {
 
     // Overwrite this instead of dataReceived in base classes
     this.bufferUpdated = function() {
-        
+
     }
 
     this.dataReceived = function(data) {

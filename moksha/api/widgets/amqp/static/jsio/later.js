@@ -7,11 +7,11 @@ exports.Later = Class(function() {
         this.errors = []
         this.cancelback = null;
     }
-    
+
     this.succeed = function(data) {
         this.callback(data);
     }
-    
+
     this.callback = function() {
         if (this.cb) {
             var result = this.cb.apply(this, arguments);

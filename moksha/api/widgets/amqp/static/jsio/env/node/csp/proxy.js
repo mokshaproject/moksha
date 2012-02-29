@@ -57,7 +57,7 @@ msp.ProxyConnection = Class(function() {
 			.addListener('receive', bind(this, this.receiveData))
 			.addListener('eof', bind(this, this.shutdown))
 			.addListener('disconnect', bind(this, this.shutdown))
-			.setEncoding('bytes');	
+			.setEncoding('bytes');
 	};
 	this.receiveData = function (data) {
 		var frameBegin;
@@ -85,7 +85,7 @@ msp.ProxyConnection = Class(function() {
 		};
 	};
 	this.shutdown = function (had_error) {
-		// close all outgoing TCP connections			 
+		// close all outgoing TCP connections
 		for (connectionId in this.outConnections) {
 			if (had_error) {
 				this.closeOutgoing(connectionId, 'ProtocolError');
@@ -138,7 +138,7 @@ msp.ProxyConnection = Class(function() {
 			data = unescape(data);
 			this.outConnections[connectionId].send(data, 'bytes');
 		},
-	};	
+	};
 });
 
 msp.Proxy = Class(function () {

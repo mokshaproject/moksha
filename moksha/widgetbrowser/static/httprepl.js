@@ -47,7 +47,7 @@ var HTTPRepl = (function ($) {
 
     function next_history() {
         if (current_history == undefined) return;
-        
+
         var next = current_history.nextSibling;
         while (next != null && next.className != 'stdin') {
             next = next.nextSibling;
@@ -109,9 +109,9 @@ var HTTPRepl = (function ($) {
 
     function dir() {
         var data = partial_line();
-        
+
         clear_tips();
-        
+
         var h = http();
         h.onreadystatechange = function() {
             if (h.readyState == 4) {
@@ -156,9 +156,9 @@ var HTTPRepl = (function ($) {
 
     function doc() {
         var data = partial_line();
-        
+
         clear_tips();
-        
+
         var h = http();
         h.onreadystatechange = function() {
             if (h.readyState == 4) {
@@ -226,7 +226,7 @@ var HTTPRepl = (function ($) {
     function stdout_write(content, stdin) {
         current_history = undefined;
         if (content == "") return;
-        
+
         var block = document.createElement("pre");
         block.ondblclick = history_hook;
         if (stdin) {
@@ -248,9 +248,9 @@ var HTTPRepl = (function ($) {
         var data = input.value;
         // Uncomment to treat a line with only whitespace like a blank line
         // if (whitespace.test(data)) data = "";
-        
+
         input.value = "";
-        
+
         var h = http();
         h.onreadystatechange = function() {
             if (h.readyState == 4) {
@@ -404,7 +404,7 @@ var HTTPRepl = (function ($) {
         return false;
     }
     var httprepl = $(''
-        +'<div class="httprepl">' 
+        +'<div class="httprepl">'
         +  '<div class="output"></div>'
         +  '<form action="" class="terminal">'
         +    '<div class="tipbar"></div>'

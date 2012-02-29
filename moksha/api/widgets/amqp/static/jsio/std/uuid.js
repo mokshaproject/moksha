@@ -16,7 +16,7 @@ modification, are permitted provided that the following conditions are met:
   * Neither the name of Robert Kieffer nor the names of its contributors
     may be used to endorse or promote products derived from this software
     without specific prior written permission.
-  
+
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -44,7 +44,7 @@ POSSIBILITY OF SUCH DAMAGE.
  *   // No arguments  - returns RFC4122, version 4 ID
  *   >>> Math.uuid()
  *   "92329D39-6F5C-4520-ABFC-AAB64544E172"
- * 
+ *
  *   // One argument - returns ID of the specified length
  *   >>> Math.uuid(15)     // 15 character ID (default base=62)
  *   "VcydxgltxrVZSTV"
@@ -59,7 +59,7 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 
 
-var CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split(''); 
+var CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('');
 exports.uuid = function (len, radix) {
 	var chars = CHARS, uuid = [], rnd = Math.random;
 	radix = radix || chars.length;

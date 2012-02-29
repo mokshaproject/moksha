@@ -23,7 +23,7 @@ exports.getLogger = function(name) {
 }
 
 exports.Logger = Class(function() {
-    
+
     this.init = function(name, level) {
         if (!level) {
             level = levels.LOG;

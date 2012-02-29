@@ -10,7 +10,7 @@ if (!WillowChat.guis) {
 
 if (!WillowChat.guis.map) {
     WillowChat.guis.map = {}
-} 
+}
 
 var willowConnection = null;
 WillowChat.guis.map.dojo = WillowChat.guis.DojoGui = function(wc, opts) {
