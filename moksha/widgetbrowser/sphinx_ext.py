@@ -9,7 +9,7 @@ widget_tabs = widgets.WidgetBrowserTabs(in_sphinx=True)
 def widgetbrowser_directive(dirname, arguments, options, content, lineno,
                             content_offset, block_text, state, state_machine):
     """Processes the `widgetbrowser` reStructuredText directive.
-    
+
     When generating the URL for the widget it peeks into os.environ for the
     'TW_BROWSER_PREFIX' environment variable.
     """
@@ -33,7 +33,7 @@ def _get_tabs(arg):
     if arg is None:
         return []
     return [s.strip() for s in arg.split(',')]
-    
+
 def _get_size(arg):
     return arg or "small"
 

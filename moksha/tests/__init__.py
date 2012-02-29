@@ -1,6 +1,6 @@
 # This file is part of Moksha.
 # Copyright (C) 2008-2010  Red Hat, Inc.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -31,7 +31,7 @@ from moksha import model
 __all__ = ['setup_db', 'teardown_db', 'TestController', 'url_for']
 
 def setup_db():
-    engine = config['pylons.app_globals'].sa_engine 
+    engine = config['pylons.app_globals'].sa_engine
     model.init_model(engine)
     model.metadata.create_all(engine)
 
@@ -39,7 +39,7 @@ def teardown_db():
     engine = config['pylons.app_globals'].sa_engine
     model.metadata.drop_all(engine)
 
-def setup_app(application): 
+def setup_app(application):
     # Loading the application:
     conf_dir = config.here
     wsgiapp = loadapp('config:test.ini#%s' % application,
@@ -58,7 +58,7 @@ class TestController(object):
     """
     Base functional test case for the controllers.
 
-    The Moksha application instance (``self.app``) set up in this test 
+    The Moksha application instance (``self.app``) set up in this test
     case (and descendants) has authentication disabled, so that developers can
     test the protected areas independently of the :mod:`repoze.who` plugins
     used initially. This way, authentication can be tested once and separately.

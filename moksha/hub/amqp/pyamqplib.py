@@ -76,7 +76,7 @@ class AMQPLibHub(BaseAMQPHub):
 
     def send_message(self, topic, message, **headers):
         """
-        Send an AMQP message to a given exchange with the specified routing key 
+        Send an AMQP message to a given exchange with the specified routing key
         """
         msg = amqp.Message(message, **headers)
         msg.properties["delivery_mode"] = headers.get(
@@ -108,7 +108,7 @@ class AMQPLibHub(BaseAMQPHub):
 
     def queue_subscribe(self, queue, callback, no_ack=True):
         """
-        Consume messages from a given `queue`, passing each to `callback` 
+        Consume messages from a given `queue`, passing each to `callback`
         """
         self.channel.basic_consume(queue, callback=callback, no_ack=no_ack)
 

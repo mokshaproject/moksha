@@ -44,7 +44,7 @@ class WidgetBrowserTabs(Widget):
     size = "small"
     tabs = ['demo', 'demo_source', 'source', 'template', 'parameters']
     prefix = None
-     
+
     def update_params(self, d):
         super(WidgetBrowserTabs, self).update_params(d)
         d.tabs = [(string.capwords(t.replace('_', ' ')), util.widget_url(d.value, t, prefix=d.prefix))

@@ -960,7 +960,7 @@ class DateTimeDisplay(object):
         >>> later = datetime(2009, 5, 13)
         >>> d = DateTimeDisplay(now)
         >>> print d
-        2009-05-12 00:00:00 
+        2009-05-12 00:00:00
         >>> d.age(later)
         '1 day'
         >>> d.age(datetime(2010, 7, 10, 10, 10), granularity='minute')

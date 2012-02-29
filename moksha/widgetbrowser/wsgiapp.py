@@ -147,7 +147,7 @@ class WidgetBrowser(object):
             except LookupError:
                 resp = exc.HTTPNotFound('No widget at %s' % req.path_info)
                 return resp(environ, start_response)
-                
+
 
             # Lookup controller
             try:
@@ -155,13 +155,13 @@ class WidgetBrowser(object):
             except LookupError:
                 resp = exc.HTTPNotImplemented()
                 return resp(environ, start_response)
-                
-            # If it's a widget class instantiate it with no arguments 
+
+            # If it's a widget class instantiate it with no arguments
             if isinstance(widget, WidgetType):
                 widget = widget('test_widget')
             req.widget = widget
 
-        # Call controller and handle output 
+        # Call controller and handle output
         output = controller(req, resp)
         if isinstance(output, str):
             resp.body = output

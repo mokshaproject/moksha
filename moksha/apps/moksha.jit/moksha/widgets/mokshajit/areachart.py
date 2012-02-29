@@ -20,7 +20,7 @@ Moksha AreaChart Widget
 
 A widget for the Javascript InfoVis Toolkit.
 
-.. moduleauthor:: Ralph Bean <ralph.bean@gmail.com> 
+.. moduleauthor:: Ralph Bean <ralph.bean@gmail.com>
 .. upstream:: http://thejit.org
 .. upstream-license:: BSD
 """

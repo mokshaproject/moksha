@@ -11,15 +11,15 @@ __all__ = ['ModelTest']
 def setup():
     """Function called by nose on module load"""
     setup_db()
-    
-#Teardown that database 
+
+#Teardown that database
 def teardown():
     """Function called by nose after all tests in this module ran"""
     teardown_db()
-    
+
 class ModelTest(object):
     """Base unit test case for the models."""
-    
+
     klass = None
     attrs = {}
 

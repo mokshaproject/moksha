@@ -1,6 +1,6 @@
 # This file is part of Moksha.
 # Copyright (C) 2008-2010  Red Hat, Inc.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -25,8 +25,8 @@ __all__ = ['ModelTest']
 #Create an empty database before we start our tests for this module
 def setup():
     setup_db()
-    
-#Teardown that database 
+
+#Teardown that database
 def teardown():
     teardown_db()
 

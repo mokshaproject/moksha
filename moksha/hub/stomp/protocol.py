@@ -40,7 +40,7 @@ class StompProtocol(Protocol, stomper.Engine):
     def connected(self, msg):
         """Once connected, subscribe to message queues """
         stomper.Engine.connected(self, msg)
-        log.info("StompProtocol Connected: session %s." % 
+        log.info("StompProtocol Connected: session %s." %
                  msg['headers']['session'])
         self.client.connected()
         #f = stomper.Frame()
@@ -49,7 +49,7 @@ class StompProtocol(Protocol, stomper.Engine):
         #return f.pack()
 
     def ack(self, msg):
-        """Processes the received message. I don't need to 
+        """Processes the received message. I don't need to
         generate an ack message.
         """
         #stomper.Engine.ack(self, msg)

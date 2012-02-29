@@ -13,26 +13,26 @@ from tg2app.tests import TestController
 class TestAuthentication(TestController):
     """
     Tests for the default authentication setup.
-    
+
     By default in TurboGears 2, :mod:`repoze.who` is configured with the same
     plugins specified by repoze.what-quickstart (which are listed in
     http://code.gustavonarea.net/repoze.what-quickstart/#repoze.what.plugins.quickstart.setup_sql_auth).
-    
+
     As the settings for those plugins change, or the plugins are replaced,
     these tests should be updated.
-    
+
     """
-    
+
     application_under_test = 'main'
-    
+
     def test_forced_login(self):
         """
         Anonymous users must be redirected to the login form when authorization
         is denied.
-        
+
         Next, upon successful login they should be redirected to the initially
         requested page.
-        
+
         """
         # Requesting a protected area
         resp = self.app.get('/secc/', status=302)

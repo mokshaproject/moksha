@@ -51,7 +51,7 @@ def widget_path(widget):
 def format_code(code, format='python'):
     """Formats a chunk of code as html. If pygments is installed it will
     pygmentize it.
-    
+
     >>> code = "from __future__ import teletransportation"
     >>> '<pre' in format_code(code)
     True
@@ -105,7 +105,7 @@ def pretty_print(obj):
 
 def display_widget(widget, argstr='', ctx=None):
     """Displays a widget with optional arguments as a string.
-    
+
 
     .. warning:: IT IS VERY UNSAFE TO EXECUTE UNTRUSTED CODE
 
@@ -234,7 +234,7 @@ class WidgetParameters(object):
             <type 'str'>
         """
         return getattr(self.widget, name + '__doc', default)
-        
+
 def build_docs(src, dst):
     import sphinx
     if not os.path.exists(dst):

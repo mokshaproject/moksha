@@ -56,35 +56,35 @@ user_group_table = Table('tg_user_group', metadata,
 class Group(DeclarativeBase):
     """
     Group definition for :mod:`repoze.what`.
-    
+
     Only the ``group_name`` column is required by :mod:`repoze.what`.
-    
+
     """
-    
+
     __tablename__ = 'tg_group'
-    
+
     #{ Columns
-    
+
     group_id = Column(Integer, autoincrement=True, primary_key=True)
-    
+
     group_name = Column(Unicode(16), unique=True, nullable=False)
-    
+
     display_name = Column(Unicode(255))
-    
+
     created = Column(DateTime, default=datetime.now)
-    
+
     #{ Relations
-    
+
     users = relation('User', secondary=user_group_table, backref='groups')
-    
+
     #{ Special methods
-    
+
     def __repr__(self):
         return '<Group: name=%s>' % self.group_name
-    
+
     def __unicode__(self):
         return self.group_name
-    
+
     #}
 
 
@@ -94,29 +94,29 @@ class Group(DeclarativeBase):
 class User(DeclarativeBase):
     """
     User definition.
-    
+
     This is the user definition used by :mod:`repoze.who`, which requires at
     least the ``user_name`` column.
-    
+
     """
     __tablename__ = 'tg_user'
-    
+
     #{ Columns
 
     user_id = Column(Integer, autoincrement=True, primary_key=True)
-    
+
     user_name = Column(Unicode(16), unique=True, nullable=False)
-    
+
     email_address = Column(Unicode(255), unique=True, nullable=False,
                            info={'rum': {'field':'Email'}})
-    
+
     display_name = Column(Unicode(255))
-    
+
     _password = Column('password', Unicode(80),
                        info={'rum': {'field':'Password'}})
-    
+
     created = Column(DateTime, default=datetime.now)
-    
+
     #{ Special methods
 
     def __repr__(self):
@@ -125,7 +125,7 @@ class User(DeclarativeBase):
 
     def __unicode__(self):
         return self.display_name or self.user_name
-    
+
     #{ Getters and setters
 
     @property
@@ -149,7 +149,7 @@ class User(DeclarativeBase):
     def _set_password(self, password):
         """Hash ``password`` on the fly and store its hashed version."""
         hashed_password = password
-        
+
         if isinstance(password, unicode):
             password_8bit = password.encode('UTF-8')
         else:
@@ -175,13 +175,13 @@ class User(DeclarativeBase):
 
     password = synonym('_password', descriptor=property(_get_password,
                                                         _set_password))
-    
+
     #}
-    
+
     def validate_password(self, password):
         """
         Check the password against existing credentials.
-        
+
         :param password: the password that was provided by the user to
             try and authenticate. This is the clear text version that we will
             need to match against the hashed one in the database.
@@ -198,34 +198,34 @@ class User(DeclarativeBase):
 class Permission(DeclarativeBase):
     """
     Permission definition for :mod:`repoze.what`.
-    
+
     Only the ``permission_name`` column is required by :mod:`repoze.what`.
-    
+
     """
-    
+
     __tablename__ = 'tg_permission'
-    
+
     #{ Columns
 
     permission_id = Column(Integer, autoincrement=True, primary_key=True)
-    
+
     permission_name = Column(Unicode(16), unique=True, nullable=False)
-    
+
     description = Column(Unicode(255))
-    
+
     #{ Relations
-    
+
     groups = relation(Group, secondary=group_permission_table,
                       backref='permissions')
-    
+
     #{ Special methods
-    
+
     def __repr__(self):
         return '<Permission: name=%s>' % self.permission_name
 
     def __unicode__(self):
         return self.permission_name
-    
+
     #}
 
 

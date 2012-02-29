@@ -22,11 +22,11 @@ class TestRootController(TestController):
               'designed to make your life easier.'
         # You can look for specific strings:
         assert_true(msg in response)
-        
+
         # You can also access a BeautifulSoup'ed response in your tests
-        # (First run $ easy_install BeautifulSoup 
-        # and then uncomment the next two lines)  
-        
+        # (First run $ easy_install BeautifulSoup
+        # and then uncomment the next two lines)
+
         #links = response.html.findAll('a')
         #print links
         #assert_true(links, "Mummy, there are no links here!")

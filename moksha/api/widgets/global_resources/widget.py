@@ -1,6 +1,6 @@
 # This file is part of Moksha.
 # Copyright (C) 2008-2010  Red Hat, Inc.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -91,10 +91,10 @@ class TW1GlobalResourceInjectionWidget(tw.api.Widget):
 
         trusted_domain_list = config.get('moksha.csrf.trusted_domains', '').split(',')
         # turn into quick lookup hash
-        item_list = [] 
+        item_list = []
         for domain in trusted_domain_list:
             item_list.append('"%s": true' % domain)
-        trusted_domain_hash = '{%s}' % ','.join(item_list) 
+        trusted_domain_hash = '{%s}' % ','.join(item_list)
         self.csrf_trusted_domains_hash = trusted_domain_hash
 
         if asbool(config.get('debug')):

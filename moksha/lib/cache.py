@@ -1,6 +1,6 @@
 # This file is part of Moksha.
 # Copyright (C) 2008-2010  Red Hat, Inc.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 
 from moksha.exc import CacheBackendException
 
-class Cache(object): 
+class Cache(object):
     """ A memcached-specific caching interface """
 
     def __init__(self, url, timeout=None, prefix=None):
@@ -36,7 +36,7 @@ class Cache(object):
             raise CacheBackendException("Cannot connect to Memcached")
 
     def get(self, key):
-        return self.mc.get(key) 
+        return self.mc.get(key)
 
     def set(self, key, value, timeout=None):
         if self.prefix:

@@ -23,7 +23,7 @@ from sphinx import util
 
 import nose
 
- 
+
 beginmarker_re = re.compile(r'##\{(?P<section>.+)}')
 endmarker_re = re.compile(r'##')
 
@@ -77,7 +77,7 @@ class HgClient:
     def get_file(self, path, revision='tip'):
         return self.repo.changectx(revision).filectx(path).data()
 
-    
+
 class SVNClient:
     """ Class that represents a Subversion client """
     def __init__(self):
@@ -123,7 +123,7 @@ def code_directive(name, arguments, options, content, lineno,
     else:
         file_path = os.path.normpath(os.path.join(environment.config.code_path,
                                                   file_name))
-    
+
     try:
         if options.has_key('revision'):
             data = get_file(file_path, options['revision'],
@@ -137,7 +137,7 @@ def code_directive(name, arguments, options, content, lineno,
         else:
             source = format_block('\n'.join(data))
         retnode = nodes.literal_block(source, source)
-        retnode.line = 1   
+        retnode.line = 1
     except Exception, e:
         retnode = state.document.reporter.warning(
             'Reading file %r failed: %r' % (arguments[0], str(e)), line=lineno)
@@ -163,20 +163,20 @@ def test_directive(name, arguments, options, content, lineno,
                         content_offset, block_text, state, state_machine):
     """ Directive to test code from external files """
     environment = state.document.settings.env
-    
+
     test = arguments[0]
     if not test.startswith(os.sep):
         test = os.path.join(environment.config.test_path, test)
-        
+
     if options.has_key('options'):
         opts = options['options'].split(',')
         # adjust the options to nose
         opts = map(lambda s: "--%s" % s.strip(), opts)
-        
+
         opts.append(test)
     else:
         opts = [test]
-    
+
     opts.insert(0, __file__)
     result = nose.run(argv = opts)
     if not result:
@@ -198,24 +198,24 @@ def archive_directive(name, arguments, options, content, lineno,
     """ Directive to create a archive (zip) from a sample project """
     environment = state.document.settings.env
     static_path = environment.config.html_static_path[0]
-    
+
     directory = arguments[0]
-    
+
     if options.has_key('file'):
         filename = options['file']
     else:
         filename = os.path.basename(directory.rstrip(os.sep)) + '.zip'
-        
+
     archive_file = zipfile.ZipFile(os.path.dirname(os.path.abspath(__file__))
                         + '%s%s%s' % (os.sep, static_path, os.sep)
                         + filename, "w")
-    
+
     if directory.startswith(os.sep):
         dir = directory
     else:
         dir = os.path.normpath(os.path.join(environment.config.code_path,
                     directory))
-        
+
     for root, dirs, files in os.walk(dir,topdown=False):
         for name in files:
             file = os.path.join(root, name)
@@ -239,19 +239,19 @@ def archive_directive(name, arguments, options, content, lineno,
 
 
 def setup(app):
-    code_options = {'section': directives.unchanged, 
+    code_options = {'section': directives.unchanged,
                     'language': directives.unchanged,
                     'test': directives.unchanged,
                     'revision': directives.unchanged}
     test_options = {'options': directives.unchanged}
     archive_options = {'file': directives.unchanged}
-    
+
     app.add_config_value('code_path', '', True)
     app.add_config_value('code_scm', '', True)
     app.add_directive('code', code_directive, 1, (1, 0, 1),  **code_options)
-    
+
     app.add_directive('test', test_directive, 1, (1, 0, 1),  **test_options)
     app.add_config_value('test_path', '', True)
 
     app.add_directive('archive', archive_directive, 1, (1, 0, 1), **archive_options)
-    
+

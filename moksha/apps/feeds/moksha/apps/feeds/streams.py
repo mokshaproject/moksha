@@ -226,7 +226,7 @@ class FeederProtocol(object):
                             entry = processor(entry)
                         try:
                             self.hub.send_message('moksha.feeds.%s' % channel_link, entry)
-                        except Exception, e: # Usually JSON encoding issues.  
+                        except Exception, e: # Usually JSON encoding issues.
                             log.error(str(e))
                             log.debug('Sending just the title and link instead')
                             self.hub.send_message('moksha.feeds.%s' % channel_link,

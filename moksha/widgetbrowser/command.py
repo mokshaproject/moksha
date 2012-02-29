@@ -24,7 +24,7 @@ def browser_command(argv=None):
     """Command line interface to launch the widgetbrowser"""
     opts, args = _parser.parse_args(argv)
 
-    # Only allow passing display arguments in debug mode 
+    # Only allow passing display arguments in debug mode
     if args:
         widget_url = args[0] + '/'
     else:

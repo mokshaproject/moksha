@@ -81,7 +81,7 @@ class QpidAMQPHub(BaseAMQPHub):
 
     def queue_declare(self, queue, durable=True, exclusive=False,
                       auto_delete=False, **kw):
-        self.session.queue_declare(queue=queue, exclusive=exclusive, 
+        self.session.queue_declare(queue=queue, exclusive=exclusive,
                                    auto_delete=auto_delete,
                                    arguments={'qpid.max_count': 0,
                                               'qpid.max_size': 0}, **kw)

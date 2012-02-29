@@ -1,6 +1,6 @@
 # This file is part of Moksha.
 # Copyright (C) 2008-2010  Red Hat, Inc.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -28,8 +28,8 @@ base_config.use_toscawidgets2 = True
 # Set the default renderer
 base_config.default_renderer = 'mako'
 base_config.renderers = []
-base_config.renderers.append('genshi') 
-base_config.renderers.append('mako') 
+base_config.renderers.append('genshi')
+base_config.renderers.append('mako')
 base_config.use_dotted_templatenames = True
 
 # Configure the base SQLALchemy Setup
@@ -50,7 +50,7 @@ base_config.sa_auth.permission_class = model.Permission
 base_config.sa_auth.password_encryption_method = "salted_sha1"
 base_config.sa_auth.cookie_secret = "/\\/\\0|<5|-|4"
 
-# override this if you would like to provide a different who plugin for 
+# override this if you would like to provide a different who plugin for
 # managing login and logout of your application
 base_config.sa_auth.form_plugin = None
 

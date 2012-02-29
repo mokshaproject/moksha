@@ -34,7 +34,7 @@ OLDHEADER = """
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -228,7 +228,7 @@ def reinstall():
     sh('python setup.py sdist --format=bztar')
     sh('mv dist/* ~/rpmbuild/SOURCES/')
     sh('cp moksha.spec ~/rpmbuild/SPECS/')
-    sh('rpmbuild -ba ~/rpmbuild/SPECS/moksha.spec') 
+    sh('rpmbuild -ba ~/rpmbuild/SPECS/moksha.spec')
     sh('sudo rpm -e --nodeps moksha{,-doc,-server}', ignore_error=True)
     sh('sudo rpm -ivh ~/rpmbuild/RPMS/noarch/moksha{,-doc,-server}-%s-1.*noarch.rpm' % options.version.number)
 

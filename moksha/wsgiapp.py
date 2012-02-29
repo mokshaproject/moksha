@@ -24,7 +24,7 @@ class MokshaAppDispatcher(PylonsApp):
     """ Moksha WSGI Application Dispatcher.
 
     This class handles resolving and dispatching to moksha applications.
-    It is instantiated and utilized by the 
+    It is instantiated and utilized by the
     :class:`moksha.middleware.MokshaMiddleware`.
     """
     root = None
@@ -35,7 +35,7 @@ class MokshaAppDispatcher(PylonsApp):
         self.root = RootController
         self.application = application
 
-    def resolve(self, environ, start_response): 
+    def resolve(self, environ, start_response):
         """ Uses dispatching information found in
         ``environ['wsgiorg.routing_args']`` to retrieve the application
         name and return the controller instance from the appropriate

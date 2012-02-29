@@ -21,8 +21,8 @@ def make_data():
     return data
 
 def find_bounds(data):
-    minx = min( [min( [point[0] for point in series] ) for series in data]) 
-    maxx = max( [max( [point[0] for point in series] ) for series in data]) 
+    minx = min( [min( [point[0] for point in series] ) for series in data])
+    maxx = max( [max( [point[0] for point in series] ) for series in data])
     miny = min( [min( [point[1] for point in series] ) for series in data])
     maxy = max( [max( [point[1] for point in series] ) for series in data])
     miny -= 0.1

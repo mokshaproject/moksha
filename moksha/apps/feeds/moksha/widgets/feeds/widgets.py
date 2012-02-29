@@ -86,7 +86,7 @@ class MokshaLiveFeedTree(Dynatree):
 
     def update_params(self, d):
         # the unique queue to use over our stomp TCPSocket
-        d['topic'] = str(uuid4()) 
+        d['topic'] = str(uuid4())
         Dynatree.update_params(self, d)
         # apparently the dynatree calls our live widget's update_params for us
         #LiveWidget.update_params(self, d)
@@ -162,7 +162,7 @@ class MokshaFeedReaderWidget(LiveWidget):
     """
 
     def update_params(self, d):
-        d['topic'] = str(uuid4()) 
+        d['topic'] = str(uuid4())
         super(MokshaFeedReaderWidget, self).update_params(d)
         self.add_call(jQuery('#' + d.id).splitter({
             'splitVertical': True,
