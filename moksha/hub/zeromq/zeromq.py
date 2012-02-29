@@ -84,6 +84,11 @@ class ZMQHub(BaseZMQHub):
         super(ZMQHub, self).send_message(topic, message, **headers)
 
     def subscribe(self, topic, callback):
+        original_topic = topic
+
+        # Mangle topic for zmq equivalence with AMQP
+        topic = topic.replace('*', '')
+
         for endpoint in self.sub_endpoints:
             log.info("Subscribing to %s on '%r'" % (topic, endpoint))
             s = txZMQ.ZmqSubConnection(self.twisted_zmq_factory, endpoint)
@@ -110,7 +115,7 @@ class ZMQHub(BaseZMQHub):
             s.gotMessage = intercept
             s.subscribe(topic)
 
-        super(ZMQHub, self).subscribe(topic, callback)
+        super(ZMQHub, self).subscribe(original_topic, callback)
 
     def close(self):
         self.pub_socket.close()

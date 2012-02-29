@@ -24,11 +24,11 @@ if (typeof raw_msg_callback == 'undefined') {
 		topic = json.topic;
 		body = json.body;
 
-		if (moksha_callbacks[topic]) {
-			$.each(moksha_callbacks[topic], function (i, callback) {
+		$.each(moksha_callbacks, function(registered_topic, callback) {
+			if (topic.indexOf(registered_topic) === 0) {
 				callback(body);
-			});
-		}
+			}
+		});
     }
 }
 
