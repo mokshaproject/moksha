@@ -105,7 +105,7 @@ Third-party Documentation
 -------------------------
 
 * `TurboGears <http://turbogears.org/2.0/docs/index.html>`_
-* `ToscaWidgets <http://toscawidgets.org/documentation>`_
+* `ToscaWidgets <http://toscawidgets.org/>`_
 * `SQLAlchemy <http://www.sqlalchemy.org/docs/05>`_
 
 Indices and tables

@@ -9,6 +9,11 @@ application or widget.
 Using the cache within a widget
 -------------------------------
 
+As mentioned in :doc:`Widgets`, Moksha supports both ToscaWidgets1 and
+ToscaWidgets2 which have slightly different syntaxes.
+
+For ToscaWidgets1:
+
 .. code-block:: python
 
     from tw.api import Widget
@@ -29,6 +34,33 @@ Using the cache within a widget
             super(MyWidget, self).update_params(d)
             c = cache.get_cache('mywidget')
             d['entries'] = c.get_value(key='entries',
+                                       createfunc=self.get_entries,
+                                       expiretime=3600)
+
+        def get_entries(self):
+            """ Expensive operation goes here... """
+
+For ToscaWidgets2:
+
+.. code-block:: python
+
+    from tw2.core import Widget, Param
+    from pylons import cache
+
+    class MyWidget(Widget):
+        entries = Param("Some entries.", default=[])
+        template = """
+          <ul>
+            % for entry in entries:
+                <li>${entry}</li>
+            % endfor
+          </ul>
+        """
+
+        def prepare(self):
+            super(MyWidget, self).prepare()
+            c = cache.get_cache('mywidget')
+            self.entries = c.get_value(key='entries',
                                        createfunc=self.get_entries,
                                        expiretime=3600)
 

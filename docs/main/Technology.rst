@@ -31,7 +31,8 @@ debugging.
 The powerful API for creating reusable "Widgets", which are essentially just
 bundles of HTML, JavaScript, CSS, and render-time logic.  ToscaWidgets also
 provides a piece of WSGI middleware that handles intelligent resource
-inejection.
+inejection.  Moksha has built-in support for both ToscaWidgets1 and
+ToscaWidgets2.
 
 `Mako <http://www.makotemplates.org/>`_ and `Genshi <http://genshi.edgewall.org/>`_
 -----------------------------------------------------------------------------------

@@ -108,7 +108,11 @@ resources, a template, and server-side render-time logic.
 
 In TurboGears, and thus Moksha, the widget framework of choice is `ToscaWidget
 <http://toscawidgets.org>`_, which allows you to create modular components that
-can be re-used throughout your application.
+can be re-used throughout your application.  As mentioned in :doc:`Widgets`,
+there are two major versions of ToscaWidgets (ToscaWidgets1 and ToscaWidgets2).
+Lucky for you, Moksha supports both.
+
+For ToscaWidgets1:
 
 .. code-block:: python
 
@@ -127,8 +131,26 @@ can be re-used throughout your application.
            super(HelloWorldWidget, self).update_params(d)
            # This code will be executed when the widget is rendering during each request.
            # The argument `d` contains the widget data and params.
-           # So d.msg would currently be be 'Hello World'
+           # So d.msg would currently be be 'Hello World'.  Let's modify it.
+           d.msg = d.msg + "!"
 
+
+For ToscaWidgets2:
+
+.. code-block:: python
+
+   from tw2.core import Widget, Param
+
+   class HelloWorldWidget(Widget):
+       msg = Param("A message", default='Hello World')
+       template = '${msg}'  # The widget template, which has access to all of the `params`.
+                            # The template can be either a string or also an external reference like,
+                            # template = 'mako:myproject.templates.widgettemplate'
+
+       def prepare(self):
+           """ Render-time logic """
+           super(HelloWorldWidget, self).prepare()
+           self.msg = self.msg + "!"
 
 You can then plug this widget into the ``[moksha.widget]`` entry-point.
 
@@ -151,7 +173,7 @@ entry-point, we can fetch it like so:
 
    <html>
      <head></head>
-     <body>Hello World</body>
+     <body>Hello World!</body>
    </html>
 
 
@@ -165,7 +187,7 @@ You can also pass in different parameters to your widget via the URL.
 
    <html>
      <head></head>
-     <body>foobar</body>
+     <body>foobar!</body>
    </html>
 
 .. seealso::
@@ -271,7 +293,8 @@ with the message broker.
 
 .. note::
 
-   The Moksha Hub is automatically started when you run ``moksha start``, but you
+   The Moksha Hub is automatically started when you run
+   ``./moksha-ctl.py start:moksha-hub``, but you
    can also start it by running ``moksha-hub``.
 
 .. seealso::
