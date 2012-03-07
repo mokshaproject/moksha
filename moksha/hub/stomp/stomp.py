@@ -33,19 +33,19 @@ class StompHub(MessagingHub, ReconnectingClientFactory):
     proto = None
     frames = None
 
-    def __init__(self, config):
+    def __init__(self):
         self._topics = self.topics.keys()
         self._frames = []
 
-        port = config.get('stomp_port', 61613),
-        host = config.get('stomp_broker')
+        port = self.config.get('stomp_port', 61613)
+        host = self.config.get('stomp_broker')
 
-        self.username = config.get('stomp_user', 'guest'),
-        self.password = config.get('stomp_pass', 'guest'),
+        self.username = self.config.get('stomp_user', 'guest')
+        self.password = self.config.get('stomp_pass', 'guest')
 
         reactor.connectTCP(host, int(port), self)
 
-        super(StompHub, self).__init__(config)
+        super(StompHub, self).__init__()
 
 
     def buildProtocol(self, addr):
