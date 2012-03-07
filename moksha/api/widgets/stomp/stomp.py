@@ -20,6 +20,7 @@ import moksha.utils
 
 from tg import config
 from paste.deploy.converters import asbool
+from kitchen.text.converters import to_unicode as unicode
 
 import tw.api
 import tw2.core as twc
@@ -84,14 +85,14 @@ class TW1StompWidget(tw.api.Widget):
     def __init__(self, *args, **kw):
         self.notify = asbool(config.get('moksha.socket.notify', False))
         self.orbited_host = config.get('orbited_host', 'localhost')
-        self.orbited_port = str(config.get('orbited_port', 9000))
+        self.orbited_port = unicode(config.get('orbited_port', 9000))
         self.orbited_scheme = config.get('orbited_scheme', 'http')
         self.orbited_url = '%s://%s:%s' % (
             self.orbited_scheme, self.orbited_host, self.orbited_port)
         self.orbited_js = tw.api.JSLink(
             link=self.orbited_url + '/static/Orbited.js')
         self.stomp_host = config.get('stomp_host', 'localhost')
-        self.stomp_port = str(config.get('stomp_port', 61613))
+        self.stomp_port = unicode(config.get('stomp_port', 61613))
         self.stomp_user = config.get('stomp_user', 'guest')
         self.stomp_pass = config.get('stomp_pass', 'guest')
         super(TW1StompWidget, self).__init__(*args, **kw)
@@ -107,14 +108,14 @@ class TW1StompWidget(tw.api.Widget):
                     for topic in moksha.utils.livewidgets[callback]:
                         d.topics.append(topic)
                         for cb in moksha.utils.livewidgets[callback][topic]:
-                            d.onmessageframe[topic] += '%s;' % str(cb)
+                            d.onmessageframe[topic] += '%s;' % unicode(cb)
                 else:
                     for cb in moksha.utils.livewidgets[callback]:
                         if isinstance(cb, (tw.api.js_callback,
                                            tw.api.js_function)):
-                            cbs += '$(%s);' % str(cb)
+                            cbs += '$(%s);' % unicode(cb)
                         else:
-                            cbs += str(cb)
+                            cbs += unicode(cb)
                 if cbs:
                     d[callback] = cbs
 
@@ -137,7 +138,7 @@ class TW2StompWidget(twc.Widget):
     orbited_host = twc.Param(
         default=config.get('orbited_host', 'localhost'))
     orbited_port = twc.Param(
-        default=str(config.get('orbited_port', 9000)))
+        default=unicode(config.get('orbited_port', 9000)))
     orbited_scheme = twc.Param(
         default=config.get('orbited_scheme', 'http'))
     orbited_js = twc.Param(default=orbited_js)
@@ -145,7 +146,7 @@ class TW2StompWidget(twc.Widget):
     stomp_host = twc.Param(
         default=config.get('stomp_host', 'localhost'))
     stomp_port = twc.Param(
-        default=str(config.get('stomp_port', 61613)))
+        default=unicode(config.get('stomp_port', 61613)))
     stomp_user = twc.Param(
         default=config.get('stomp_user', 'guest'))
     stomp_pass = twc.Param(
@@ -174,13 +175,13 @@ class TW2StompWidget(twc.Widget):
                     for topic in moksha.utils.livewidgets[callback]:
                         self.topics.append(topic)
                         for cb in moksha.utils.livewidgets[callback][topic]:
-                            self.onmessageframe[topic] += '%s;' % str(cb)
+                            self.onmessageframe[topic] += '%s;' % unicode(cb)
                 else:
                     for cb in moksha.utils.livewidgets[callback]:
                         if isinstance(cb, (twc.js_callback, twc.js_function)):
-                            cbs += '$(%s);' % str(cb)
+                            cbs += '$(%s);' % unicode(cb)
                         else:
-                            cbs += str(cb)
+                            cbs += unicode(cb)
                 if cbs:
                     setattr(self, callback, cbs)
 

@@ -24,6 +24,7 @@ import moksha.utils
 
 from tg import config
 from paste.deploy.converters import asbool
+from kitchen.text.converters import to_unicode as unicode
 import warnings
 
 import tw.api
@@ -102,7 +103,7 @@ class TW2WebSocketWidget(twc.Widget):
 
         if self.notify:
             self.resources += gritter_resources
-            self.before_open = "$(%s);" % str(gritter_callback(
+            self.before_open = "$(%s);" % unicode(gritter_callback(
                 title="WebSocket", text=notifications['before_open'],
             ))
 
@@ -110,7 +111,7 @@ class TW2WebSocketWidget(twc.Widget):
             cbs = ''
 
             if self.notify and callback in notifications:
-                cbs += "$(%s);" % str(gritter_callback(
+                cbs += "$(%s);" % unicode(gritter_callback(
                     title="WebSocket", text=notifications[callback]
                 ))
 
@@ -123,13 +124,13 @@ class TW2WebSocketWidget(twc.Widget):
                     for topic in moksha.utils.livewidgets[callback]:
                         self.topics.append(topic)
                         for cb in moksha.utils.livewidgets[callback][topic]:
-                            self.onmessageframe[topic] += '%s;' % str(cb)
+                            self.onmessageframe[topic] += '%s;' % unicode(cb)
                 else:
                     for cb in moksha.utils.livewidgets[callback]:
                         if isinstance(cb, (twc.js_callback, twc.js_function)):
-                            cbs += '$(%s);' % str(cb)
+                            cbs += '$(%s);' % unicode(cb)
                         else:
-                            cbs += str(cb)
+                            cbs += unicode(cb)
             if cbs:
                 cbs = "function() { %s }" % cbs
                 setattr(self, callback, cbs)
