@@ -43,7 +43,7 @@ if (typeof raw_msg_callback == 'undefined') {
 ## Opera and IE not supported.
 if (typeof WebSocket == 'undefined') { WebSocket = MozWebSocket; }
 
-function setup_moksha_websocket() {
+function setup_moksha_socket() {
 	## Pre-connect callback
 	${unicode(tw._("before_open"))}
 
@@ -55,7 +55,7 @@ function setup_moksha_websocket() {
 	## Attach all the callbacks for that websocket
 	% for callback in ['onopen', 'onerror', 'onclose']:
 	% if tw._(callback):
-	moksha_websocket.${callback} = ${unicode(tw._(callback))};
+	moksha_websocket.${callback} = function(e){${unicode(tw._(callback))};}
 	% endif
 	% endfor
 
@@ -64,9 +64,9 @@ function setup_moksha_websocket() {
 
 ## Create a singleton pattern for a websocket
 if (typeof moksha_websocket == 'undefined') {
-  setup_moksha_websocket();
+  setup_moksha_socket();
 } else {
-  $(${unicode(tw._("onconnectedframe"))});
+  ${unicode(tw._("onconnectedframe"))}
 }
 
 ## Extend the moksha object

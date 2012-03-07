@@ -25,6 +25,7 @@ from kitchen.text.converters import to_unicode as unicode
 import tw.api
 import tw2.core as twc
 
+from moksha.api.widgets.socket import AbstractMokshaSocket
 from moksha.api.widgets.orbited import orbited_host, orbited_port, orbited_url
 from moksha.api.widgets.orbited import orbited_js
 from moksha.lib.helpers import defaultdict
@@ -126,14 +127,8 @@ class TW1StompWidget(tw.api.Widget):
         # moksha.
 
 
-class TW2StompWidget(twc.Widget):
-    callbacks = ['onopen', 'onerror', 'onerrorframe', 'onclose',
-                 'onconnectedframe', 'onmessageframe']
-    resources = []
-    topics = twc.Variable()
-    notify = twc.Param(
-        default=asbool(config.get('moksha.socket.notify', False)))
-    hidden = twc.Param(default=True)
+class TW2StompWidget(AbstractMokshaSocket):
+    __shorthand__ = 'STOMP Socket'
 
     orbited_host = twc.Param(
         default=config.get('orbited_host', 'localhost'))
@@ -152,13 +147,6 @@ class TW2StompWidget(twc.Widget):
     stomp_pass = twc.Param(
         default=config.get('stomp_pass', 'guest'))
 
-    onopen = twc.Param(default=twc.js_callback("function(){}"))
-    onerror = twc.Param(default=twc.js_callback("function(){}"))
-    onclose = twc.Param(default=twc.js_callback("function(){}"))
-    onerrorframe = twc.Param(default=twc.js_callback("function(){}"))
-    onmessageframe = twc.Param(default='')
-    onconnectedframe = twc.Param(default='')
-
     template = "mako:moksha.api.widgets.stomp.templates.stomp"
 
     def prepare(self):
@@ -166,40 +154,6 @@ class TW2StompWidget(twc.Widget):
         self.orbited_url = '%s://%s:%s' % (self.orbited_scheme,
                 self.orbited_host, self.orbited_port)
 
-        self.topics = []
-        self.onmessageframe = defaultdict(str)  # {topic: 'js callbacks'}
-        for callback in self.callbacks:
-            if len(moksha.utils.livewidgets[callback]):
-                cbs = ''
-                if callback == 'onmessageframe':
-                    for topic in moksha.utils.livewidgets[callback]:
-                        self.topics.append(topic)
-                        for cb in moksha.utils.livewidgets[callback][topic]:
-                            self.onmessageframe[topic] += '%s;' % unicode(cb)
-                else:
-                    for cb in moksha.utils.livewidgets[callback]:
-                        if isinstance(cb, (twc.js_callback, twc.js_function)):
-                            cbs += '$(%s);' % unicode(cb)
-                        else:
-                            cbs += unicode(cb)
-                if cbs:
-                    setattr(self, callback, cbs)
-
-        notifications = {
-            'onopen': 'Moksha live socket connected.',
-            'onerror': 'Moksha live socket error.',
-            'onerrorframe': 'Error frame received.',
-            'onclose': 'Moksha socket closed.',
-        }
-
-        if self.notify:
-            # Inject moksha_notify resources.
-            self.resources += gritter_resources
-
-            # Build and set callbacks
-            for attr, msg in notifications.iteritems():
-                callback = gritter_callback(title="STOMP Socket", text=msg)
-                setattr(self, attr, callback)
 
 if asbool(config.get('moksha.use_tw2', False)):
     StompWidget = TW2StompWidget

@@ -30,10 +30,11 @@ import tw.api
 import tw2.core as twc
 from tw2.jqplugins.gritter import gritter_resources, gritter_callback
 
+from moksha.api.widgets.socket import AbstractMokshaSocket
 from moksha.api.widgets.orbited import orbited_host, orbited_port, orbited_url
 from moksha.api.widgets.orbited import orbited_js
 from moksha.lib.helpers import defaultdict, listify
-from moksha.widgets.moksha_js import tw1_moksha_js, tw2_moksha_js
+from moksha.widgets.moksha_js import tw1_moksha_js
 
 tw1_jsio_js = tw.api.JSLink(
     filename='static/jsio/jsio.js',
@@ -95,11 +96,9 @@ class TW1AMQPSocket(tw.api.Widget):
         'topics', 'notify', 'orbited_host', 'orbited_scheme',
         'orbited_port', 'orbited_url', 'orbited_js', 'amqp_broker_host',
         'amqp_broker_port', 'amqp_broker_user', 'amqp_broker_pass',
-        'send_hook', 'recieve_hook', 'moksha_domain']
+        'moksha_domain']
     onconnectedframe = ''
     onmessageframe = ''
-    send_hook = ''
-    recieve_hook = ''
 
     template = "mako:moksha.api.widgets.amqp.templates.amqp"
 
@@ -144,16 +143,11 @@ class TW1AMQPSocket(tw.api.Widget):
                     d[callback] = cbs
 
 
-# TODO -- AMQPSocket and StompSocket have a *lot* in common.
-#         They should both inherit from an abstract CometSocket! -- threebean
-class TW2AMQPSocket(twc.Widget):
-    callbacks = ['onconnectedframe', 'onmessageframe']
-    resources = [tw2_moksha_js,
-                 tw2_amqp_resources, tw2_jsio_js]
-    topics = twc.Variable()
-    notify = twc.Param(
-        default=asbool(config.get('moksha.socket.notify', False)))
-    hidden = twc.Param(default=True)
+class TW2AMQPSocket(AbstractMokshaSocket):
+    __shorthand__ = "AMQP Socket"
+
+    resources = AbstractMokshaSocket.resources + \
+            [tw2_amqp_resources, tw2_jsio_js]
 
     orbited_host = twc.Param(
         default=config.get('orbited_host', 'localhost'))
@@ -177,8 +171,6 @@ class TW2AMQPSocket(twc.Widget):
 
     onconnectedframe = twc.Param(default='')
     onmessageframe = twc.Param(default='')
-    send_hook = twc.Param(default='')
-    receive_hook = twc.Param(default='')
 
     template = "mako:moksha.api.widgets.amqp.templates.amqp"
 
@@ -186,39 +178,6 @@ class TW2AMQPSocket(twc.Widget):
         super(TW2AMQPSocket, self).prepare()
         self.orbited_url = '%s://%s:%s' % (self.orbited_scheme,
                 self.orbited_host, self.orbited_port)
-
-        self.topics = []
-        self.onmessageframe = defaultdict(str)  # {topic: 'js callbacks'}
-
-        notifications = {
-            'onconnectedframe': "Moksha Live socket connected",
-        }
-
-        if self.notify:
-            self.resources += gritter_resources
-
-        for callback in self.callbacks:
-            cbs = ''
-
-            if self.notify and callback in notifications:
-                cbs += "$(%s);" % unicode(gritter_callback(
-                    title="AMQP Socket", text=notifications[callback]
-                ))
-
-            if len(moksha.utils.livewidgets[callback]):
-                if callback == 'onmessageframe':
-                    for topic in moksha.utils.livewidgets[callback]:
-                        self.topics.append(topic)
-                        for cb in moksha.utils.livewidgets[callback][topic]:
-                            self.onmessageframe[topic] += '%s;' % unicode(cb)
-                else:
-                    for cb in moksha.utils.livewidgets[callback]:
-                        if isinstance(cb, (twc.js_callback, twc.js_function)):
-                            cbs += '$(%s);' % unicode(cb)
-                        else:
-                            cbs += unicode(cb)
-            if cbs:
-                setattr(self, callback, cbs)
 
 
 if asbool(config.get('moksha.use_tw2', False)):

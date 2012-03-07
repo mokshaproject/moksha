@@ -31,8 +31,8 @@ import tw.api
 import tw2.core as twc
 from tw2.jqplugins.gritter import gritter_resources, gritter_callback
 
-from moksha.lib.helpers import defaultdict, listify
-from moksha.widgets.moksha_js import tw2_moksha_js
+from moksha.lib.helpers import listify
+from moksha.api.widgets.socket import AbstractMokshaSocket
 
 def websocket_subscribe(topic):
     """ Return a javascript callback that subscribes to a given topic,
@@ -56,85 +56,15 @@ def websocket_unsubscribe(topic):
     #return sub
 
 
-# TODO -- WebSocketWidget and StompSocket have a *lot* in common.
-#         They should both inherit from an abstract CometSocket! -- threebean
-class TW2WebSocketWidget(twc.Widget):
-    resources = [tw2_moksha_js]
-    topics = twc.Variable()
-    notify = twc.Param(
-        default=asbool(config.get('moksha.socket.notify', False)))
-    hidden = twc.Param(default=True)
+class TW2WebSocketWidget(AbstractMokshaSocket):
+    __shorthand__ = 'WebSocket'
 
     ws_host = twc.Param(
         default=config.get('moksha.livesocket.websocket.host', 'localhost'))
     ws_port = twc.Param(
         default=config.get('moksha.livesocket.websocket.port', '9998'))
-    ws_reconnect_interval = twc.Param(
-        default=config.get('moksha.livesocket.websocket.reconnect_interval'))
-
-    callbacks = [
-        "onopen",
-        "onclose",
-        "onerror",
-        "onconnectedframe",
-        "onmessageframe",
-    ]
-    onopen = twc.Param(default='function (e) {moksha.debug(e)}')
-    onclose = twc.Param(default='function (e) {moksha.debug(e)}')
-    onerror = twc.Param(default='function (e) {moksha.debug(e)}')
-    onconnectedframe = twc.Variable(default=None)
-
-    # Used internally
-    before_open = twc.Variable(default='function () {}')
 
     template = "mako:moksha.api.widgets.websocket.templates.websocket"
-
-    def prepare(self):
-        super(TW2WebSocketWidget, self).prepare()
-        self.topics = []
-        self.onmessageframe = defaultdict(str)
-
-        notifications = {
-            'before_open': 'Attempting to connect Moksha Live Socket',
-            'onopen': 'Moksha Live socket connected',
-            'onclose': 'Moksha Live socket closed',
-            'onerror': 'Error with Moksha Live socket',
-        }
-
-        if self.notify:
-            self.resources += gritter_resources
-            self.before_open = "$(%s);" % unicode(gritter_callback(
-                title="WebSocket", text=notifications['before_open'],
-            ))
-
-        for callback in self.callbacks:
-            cbs = ''
-
-            if self.notify and callback in notifications:
-                cbs += "$(%s);" % unicode(gritter_callback(
-                    title="WebSocket", text=notifications[callback]
-                ))
-
-            if self.ws_reconnect_interval and callback is 'onclose':
-                cbs += "setTimeout(setup_moksha_websocket, %i)" % \
-                        int(self.ws_reconnect_interval)
-
-            if len(moksha.utils.livewidgets[callback]):
-                if callback == 'onmessageframe':
-                    for topic in moksha.utils.livewidgets[callback]:
-                        self.topics.append(topic)
-                        for cb in moksha.utils.livewidgets[callback][topic]:
-                            self.onmessageframe[topic] += '%s;' % unicode(cb)
-                else:
-                    for cb in moksha.utils.livewidgets[callback]:
-                        if isinstance(cb, (twc.js_callback, twc.js_function)):
-                            cbs += '$(%s);' % unicode(cb)
-                        else:
-                            cbs += unicode(cb)
-            if cbs:
-                cbs = "function() { %s }" % cbs
-                setattr(self, callback, cbs)
-
 
 if asbool(config.get('moksha.use_tw2', False)):
     WebSocketWidget = TW2WebSocketWidget
