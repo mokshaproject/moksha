@@ -43,21 +43,28 @@ if (typeof raw_msg_callback == 'undefined') {
 ## Opera and IE not supported.
 if (typeof WebSocket == 'undefined') { WebSocket = MozWebSocket; }
 
+function setup_moksha_websocket() {
+	## Pre-connect callback
+	${unicode(tw._("before_open"))}
+
+	## Create a new websocket for every connection
+	moksha_websocket = new WebSocket(
+	  'ws://${tw._("ws_host")}:${tw._("ws_port")}'
+	);
+
+	## Attach all the callbacks for that websocket
+	% for callback in ['onopen', 'onerror', 'onclose']:
+	% if tw._(callback):
+	moksha_websocket.${callback} = ${unicode(tw._(callback))};
+	% endif
+	% endfor
+
+	moksha_websocket.onmessage = raw_msg_callback;
+}
+
 ## Create a singleton pattern for a websocket
 if (typeof moksha_websocket == 'undefined') {
-  ## Create a new websocket for every connection
-  moksha_websocket = new WebSocket(
-  	'ws://${tw._("ws_host")}:${tw._("ws_port")}'
-  );
-  
-  ## Attach all the callbacks for that websocket
-  % for callback in ['onopen', 'onerror', 'onclose']:
-  % if tw._(callback):
-  moksha_websocket.${callback} = ${unicode(tw._(callback))};
-  % endif
-  % endfor
-
-  moksha_websocket.onmessage = raw_msg_callback;
+  setup_moksha_websocket();
 } else {
   $(${unicode(tw._("onconnectedframe"))});
 }

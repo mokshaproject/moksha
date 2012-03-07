@@ -68,9 +68,13 @@ class TW2WebSocketWidget(twc.Widget):
         default=config.get('moksha.livesocket.websocket.host', 'localhost'))
     ws_port = twc.Param(
         default=config.get('moksha.livesocket.websocket.port', '9998'))
+    ws_reconnect_interval = twc.Param(
+        default=config.get('moksha.livesocket.websocket.reconnect_interval'))
 
     callbacks = [
-        "onopen", "onclose", "onerror",
+        "onopen",
+        "onclose",
+        "onerror",
         "onconnectedframe",
         "onmessageframe",
     ]
@@ -78,6 +82,9 @@ class TW2WebSocketWidget(twc.Widget):
     onclose = twc.Param(default='function (e) {moksha.debug(e)}')
     onerror = twc.Param(default='function (e) {moksha.debug(e)}')
     onconnectedframe = twc.Variable(default=None)
+
+    # Used internally
+    before_open = twc.Variable(default='function () {}')
 
     template = "mako:moksha.api.widgets.websocket.templates.websocket"
 
@@ -87,6 +94,7 @@ class TW2WebSocketWidget(twc.Widget):
         self.onmessageframe = defaultdict(str)
 
         notifications = {
+            'before_open': 'Attempting to connect Moksha Live Socket',
             'onopen': 'Moksha Live socket connected',
             'onclose': 'Moksha Live socket closed',
             'onerror': 'Error with Moksha Live socket',
@@ -94,6 +102,9 @@ class TW2WebSocketWidget(twc.Widget):
 
         if self.notify:
             self.resources += gritter_resources
+            self.before_open = "$(%s);" % str(gritter_callback(
+                title="WebSocket", text=notifications['before_open'],
+            ))
 
         for callback in self.callbacks:
             cbs = ''
@@ -102,6 +113,10 @@ class TW2WebSocketWidget(twc.Widget):
                 cbs += "$(%s);" % str(gritter_callback(
                     title="WebSocket", text=notifications[callback]
                 ))
+
+            if self.ws_reconnect_interval and callback is 'onclose':
+                cbs += "setTimeout(setup_moksha_websocket, %i)" % \
+                        int(self.ws_reconnect_interval)
 
             if len(moksha.utils.livewidgets[callback]):
                 if callback == 'onmessageframe':
