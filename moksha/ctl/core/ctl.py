@@ -58,11 +58,15 @@ def _reporter(func, *args, **kwargs):
 @_reporter
 def bootstrap():
     """ Should only be run once.  First-time moksha setup. """
+
     ret = True
     if os.path.exists('/etc/redhat-release'):
         reqs = [
-            'python-setuptools', 'python-qpid', 'qpid-cpp-server',
-            'python-psutil', 'ccze',  # ccze is awesome
+            'python-setuptools',
+            'python-qpid',
+            'qpid-cpp-server',
+            'python-psutil',
+            'ccze',  # ccze is awesome
             'openssl-devel',
             'python-devel',
             'python-zmq',
