@@ -199,6 +199,8 @@ def install_hacks():
         'tg.devtools',
         'orbited',
         'BeautifulSoup',
+        'Jinja2',
+        'Sphinx',
     ]
 
     # This automatically uses --use-mirrors
