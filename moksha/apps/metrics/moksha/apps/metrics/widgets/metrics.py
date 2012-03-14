@@ -38,31 +38,7 @@ import tw2.excanvas
 
 
 from moksha.api.widgets.flot import TW1LiveFlotWidget, TW2LiveFlotWidget
-#from moksha.api.widgets.jit import LiveAreaChartWidget
 from moksha.api.widgets.buttons import tw1_buttons_css, tw2_buttons_css
-
-#import tw2.core.resources as res
-#class MokshaTW2CPUUsageWidget(LiveAreaChartWidget):
-#    name = 'CPU Usage (with tw2.jit)'
-#    topic = 'moksha_jit_cpu_metrics'
-#
-#    width='400px'
-#    height='300px'
-#    offset = 0
-#    showAggregates = False
-#    showLabels = False
-#    animate = False
-#    type = 'stacked'
-#    Tips = {
-#        'enable': True,
-#        'onShow' : res.JSSymbol(src="""
-#        (function(tip, elem) {
-#            tip.innerHTML = "<b>" + elem.name + "</b>: " + elem.value;
-#        })""")
-#    }
-#
-#    container_options = { 'icon': 'chart.png', 'height' : 325 }
-#    data = {'labels': [], 'values': []}
 
 
 class TW1MokshaMemoryUsageWidget(TW1LiveFlotWidget):
