@@ -165,20 +165,6 @@ class MokshaMetricsProducer(PollingProducer):
 
         self.send_message('moksha_cpu_metrics', [cpu_data])
 
-        jit_cpu_data = {
-            'label': [],
-            'values': [{'label': str(i), 'values': []}
-                       for i in range(len(self.cpu_usage.values()[0]))]
-        }
-
-        for program, history in self.cpu_usage.items():
-            for i in range(len(jit_cpu_data['values'])):
-                jit_cpu_data['values'][i]['values'].append(history[i][1])
-            jit_cpu_data['label'].append(program.split()[0])
-
-        self.send_message('moksha_jit_cpu_metrics', [jit_cpu_data])
-
-
     def mem(self):
         """
         Returns a list of per-program memory usage.
