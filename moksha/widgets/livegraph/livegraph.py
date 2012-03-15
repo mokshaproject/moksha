@@ -18,19 +18,15 @@
 from random import random
 from datetime import timedelta
 
-from tg import config
-from paste.deploy.converters import asbool
-
-from tw.api import CSSLink, JSLink, js_function
-
-from moksha.api.widgets import TW1LiveWidget, TW2LiveWidget
+from moksha.api.widgets import LiveWidget
 from moksha.api.hub.producer import PollingProducer
 
 import tw2.core
 import tw2.core.resources as res
 import tw2.core.params as pm
 
-class TW2LiveGraphWidget(TW2LiveWidget):
+
+class LiveGraphWidget(LiveWidget):
     """
     This is an example live graph widget based on Michael Carter's article
     "Scalable Real-Time Web Architecture, Part 2: A Live Graph with Orbited,
@@ -49,34 +45,8 @@ class TW2LiveGraphWidget(TW2LiveWidget):
     template = '<div id="${id}" />'
 
     def prepare(self):
-        super(TW2LiveGraphWidget, self).prepare()
+        super(LiveGraphWidget, self).prepare()
         self.add_call(tw2.core.JSFuncCall('init_graph', self.id))
-
-
-class TW1LiveGraphWidget(TW1LiveWidget):
-    """
-    This is an example live graph widget based on Michael Carter's article
-    "Scalable Real-Time Web Architecture, Part 2: A Live Graph with Orbited,
-    MorbidQ, and js.io".
-
-    http://cometdaily.com/2008/10/10/scalable-real-time-web-architecture-part-2-a-live-graph-with-orbited-morbidq-and-jsio
-    """
-    params = ['id', 'onconnectedframe', 'onmessageframe']
-    topic = 'graph_demo'
-    onmessage = 'modify_graph(bars, frame.body)'
-    javascript = [JSLink(filename='static/livegraph.js', modname=__name__)]
-    css = [CSSLink(filename='static/livegraph.css', modname=__name__)]
-    template = '<div id="${id}" />'
-
-    def update_params(self, d):
-        super(LiveGraphWidget, self).update_params(d)
-        self.add_call(js_function('init_graph')(self.id))
-
-
-if asbool(config.get('moksha.use_tw2', False)):
-    LiveGraphWidget = TW2LiveGraphWidget
-else:
-    LiveGraphWidget = TW1LiveGraphWidget
 
 
 class LiveGraphProducer(PollingProducer):

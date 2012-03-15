@@ -5,7 +5,7 @@ from paste.deploy.converters import asbool
 import tw2.core as twc
 from tw2.jqplugins.gritter import gritter_resources, gritter_callback
 
-from moksha.widgets.moksha_js import tw2_moksha_js
+from moksha.widgets.moksha_js import moksha_js
 from moksha.lib.helpers import defaultdict
 import moksha.utils
 
@@ -20,7 +20,7 @@ class AbstractMokshaSocket(twc.Widget):
 
     __shorthand__ = twc.Variable(default=None)
 
-    resources = [tw2_moksha_js]
+    resources = [moksha_js]
     topics = twc.Variable()
 
     hidden = twc.Variable(default=True)

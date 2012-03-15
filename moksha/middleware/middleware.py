@@ -30,7 +30,6 @@ from paste.deploy.converters import asbool
 from inspect import isclass
 from pylons.i18n import ugettext
 from paste.deploy import appconfig
-from paste.deploy.converters import asbool
 from sqlalchemy import create_engine
 from feedcache.cache import Cache
 
@@ -172,49 +171,26 @@ class MokshaMiddleware(object):
                     }
 
     def load_widgets(self):
-        """ Load widgets from entry points intelligently.
-
-        Widgets can be either tw1 widgets or tw2 widgets (with metaclass
-        magic).  They can effectively be rendered together and their middlewares
-        can live peacefully in the WSGI stack, but their javascript resources
-        may fight with one another.  Due to that, we force users to specify
-        moksha.use_tw2 = True|False in their .ini configuration.
-        """
+        """ Load widgets from entry points. """
 
         log.info('Loading moksha widgets')
 
-        if asbool(config.get('moksha.use_tw2', False)):
-            log.info('Preparing for tw2 widgets')
-            import tw2.core.widgets
-            from moksha.api.widgets.live import LiveWidgetMeta
-            def instantiate_widget(cls, name):
-                # First, a sanity check
-                if not isinstance(cls, tw2.core.widgets.WidgetMeta):
-                    warnings.warn("moksha.use_tw2 specified but encountered "+
-                                  "non-tw2 widget " + str(cls))
-                # TW2 widgets never *really* get instantiated.
-                #     The cake is a lie.
-                return cls
+        log.info('Preparing for tw2 widgets')
+        import tw2.core.widgets
+        from moksha.api.widgets.live import LiveWidgetMeta
 
-            def is_live(widget):
-                return isinstance(widget, LiveWidgetMeta)
-        else:
-            log.info('Preparing for tw1 widgets')
-            import tw2.core.widgets
-            from moksha.api.widgets.live import LiveWidget
-            def instantiate_widget(cls, name):
-                # Sanity check
-                if isinstance(cls, tw2.core.widgets.WidgetMeta):
-                    warnings.warn("moksha.use_tw2 is False, but middleware "+
-                                  "found a tw2 widget " + str(cls))
-                    return cls
+        # TODO -- do away with this callback.  It's a legacy from tw1
+        def instantiate_widget(cls, name):
+            # First, a sanity check
+            if not isinstance(cls, tw2.core.widgets.WidgetMeta):
+                warnings.warn("Encountered non-widget on widgets " +
+                              "entry point " + str(cls))
+            # TW2 widgets never *really* get instantiated.
+            #     The cake is a lie.
+            return cls
 
-                if not isclass(cls):
-                    return cls
-                return cls(name)
-
-            def is_live(widget):
-                return isinstance(widget, LiveWidget)
+        def is_live(widget):
+            return isinstance(widget, LiveWidgetMeta)
 
         for widget_entry in pkg_resources.iter_entry_points('moksha.widget'):
             log.info('Loading %s widget' % widget_entry.name)
@@ -234,10 +210,7 @@ class MokshaMiddleware(object):
             log.info('Loading %s menu' % menu_entry.name)
             menu_class = menu_entry.load()
             menu_path = menu_entry.dist.location
-            if asbool(config.get('moksha.use_tw2', False)):
-                moksha.utils.menus[menu_entry.name] = menu_class(id=menu_entry.name)
-            else:
-                moksha.utils.menus[menu_entry.name] = menu_class(menu_entry.name)
+            moksha.utils.menus[menu_entry.name] = menu_class(id=menu_entry.name)
 
     def load_renderers(self):
         """ Load our template renderers with our application paths.

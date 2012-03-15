@@ -13,24 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tg import config
-from paste.deploy.converters import asbool
-
-import tw.api
 import tw2.core as twc
 
 
-class TW1Placeholder(tw.api.Widget):
+class Placeholder(twc.Widget):
     hidden = twc.Param(default=True)
     template = "mako:moksha.api.widgets.templates.placeholder"
-
-
-class TW2Placeholder(twc.Widget):
-    hidden = twc.Param(default=True)
-    template = "mako:moksha.api.widgets.templates.placeholder"
-
-
-if asbool(config.get('moksha.use_tw2', False)):
-    Placeholder = TW2Placeholder
-else:
-    Placeholder = TW1Placeholder

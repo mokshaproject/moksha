@@ -17,8 +17,6 @@ import pylons
 
 from live import (
     LiveWidget, LiveWidgetMeta,
-    TW2LiveWidget, TW2LiveWidgetMeta,
-    TW1LiveWidget,
     subscribe_topics, unsubscribe_topics
 )
 from moksha.api.widgets.stomp import StompWidget
