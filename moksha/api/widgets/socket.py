@@ -83,7 +83,7 @@ class AbstractMokshaSocket(twc.Widget):
 
             if self.reconnect_interval and callback is 'onclose':
                 cbs += "setTimeout(setup_moksha_socket, %i)" % \
-                        int(self.ws_reconnect_interval)
+                        int(self.reconnect_interval)
 
             if len(moksha.utils.livewidgets[callback]):
                 if callback == 'onmessageframe':
