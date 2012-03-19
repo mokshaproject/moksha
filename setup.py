@@ -23,6 +23,8 @@ setup(
     author_email='',
     url='http://moksha.fedorahosted.org',
     install_requires=[
+        "WebOb==1.0.8",
+        "Pylons==1.0",
         "TurboGears2",
         "ToscaWidgets",
         "zope.sqlalchemy",
