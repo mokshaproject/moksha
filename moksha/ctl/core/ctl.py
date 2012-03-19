@@ -172,7 +172,6 @@ def install():
         # namespace issues
         ret['python setup.py install'] = \
                 not os.system('%s setup.py install' % sys.executable)
-    ret['install_apps'] = install_apps()
     ret['link_qpid_libs'] = link_qpid_libs()
     ret['develop'] = develop()
 
@@ -209,44 +208,6 @@ def install_hacks():
         utils.install_distributions([dist])
 
     # TODO -- test to see if the installs worked.
-    return True
-
-
-@_reporter
-@_with_virtualenv
-@_in_srcdir
-def install_apps():
-    """ Install *all* the moksha `apps`. """
-
-    with utils.DirectoryContext(ctl_config['apps-dir']):
-        dnames = [d for d in os.listdir('.') if os.path.isdir(d)]
-        for d in dnames:
-            install_app(app=d)
-    return True
-
-
-@_reporter
-@_with_virtualenv
-def install_app(app):
-    """ Install a particular app.  $ ./moksha-ctl.py install_app:metrics """
-
-    dirname = "/".join([ctl_config['moksha-src-dir'], ctl_config['apps-dir'], app])
-    with utils.DirectoryContext(dirname):
-        fnames = os.listdir('.')
-        if not 'pavement.py' in fnames:
-            print "No `pavement.py` found for app '%s'.  Skipping." % app
-            return False
-        try:
-            shutil.rmtree('dist')
-        except OSError as e:
-            pass  # It's cool.
-        base = '/'.join(sys.executable.split('/')[:-1])
-        cmd = '%s/paver bdist_egg > /dev/null 2>&1' % base
-        if os.system(cmd):
-            return False
-        cmd = '%s/easy_install -Z dist/*.egg > /dev/null 2>&1' % base
-        if os.system(cmd):
-            return False
     return True
 
 

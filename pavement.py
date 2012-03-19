@@ -214,10 +214,6 @@ def license():
 @task
 def test():
     print "Running Moksha test suite..."
-    sh("nosetests")
-    cwd = os.getcwd()
-    print "Running MokshaJQPlotDemo test suite..."
-    os.chdir(path('moksha') / 'apps' / 'demo' / 'MokshaJQPlotDemo')
     sh('nosetests')
 
 @task
@@ -245,32 +241,6 @@ def restart_orbited():
     sh('sudo /sbin/service orbited restart')
 
 @task
-def reinstall_apps():
-    for app in os.listdir('moksha/apps'):
-        app_dir = path('moksha') / 'apps' / app
-        if os.path.isdir(app_dir):
-            top = os.getcwd()
-            os.chdir(path('moksha') / 'apps' / app)
-            if os.path.isfile('pavement.py'):
-                sh('paver reinstall')
-            os.chdir(top)
-
-@task
-@cmdopts([
-    ('app=', 'a', 'Moksha app to rebuild and reinstall'),
-])
-def reinstall_app(options):
-    app = options.app
-    app_dir = path('moksha') / 'apps' / app
-    if os.path.isdir(app_dir):
-        top = os.getcwd()
-        os.chdir(path('moksha') / 'apps' / app)
-        if os.path.isfile('pavement.py'):
-            sh('paver reinstall')
-        os.chdir(top)
-
-
-@task
 @cmdopts([
     ('distro=', 'd', 'Distribution to build for'),
     ('arch=', 'a', 'Architecture to build'),
@@ -292,7 +262,7 @@ def html():
     pass
 
 @task
-@needs(['reinstall', 'reinstall_apps', 'test', 'restart_httpd', 'restart_hub', 'restart_orbited'])
+@needs(['reinstall', 'test', 'restart_httpd', 'restart_hub', 'restart_orbited'])
 def all():
     pass
 magic = all
