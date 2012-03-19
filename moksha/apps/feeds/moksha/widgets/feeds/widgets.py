@@ -25,10 +25,6 @@ to a unique message topic that it uses to communicate with the Moksha Feed
 Consumer in the Moksha Hub.  It also listens for changes in the feeds that
 it is viewing.
 
-.. widgetbrowser:: moksha.widgets.feedtree.moksha_feedreader
-   :tabs: demo, source, template
-   :size: x-large
-
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
 """
 

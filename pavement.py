@@ -77,7 +77,6 @@ options(
             './tg2env',
             './docs',
             # Things we don't want to add our license tag to
-            './moksha/widgetbrowser',
             './pip.py',
             './pavement.py',
             './moksha/widgets/feedtree/static',

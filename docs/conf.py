@@ -157,19 +157,6 @@ code_scm = 'git'
 code_path = test_path = os.path.dirname(os.path.abspath(__file__)) + os.path.sep + 'project_code' + os.path.sep
 
 #
-# Enable the ToscaWidgets WidgetBrowser
-#
-try:
-    import widgetbrowser
-    extensions.append("widgetbrowser.sphinx_ext")
-except ImportError:
-    try:
-        from moksha.widgetbrowser import sphinx_ext
-        extensions.append("moksha.widgetbrowser.sphinx_ext")
-    except ImportError:
-        print "Unable to import the `widgetbrowser`"
-
-#
 # example configuration for intersphinx: refer to the python standard library.
 #
 #extensions.append('sphinx.ext.intersphinx')
