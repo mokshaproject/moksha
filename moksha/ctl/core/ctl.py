@@ -1,4 +1,5 @@
 """ Functions for moksha-ctl """
+import commands
 import decorator
 import subprocess
 import os
@@ -173,7 +174,7 @@ def install():
         ret['python setup.py install'] = \
                 not os.system('%s setup.py install' % sys.executable)
     ret['install_apps'] = install_apps()
-    ret['link_qpid_libs'] = link_qpid_libs()
+    ret['link_system_libs'] = link_system_libs()
     ret['develop'] = develop()
 
     # Summarize what went wrong if anything
@@ -253,24 +254,25 @@ def install_app(app):
 @_reporter
 @_with_virtualenv
 @_in_srcdir
-def link_qpid_libs():
-    """ Link qpid and mllib in from the system site-packages. """
-    location = 'lib/python{major}.{minor}/site-packages'.format(
-        major=sys.version_info.major, minor=sys.version_info.minor)
-    template = 'ln -s /usr/{location}/{lib} {workon}/{venv}/{location}/'
+def link_system_libs():
+    """ Link qpid, mllib, and zmq in from the system site-packages. """
     system_libs = [
         'qpid',
         'mllib',
         'zmq',
     ]
-    for lib in system_libs:
-        cmd = template.format(
-            location=location, venv=ctl_config['venv'], lib=lib,
-            workon=os.getenv("WORKON_HOME"))
-        out = os.system(cmd)
+    return all([_link_system_lib(lib) for lib in system_libs])
 
-    # TODO -- test for success
-    return True
+def _link_system_lib(lib):
+    location = 'lib/python{major}.{minor}/site-packages'.format(
+        major=sys.version_info.major, minor=sys.version_info.minor)
+    template = 'ln -s /usr/{location}/{lib} {workon}/{venv}/{location}/'
+
+    cmd = template.format(
+        location=location, venv=ctl_config['venv'], lib=lib,
+        workon=os.getenv("WORKON_HOME"))
+    status, output = commands.getstatusoutput(cmd)
+    return status == 0 or status == 256  # File already linked.
 
 
 @_reporter
