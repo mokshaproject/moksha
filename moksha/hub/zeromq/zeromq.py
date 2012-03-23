@@ -27,10 +27,15 @@ from moksha.hub.zeromq.base import BaseZMQHub
 log = logging.getLogger('moksha.hub')
 
 
+# TODO -- is there a better thing to use in this thing's place?  A dict-like
+# object that also supports __getattr__ access would be ideal.
 class ZMQMessage(object):
     def __init__(self, topic, body):
         self.topic = topic
         self.body = body
+
+    def __json__(self):
+        return {'topic': self.topic, 'body': self.body}
 
 
 class ZMQHub(BaseZMQHub):
