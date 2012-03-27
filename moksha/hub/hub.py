@@ -53,6 +53,12 @@ log = logging.getLogger('moksha.hub')
 
 _hub = None
 
+NO_CONFIG_MESSAGE = """
+  Cannot find Moksha configuration!  Place a development.ini or production.ini
+  in /etc/moksha or in the current directory.
+"""
+
+
 def find_hub_extensions():
     """ Return a tuple of hub extensions found in the config file. """
     global config
@@ -69,11 +75,7 @@ def find_hub_extensions():
     if not any(broker_vals):
         config_path = get_moksha_config_path()
         if not config_path:
-            print """
-                Cannot find Moksha configuration!  Place a development.ini or production.ini
-                in /etc/moksha or in the current directory.
-            """
-            return
+            raise ValueError(NO_CONFIG_MESSAGE)
 
         cfg = appconfig('config:' + config_path)
         config.update(cfg)
@@ -81,7 +83,7 @@ def find_hub_extensions():
 
     # If there are no brokers defined.. that's a problem.
     if not any(broker_vals):
-        log.warning("No brokers defined.  You're going to have problems.")
+        raise ValueError("No messaging methods defined.")
 
     if len(filter(None, broker_vals)) > 1:
         log.warning("Running with multiple brokers.  "
@@ -372,10 +374,7 @@ def main(options=None):
     setup_logger('-v' in sys.argv or '--verbose' in sys.argv)
     config_path = get_moksha_config_path()
     if not config_path:
-        print """
-            Cannot find Moksha configuration!  Place a development.ini or production.ini
-            in /etc/moksha or in the current directory.
-        """
+        print NO_CONFIG_MESSAGE
         return
 
     cfg = appconfig('config:' + config_path)
