@@ -22,7 +22,7 @@ import multiprocessing, logging
 
 setup(
     name='moksha',
-    version='0.7.0a',
+    version='0.7.0a1',
     description='',
     author='',
     author_email='',
