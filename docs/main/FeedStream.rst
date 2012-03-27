@@ -1,21 +1,21 @@
 The Moksha Feed Stream
 ----------------------
 
-The ``moksha.feeds`` app provides a moksha Producer_ that will handle
+The ``mdemos.feeds`` app provides a moksha Producer_ that will handle
 automatically fetching, parsing, and caching feeds.  Once installed, the Moksha Feed Stream will be run by the MokshaHub_.
 
 It will automatically fetch all feeds used by the Moksha :class:`Feed` object,
 as well as all feeds listed in a ``feeds.txt`` file, if one exists.
 
-Installing the ``moksha.feeds`` app
+Installing the ``mdemos.feeds`` app
 -----------------------------------
 
-Currently the easiest way to install the app is from the moksha git repository
+Currently the easiest way to install the app is from the git repository
 
 .. code-block:: bash
 
-   $ git clone git://git.fedorahosted.org/git/moksha
-   $ cd moksha/apps/feeds
+   $ git clone git://github.com/ralphbean/mdemos.feeds
+   $ cd mdemos.feeds
 
 
 From here, if you are running Moksha from an RPM installation:

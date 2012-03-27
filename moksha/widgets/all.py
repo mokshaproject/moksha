@@ -42,8 +42,3 @@ from moksha.widgets.container import MokshaContainer
 __all__.append(MokshaContainer)
 from moksha.widgets.notify import MokshaNotificationWidget
 __all__.append(MokshaNotificationWidget)
-
-from moksha.widgetbrowser import widgets
-for obj in dir(widgets):
-    if isinstance(getattr(widgets, obj), Widget):
-        __all__.append(obj)

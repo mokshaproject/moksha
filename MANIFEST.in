@@ -9,10 +9,3 @@ include run_tests.py
 graft moksha
 graft docs
 graft production
-
-# Omit the apps from our core tarball
-prune moksha/apps
-include moksha/apps/__init__.py
-
-# Pull in the demo app so we can run the test suite in %check from the RPM
-graft moksha/apps/demo

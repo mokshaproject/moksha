@@ -10,7 +10,6 @@ def load_config(fname="~/.moksha/ctl.conf"):
     # Defaults
     config_d = {
         'venv': 'moksha',
-        'apps-dir': 'moksha/apps',
         'moksha-src-dir': os.getcwd(),
     }
 
@@ -23,7 +22,7 @@ def load_config(fname="~/.moksha/ctl.conf"):
 
         if config.has_section('moksha'):
             # Extract all defined fields
-            for key in ['moksha-src-dir', 'venv', 'apps-dir']:
+            for key in ['moksha-src-dir', 'venv']:
                 if config.has_option('moksha', key):
                     config_d[key] = config.get('moksha', key)
 

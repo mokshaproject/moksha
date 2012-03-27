@@ -4,10 +4,6 @@ The Moksha Feed Widget
 .. autoclass:: moksha.api.widgets.feed.Feed
    :members:
 
-.. widgetbrowser:: moksha.widgets.demos.FeedDemo
-   :tabs: demo, source, template
-   :size: large
-
 Using the Feed widget
 ~~~~~~~~~~~~~~~~~~~~~
 

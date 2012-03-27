@@ -1,5 +1,0 @@
-recursive-include jqplotdemo/public *
-include jqplotdemo/public/favicon.ico
-recursive-include jqplotdemo/i18n *
-recursive-include jqplotdemo/templates *
-include production.ini
