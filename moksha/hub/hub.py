@@ -367,7 +367,7 @@ def setup_logger(verbose):
     log.addHandler(sh)
 
 
-def main():
+def main(options=None):
     """ The main MokshaHub method """
     setup_logger('-v' in sys.argv or '--verbose' in sys.argv)
     config_path = get_moksha_config_path()
@@ -380,6 +380,9 @@ def main():
 
     cfg = appconfig('config:' + config_path)
     config.update(cfg)
+
+    if options:
+        config.update(options)
 
     hub = CentralMokshaHub()
     global _hub
