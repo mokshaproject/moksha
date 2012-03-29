@@ -13,26 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from paste.deploy.converters import asbool
-from tg import config
-
 from pylons import tmpl_context
 
 import tw.api
 import tw2.core as twc
 
 
-class TW1ContextAwareWidget(tw.api.Widget):
-    '''Inherit from this widget class if you want your widget
-       to automatically get the pylons.tmpl_context in its dictionary
-    '''
-
-    def update_params(self, d):
-        super(TW1ContextAwareWidget, self).update_params(d)
-        d['tmpl_context'] = tmpl_context
-
-
-class TW2ContextAwareWidget(twc.Widget):
+class ContextAwareWidget(twc.Widget):
     '''Inherit from this widget class if you want your widget
        to automatically get the pylons.tmpl_context in its dictionary
     '''
@@ -40,11 +27,5 @@ class TW2ContextAwareWidget(twc.Widget):
     tmpl_context = twc.Variable("A reference to the template context.")
 
     def prepare(self):
-        super(TW2ContextAwareWidget, self).prepare()
+        super(ContextAwareWidget, self).prepare()
         self.tmpl_context = tmpl_context
-
-
-if asbool(config.get('moksha.use_tw2', False)):
-    ContextAwareWidget = TW2ContextAwareWidget
-else:
-    ContextAwareWidget = TW1ContextAwareWidget

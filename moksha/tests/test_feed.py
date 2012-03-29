@@ -16,7 +16,6 @@
 from tg import config
 from paste.deploy.converters import asbool
 
-import tw.api
 import tw2.core as twc
 
 from moksha.api.widgets.feed import Feed
@@ -60,23 +59,13 @@ class TestFeed(object):
         """ Ensure that we can easily set Feeds as ToscaWidget children """
         moksha.utils.feed_cache = FakeCache()
 
-        if asbool(config.get('moksha.use_tw2', False)):
-            class MyWidget(twc.Widget):
-                myfeedurl = 'http://lewk.org/rss'
-                myfeed = Feed(url=myfeedurl)
-                template = "mako:moksha.tests.templates.myfeed"
+        class MyWidget(twc.Widget):
+            myfeedurl = 'http://lewk.org/rss'
+            myfeed = Feed(url=myfeedurl)
+            template = "mako:moksha.tests.templates.myfeed"
 
-            widget = MyWidget
-            assert len(widget.children) > 0
-        else:
-            class MyWidget(tw.api.Widget):
-                myfeedurl = 'http://lewk.org/rss'
-                children = [Feed('myfeed', url=myfeedurl)]
-                engine_name = 'mako'
-                template = "${c.myfeed()}"
-
-            widget = MyWidget()
-            assert widget.c.myfeed
+        widget = MyWidget
+        assert len(widget.children) > 0
 
         rendered = widget.display()
         print rendered
@@ -85,16 +74,10 @@ class TestFeed(object):
     def test_widget_child_with_dynamic_url(self):
         moksha.utils.feed_cache = FakeCache()
 
-        if asbool(config.get('moksha.use_tw2', False)):
-            class MyWidget(twc.Widget):
-                url = twc.Param("a url")
-                feed = Feed
-                template = "mako:moksha.tests.templates.dynfeed"
-        else:
-            class MyWidget(tw.api.Widget):
-                params = ['url']
-                children = [Feed('feed')]
-                template = "mako:moksha.tests.templates.dynfeed"
+        class MyWidget(twc.Widget):
+            url = twc.Param("a url")
+            feed = Feed
+            template = "mako:moksha.tests.templates.dynfeed"
 
         widget = MyWidget()
         rendered = widget.display(url='http://lewk.org/rss')
@@ -104,23 +87,9 @@ class TestFeed(object):
         """ Ensure that our Feed widget can be rendered in a Genshi widget """
         moksha.utils.feed_cache = FakeCache()
 
-        if asbool(config.get('moksha.use_tw2', False)):
-            class MyWidget(twc.Widget):
-                myfeed = Feed(url='http://lewk.org/rss')
-                template = "genshi:moksha.tests.templates.myfeed"
-        else:
-            class MyWidget(tw.api.Widget):
-                children = [Feed('myfeed', url='http://lewk.org/rss')]
-                engine_name = 'genshi'
-                template = """
-                <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-                  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-                  <html xmlns="http://www.w3.org/1999/xhtml"
-                        xmlns:py="http://genshi.edgewall.org/"
-                        xmlns:xi="http://www.w3.org/2001/XInclude">
-                    ${c.myfeed()}
-                 </html>
-                """
+        class MyWidget(twc.Widget):
+            myfeed = Feed(url='http://lewk.org/rss')
+            template = "genshi:moksha.tests.templates.myfeed"
 
         widget = MyWidget()
         rendered = widget.display()

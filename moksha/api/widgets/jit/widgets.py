@@ -1,22 +1,9 @@
-# Authors: Ralph Bean <ralph.bean@gmail.com
+# Authors: Ralph Bean <rbean@redhat.com>
 
-import warnings
-
-from tw.jquery.flot import flot_js, excanvas_js, flot_css
-from moksha.api.widgets import TW2LiveWidget
+from moksha.api.widgets import LiveWidget
 from tw2.jit import AreaChart
 
-from tg import config
-from paste.deploy.converters import asbool
 
-
-class TW2LiveAreaChartWidget(AreaChart, TW2LiveWidget):
+class LiveAreaChartWidget(AreaChart, LiveWidget):
     """ A live graphing widget using tw2.jit """
     onmessage = 'window._jitwidgets["${id}"].loadJSON(json[0])'
-
-
-if asbool(config.get('moksha.use_tw2', False)):
-    LiveAreaChartWidget = TW2LiveAreaChartWidget
-else:
-    warnings.warn(__name__ + " is not ready for tw1")
-    LiveAreaChartWidget = None

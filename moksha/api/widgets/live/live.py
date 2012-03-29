@@ -17,14 +17,11 @@
 #          Ralph Bean <ralph.bean@gmail.com>
 
 from tg import config
-from paste.deploy.converters import asbool
 
 import moksha
 import moksha.utils
 
 from uuid import uuid4
-
-from tw.api import Widget
 
 from moksha.exc import MokshaException
 from moksha.api.widgets.stomp import (
@@ -37,10 +34,12 @@ from moksha.api.widgets.websocket import (
 import tw2.core.params as pm
 import tw2.core.widgets
 
-class TW2LiveWidgetMeta(tw2.core.widgets.WidgetMeta):
+
+class LiveWidgetMeta(tw2.core.widgets.WidgetMeta):
     pass
 
-class TW2LiveWidget(tw2.core.Widget):
+
+class LiveWidget(tw2.core.Widget):
     """ A live streaming widget based on toscawidgets2
 
     This widget handles automatically subscribing your widget to any given
@@ -53,7 +52,7 @@ class TW2LiveWidget(tw2.core.Widget):
             onmessage = 'console.log(json)'
             template = 'mako:myproject.templates.mylivewidget'
     """
-    __metaclass__ = TW2LiveWidgetMeta
+    __metaclass__ = LiveWidgetMeta
 
     backend = pm.Param(
         'moksha livesocket backend to use',
@@ -74,7 +73,7 @@ class TW2LiveWidget(tw2.core.Widget):
             raise MokshaException('%s must be provided an onmessage callback' %
                                   self.__class__.__name__)
 
-        super(TW2LiveWidget, self).prepare()
+        super(LiveWidget, self).prepare()
 
         if not self.topic:
             raise MokshaException('You must specify a `topic` to subscribe to')
@@ -94,9 +93,11 @@ class TW2LiveWidget(tw2.core.Widget):
                     cb = getattr(self, 'onmessage').replace('${id}', self.id)
                     moksha.utils.livewidgets[callback][topic].append(cb)
             elif callback in ['onconnectedframe', 'onopen']:
-                moksha.utils.livewidgets[callback].append(subscribe_topics(topics))
+                moksha.utils.livewidgets[callback].append(
+                    subscribe_topics(topics))
             elif getattr(self, callback, None):
-                moksha.utils.livewidgets[callback].append(getattr(self, callback))
+                moksha.utils.livewidgets[callback].append(
+                    getattr(self, callback))
 
     @classmethod
     def get_topics(cls):
@@ -143,98 +144,6 @@ class TW2LiveWidget(tw2.core.Widget):
                                     backend, ", ".join(backend_lookup.keys())
                                   ))
 
-
-class TW1LiveWidget(Widget):
-    """ A live streaming widget.
-
-    This widget handles automatically subscribing your widget to any given
-    topics, and registers all of the stomp callbacks.
-
-    The basics of the LiveWidget::
-
-        class MyLiveWidget(LiveWidget):
-            topic = 'mytopic'
-            onmessage = 'console.log(json)'
-            template = 'mako:myproject.templates.mylivewidget'
-
-    """
-    engine_name = 'mako'
-
-    def __init__(self, id, *args, **kw):
-        super(LiveWidget, self).__init__(*args, **kw)
-        self.backend = config.get('moksha.livesocket.backend', 'stomp').lower()
-
-    def update_params(self, d):
-        """ Register this widgets message topic callbacks """
-        super(LiveWidget, self).update_params(d)
-        topics = d.get('topic', getattr(self, 'topic', d.get('topics',
-                getattr(self, 'topics', None))))
-        if not topics:
-            raise MokshaException('You must specify a `topic` to subscribe to')
-        topics = isinstance(topics, list) and topics or [topics]
-        callbacks = []
-        if self.backend == 'stomp':
-            callbacks = StompWidget.callbacks
-        elif self.backend == 'amqp':
-            callbacks = AMQPSocket.callbacks
-        elif self.backend == 'websocket':
-            warnings.warn("No tw1 websocket support yet")
-            callbacks = []
-
-        for callback in callbacks:
-            if callback == 'onmessageframe':
-                for topic in topics:
-                    cb = getattr(self, 'onmessage').replace('${id}', self.id)
-                    moksha.utils.livewidgets[callback][topic].append(cb)
-            elif callback == 'onconnectedframe':
-                moksha.utils.livewidgets['onconnectedframe'].append(
-                        subscribe_topics(topics))
-            elif callback in self.params:
-                moksha.utils.livewidgets[callback].append(getattr(self, callback))
-
-    def get_topics(self):
-        topics = []
-        for key in ('topic', 'topics'):
-            if hasattr(self, key):
-                topic = getattr(self, key)
-                if topic:
-                    if isinstance(topic, basestring):
-                        map(topics.append, topic.split())
-                    else:
-                        topics += topic
-        return topics
-
-    @classmethod
-    def subscribe_topics(cls, topics):
-        backend = config.get('moksha.livesocket.backend', 'stomp').lower()
-        if backend == 'amqp':
-            return amqp_subscribe(topics)
-        elif backend == 'stomp':
-            return stomp_subscribe(topics)
-        else:
-            raise MokshaException("Unknown `moksha.livesocket.backend` %r. "
-                                  "Valid backends are currently 'amqp' and "
-                                  "'stomp'." % backend)
-
-    @classmethod
-    def unsubscribe_topics(cls, topics):
-        backend = config.get('moksha.livesocket.backend', 'stomp').lower()
-        if backend == 'amqp':
-            return amqp_unsubscribe(topics)
-        elif backend == 'stomp':
-            return stomp_unsubscribe(topics)
-        else:
-            raise MokshaException("Unknown `moksha.livesocket.backend` %r. "
-                                  "Valid backends are currently 'amqp' and "
-                                  "'stomp'." % backend)
-
-
-if asbool(config.get('moksha.use_tw2', False)):
-    LiveWidget = TW2LiveWidget
-    LiveWidgetMeta = TW2LiveWidgetMeta
-else:
-    LiveWidget = TW1LiveWidget
-    LiveWidgetMeta = None
 
 # Moksha Topic subscription handling methods
 subscribe_topics = LiveWidget.subscribe_topics

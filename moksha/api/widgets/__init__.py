@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from live import TW2LiveWidget, TW1LiveWidget, LiveWidget, moksha_socket
+from live import LiveWidget, moksha_socket
 from util import *
 from placeholder import Placeholder
 from selectable import Selectable

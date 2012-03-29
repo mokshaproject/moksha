@@ -36,10 +36,6 @@ A Live Feed Demo Widget
 
     from moksha.api.widgets.feed.live import LiveFeedWidget
 
-.. widgetbrowser:: moksha.widgets.demos.LiveFeedDemo
-   :tabs: demo, source, template, parameters
-   :size: large
-
 The Live Feed Widget
 ~~~~~~~~~~~~~~~~~~~~
 

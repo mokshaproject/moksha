@@ -34,11 +34,7 @@ class DefaultRootController(BaseController):
 
     @expose('mako:moksha.templates.index')
     def index(self, *args, **kw):
-        if 'default_menu' in moksha.utils.menus:
-            tmpl_context.menu_widget = moksha.utils.menus['default_menu']
-        else:
-            tmpl_context.menu_widget = lambda: ''
-        #tmpl_context.contextual_menu_widget = moksha.utils.menus['contextual_menu']
+        tmpl_context.menu_widget = moksha.utils.menus.get('default_menu', None)
         return dict(title='[ Moksha ]')
 
 

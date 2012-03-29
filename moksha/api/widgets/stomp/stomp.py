@@ -22,7 +22,6 @@ from tg import config
 from paste.deploy.converters import asbool
 from kitchen.text.converters import to_unicode as unicode
 
-import tw.api
 import tw2.core as twc
 
 from moksha.api.widgets.socket import AbstractMokshaSocket
@@ -32,9 +31,7 @@ from moksha.lib.helpers import defaultdict
 
 from tw2.jqplugins.gritter import gritter_resources, gritter_callback
 
-tw1_stomp_js = tw.api.JSLink(
-    link=orbited_url + '/static/protocols/stomp/stomp.js')
-tw2_stomp_js = twc.JSLink(
+tstomp_js = twc.JSLink(
     link=orbited_url + '/static/protocols/stomp/stomp.js')
 
 
@@ -62,72 +59,7 @@ def stomp_unsubscribe(topic):
     return sub
 
 
-class TW1StompWidget(tw.api.Widget):
-    callbacks = ['onopen', 'onerror', 'onerrorframe', 'onclose',
-                 'onconnectedframe', 'onmessageframe']
-    javascript = []
-    params = callbacks[:] + ['topics', 'notify', 'orbited_host',
-            'orbited_port', 'orbited_url', 'orbited_js', 'stomp_host',
-            'stomp_port', 'stomp_user', 'stomp_pass']
-    onopen = tw.api.js_callback('function(){}')
-    onerror = tw.api.js_callback('function(error){}')
-    onclose = tw.api.js_callback('function(c){}')
-    onerrorframe = tw.api.js_callback('function(f){}')
-    onmessageframe = ''
-    onconnectedframe = ''
-
-    # Popup notification bubbles on socket state changes
-    notify = False
-
-    template = "mako:moksha.api.widgets.stomp.templates.stomp"
-
-    hidden = True
-
-    def __init__(self, *args, **kw):
-        self.notify = asbool(config.get('moksha.socket.notify', False))
-        self.orbited_host = config.get('orbited_host', 'localhost')
-        self.orbited_port = unicode(config.get('orbited_port', 9000))
-        self.orbited_scheme = config.get('orbited_scheme', 'http')
-        self.orbited_url = '%s://%s:%s' % (
-            self.orbited_scheme, self.orbited_host, self.orbited_port)
-        self.orbited_js = tw.api.JSLink(
-            link=self.orbited_url + '/static/Orbited.js')
-        self.stomp_host = config.get('stomp_host', 'localhost')
-        self.stomp_port = unicode(config.get('stomp_port', 61613))
-        self.stomp_user = config.get('stomp_user', 'guest')
-        self.stomp_pass = config.get('stomp_pass', 'guest')
-        super(TW1StompWidget, self).__init__(*args, **kw)
-
-    def update_params(self, d):
-        super(TW1StompWidget, self).update_params(d)
-        d.topics = []
-        d.onmessageframe = defaultdict(str)  # {topic: 'js callbacks'}
-        for callback in self.callbacks:
-            if len(moksha.utils.livewidgets[callback]):
-                cbs = ''
-                if callback == 'onmessageframe':
-                    for topic in moksha.utils.livewidgets[callback]:
-                        d.topics.append(topic)
-                        for cb in moksha.utils.livewidgets[callback][topic]:
-                            d.onmessageframe[topic] += '%s;' % unicode(cb)
-                else:
-                    for cb in moksha.utils.livewidgets[callback]:
-                        if isinstance(cb, (tw.api.js_callback,
-                                           tw.api.js_function)):
-                            cbs += '$(%s);' % unicode(cb)
-                        else:
-                            cbs += unicode(cb)
-                if cbs:
-                    d[callback] = cbs
-
-        # NOTE -- d.notify (used to be $.jGrowl, now $.gritter) is disabled for
-        # tw1.  moksha.widgets.notify was removed in favor of
-        # tw2.jqplugins.gritter.  This cripples our tw1 widgets in favor of
-        # cleaning out the moksha codebase and looking forwards to a tw2-only
-        # moksha.
-
-
-class TW2StompWidget(AbstractMokshaSocket):
+class StompWidget(AbstractMokshaSocket):
     __shorthand__ = 'STOMP Socket'
 
     orbited_host = twc.Param(
@@ -150,14 +82,6 @@ class TW2StompWidget(AbstractMokshaSocket):
     template = "mako:moksha.api.widgets.stomp.templates.stomp"
 
     def prepare(self):
-        super(TW2StompWidget, self).prepare()
+        super(StompWidget, self).prepare()
         self.orbited_url = '%s://%s:%s' % (self.orbited_scheme,
                 self.orbited_host, self.orbited_port)
-
-
-if asbool(config.get('moksha.use_tw2', False)):
-    StompWidget = TW2StompWidget
-    stomp_js = tw2_stomp_js
-else:
-    StompWidget = TW1StompWidget
-    stomp_js = tw1_stomp_js

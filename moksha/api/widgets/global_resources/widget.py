@@ -21,13 +21,11 @@ from paste.deploy.converters import asbool
 from pylons import request
 from inspect import isclass
 
-import tw.api
 import tw2.core as twc
 import tw2.core.widgets
 
 from moksha.widgets.moksha_js import (
-    tw1_moksha_js, tw1_moksha_extension_points_js,
-    tw2_moksha_js, tw2_moksha_extension_points_js,
+    moksha_js, moksha_extension_points_js,
     moksha_js, moksha_extension_points_js,
 )
 from moksha.api.widgets.live import moksha_socket
@@ -35,7 +33,7 @@ from moksha.api.widgets.live import moksha_socket
 log = logging.getLogger(__name__)
 
 
-class TW1GlobalResourceInjectionWidget(tw.api.Widget):
+class GlobalResourceInjectionWidget(twc.Widget):
     """
     This widget will pull in all JSLink, CSSLink, and Widget resources that
     are listed on the `[moksha.global]` entry-point.
@@ -46,91 +44,15 @@ class TW1GlobalResourceInjectionWidget(tw.api.Widget):
            handles this for us, otherwise you can import the `global_resources`
            widget from this module and do it yourself.
     """
-    javascript = [tw1_moksha_js]
+    resources = [moksha_js]
     children = []
     css = []
     template = "mako:moksha.api.widgets.global_resources.templates.global"
 
-    params = ['base_url', 'csrf_token', 'user_id', 'debug', 'profile',
-              'csrf_trusted_domains']
-    base_url = '/'
-    csrf_token = ''
-    user_id = ''
-    debug = 'false'
-    profile = 'false'
-
-    def __init__(self):
-        super(TW1GlobalResourceInjectionWidget, self).__init__()
-        for widget_entry in pkg_resources.iter_entry_points('moksha.global'):
-            log.info('Loading global resource: %s' % widget_entry.name)
-            loaded = widget_entry.load()
-            if isclass(loaded):
-                loaded = loaded(widget_entry.name)
-            if isinstance(loaded, tw.api.JSLink):
-                self.javascript.append(loaded)
-            elif isinstance(loaded, tw.api.CSSLink):
-                self.css.append(loaded)
-            elif isinstance(loaded, tw.api.Widget):
-                if loaded in self.children:
-                    log.debug("Skipping duplicate global widget: %s" %
-                              widget_entry.name)
-                else:
-                    if loaded is moksha_socket:
-                        if not asbool(config.get('moksha.livesocket', True)):
-                            log.debug('Moksha Live Socket disabled in the config')
-                            continue
-                    self.children.append(loaded)
-            else:
-                raise Exception("Unknown global resource: %s.  Should be "
-                                "either a JSLink or CSSLink." %
-                                widget_entry.name)
-
-        self.csrf_token_id = config.get('moksha.csrf.token_id', '_csrf_token')
-        if asbool(config.get('moksha.extensionpoints', False)):
-            self.javascript.append(tw1_moksha_extension_points_js)
-
-        trusted_domain_list = config.get('moksha.csrf.trusted_domains', '').split(',')
-        # turn into quick lookup hash
-        item_list = []
-        for domain in trusted_domain_list:
-            item_list.append('"%s": true' % domain)
-        trusted_domain_hash = '{%s}' % ','.join(item_list)
-        self.csrf_trusted_domains_hash = trusted_domain_hash
-
-        if asbool(config.get('debug')):
-            self.debug = 'true'
-        if asbool(config['global_conf'].get('profile')):
-            self.profile = 'true'
-
-    def update_params(self, d):
-        super(TW1GlobalResourceInjectionWidget, self).update_params(d)
-
-        d['base_url'] = url('/')
-
-        identity = request.environ.get('repoze.who.identity')
-        if identity:
-            d['csrf_token'] = identity.get(self.csrf_token_id, '')
-            d['user_id'] = identity.get('user_id', '')
-
-
-class TW2GlobalResourceInjectionWidget(twc.Widget):
-    """
-    This widget will pull in all JSLink, CSSLink, and Widget resources that
-    are listed on the `[moksha.global]` entry-point.
-
-    :Note: Global Widget injection will only work when the global_resource
-           widget is actually rendered in the template.  Otherwise, only JS
-           and CSS resources will get injected.  Moksha's index.mak template
-           handles this for us, otherwise you can import the `global_resources`
-           widget from this module and do it yourself.
-    """
-    resources= [tw2_moksha_js]
-    children = []
-    css = []
-    template = "mako:moksha.api.widgets.global_resources.templates.global"
-
-    params = ['base_url', 'csrf_token', 'user_id', 'debug', 'profile',
-              'csrf_trusted_domains',]
+    params = [
+        'base_url', 'csrf_token', 'user_id', 'debug', 'profile',
+        'csrf_trusted_domains',
+    ]
     base_url = '/'
     csrf_token = ''
     user_id = ''
@@ -143,7 +65,7 @@ class TW2GlobalResourceInjectionWidget(twc.Widget):
         return self.children
 
     def __init__(self):
-        super(TW2GlobalResourceInjectionWidget, self).__init__()
+        super(GlobalResourceInjectionWidget, self).__init__()
         if asbool(config.get('debug')):
             self.debug = 'true'
         if asbool(config['global_conf'].get('profile')):
@@ -175,7 +97,7 @@ class TW2GlobalResourceInjectionWidget(twc.Widget):
 
         self.csrf_token_id = config.get('moksha.csrf.token_id', '_csrf_token')
         if asbool(config.get('moksha.extensionpoints', False)):
-            self.resources.append(tw2_moksha_extension_points_js)
+            self.resources.append(moksha_extension_points_js)
 
         trusted_domain_list = config.get('moksha.csrf.trusted_domains', '').split(',')
         # turn into quick lookup hash
@@ -187,7 +109,7 @@ class TW2GlobalResourceInjectionWidget(twc.Widget):
         self.csrf_trusted_domains = self.csrf_trusted_domains_hash
 
     def prepare(self):
-        super(TW2GlobalResourceInjectionWidget, self).prepare()
+        super(GlobalResourceInjectionWidget, self).prepare()
 
         self.base_url = url('/')
 
@@ -197,9 +119,4 @@ class TW2GlobalResourceInjectionWidget(twc.Widget):
             self.user_id = identity.get('user_id', '')
 
 
-if asbool(config.get('moksha.use_tw2', False)):
-    GlobalResourceInjectionWidget = TW2GlobalResourceInjectionWidget
-else:
-    GlobalResourceInjectionWidget = TW1GlobalResourceInjectionWidget
-
-global_resources = GlobalResourceInjectionWidget()
+global_resources = GlobalResourceInjectionWidget

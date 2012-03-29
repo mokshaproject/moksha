@@ -14,44 +14,67 @@ Getting the code
 .. code-block:: bash
 
     $ git clone git://git.fedorahosted.org/git/moksha
+    $ cd moksha/
 
+Bootstrapping Your Environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    $ ./moksha-ctl.py bootstrap
 
 Rebuilding and reinstalling Moksha
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-   $ paver reinstall
+   $ ./moksha-ctl.py rebuild
 
 Rebuilding and reinstalling all Moksha apps
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-   $ paver reinstall_apps
+   $ workon moksha
+   (moksha) $ pip install --upgrade mdemos.all
+   (moksha) $ deactivate
 
 Rebuilding and reinstalling a specific Moksha apps
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-   $ paver reinstall_app --app=metrics
+   $ workon moksha
+   (moksha) $ pip install --upgrade mdemos.metrics
+   (moksha) $ deactivate
 
-Restart apache and load the front page
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Restart paster
+~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-   $ paver restart_httpd
-
+   $ ./moksha-ctl.py restart:paster
 
 Restart the Moksha Hub
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-   $ paver restart_hub
+   $ ./moksha-ctl.py restart:moksha-hub
 
+Debugging your setup
+~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   $ ./moksha-ctl.py wtf
+
+Watching the logs
+~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   $ ./moksha-ctl.py logs
 
 Generating documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -65,14 +88,19 @@ Running the test suite
 
 .. code-block:: bash
 
-    $ paver test
+    $ workon moksha
+    (moksha) $ python setup.py test
+    (moksha) $ deactivate
 
-Rebuilding and reinstall *everything*, restart apache, and run the test suite
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Rebuilding and reinstall *everything*, restart *everything*, and run the test suite
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-   $ paver reinstall reinstall_apps restart_httpd restart_hub test
+   $ ./moksha-ctl.py rebuild restart
+   $ workon moksha
+   (moksha) $ python setup.py test
+   (moksha) $ deactivate
 
 .. note::
 

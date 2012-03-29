@@ -22,7 +22,7 @@ import multiprocessing, logging
 
 setup(
     name='moksha',
-    version='0.6.1',
+    version='0.7.0a1',
     description='',
     author='',
     author_email='',
@@ -60,7 +60,7 @@ setup(
         "kitchen",
         "Mako",
         "Genshi",
-        "tw2.core==2.0b11",
+        "tw2.core>=2.0.0",
         "tw2.forms",
         "tw2.jquery>=2.0b6",
         "tw2.jqplugins.ui",

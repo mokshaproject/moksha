@@ -17,8 +17,7 @@
 
 import moksha.utils
 
-from tg import expose, tmpl_context, config
-from paste.deploy.converters import asbool
+from tg import expose, tmpl_context
 
 from moksha.api.widgets.containers import DashboardContainer
 from moksha.api.widgets import ContextAwareWidget
@@ -29,10 +28,7 @@ from moksha.lib.helpers import Category, MokshaApp, MokshaWidget
 class AppWidgetContainer(DashboardContainer, ContextAwareWidget):
     template = "${applist_widget(category='main', layout=layout)}"
 
-if asbool(config.get('moksha.use_tw2', False)):
-    appwidget_container = AppWidgetContainer(id='appwidget')
-else:
-    appwidget_container = AppWidgetContainer('appwidget')
+appwidget_container = AppWidgetContainer(id='appwidget')
 
 class AppController(Controller):
 

@@ -41,7 +41,7 @@ def global_resources():
     if tg.config.default_renderer == 'genshi':
         # There's Got To Be A Better Way!
         from genshi import unescape, Markup
-        return Markup(unescape(Markup(globs)))
+        return Markup(unescape(Markup(globs.display())))
     elif tg.config.default_renderer == 'mako':
         return globs.display()
     else:

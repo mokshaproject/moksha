@@ -28,7 +28,6 @@ Moksha Widget Docs
 External Documentation
 ----------------------
 * `ToscaWidgets <http://toscawidgets.org>`_
-* `Writing Widget Demos <http://toscawidgets.org/documentation/WidgetBrowser>`_
 * `TurboGears2 Documentation <http://www.turbogears.org/2.0/docs/toc.html>`_
 
 

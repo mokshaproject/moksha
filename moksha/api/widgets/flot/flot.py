@@ -15,31 +15,13 @@
 #
 # Authors: Luke Macken <lmacken@redhat.com>
 
-from tg import config
-from paste.deploy.converters import asbool
-
-import tw.jquery.flot
 import tw2.jqplugins.flot
 import tw2.excanvas
 
-from moksha.api.widgets import TW1LiveWidget, TW2LiveWidget
+from moksha.api.widgets import LiveWidget
 
 
-class TW1LiveFlotWidget(TW1LiveWidget):
-    """ A live graphing widget """
-    topic = None
-    params = ['id', 'data', 'options', 'height', 'width', 'onmessage']
-    onmessage = '$.plot($("#${id}"),json[0]["data"],json[0]["options"])'
-    template = "mako:moksha.api.widgets.flot.templates.flot"
-    javascript = [tw.jquery.flot.flot_js, tw.jquery.flot.excanvas_js]
-    css = [tw.jquery.flot.flot_css]
-    height = '250px'
-    width = '390px'
-    options = {}
-    data = [{}]
-
-
-class TW2LiveFlotWidget(TW2LiveWidget):
+class LiveFlotWidget(LiveWidget):
     """ A live graphing widget """
     topic = None
     params = ['id', 'data', 'options', 'height', 'width', 'onmessage']
@@ -53,9 +35,3 @@ class TW2LiveFlotWidget(TW2LiveWidget):
     width = '390px'
     options = {}
     data = [{}]
-
-
-if asbool(config.get('moksha.use_tw2', False)):
-    LiveFlotWidget = TW2LiveFlotWidget
-else:
-    LiveFlotWidget = TW1LiveFlotWidget

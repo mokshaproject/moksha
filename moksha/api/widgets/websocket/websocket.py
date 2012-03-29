@@ -23,11 +23,9 @@ import moksha
 import moksha.utils
 
 from tg import config
-from paste.deploy.converters import asbool
 from kitchen.text.converters import to_unicode as unicode
 import warnings
 
-import tw.api
 import tw2.core as twc
 from tw2.jqplugins.gritter import gritter_resources, gritter_callback
 
@@ -56,7 +54,7 @@ def websocket_unsubscribe(topic):
     #return sub
 
 
-class TW2WebSocketWidget(AbstractMokshaSocket):
+class WebSocketWidget(AbstractMokshaSocket):
     __shorthand__ = 'WebSocket'
 
     ws_host = twc.Param(
@@ -65,9 +63,3 @@ class TW2WebSocketWidget(AbstractMokshaSocket):
         default=config.get('moksha.livesocket.websocket.port', '9998'))
 
     template = "mako:moksha.api.widgets.websocket.templates.websocket"
-
-if asbool(config.get('moksha.use_tw2', False)):
-    WebSocketWidget = TW2WebSocketWidget
-else:
-    warnings.warn("no tw1 support for websockets")
-    WebSocketWidget = None
