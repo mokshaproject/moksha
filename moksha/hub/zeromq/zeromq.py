@@ -48,8 +48,8 @@ class ZMQHub(BaseZMQHub):
 
         # Set up the publishing socket
         self.pub_socket = self.context.socket(zmq.PUB)
-        _endpoints = self.config['zmq_publish_endpoints'].split(',')
-        for endpoint in _endpoints:
+        _endpoints = self.config.get('zmq_publish_endpoints', '').split(',')
+        for endpoint in (e for e in _endpoints if e):
             log.info("Binding publish socket to '%s'" % endpoint)
             self.pub_socket.bind(endpoint)
 
@@ -76,8 +76,9 @@ class ZMQHub(BaseZMQHub):
         required_attrs = ['zmq_publish_endpoints', 'zmq_subscribe_endpoints']
         for attr in required_attrs:
             if not config.get(attr, None):
-                raise ValueError("no '%s' set.  %s is required." % (
-                    attr, attr))
+                log.warn("No '%s' set.  Are you sure?" % attr)
+                continue
+
             endpoints = config[attr].split(',')
             for endpoint in endpoints:
                 if 'localhost' in endpoint:
