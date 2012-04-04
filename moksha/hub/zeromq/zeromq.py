@@ -76,7 +76,8 @@ class ZMQHub(BaseZMQHub):
         required_attrs = ['zmq_publish_endpoints', 'zmq_subscribe_endpoints']
         for attr in required_attrs:
             if not config.get(attr, None):
-                raise ValueError("no '%s' set.  %s is required." % (attr,)*2)
+                raise ValueError("no '%s' set.  %s is required." % (
+                    attr, attr))
             endpoints = config[attr].split(',')
             for endpoint in endpoints:
                 if 'localhost' in endpoint:
