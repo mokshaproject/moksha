@@ -13,4 +13,71 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from hub import MokshaHub, find_hub_extensions
+import logging
+import signal
+import sys
+
+from paste.deploy import appconfig
+from tg import config
+
+from moksha.lib.helpers import get_moksha_config_path
+
+log = logging.getLogger('moksha.hub')
+
+NO_CONFIG_MESSAGE = """
+  Cannot find Moksha configuration!  Place a development.ini or production.ini
+  in /etc/moksha or in the current directory.
+"""
+
+
+def setup_logger(verbose):
+    global log
+    sh = logging.StreamHandler()
+    level = verbose and logging.DEBUG or logging.INFO
+    log.setLevel(level)
+    sh.setLevel(level)
+    format = logging.Formatter('[moksha.hub] %(levelname)s %(asctime)s %(message)s')
+    sh.setFormatter(format)
+    log.addHandler(sh)
+
+
+def main(options=None):
+    """ The main MokshaHub method """
+    setup_logger('-v' in sys.argv or '--verbose' in sys.argv)
+
+    if not options:
+        config_path = get_moksha_config_path()
+        if not config_path:
+            print NO_CONFIG_MESSAGE
+            return
+
+        cfg = appconfig('config:' + config_path)
+        config.update(cfg)
+    else:
+        config.update(options)
+
+
+    # This import has to happen here at not at the module level so that we can
+    # mangle the config object (above) before hand.
+    from moksha.hub.hub import CentralMokshaHub
+    from moksha.hub.reactor import reactor
+
+    hub = CentralMokshaHub()
+    global _hub
+    _hub = hub
+
+    def handle_signal(signum, stackframe):
+        from moksha.hub.reactor import reactor
+        if signum in [signal.SIGHUP, signal.SIGINT]:
+            hub.stop()
+            try:
+                reactor.stop()
+            except ReactorNotRunning:
+                pass
+
+    signal.signal(signal.SIGHUP, handle_signal)
+    signal.signal(signal.SIGINT, handle_signal)
+
+    log.info("Running the MokshaHub reactor")
+    reactor.run(installSignalHandlers=False)
+    log.info("MokshaHub reactor stopped")

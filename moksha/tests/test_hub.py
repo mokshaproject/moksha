@@ -20,7 +20,7 @@ import moksha
 from time import sleep, time
 from uuid import uuid4
 
-from moksha.hub import MokshaHub
+from moksha.hub.hub import MokshaHub
 from nose.tools import eq_, assert_true, assert_false
 
 
