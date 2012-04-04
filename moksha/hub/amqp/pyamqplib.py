@@ -33,13 +33,13 @@ NONPERSISTENT_DELIVERY = PERSISTENT_DELIVERY = range(1, 3)
 class AMQPLibHub(BaseAMQPHub):
     """ An AMQPHub implemention using the amqplib module """
 
-    def __init__(self, config):
+    def __init__(self):
 
-        broker = config.get('amqp_broker')
-        ssl = asbool(config.get('amqp_broker_ssl', False))
-        use_threading = asbool(config.get('amqp_broker_threaded', False))
-        username = config.get('amqp_broker_username', 'guest')
-        password = config.get('amqp_broker_password', 'guest')
+        broker = self.config.get('amqp_broker')
+        ssl = asbool(self.config.get('amqp_broker_ssl', False))
+        use_threading = asbool(self.config.get('amqp_broker_threaded', False))
+        username = self.config.get('amqp_broker_username', 'guest')
+        password = self.config.get('amqp_broker_password', 'guest')
 
         self.conn = amqp.Connection(
             host=broker,
@@ -50,7 +50,7 @@ class AMQPLibHub(BaseAMQPHub):
         )
         self.channel = self.conn.channel()
         self.channel.access_request('/data', active=True, write=True, read=True)
-        super(AMQPLibHub, self).__init__(config)
+        super(AMQPLibHub, self).__init__()
 
     @trace
     def create_queue(self, queue, exchange='amq.fanout', durable=True,
