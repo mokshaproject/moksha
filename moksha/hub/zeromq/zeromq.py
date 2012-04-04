@@ -58,8 +58,9 @@ class ZMQHub(BaseZMQHub):
 
         # Establish a list of subscription endpoints for later use
         _endpoints = self.config['zmq_subscribe_endpoints'].split(',')
+        method = self.config.get('zmq_subscribe_method', 'connect')
         self.sub_endpoints = [
-            txZMQ.ZmqEndpoint("connect", ep) for ep in _endpoints
+            txZMQ.ZmqEndpoint(method, ep) for ep in _endpoints
         ]
 
         # This is required so that the publishing socket can fully set itself up
