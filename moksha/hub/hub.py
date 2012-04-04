@@ -25,7 +25,6 @@ import simplejson
 if os.getcwd() not in sys.path:
     sys.path.insert(0, os.getcwd())
 
-import signal
 import pkg_resources
 import logging
 
@@ -44,7 +43,7 @@ except ImportError: # Twisted 8.2.0 on RHEL5
 from twisted.internet import protocol
 from txws import WebSocketFactory
 
-from moksha.lib.helpers import trace, defaultdict, get_moksha_config_path, get_moksha_appconfig
+from moksha.lib.helpers import trace, defaultdict, get_moksha_config_path
 from moksha.hub.amqp import AMQPHub
 from moksha.hub.stomp import StompHub
 from moksha.hub.zeromq import ZMQHub
@@ -53,10 +52,7 @@ log = logging.getLogger('moksha.hub')
 
 _hub = None
 
-NO_CONFIG_MESSAGE = """
-  Cannot find Moksha configuration!  Place a development.ini or production.ini
-  in /etc/moksha or in the current directory.
-"""
+from moksha.hub import NO_CONFIG_MESSAGE
 
 
 def find_hub_extensions():
@@ -358,51 +354,6 @@ class CentralMokshaHub(MokshaHub):
                 consumer.stop()
 
 
-def setup_logger(verbose):
-    global log
-    sh = logging.StreamHandler()
-    level = verbose and logging.DEBUG or logging.INFO
-    log.setLevel(level)
-    sh.setLevel(level)
-    format = logging.Formatter('[moksha.hub] %(levelname)s %(asctime)s %(message)s')
-    sh.setFormatter(format)
-    log.addHandler(sh)
-
-
-def main(options=None):
-    """ The main MokshaHub method """
-    setup_logger('-v' in sys.argv or '--verbose' in sys.argv)
-    config_path = get_moksha_config_path()
-    if not config_path:
-        print NO_CONFIG_MESSAGE
-        return
-
-    cfg = appconfig('config:' + config_path)
-    config.update(cfg)
-
-    if options:
-        config.update(options)
-
-    hub = CentralMokshaHub()
-    global _hub
-    _hub = hub
-
-    def handle_signal(signum, stackframe):
-        from moksha.hub.reactor import reactor
-        if signum in [signal.SIGHUP, signal.SIGINT]:
-            hub.stop()
-            try:
-                reactor.stop()
-            except ReactorNotRunning:
-                pass
-
-    signal.signal(signal.SIGHUP, handle_signal)
-    signal.signal(signal.SIGINT, handle_signal)
-
-    log.info("Running the MokshaHub reactor")
-    reactor.run(installSignalHandlers=False)
-    log.info("MokshaHub reactor stopped")
-
-
 if __name__ == '__main__':
+    from moksha.hub import main
     main()
