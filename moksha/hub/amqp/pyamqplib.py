@@ -44,7 +44,7 @@ class AMQPLibHub(BaseAMQPHub):
         self.conn = amqp.Connection(
             host=broker,
             ssl=ssl,
-            use_threading=threaded,
+            use_threading=use_threading,
             userid=username,
             password=password
         )
