@@ -18,7 +18,10 @@ import __main__; __main__.__requires__ = __requires__ = ['WebOb>=1.0']; import p
 from setuptools import setup, find_packages
 
 # This is required (oddly) to fix a python 2.7 bug with nose tests.
-import multiprocessing, logging
+try:
+    import multiprocessing, logging
+except Exception:
+    pass
 
 setup(
     name='moksha',
