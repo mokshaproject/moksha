@@ -34,7 +34,6 @@ setup(
         "Pylons==1.0",   # Temporary, until TG2 catches up.  (I hope).
         "webob==1.0.8",  # Temporary, until TG2 catches up.  (I hope).
         "TurboGears2",
-        "ToscaWidgets",
         "zope.sqlalchemy",
         "sqlalchemy",
         "psutil",
@@ -49,8 +48,6 @@ setup(
         "Sphinx",
         "fabulous",
         "Paver",
-        "tw.forms",
-        "tw.jquery>=0.9.9",
         "pytz",
         "Babel",
         "pyOpenSSL",

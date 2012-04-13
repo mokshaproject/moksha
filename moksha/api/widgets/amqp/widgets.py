@@ -26,7 +26,6 @@ from kitchen.text.converters import to_unicode as unicode
 import moksha
 import moksha.utils
 
-import tw.api
 import tw2.core as twc
 from tw2.jqplugins.gritter import gritter_resources, gritter_callback
 

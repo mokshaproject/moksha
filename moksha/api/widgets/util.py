@@ -15,7 +15,6 @@
 
 from pylons import tmpl_context
 
-import tw.api
 import tw2.core as twc
 
 

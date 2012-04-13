@@ -47,15 +47,12 @@ Requires: python-hashlib
 %endif
 
 Requires: TurboGears2
-Requires: python-toscawidgets >= 0.9.1
 Requires: python-zope-sqlalchemy
 Requires: python-shove
 Requires: python-feedcache
 Requires: python-feedparser
-Requires: python-tw-jquery >= 0.9.4.1
 Requires: python-sphinx
 Requires: python-paver
-Requires: python-tw-forms
 Requires: python-morbid
 Requires: pytz
 Requires: python-repoze-who-testutil
