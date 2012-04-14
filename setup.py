@@ -14,7 +14,8 @@
 # limitations under the License.
 
 # workaround to make sure we load the right version of WebOb
-import __main__; __main__.__requires__ = __requires__ = ['WebOb>=1.0']; import pkg_resources
+#import __main__; __main__.__requires__ = __requires__ = ['WebOb>=1.0']; import pkg_resources
+
 from setuptools import setup, find_packages
 
 # This is required (oddly) to fix a python 2.7 bug with nose tests.
@@ -31,9 +32,6 @@ setup(
     author_email='',
     url='http://moksha.fedorahosted.org',
     install_requires=[
-        "Pylons==1.0",   # Temporary, until TG2 catches up.  (I hope).
-        "webob==1.0.8",  # Temporary, until TG2 catches up.  (I hope).
-        "TurboGears2",
         "zope.sqlalchemy",
         "sqlalchemy",
         "psutil",
@@ -70,6 +68,8 @@ setup(
         "tw2.excanvas",
         #"repoze.squeeze", # Not hard requirements
         #"repoze.profile", # Not hard requirements
+        "Pylons==1.0.0",
+        "TurboGears2",
     ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
