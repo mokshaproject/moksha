@@ -42,6 +42,7 @@ BuildRequires: python-tw2-jqplugins-flot
 BuildRequires: python-tw2-jqplugins-gritter
 BuildRequires: python-tw2-excanvas
 BuildRequires: python-tw2-jit
+BuildRequires: python-twisted-core
 BuildRequires: python-txzmq
 BuildRequires: python-txws
 BuildRequires: python-feedparser
@@ -81,7 +82,7 @@ Requires: python-morbid
 Requires: pytz
 Requires: python-repoze-who-testutil
 Requires: python-BeautifulSoup
-Requires: python-twisted
+Requires: python-twisted-core
 Requires: python-zmq
 Requires: python-txzmq
 Requires: python-txws
@@ -132,12 +133,24 @@ This package contains an Apache mod_wsgi configuration for Moksha.
 %prep
 %setup -q
 
+%if %{?rhel}%{!?rhel:0} >= 6
+
+# Make sure that epel/rhel picks up the correct version of webob
+%{__awk} 'NR==1{print "import __main__; __main__.__requires__ = __requires__ = [\"WebOb>=1.0\", \"sqlalchemy>=0.6\"]; import pkg_resources"}1' setup.py > setup.py.tmp
+%{__mv} setup.py.tmp setup.py
+
+%endif
+
+
 %build
 %{__python} setup.py build
 
 %{__sed} -i -e 's/$VERSION/%{version}/g' docs/conf.py
 make -C docs html
 #%{__rm} docs/_build/html/.buildinfo
+
+# Remove twisted from the list of dependencies in setup.py.
+%{__sed} -i 's/"Twisted",//' setup.py
 
 %install
 %{__rm} -rf %{buildroot}
@@ -178,7 +191,7 @@ make -C docs html
 
 
 %check
-PYTHONPATH=$(pwd) python run_tests.py
+PYTHONPATH=$(pwd) python setup.py test
 
 # Remove the tests
 %{__rm} -r %{buildroot}%{python_sitelib}/%{name}/tests
