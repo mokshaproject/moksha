@@ -16,14 +16,12 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 
 import os
-import tg
 import moksha
 import moksha.utils
 import logging
 import pkg_resources
 import warnings
 
-from tg.controllers import WSGIAppController
 from shove import Shove
 from pylons import config
 from paste.deploy.converters import asbool
@@ -58,17 +56,15 @@ class MokshaMiddleware(object):
         self.application = application
         self.mokshaapp = MokshaAppDispatcher(application)
 
-        moksha.utils._apps = {}        # {'app name': tg.TGController/tg.WSGIAppController}
+        moksha.utils._apps = {}
         moksha.utils._widgets = {}    # {'widget name': tw.api.Widget}
         moksha.utils.menus = {}       # {'menu name': moksha.api.menus.MokshaMenu}
         self.engines = {}       # {'app name': sqlalchemy.engine.base.Engine}
 
         self.load_paths()
-        self.load_renderers()
         self.load_configs()
         self.load_widgets()
         self.load_applications()
-        self.load_wsgi_applications()
         self.load_models()
         self.load_menus()
         self.load_root()
@@ -157,19 +153,6 @@ class MokshaMiddleware(object):
             except ImportError, e:
                 log.debug("Cannot find application model: %r" % module)
 
-    def load_wsgi_applications(self):
-        log.info('Loading moksha WSGI applications')
-        for app_entry in pkg_resources.iter_entry_points('moksha.wsgiapp'):
-            log.info('Loading %s WSGI application' % app_entry.name)
-            app_path = app_entry.dist.location
-            app_class = app_entry.load()
-            moksha.utils._apps[app_entry.name] = {
-                    'name': getattr(app_class, 'name', app_entry.name),
-                    'controller': WSGIAppController(app_class),
-                    'path': app_path,
-                    'model': None,
-                    }
-
     def load_widgets(self):
         """ Load widgets from entry points. """
 
@@ -211,106 +194,6 @@ class MokshaMiddleware(object):
             menu_class = menu_entry.load()
             menu_path = menu_entry.dist.location
             moksha.utils.menus[menu_entry.name] = menu_class(id=menu_entry.name)
-
-    def load_renderers(self):
-        """ Load our template renderers with our application paths.
-
-        We are currently overloading TG2's default Mako renderer because
-        the default `escape` filter causes our widgets to show up as escaped HTML.
-
-         """
-        from mako.template import Template
-        from mako.lookup import TemplateLookup
-        try: # TG2.1
-            from tg.dottednames.mako_lookup import DottedTemplateLookup
-        except ImportError:
-            try: # TG2b6
-                from tg.dottednamesupport import DottedTemplateLookup
-            except: # TG2b5 and earlier
-                from tg.util import get_dotted_filename
-
-                class DottedTemplateLookup(object):
-                    """this is an emulation of the Mako template lookup
-                    that will handle get_template and support dotted names
-                    in python path notation to support zipped eggs
-                    """
-                    def __init__(self, input_encoding, output_encoding,
-                                 imports, default_filters):
-                        self.input_encoding = input_encoding
-                        self.output_encoding = output_encoding
-                        self.imports = imports
-                        self.default_filters = default_filters
-
-                    def adjust_uri(self, uri, relativeto):
-                        """this method is used by mako for filesystem based reasons.
-                        In dotted lookup land we don't adjust uri so se just return
-                        the value we are given without any change
-                        """
-                        if '.' in uri:
-                            """we are in the DottedTemplateLookup system so dots in
-                            names should be treated as a python path.
-                            Since this method is called by template inheritance we must
-                            support dotted names also in the inheritance.
-                            """
-                            result = get_dotted_filename(template_name=uri,
-                                                         template_extension='.mak')
-
-                        else:
-                            """no dot detected, just return plain name
-                            """
-                            result = uri
-
-                        return result
-
-                    def get_template(self, template_name):
-                        """this is the emulated method that must return a template
-                        instance based on a given template name
-                        """
-                        return Template(open(template_name).read(),
-                            input_encoding=self.input_encoding,
-                            output_encoding=self.output_encoding,
-                            default_filters=self.default_filters,
-                            imports=self.imports,
-                            lookup=self)
-
-        if config.get('use_dotted_templatenames', True):
-            # support dotted names by injecting a slightly different template
-            # lookup system that will return templates from dotted template
-            # notation.
-            config['pylons.app_globals'].mako_lookup = DottedTemplateLookup(
-                input_encoding='utf-8', output_encoding='utf-8',
-                imports=[], default_filters=[])
-
-        else:
-            compiled_dir = tg.config.get('templating.mako.compiled_templates_dir', None)
-
-            if not compiled_dir:
-                # no specific compile dir give by conf... we expect that
-                # the server will have access to the first template dir
-                # to write the compiled version...
-                # If this is not the case we are doomed and the user should
-                # provide us the required config...
-                compiled_dir = self.paths['templates'][0]
-
-            # If no dotted names support was required we will just setup
-            # a file system based template lookup mechanism.
-            compiled_dir = tg.config.get('templating.mako.compiled_templates_dir', None)
-
-            if not compiled_dir:
-                # no specific compile dir give by conf... we expect that
-                # the server will have access to the first template dir
-                # to write the compiled version...
-                # If this is not the case we are doomed and the user should
-                # provide us the required config...
-                compiled_dir = self.paths['templates'][0]
-
-            config['pylons.app_globals'].mako_lookup = TemplateLookup(
-                directories=self.paths['templates'],
-                module_directory=compiled_dir,
-                input_encoding='utf-8', output_encoding='utf-8',
-                #imports=['from webhelpers.html import escape'],
-                #default_filters=['escape'],
-                filesystem_checks=self.auto_reload_templates)
 
     def load_configs(self):
         """ Load the configuration files for all applications.
