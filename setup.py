@@ -14,31 +14,30 @@
 # limitations under the License.
 
 # workaround to make sure we load the right version of WebOb
-import __main__; __main__.__requires__ = __requires__ = ['WebOb>=1.0']; import pkg_resources
+#import __main__; __main__.__requires__ = __requires__ = ['WebOb>=1.0']; import pkg_resources
+
 from setuptools import setup, find_packages
 
 # This is required (oddly) to fix a python 2.7 bug with nose tests.
-import multiprocessing, logging
+try:
+    import multiprocessing, logging
+except Exception:
+    pass
 
 setup(
     name='moksha',
-    version='0.7.0a1',
+    version='0.7.1',
     description='',
     author='',
     author_email='',
     url='http://moksha.fedorahosted.org',
     install_requires=[
-        "Pylons==1.0",   # Temporary, until TG2 catches up.  (I hope).
-        "webob==1.0.8",  # Temporary, until TG2 catches up.  (I hope).
-        "TurboGears2",
-        "ToscaWidgets",
         "zope.sqlalchemy",
         "sqlalchemy",
         "psutil",
         "Shove",
         "feedcache",
         "feedparser",
-        "tw.jquery>=0.9.9",
         "orbited==0.7.10",
         "Twisted",
         "stomper",
@@ -47,7 +46,6 @@ setup(
         "Sphinx",
         "fabulous",
         "Paver",
-        "tw.forms",
         "pytz",
         "Babel",
         "pyOpenSSL",
@@ -70,6 +68,8 @@ setup(
         "tw2.excanvas",
         #"repoze.squeeze", # Not hard requirements
         #"repoze.profile", # Not hard requirements
+        "Pylons==1.0.0",
+        "TurboGears2",
     ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
@@ -90,7 +90,7 @@ setup(
 
     entry_points="""
     [console_scripts]
-    moksha-hub = moksha.hub.hub:main
+    moksha-hub = moksha.hub:main
     moksha = moksha.commands.cli:main
 
     [paste.app_factory]

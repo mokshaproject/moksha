@@ -63,3 +63,6 @@ base_config.sa_auth.post_login_url = '/post_login'
 # You may optionally define a page where you want users to be redirected to
 # on logout:
 base_config.sa_auth.post_logout_url = '/post_logout'
+
+base_config.use_toscawidgets = False
+base_config.use_toscawidgets2 = True

@@ -77,6 +77,8 @@ class Consumer(object):
             log.debug("Unable to decode message body to JSON: %r" % message.body)
             body = message.body
         topic = None
+
+        # Try some stuff for AMQP:
         try:
             topic = message.headers[0].routing_key
         except TypeError:
@@ -85,6 +87,15 @@ class Consumer(object):
         except AttributeError:
             # We didn't get headers or a routing key?
             pass
+
+        # If that didn't work, it might be zeromq
+        if not topic:
+            try:
+                topic = message.topic
+            except AttributeError:
+                # Weird.  I have no idea...
+                pass
+
 
         self.consume({'body': body, 'topic': topic})
 

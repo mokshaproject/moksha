@@ -2,18 +2,24 @@
 %{!?pyver: %define pyver %(%{__python} -c "import sys ; print sys.version[:3]")}
 
 Name:           moksha
-Version:        0.6.1
-Release:        2%{?dist}
+Version:        0.7.1
+Release:        1%{?dist}
 Summary:        A platform for creating real-time web applications
 Group:          Applications/Internet
 License:        ASL 2.0
 URL:            https://fedorahosted.org/moksha
-Source0:        https://fedorahosted.org/releases/m/o/%{name}/%{name}-%{version}.tar.bz2
+Source0:        http://pypi.python.org/packages/source/m/%{name}/%{name}-%{version}.tar.gz
+#Source0:        https://fedorahosted.org/releases/m/o/%{name}/%{name}-%{version}.tar.bz2
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      noarch
 
 BuildRequires: python-setuptools
+%if %{?rhel}%{!?rhel:0} >= 6
+BuildRequires: python-webob1.0 >= 0.9.7
+%else
+BuildRequires: python-webob >= 0.9.7
+%endif
 BuildRequires: pytz
 BuildRequires: python-setuptools-devel
 BuildRequires: python-devel
@@ -22,10 +28,22 @@ BuildRequires: python-paver
 BuildRequires: python-sphinx
 BuildRequires: python-paste
 BuildRequires: python-nose
+BuildRequires: python-coverage
 BuildRequires: python-BeautifulSoup
 BuildRequires: python-stomper
-BuildRequires: python-tw-forms
-BuildRequires: python-tw-jquery
+BuildRequires: python-kitchen
+BuildRequires: python-psutil
+BuildRequires: python-fabulous
+BuildRequires: python-tw2-core
+BuildRequires: python-tw2-forms
+BuildRequires: python-tw2-jquery
+BuildRequires: python-tw2-jqplugins-ui
+BuildRequires: python-tw2-jqplugins-flot
+BuildRequires: python-tw2-jqplugins-gritter
+BuildRequires: python-tw2-excanvas
+BuildRequires: python-tw2-jit
+BuildRequires: python-txzmq
+BuildRequires: python-txws
 BuildRequires: python-feedparser
 BuildRequires: python-feedcache
 BuildRequires: python-repoze-what-quickstart
@@ -38,6 +56,7 @@ BuildRequires: pyOpenSSL
 BuildRequires: python-babel
 BuildRequires: orbited
 BuildRequires: python-repoze-who-testutil
+BuildRequires: python-amqplib
 
 %if 0%{?el5}
 BuildRequires: python-sqlite2
@@ -46,23 +65,39 @@ Requires: python-sqlite2
 Requires: python-hashlib
 %endif
 
+%if %{?rhel}%{!?rhel:0} >= 6
+Requires: python-webob1.0 >= 0.9.7
+%else
+Requires: python-webob >= 0.9.7
+%endif
 Requires: TurboGears2
-Requires: python-toscawidgets >= 0.9.1
 Requires: python-zope-sqlalchemy
 Requires: python-shove
 Requires: python-feedcache
 Requires: python-feedparser
-Requires: python-tw-jquery >= 0.9.4.1
 Requires: python-sphinx
 Requires: python-paver
-Requires: python-tw-forms
 Requires: python-morbid
 Requires: pytz
 Requires: python-repoze-who-testutil
 Requires: python-BeautifulSoup
 Requires: python-twisted
+Requires: python-zmq
+Requires: python-txzmq
+Requires: python-txws
 Requires: python-stomper
 Requires: python-daemon
+Requires: python-kitchen
+Requires: python-psutil
+Requires: python-fabulous
+Requires: python-tw2-core
+Requires: python-tw2-forms
+Requires: python-tw2-jquery
+Requires: python-tw2-jqplugins-ui
+Requires: python-tw2-jqplugins-flot
+Requires: python-tw2-jqplugins-gritter
+Requires: python-tw2-excanvas
+Requires: python-tw2-jit
 
 Requires: pyOpenSSL
 Requires: python-babel
@@ -149,7 +184,7 @@ PYTHONPATH=$(pwd) python run_tests.py
 %{__rm} -r %{buildroot}%{python_sitelib}/%{name}/tests
 
 # Remove the demo after its tests pass
-%{__rm} -r %{buildroot}%{python_sitelib}/%{name}/apps/demo
+#%{__rm} -r %{buildroot}%{python_sitelib}/%{name}/apps/demo
 
 
 %post
@@ -201,6 +236,9 @@ fi
 %doc docs/_build/html
 
 %changelog
+* Sat Apr 14 2012 Ralph Bean <rbean@redhat.com> - 0.7.1-1
+- New version with zeromq and tw2.
+
 * Thu Feb 09 2012 Luke Macken <lmacken@redhat.com> - 0.6.0-2
 - Remove the pyevent requirement
 

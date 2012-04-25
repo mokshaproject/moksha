@@ -18,7 +18,7 @@ setup(
         #"Catwalk >= 2.0.2",
         "Babel >=0.9.4",
         #can be removed iif use_toscawidgets = False
-        "toscawidgets >= 0.9.7.1",
+        #"toscawidgets >= 0.9.7.1",
         "zope.sqlalchemy >= 0.4 ",
         "repoze.tm2 >= 1.0a4",
 

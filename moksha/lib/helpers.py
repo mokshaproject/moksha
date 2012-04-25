@@ -27,7 +27,7 @@ import warnings
 from orbited import json
 
 from UserDict import DictMixin
-from tw.api import js_callback
+from tw2.core import js_callback
 from pytz import timezone, utc
 from webob import Request
 from decorator import decorator
@@ -403,7 +403,7 @@ class Widget(ConfigWrapper):
     also lack the ability to respond to remote requests via controllers.
 
     :Example:
-        class HelloWidget(tw.api.Widget):
+        class HelloWidget(tw2.core.Widget):
             pass
 
         hello_widget = Widget('Hello World Widget',

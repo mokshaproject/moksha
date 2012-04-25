@@ -22,7 +22,6 @@ which archives all of the resources used by all ToscaWidgets.
 
 import pkg_resources
 
-from tw.api import Widget
 from tw2.core.widgets import WidgetMeta
 from inspect import isclass
 

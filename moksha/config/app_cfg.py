@@ -23,7 +23,8 @@ base_config.package = moksha
 
 # Enable ToscaWidgets2
 base_config.use_toscawidgets2 = True
-# Note -- toscawidgets1 is also enabled by default.. two layers of middleware
+# Disable ToscaWidgets1
+base_config.use_toscawidgets = False
 
 # Set the default renderer
 base_config.default_renderer = 'mako'

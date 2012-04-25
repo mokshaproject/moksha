@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import tw.api
 import tw2.core as twc
 
 from moksha.lib.helpers import eval_app_config, ConfigWrapper
