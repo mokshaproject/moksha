@@ -63,13 +63,13 @@ Requires: python-paver
 Requires: python-tw-forms
 Requires: python-morbid
 Requires: pytz
-Requires: pyevent
+Requires: python-repoze-what-quickstart
 Requires: python-repoze-who-testutil
 Requires: python-BeautifulSoup
 Requires: python-twisted
 Requires: python-stomper
 Requires: python-daemon
-
+Requires: orbited
 Requires: pyOpenSSL
 Requires: python-babel
 
