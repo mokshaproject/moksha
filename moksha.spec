@@ -211,7 +211,9 @@ fi
 
 %changelog
 * Sun Sep 18 2011 Luke Macken <lmacken@redhat.com> 0.6.1-1
-- new package built with tito
+- Remove pyevent requirement
+- Require python-webob1.0 on RHEL6
+- Require orbited and python-repoze-what-quickstart
 
 * Fri Aug 19 2011 Luke Macken <lmacken@redhat.com> - 0.6.0-1
 - 0.6.0 release
