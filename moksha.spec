@@ -39,6 +39,11 @@ BuildRequires: python-babel
 BuildRequires: orbited
 BuildRequires: python-repoze-who-testutil
 
+%if 0%{?el6}
+Requires: python-webob1.0
+BuildRequires: python-webob1.0
+%endif
+
 %if 0%{?el5}
 BuildRequires: python-sqlite2
 BuildRequires: python-hashlib
