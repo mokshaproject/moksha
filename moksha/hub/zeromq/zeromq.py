@@ -22,7 +22,7 @@ import time
 import txZMQ
 import zmq
 
-from moksha.hub.zeromq.base import BaseZMQHub
+from moksha.hub.zeromq.base import BaseZMQHubExtension
 
 log = logging.getLogger('moksha.hub')
 
@@ -38,9 +38,10 @@ class ZMQMessage(object):
         return {'topic': self.topic, 'body': self.body}
 
 
-class ZMQHub(BaseZMQHub):
+class ZMQHubExtension(BaseZMQHubExtension):
 
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         self.validate_config(self.config)
         self.strict = asbool(self.config.get('zmq_strict', False))
 
@@ -68,7 +69,7 @@ class ZMQHub(BaseZMQHub):
         # zmq issue that they do not plan to fix.
         time.sleep(1)
 
-        super(ZMQHub, self).__init__()
+        super(ZMQHubExtension, self).__init__()
 
     def validate_config(self, config):
         if not asbool(config.get('zmq_enabled', False)):
@@ -89,7 +90,7 @@ class ZMQHub(BaseZMQHub):
 
     def send_message(self, topic, message, **headers):
         self.pub_socket.send_multipart([topic, message])
-        super(ZMQHub, self).send_message(topic, message, **headers)
+        super(ZMQHubExtension, self).send_message(topic, message, **headers)
 
     def subscribe(self, topic, callback):
         original_topic = topic
@@ -123,7 +124,7 @@ class ZMQHub(BaseZMQHub):
             s.gotMessage = intercept
             s.subscribe(topic)
 
-        super(ZMQHub, self).subscribe(original_topic, callback)
+        super(ZMQHubExtension, self).subscribe(original_topic, callback)
 
     def close(self):
         self.pub_socket.close()

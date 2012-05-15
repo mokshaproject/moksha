@@ -21,6 +21,7 @@ from time import sleep, time
 from uuid import uuid4
 
 from moksha.hub.hub import MokshaHub
+from moksha.lib.helpers import get_moksha_appconfig
 from nose.tools import eq_, assert_true, assert_false
 
 
@@ -42,7 +43,8 @@ def simulate_reactor(duration=sleep_duration):
 class TestHub:
 
     def setUp(self):
-        self.hub = MokshaHub()
+        config = get_moksha_appconfig()
+        self.hub = MokshaHub(config=config)
         self.topic = str(uuid4())
 
     def tearDown(self):
@@ -87,7 +89,8 @@ class TestHub:
 class TestConsumer:
 
     def setUp(self):
-        self.hub = MokshaHub()
+        config = get_moksha_appconfig()
+        self.hub = MokshaHub(config=config)
         self.a_topic = a_topic = str(uuid4())
 
     def tearDown(self):
@@ -292,7 +295,8 @@ class TestConsumer:
 class TestProducer:
 
     def setUp(self):
-        self.hub = MokshaHub()
+        config = get_moksha_appconfig()
+        self.hub = MokshaHub(config=config)
         self.a_topic = a_topic = str(uuid4())
 
     def tearDown(self):

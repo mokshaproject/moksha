@@ -32,7 +32,6 @@ import logging
 
 from moksha.hub.reactor import reactor
 
-from tg import config
 from orbited import json
 
 try:
@@ -45,9 +44,9 @@ from twisted.internet import protocol
 from txws import WebSocketFactory
 
 from moksha.lib.helpers import trace, defaultdict, get_moksha_config_path
-from moksha.hub.amqp import AMQPHub
-from moksha.hub.stomp import StompHub
-from moksha.hub.zeromq import ZMQHub
+from moksha.hub.amqp import AMQPHubExtension
+from moksha.hub.stomp import StompHubExtension
+from moksha.hub.zeromq import ZMQHubExtension
 
 log = logging.getLogger('moksha.hub')
 
@@ -56,14 +55,13 @@ _hub = None
 from moksha.hub import NO_CONFIG_MESSAGE
 
 
-def find_hub_extensions():
+def find_hub_extensions(config):
     """ Return a tuple of hub extensions found in the config file. """
-    global config
 
     possible_bases = {
-        'amqp_broker': AMQPHub,
-        'stomp_broker': StompHub,
-        'zmq_enabled': ZMQHub,
+        'amqp_broker': AMQPHubExtension,
+        'stomp_broker': StompHubExtension,
+        'zmq_enabled': ZMQHubExtension,
     }
 
     broker_vals = [config.get(k, None) for k in possible_bases.keys()]
@@ -90,31 +88,16 @@ def find_hub_extensions():
         b for k, b in possible_bases.items() if config.get(k, None)
     ])
 
-class MokshaHubMeta(type):
-    """ Make the MokshaHub class extend any number of base classes. """
 
-    def __new__(meta, name, bases, dct):
-
-        # Add new parent classes after inspecting the config file
-        bases += find_hub_extensions()
-
-        # This is a bottom-out case where no brokers are defined.
-        # A traceback will occur later when code tries to reference method that
-        # don't exist, but we'd rather have the code crash there than here.
-        if not bases:
-            bases = (object,)
-
-        return type.__new__(meta, name, bases, dct)
-
-
-class MokshaHub:
-    __metaclass__ = MokshaHubMeta
-
+class MokshaHub(object):
     topics = None  # {topic_name: [callback,]}
 
-    def __init__(self, topics=None):
-        global config
+    def __init__(self, config, topics=None):
         self.config = config
+
+        self.extensions = [
+            ext(config) for ext in find_hub_extensions(config)
+        ]
 
         if not self.topics:
             self.topics = defaultdict(list)
@@ -128,8 +111,6 @@ class MokshaHub:
 
             for callback in callbacks:
                 self.topics[topic].append(callback)
-
-        super(MokshaHub, self).__init__()
 
 
     def send_message(self, topic, message, jsonify=True):
@@ -150,26 +131,27 @@ class MokshaHub:
             topics = topic
 
         for topic in topics:
-            super(MokshaHub, self).send_message(topic, message)
-
+            for ext in self.extensions:
+                ext.send_message(topic, message)
 
     def close(self):
         try:
-            super(MokshaHub, self).close()
+            for ext in self.extensions:
+                ext.close()
         except Exception, e:
             log.warning('Exception when closing MokshaHub: %s' % str(e))
 
 
-    def watch_topic(self, topic, callback):
+    def subscribe(self, topic, callback):
         """
         This method will cause the specified `callback` to be executed with
         each message that goes through a given topic.
         """
 
-        log.debug('watch_topic(%s)' % locals())
+        log.debug('subscribe(%s)' % locals())
 
-        if len(self.topics[topic]) == 0:
-            self.subscribe(topic, callback)
+        for ext in self.extensions:
+            ext.subscribe(topic, callback)
 
         self.topics[topic].append(callback)
 
@@ -215,12 +197,12 @@ class CentralMokshaHub(MokshaHub):
     """
     producers = None # [<Producer>,]
 
-    def __init__(self):
+    def __init__(self, config):
         log.info('Loading the Moksha Hub')
         self.topics = defaultdict(list)
         self.__init_consumers()
 
-        super(CentralMokshaHub, self).__init__()
+        super(CentralMokshaHub, self).__init__(config)
 
         # TODO -- consider moving this to the AMQP specific modules
         if isinstance(self, AMQPHub):

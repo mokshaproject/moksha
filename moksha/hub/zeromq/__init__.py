@@ -17,4 +17,4 @@
 Here is where we configure which zeromq hub implementation we are going to use.
 """
 
-from zeromq import ZMQHub
+from zeromq import ZMQHubExtension

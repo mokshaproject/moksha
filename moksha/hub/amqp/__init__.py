@@ -17,13 +17,13 @@
 Here is where we configure which AMQP hub implementation we are going to use.
 """
 try:
-    from qpid010 import QpidAMQPHub
-    AMQPHub = QpidAMQPHub
+    from qpid010 import QpidAMQPHubExtension
+    AMQPHubExtension = QpidAMQPHubExtension
 except ImportError:
     print("Cannot find qpid python module. Make sure you have python-qpid installed.")
     try:
-        from pyamqplib import AMQPLibHub
-        AMQPHub = AMQPLibHub
+        from pyamqplib import AMQPLibHubExtension
+        AMQPHubExtension = AMQPLibHubExtension
     except ImportError:
         print("Cannot find pyamqplib")
         print("Using FakeHub AMQP broker. Don't expect AMQP to work")

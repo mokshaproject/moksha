@@ -22,18 +22,19 @@ from twisted.internet.protocol import ReconnectingClientFactory
 
 from moksha.hub.reactor import reactor
 from moksha.hub.stomp.protocol import StompProtocol
-from moksha.hub.messaging import MessagingHub
+from moksha.hub.messaging import MessagingHubExtension
 
 log = logging.getLogger('moksha.hub')
 
 
-class StompHub(MessagingHub, ReconnectingClientFactory):
+class StompHubExtension(MessagingHubExtension, ReconnectingClientFactory):
     username = None
     password = None
     proto = None
     frames = None
 
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         self._topics = self.topics.keys()
         self._frames = []
 
@@ -45,7 +46,7 @@ class StompHub(MessagingHub, ReconnectingClientFactory):
 
         reactor.connectTCP(host, int(port), self)
 
-        super(StompHub, self).__init__()
+        super(StompHubExtension, self).__init__()
 
 
     def buildProtocol(self, addr):
@@ -83,7 +84,7 @@ class StompHub(MessagingHub, ReconnectingClientFactory):
         else:
             self.proto.transport.write(f.pack())
 
-        super(StompHub, self).send_message(topic, message, **headers)
+        super(StompHubExtension, self).send_message(topic, message, **headers)
 
 
     def subscribe(self, topic, callback):
@@ -95,4 +96,4 @@ class StompHub(MessagingHub, ReconnectingClientFactory):
         else:
             self.proto.subscribe(topic)
 
-        super(StompHub, self).subscribe(topic, callback)
+        super(StompHubExtension, self).subscribe(topic, callback)

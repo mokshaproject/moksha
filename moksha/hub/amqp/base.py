@@ -15,9 +15,9 @@
 #
 # Authors: Luke Macken <lmacken@redhat.com>
 
-from moksha.hub.messaging import MessagingHub
+from moksha.hub.messaging import MessagingHubExtension
 
-class BaseAMQPHub(MessagingHub):
+class BaseAMQPHubExtension(MessagingHubExtension):
     """
     A skeleton class for what we expect from an AMQP implementation.
     This allows us to bounce between different AMQP modules without too much

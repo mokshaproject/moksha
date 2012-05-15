@@ -17,9 +17,7 @@ import logging
 import signal
 import sys
 
-from paste.deploy import appconfig
-from tg import config
-
+from moksha.lib.helpers import appconfig
 from moksha.lib.helpers import get_moksha_config_path
 
 log = logging.getLogger('moksha.hub')
@@ -29,6 +27,8 @@ NO_CONFIG_MESSAGE = """
   in /etc/moksha or in the current directory.
 """
 
+from moksha.hub.hub import CentralMokshaHub
+from moksha.hub.reactor import reactor
 
 def setup_logger(verbose):
     global log
@@ -45,6 +45,8 @@ def main(options=None):
     """ The main MokshaHub method """
     setup_logger('-v' in sys.argv or '--verbose' in sys.argv)
 
+    config = {}
+
     if not options:
         config_path = get_moksha_config_path()
         if not config_path:
@@ -56,13 +58,7 @@ def main(options=None):
     else:
         config.update(options)
 
-
-    # This import has to happen here at not at the module level so that we can
-    # mangle the config object (above) before hand.
-    from moksha.hub.hub import CentralMokshaHub
-    from moksha.hub.reactor import reactor
-
-    hub = CentralMokshaHub()
+    hub = CentralMokshaHub(config)
     global _hub
     _hub = hub
 
