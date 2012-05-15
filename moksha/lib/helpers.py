@@ -26,6 +26,8 @@ import logging
 import warnings
 from orbited import json
 
+import ConfigParser
+
 from UserDict import DictMixin
 from tw2.core import js_callback
 from pytz import timezone, utc
@@ -803,9 +805,18 @@ def get_moksha_dev_config():
 
 def get_moksha_appconfig():
     """ Return the appconfig of Moksha """
-    from paste.deploy import appconfig
     return appconfig('config:' + get_moksha_config_path())
 
+def appconfig(config_path):
+    """ Our own reimplementation of paste.deploy.appconfig """
+
+    if config_path.startswith('config:'):
+        config_path = config_path[7:]
+
+    here = os.path.abspath(os.path.dirname(config_path))
+    parser = ConfigParser.ConfigParser({"here": here})
+    parser.read(filenames=[config_path])
+    return dict(parser.items('app:main'))
 
 def create_app_engine(app):
     """ Create a new SQLAlchemy engine for a given app """

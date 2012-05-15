@@ -21,6 +21,8 @@ import os
 import sys
 import simplejson
 
+from moksha.lib.helpers import appconfig
+
 # Look in the current directory for egg-info
 if os.getcwd() not in sys.path:
     sys.path.insert(0, os.getcwd())
@@ -32,7 +34,6 @@ from moksha.hub.reactor import reactor
 
 from tg import config
 from orbited import json
-from paste.deploy import appconfig
 
 try:
     from twisted.internet.error import ReactorNotRunning
