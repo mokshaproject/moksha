@@ -33,9 +33,9 @@ class StompHubExtension(MessagingHubExtension, ReconnectingClientFactory):
     proto = None
     frames = None
 
-    def __init__(self, config):
+    def __init__(self, hub, config):
         self.config = config
-        self._topics = self.topics.keys()
+        self._topics = hub.topics.keys()
         self._frames = []
 
         port = self.config.get('stomp_port', 61613)

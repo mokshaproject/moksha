@@ -32,6 +32,65 @@ secret = "secret_message"
 
 from moksha.hub.reactor import reactor as _reactor
 
+
+def crosstest(method):
+    import functools
+    @functools.wraps(method)
+    def wrapper(self):
+        for setup, name in self._setUp():
+            def _inner(name):
+                setup()
+                try:
+                    return method(self)
+                finally:
+                    self._tearDown()
+
+            yield _inner, name
+
+    return wrapper
+
+flash_list = [
+    "stomp_broker",
+    "stomp_port",
+    "stomp_user",
+    "stomp_pass",
+    "amqp_broker",
+    "amqp_broker_host",
+    "amqp_broker_port",
+    "amqp_broker_user",
+    "amqp_broker_pass",
+    "amqp_broker_ssl",
+    "zmq_enabled",
+    "zmq_publish_endpoints",
+    "zmq_subscribe_endpoints",
+    "zmq_strict",
+    "zmq_subscribe_method",
+]
+
+config_sets = {
+    'stomp': dict(
+        stomp_broker="localhost",
+        stomp_port="61613",
+        stomp_user="guest",
+        stomp_pass="guest",
+    ),
+    'amqp': dict(
+        amqp_broker="guest/guest@localhost",
+        amqp_broker_host="localhost",
+        amqp_broker_port="5672",
+        amqp_broker_user="guest",
+        amqp_broker_pass="guest",
+        amqp_broker_ssl="False",
+    ),
+    'zeromq': dict(
+        zmq_enabled="True",
+        zmq_publish_endpoints="tcp://*:6543",
+        zmq_subscribe_endpoints="tcp://127.0.0.1:6543",
+        zmq_strict="True",
+    ),
+}
+
+
 def simulate_reactor(duration=sleep_duration):
     """ Simulate running the reactor for `duration` milliseconds """
     global _reactor
@@ -40,20 +99,43 @@ def simulate_reactor(duration=sleep_duration):
         _reactor.doPoll(0.0001)
         _reactor.runUntilCurrent()
 
+def make_setup_functions(kernel):
+    for name, config_set in config_sets.items():
+
+        def __setup():
+            config = get_moksha_appconfig()
+
+            for key in flash_list:
+                if key in config:
+                    del config[key]
+
+            for key, value in config_set.items():
+                config[key] = value
+
+            kernel(config)
+
+        yield __setup, name
+
 class TestHub:
 
-    def setUp(self):
-        config = get_moksha_appconfig()
-        self.hub = MokshaHub(config=config)
-        self.topic = str(uuid4())
+    def _setUp(self):
+        def kernel(config):
+            self.hub = MokshaHub(config=config)
+            self.topic = str(uuid4())
 
-    def tearDown(self):
+        for __setup, name in make_setup_functions(kernel):
+            yield __setup, name
+
+    def _tearDown(self):
         self.hub.close()
 
+    @crosstest
     def test_hub_creation(self):
+        """ Test that we can simply create the hub. """
         assert_true(self.hub)
         eq_(self.hub.topics, {})
 
+    @crosstest
     def test_hub_send_recv(self):
         "Test that we can send a message and receive it."
 
@@ -72,6 +154,7 @@ class TestHub:
 
         eq_(messages_received, [secret])
 
+    @crosstest
     def test_hub_no_subscription(self):
         "Test that we don't receive messages we're not subscribed for."
 
@@ -88,12 +171,15 @@ class TestHub:
 
 class TestConsumer:
 
-    def setUp(self):
-        config = get_moksha_appconfig()
-        self.hub = MokshaHub(config=config)
-        self.a_topic = a_topic = str(uuid4())
+    def _setUp(self):
+        def kernel(config):
+            self.hub = MokshaHub(config=config)
+            self.a_topic = a_topic = str(uuid4())
 
-    def tearDown(self):
+        for __setup, name in make_setup_functions(kernel):
+            yield __setup, name
+
+    def _tearDown(self):
         self.hub.close()
 
     def fake_register_consumer(self, cons):
@@ -109,6 +195,7 @@ class TestConsumer:
         self.hub.topics[cons.topic].append(cons(self.hub).consume)
         sleep(sleep_duration)
 
+    @crosstest
     def test_abstract(self):
         """ Ensure that conumsers with no consume method raise exceptions. """
 
@@ -122,6 +209,7 @@ class TestConsumer:
         except NotImplementedError as e:
             pass
 
+    @crosstest
     def test_receive_without_json(self):
         """ Try sending/receiving messages without jsonifying. """
 
@@ -142,6 +230,7 @@ class TestConsumer:
         sleep(sleep_duration)
         eq_(len(messages_received), 1)
 
+    @crosstest
     def test_receive_str(self):
         """ Send a message  Consume and verify it. """
 
@@ -162,6 +251,7 @@ class TestConsumer:
         sleep(sleep_duration)
         eq_(messages_received, [secret])
 
+    @crosstest
     def test_receive_str_double(self):
         """ Send a message.  Have two consumers consume it. """
 
@@ -190,6 +280,7 @@ class TestConsumer:
         sleep(sleep_duration)
         eq_(messages_received, [secret, secret])
 
+    @crosstest
     def test_receive_str_near_miss(self):
         """ Send a message.  Three consumers.  Only one receives. """
 
@@ -222,6 +313,7 @@ class TestConsumer:
         sleep(sleep_duration)
         eq_(messages_received, [secret])
 
+    @crosstest
     def test_receive_dict(self):
         """ Send a dict with a message.  Consume, extract, and verify it. """
 
@@ -244,6 +336,7 @@ class TestConsumer:
         sleep(sleep_duration)
         eq_(messages_received, [secret])
 
+    @crosstest
     def test_receive_n_messages(self):
         """ Send `n` messages, receive `n` messages. """
 
@@ -267,6 +360,7 @@ class TestConsumer:
 
         eq_(len(messages_received), n_messages)
 
+    @crosstest
     def test_receive_n_dicts(self):
         """ Send `n` dicts, receive `n` dicts. """
 
@@ -293,13 +387,15 @@ class TestConsumer:
 
 
 class TestProducer:
+    def _setUp(self):
+        def kernel(config):
+            self.hub = MokshaHub(config=config)
+            self.a_topic = a_topic = str(uuid4())
 
-    def setUp(self):
-        config = get_moksha_appconfig()
-        self.hub = MokshaHub(config=config)
-        self.a_topic = a_topic = str(uuid4())
+        for __setup, name in make_setup_functions(kernel):
+            yield __setup, name
 
-    def tearDown(self):
+    def _tearDown(self):
         self.hub.close()
 
     def fake_register_producer(self, prod):
@@ -311,6 +407,7 @@ class TestProducer:
         """
         return prod(self.hub)
 
+    @crosstest
     def test_produce_ten_strs(self):
         """ Produce ten strings. """
 
@@ -346,6 +443,7 @@ class TestProducer:
         # Finally, the check.  Did we get our ten messages?
         eq_(len(messages_received), 10)
 
+    @crosstest
     def test_idempotence(self):
         """ Test that running the same test twice still works. """
         return self.test_produce_ten_strs()

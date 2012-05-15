@@ -95,10 +95,6 @@ class MokshaHub(object):
     def __init__(self, config, topics=None):
         self.config = config
 
-        self.extensions = [
-            ext(config) for ext in find_hub_extensions(config)
-        ]
-
         if not self.topics:
             self.topics = defaultdict(list)
 
@@ -112,6 +108,9 @@ class MokshaHub(object):
             for callback in callbacks:
                 self.topics[topic].append(callback)
 
+        self.extensions = [
+            ext(self, config) for ext in find_hub_extensions(config)
+        ]
 
     def send_message(self, topic, message, jsonify=True):
         """ Send a message to a specific topic.

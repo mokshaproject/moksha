@@ -36,7 +36,7 @@ class QpidAMQPHubExtension(BaseAMQPHubExtension):
 
     """
 
-    def __init__(self, config):
+    def __init__(self, hub, config):
         self.config = config
         self.set_broker(self.config.get('amqp_broker'))
         self.socket = connect(self.host, self.port)

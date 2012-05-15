@@ -18,10 +18,6 @@
 import logging
 from paste.deploy.converters import asbool
 
-try:
-    import amqplib.client_0_8 as amqp
-except ImportError:
-    pass
 
 from moksha.lib.helpers import trace
 from moksha.hub.amqp.base import BaseAMQPHubExtension
@@ -33,7 +29,9 @@ NONPERSISTENT_DELIVERY = PERSISTENT_DELIVERY = range(1, 3)
 class AMQPLibHubExtension(BaseAMQPHubExtension):
     """ An AMQPHub implemention using the amqplib module """
 
-    def __init__(self, config):
+    def __init__(self, hub, config):
+        import amqplib.client_0_8 as amqp
+
         self.config = config
 
         broker = self.config.get('amqp_broker')
@@ -79,6 +77,8 @@ class AMQPLibHubExtension(BaseAMQPHubExtension):
         """
         Send an AMQP message to a given exchange with the specified routing key
         """
+        import amqplib.client_0_8 as amqp
+
         msg = amqp.Message(message, **headers)
         msg.properties["delivery_mode"] = headers.get(
             "delivery_mode", PERSISTENT_DELIVERY)
