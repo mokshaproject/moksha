@@ -40,7 +40,7 @@ class ZMQMessage(object):
 
 class ZMQHubExtension(BaseZMQHubExtension):
 
-    def __init__(self, config):
+    def __init__(self, hub, config):
         self.config = config
         self.validate_config(self.config)
         self.strict = asbool(self.config.get('zmq_strict', False))
