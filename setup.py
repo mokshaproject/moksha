@@ -66,6 +66,8 @@ setup(
         #"repoze.squeeze", # Not hard requirements
         #"repoze.profile", # Not hard requirements
         "TurboGears2",
+        "Pylons==1.0",  # TODO - temporary
+        "WebOb<=1.0.8", # TODO - temporary
     ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
@@ -88,12 +90,6 @@ setup(
     [console_scripts]
     moksha-hub = moksha.hub:main
     moksha = moksha.commands.cli:main
-
-    [paste.app_factory]
-    main = moksha.config.middleware:make_app
-
-    [paste.app_install]
-    main = pylons.util:PylonsInstaller
 
     # Pulls in all widgets.  Used by the `archive_moksha_resources` command.
     [toscawidgets.widgets]

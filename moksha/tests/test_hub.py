@@ -25,7 +25,7 @@ from nose.tools import eq_, assert_true, assert_false
 
 
 # Some constants used throughout the hub tests
-sleep_duration = 1
+sleep_duration = 0.25
 secret = "secret_message"
 
 
