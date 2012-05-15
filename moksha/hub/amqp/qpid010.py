@@ -22,12 +22,12 @@ from qpid.datatypes import Message, uuid4, RangedSet
 from qpid.connection import Connection
 from qpid.session import SessionClosed
 
-from moksha.hub.amqp.base import BaseAMQPHub
+from moksha.hub.amqp.base import BaseAMQPHubExtension
 
 log = logging.getLogger('moksha.hub')
 
 
-class QpidAMQPHub(BaseAMQPHub):
+class QpidAMQPHubExtension(BaseAMQPHubExtension):
     """
      Initialize the Moksha Hub.
 
@@ -36,7 +36,8 @@ class QpidAMQPHub(BaseAMQPHub):
 
     """
 
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         self.set_broker(self.config.get('amqp_broker'))
         self.socket = connect(self.host, self.port)
         if self.url.scheme == URL.AMQPS:
@@ -48,7 +49,7 @@ class QpidAMQPHub(BaseAMQPHub):
         log.info("Connected to AMQP Broker %s" % self.host)
         self.session = self.connection.session(str(uuid4()))
         self.local_queues = []
-        super(QpidAMQPHub, self).__init__()
+        super(QpidAMQPHubExtension, self).__init__()
 
     def set_broker(self, broker):
         self.url = URL(broker)
@@ -70,7 +71,8 @@ class QpidAMQPHub(BaseAMQPHub):
         self.session.message_transfer(
             destination=headers.get('exchange', 'amq.topic'),
             message=msg)
-        super(QpidAMQPHub, self).send_message(topic, message, **headers)
+        super(QpidAMQPHubExtension, self).send_message(
+            topic, message, **headers)
 
     def subscribe_queue(self, server_queue_name, local_queue_name):
         queue = self.session.incoming(local_queue_name)
@@ -119,7 +121,7 @@ class QpidAMQPHub(BaseAMQPHub):
         self.local_queues[-1].start()
         self.local_queues[-1].listen(callback)
 
-        super(QpidAMQPHub, self).subscribe(topic, callback)
+        super(QpidAMQPHubExtension, self).subscribe(topic, callback)
 
     def close(self):
         self.session.close(timeout=2)

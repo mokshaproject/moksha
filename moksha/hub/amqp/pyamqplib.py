@@ -24,16 +24,17 @@ except ImportError:
     pass
 
 from moksha.lib.helpers import trace
-from moksha.hub.amqp.base import BaseAMQPHub
+from moksha.hub.amqp.base import BaseAMQPHubExtension
 
 log = logging.getLogger(__name__)
 
 NONPERSISTENT_DELIVERY = PERSISTENT_DELIVERY = range(1, 3)
 
-class AMQPLibHub(BaseAMQPHub):
+class AMQPLibHubExtension(BaseAMQPHubExtension):
     """ An AMQPHub implemention using the amqplib module """
 
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
 
         broker = self.config.get('amqp_broker')
         ssl = asbool(self.config.get('amqp_broker_ssl', False))
@@ -50,7 +51,7 @@ class AMQPLibHub(BaseAMQPHub):
         )
         self.channel = self.conn.channel()
         self.channel.access_request('/data', active=True, write=True, read=True)
-        super(AMQPLibHub, self).__init__()
+        super(AMQPLibHubExtension, self).__init__()
 
     @trace
     def create_queue(self, queue, exchange='amq.fanout', durable=True,
@@ -86,7 +87,7 @@ class AMQPLibHub(BaseAMQPHub):
             headers.get('exchange', 'amq.topic'),
             routing_key=topic
         )
-        super(AMQPLibHub, self).send_message(topic, message, **headers)
+        super(AMQPLibHubExtension, self).send_message(topic, message, **headers)
 
     def subscribe(self, topic, callback):
         queue_name = str(uuid.uuid4())
@@ -94,7 +95,7 @@ class AMQPLibHub(BaseAMQPHub):
                            auto_delete=True)
         self.exchange_bind(queue_name, binding_key=topic)
         self.queue_subscribe(queue_name, callback)
-        super(AMQPLibHub, self).subscribe(topic, callback)
+        super(AMQPLibHubExtension, self).subscribe(topic, callback)
 
     @trace
     def get_message(self, queue):

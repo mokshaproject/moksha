@@ -15,9 +15,9 @@
 #
 # Authors: Luke Macken <lmacken@redhat.com>
 
-from moksha.hub.messaging import MessagingHub
+from moksha.hub.messaging import MessagingHubExtension
 
-class BaseZMQHub(MessagingHub):
+class BaseZMQHubExtension(MessagingHubExtension):
     """
     A skeleton class for what we expect from a zeromq implementation.
     This allows us to bounce between different zeromq modules without too much
@@ -25,13 +25,13 @@ class BaseZMQHub(MessagingHub):
     """
 
     def __init__(self):
-        super(BaseZMQHub, self).__init__()
+        super(BaseZMQHubExtension, self).__init__()
 
     def send_message(self, topic, message, **headers):
-        super(BaseZMQHub, self).send_message(topic, message, **headers)
+        super(BaseZMQHubExtension, self).send_message(topic, message, **headers)
 
     def subscribe(self, topic, callback):
-        super(BaseZMQHub, self).subscribe(topic, callback)
+        super(BaseZMQHubExtension, self).subscribe(topic, callback)
 
     def close(self):
-        super(BaseZMQHub, self).close()
+        super(BaseZMQHubExtension, self).close()
