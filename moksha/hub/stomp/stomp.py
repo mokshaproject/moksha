@@ -35,6 +35,7 @@ class StompHubExtension(MessagingHubExtension, ReconnectingClientFactory):
 
     def __init__(self, hub, config):
         self.config = config
+        self.hub = hub
         self._topics = hub.topics.keys()
         self._frames = []
 
