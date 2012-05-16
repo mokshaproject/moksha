@@ -30,7 +30,7 @@ def get_moksha_socket(config):
             'orbited_host',
             'orbited_port',
             'orbited_scheme',
-            'stomp_host',
+            'stomp_broker',
             'stomp_port',
             'stomp_user',
             'stomp_pass',

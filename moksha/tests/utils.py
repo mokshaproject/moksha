@@ -37,46 +37,47 @@ def crosstest(method):
 
     return wrapper
 
-flash_list = [
-    "stomp_broker",
-    "stomp_port",
-    "stomp_user",
-    "stomp_pass",
-    "amqp_broker",
-    "amqp_broker_host",
-    "amqp_broker_port",
-    "amqp_broker_user",
-    "amqp_broker_pass",
-    "amqp_broker_ssl",
-    "zmq_enabled",
-    "zmq_publish_endpoints",
-    "zmq_subscribe_endpoints",
-    "zmq_strict",
-    "zmq_subscribe_method",
-]
-
 config_sets = {
-    'stomp': dict(
-        stomp_broker="localhost",
-        stomp_port="61613",
-        stomp_user="guest",
-        stomp_pass="guest",
-    ),
-    'amqp': dict(
-        amqp_broker="guest/guest@localhost",
-        amqp_broker_host="localhost",
-        amqp_broker_port="5672",
-        amqp_broker_user="guest",
-        amqp_broker_pass="guest",
-        amqp_broker_ssl="False",
-    ),
-    'zeromq': dict(
-        zmq_enabled="True",
-        zmq_publish_endpoints="tcp://*:6543",
-        zmq_subscribe_endpoints="tcp://127.0.0.1:6543",
-        zmq_strict="True",
-    ),
+    'stomp': {
+        "moksha.livesocket": "True",
+        "moksha.livesocket.backend": "stomp",
+        "orbited_host": "localhost",
+        "orbited_port": "9000",
+        "orbited_scheme": "http",
+        "stomp_broker": "localhost",
+        "stomp_port": "61613",
+        "stomp_user": "guest",
+        "stomp_pass": "guest",
+    },
+    'amqp': {
+        "moksha.livesocket": "True",
+        "moksha.livesocket.backend": "amqp",
+        "orbited_host": "localhost",
+        "orbited_port": "9000",
+        "orbited_scheme": "http",
+        "amqp_broker": "guest/guest@localhost",
+        "amqp_broker_host": "localhost",
+        "amqp_broker_port": "5672",
+        "amqp_broker_user": "guest",
+        "amqp_broker_pass": "guest",
+        "amqp_broker_ssl": "False",
+    },
+    'zeromq': {
+        "moksha.livesocket": "True",
+        "moksha.livesocket.backend": "websocket",
+        "moksha.livesocket.websocket.port": "9998",
+        "zmq_enabled": "True",
+        "zmq_publish_endpoints": "tcp://*:6543",
+        "zmq_subscribe_endpoints": "tcp://127.0.0.1:6543",
+        "zmq_strict": "True",
+    },
 }
+
+flash_keys = []
+for name, config_set in config_sets.items():
+    flash_keys.extend(config_set.keys())
+
+flash_keys = list(set(flash_keys))
 
 
 def should_skip_config_set(name, config_set):
@@ -119,7 +120,7 @@ def make_setup_functions(kernel):
 
             config = get_moksha_appconfig()
 
-            for key in flash_list:
+            for key in flash_keys:
                 if key in config:
                     del config[key]
 
