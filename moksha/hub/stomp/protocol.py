@@ -79,4 +79,4 @@ class StompProtocol(Protocol, stomper.Engine):
            if returned:
                self.transport.write(returned)
 
-           self.client.consume_stomp_message(msg)
+           self.client.hub.consume_stomp_message(msg)
