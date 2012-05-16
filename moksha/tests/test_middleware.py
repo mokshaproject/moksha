@@ -6,10 +6,6 @@ from nose.tools import raises
 from nose.tools import eq_
 
 
-def start_response(status, response_headers):
-    pass
-
-
 class TestMiddleware(unittest.TestCase):
     def setUp(self):
         def app(environ, start_response):
