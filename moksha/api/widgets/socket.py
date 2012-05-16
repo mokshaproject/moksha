@@ -42,7 +42,8 @@ class AbstractMokshaSocket(twc.Widget):
     onopen = twc.Param(default='function (e) {moksha.debug(e)}')
     onclose = twc.Param(default='function (e) {moksha.debug(e)}')
     onerror = twc.Param(default='function (e) {moksha.debug(e)}')
-    onconnectedframe = twc.Variable(default=None)
+    onerrorframe = twc.Param(default='function (e) {moksha.debug(e)}')
+    onconnectedframe = twc.Param(default='function (e) {moksha.debug(e)}')
 
     # Used internally
     before_open = twc.Variable(default='function () {}')

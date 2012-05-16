@@ -23,6 +23,7 @@ from paste.deploy.converters import asbool
 from kitchen.text.converters import to_unicode as unicode
 
 import tw2.core as twc
+import tw2.jquery
 
 from moksha.api.widgets.socket import AbstractMokshaSocket
 from moksha.lib.helpers import defaultdict
@@ -33,7 +34,7 @@ orbited_host = twc.Required
 orbited_port = twc.Required
 orbited_scheme = twc.Required
 
-stomp_host = twc.Required
+stomp_broker = twc.Required
 stomp_port = twc.Required
 stomp_user = twc.Required
 stomp_pass = twc.Required
@@ -71,7 +72,7 @@ class StompWidget(AbstractMokshaSocket):
     orbited_port = twc.Param(default=orbited_port)
     orbited_scheme = twc.Param(default=orbited_scheme)
 
-    stomp_host = twc.Param(default=stomp_host)
+    stomp_broker = twc.Param(default=stomp_broker)
     stomp_port = twc.Param(default=stomp_port)
     stomp_user = twc.Param(default=stomp_user)
     stomp_pass = twc.Param(default=stomp_pass)
@@ -94,3 +95,4 @@ class StompWidget(AbstractMokshaSocket):
             link=self.orbited_url + '/static/protocols/stomp/stomp.js')
 
         self.resources.extend([orbited_js, tstomp_js])
+

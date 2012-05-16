@@ -90,9 +90,6 @@ class AMQPSocket(AbstractMokshaSocket):
     amqp_broker_user = twc.Param(default=twc.Required)
     amqp_broker_pass = twc.Param(default=twc.Required)
 
-    onconnectedframe = twc.Param(default='')
-    onmessageframe = twc.Param(default='')
-
     template = "mako:moksha.api.widgets.amqp.templates.amqp"
 
     def prepare(self):

@@ -51,7 +51,7 @@ function setup_moksha_socket(){
 			}
 		};
 
-		stomp.connect('${tw._("stomp_host")}', ${tw._("stomp_port")},
+		stomp.connect('${tw._("stomp_broker")}', ${tw._("stomp_port")},
 					  '${tw._("stomp_user")}','${tw._("stomp_pass")}');
 	});
 }
