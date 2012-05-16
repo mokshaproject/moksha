@@ -147,12 +147,8 @@ class MokshaHub(object):
         each message that goes through a given topic.
         """
 
-        log.debug('subscribe(%s)' % locals())
-
         for ext in self.extensions:
             ext.subscribe(topic, callback)
-
-        self.topics[topic].append(callback)
 
 
     def consume_amqp_message(self, message):
@@ -165,9 +161,10 @@ class MokshaHub(object):
 
         # TODO -- this isn't extensible.  how should forwarding work if there
         # are three broker types enabled?
-        if isinstance(self, StompHub):
-            StompHub.send_message(self, topic.encode('utf8'),
-                                  message.body.encode('utf8'))
+        for ext in self.extensions:
+            if isinstance(ext, StompHubExtension):
+                ext.send_message(self, topic.encode('utf8'),
+                                 message.body.encode('utf8'))
 
 
     def consume_stomp_message(self, message):
@@ -203,9 +200,11 @@ class CentralMokshaHub(MokshaHub):
 
         super(CentralMokshaHub, self).__init__(config)
 
+        # FIXME -- this needs to be reworked.
         # TODO -- consider moving this to the AMQP specific modules
-        if isinstance(self, AMQPHub):
-            self.__init_amqp()
+        for ext in self.extensions:
+            if isinstance(ext, AMQPHubExtension):
+                self.__init_amqp()
 
         self.__run_consumers()
         self.__init_producers()
@@ -317,7 +316,7 @@ class CentralMokshaHub(MokshaHub):
     @trace
     def create_topic(self, topic):
         if self.amqp_broker:
-            AMQPHub.create_queue(topic)
+            AMQPHubExtension.create_queue(topic)
 
         # @@ remove this when we keep track of this in a DB
         if topic not in self.topics:

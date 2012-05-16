@@ -15,18 +15,12 @@
 #
 # Authors: Luke Macken <lmacken@redhat.com>
 
-from tg import config
-
-orbited_host = config.get('orbited_host', 'localhost')
-orbited_port = config.get('orbited_port', 9000)
-orbited_url = '%s://%s:%s' % (
-    config.get('orbited_scheme', 'http'), orbited_host, orbited_port)
-
 import tw2.core as twc
 import tw2.jquery
 
-orbited_js = twc.JSLink(link=orbited_url + '/static/Orbited.js',
-                        resources=[tw2.jquery.jquery_js])
+orbited_host = twc.Required
+orbited_port = twc.Required
+orbited_scheme = twc.Required
 
 
 class OrbitedWidget(twc.Widget):
@@ -38,5 +32,15 @@ class OrbitedWidget(twc.Widget):
                         default=twc.JSSymbol(src="function(){}"))
     orbited_port = twc.Param("Orbited port", default=orbited_port)
     orbited_host = twc.Param("Orbited host", default=orbited_host)
-    resources = [tw2.jquery.jquery_js, orbited_js]
+    orbited_scheme = twc.Param("Orbited scheme", default=orbited_scheme)
     template = "mako:moksha.api.widgets.orbited.templates.orbited"
+
+    def prepare(self):
+        orbited_url = '%s://%s:%s' % (
+            self.orbited_scheme,
+            self.orbited_host,
+            self.orbited_port,
+        )
+        orbited_js = twc.JSLink(link=orbited_url + '/static/Orbited.js',
+                                resources=[tw2.jquery.jquery_js])
+        self.resources.append(orbited_js)

@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pylons
-
 from live import (
     LiveWidget, LiveWidgetMeta,
     subscribe_topics, unsubscribe_topics
@@ -23,14 +21,41 @@ from moksha.api.widgets.stomp import StompWidget
 from moksha.api.widgets.amqp import AMQPSocket
 from moksha.api.widgets.websocket import WebSocketWidget
 
-livesocket_backend = pylons.config.get('moksha.livesocket.backend', 'stomp').lower()
-if livesocket_backend == 'stomp':
-    moksha_socket = StompWidget
-elif livesocket_backend == 'amqp':
-    moksha_socket = AMQPSocket
-elif livesocket_backend == 'websocket':
-    moksha_socket = WebSocketWidget
-else:
-    raise Exception("Unknown `moksha.livesocket.backend` %r.  Available backends: "
-                    "stomp, amqp, websocket" % livesocket_backend)
-del(livesocket_backend)
+
+def get_moksha_socket(config):
+    livesocket_backend = \
+            config.get('moksha.livesocket.backend', 'stomp').lower()
+    if livesocket_backend == 'stomp':
+        keys = [
+            'orbited_host',
+            'orbited_port',
+            'orbited_scheme',
+            'stomp_host',
+            'stomp_port',
+            'stomp_user',
+            'stomp_pass',
+        ]
+        kwargs = dict([(key, config.get(key, None)) for key in keys])
+        moksha_socket = StompWidget(**kwargs)
+    elif livesocket_backend == 'amqp':
+        keys = [
+            'orbited_host',
+            'orbited_port',
+            'orbited_scheme',
+            'amqp_broker_host',
+            'amqp_broker_port',
+            'amqp_broker_user',
+            'amqp_broker_pass',
+        ]
+        kwargs = dict([(key, config.get(key, None)) for key in keys])
+        moksha_socket = AMQPSocket(**kwargs)
+    elif livesocket_backend == 'websocket':
+        ws_host = config.get('moksha.livesocket.websocket.host', 'localhost')
+        ws_port = config.get('moksha.livesocket.websocket.port', '9998')
+        moksha_socket = WebSocketWidget(ws_host=ws_host, ws_port=ws_port)
+    else:
+        raise Exception(
+            "Unknown `moksha.livesocket.backend` %r.  Available backends: "
+            "stomp, amqp, websocket" % livesocket_backend)
+
+    return moksha_socket
