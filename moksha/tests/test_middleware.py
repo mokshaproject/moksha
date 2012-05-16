@@ -5,8 +5,10 @@ import webtest
 from nose.tools import raises
 from nose.tools import eq_
 
+
 def start_response(status, response_headers):
     pass
+
 
 class TestMiddleware(unittest.TestCase):
     def setUp(self):
@@ -15,7 +17,6 @@ class TestMiddleware(unittest.TestCase):
             return ['Hello, world!\n']
 
         self.app = app
-
 
     def test_middleware_wrap(self):
         app = moksha.middleware.make_moksha_middleware(self.app, {})
@@ -28,12 +29,12 @@ class TestMiddleware(unittest.TestCase):
 
     @raises(KeyError)
     def test_no_registry(self):
-        config = { 'moksha.registry': False }
+        config = {'moksha.registry': False}
         app = moksha.middleware.make_moksha_middleware(self.app, config)
         response = webtest.TestApp(app).get('/')
 
     def test_external_registry(self):
-        config = { 'moksha.registry': False }
+        config = {'moksha.registry': False}
         app = moksha.middleware.make_moksha_middleware(self.app, config)
         from paste.registry import RegistryManager
         app = RegistryManager(app)
@@ -42,12 +43,12 @@ class TestMiddleware(unittest.TestCase):
 
     @raises(NotImplementedError)
     def test_connectors(self):
-        config = { 'moksha.connectors': True }
+        config = {'moksha.connectors': True}
         app = moksha.middleware.make_moksha_middleware(self.app, config)
         response = webtest.TestApp(app).get('/')
 
     @raises(NotImplementedError)
     def test_csrf(self):
-        config = { 'moksha.csrf_protection': True }
+        config = {'moksha.csrf_protection': True}
         app = moksha.middleware.make_moksha_middleware(self.app, config)
         response = webtest.TestApp(app).get('/')
