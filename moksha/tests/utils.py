@@ -15,8 +15,9 @@
 
 """ Utilities to make writing tests easier """
 
-import unittest
 import functools
+import socket
+import unittest
 
 from moksha.lib.helpers import get_moksha_appconfig
 
@@ -79,11 +80,33 @@ config_sets = {
 
 
 def should_skip_config_set(name, config_set):
-    # TODO -- write code to detect if qpid or orbited are running
-    if name in ['amqp', 'stomp']:
-        return True
-    else:
+    if name == 'stomp':
+        address = (config_set['stomp_broker'],
+                   config_set['stomp_port'])
+        # If we can connect, then run tests.  If we can't, then don't.
+        try:
+            s = socket.create_connection(address)
+            s.close()
+            return False
+        except:
+            return True
+    elif name == 'amqp':
+        address = (config_set['amqp_broker_host'],
+                   config_set['amqp_broker_port'])
+
+        # If we can't import qpid, then bail... but also:
+        # If we can connect, then run tests.  If we can't, then don't.
+        try:
+            import qpid
+            s = socket.create_connection(address)
+            s.close()
+            return False
+        except:
+            return True
+    elif name == 'zeromq':
         return False
+    else:
+        raise ValueError("Unknown config set name.")
 
 
 def make_setup_functions(kernel):
