@@ -136,10 +136,10 @@ class MokshaHub(object):
     def close(self):
         try:
             for ext in self.extensions:
-                ext.close()
+                if hasattr(ext, 'close'):
+                    ext.close()
         except Exception, e:
             log.warning('Exception when closing MokshaHub: %s' % str(e))
-
 
     def subscribe(self, topic, callback):
         """
@@ -149,7 +149,6 @@ class MokshaHub(object):
 
         for ext in self.extensions:
             ext.subscribe(topic, callback)
-
 
     def consume_amqp_message(self, message):
         self.message_accept(message)
@@ -165,7 +164,6 @@ class MokshaHub(object):
             if isinstance(ext, StompHubExtension):
                 ext.send_message(self, topic.encode('utf8'),
                                  message.body.encode('utf8'))
-
 
     def consume_stomp_message(self, message):
         topic = message['headers'].get('destination')
