@@ -21,6 +21,7 @@ import moksha.utils
 import logging
 import pkg_resources
 import warnings
+import types
 
 from shove import Shove
 from paste.deploy.converters import asbool
@@ -56,9 +57,10 @@ class MokshaMiddleware(object):
     which acts as a registry for Moksha LiveWidget topic callbacks.
 
     """
-    def __init__(self, application):
+    def __init__(self, application, config):
         log.info('Creating Moksha Middleware')
         self.application = application
+        self.config = config
 
         moksha.utils._apps = {}
         moksha.utils._widgets = {}  # {'widget name': tw.api.Widget}
@@ -171,7 +173,11 @@ class MokshaMiddleware(object):
 
         for widget_entry in pkg_resources.iter_entry_points(WIDGETS):
             log.info('Loading %s widget' % widget_entry.name)
+
             widget_class = widget_entry.load()
+            if isinstance(widget_class, types.FunctionType):
+                widget_class = widget_class(config=self.config)
+
             widget_path = widget_entry.dist.location
             moksha.utils._widgets[widget_entry.name] = {
                     'name': getattr(widget_class, 'name', widget_entry.name),
@@ -323,7 +329,7 @@ def make_moksha_middleware(app, config):
         from moksha.middleware import MokshaExtensionPointMiddleware
         app = MokshaExtensionPointMiddleware(app)
 
-    app = MokshaMiddleware(app)
+    app = MokshaMiddleware(app, config)
 
     if asbool(config.get('moksha.csrf_protection', False)):
         raise NotImplementedError(

@@ -22,7 +22,6 @@
 import moksha
 import moksha.utils
 
-from tg import config
 from kitchen.text.converters import to_unicode as unicode
 import warnings
 
@@ -57,9 +56,7 @@ def websocket_unsubscribe(topic):
 class WebSocketWidget(AbstractMokshaSocket):
     __shorthand__ = 'WebSocket'
 
-    ws_host = twc.Param(
-        default=config.get('moksha.livesocket.websocket.host', 'localhost'))
-    ws_port = twc.Param(
-        default=config.get('moksha.livesocket.websocket.port', '9998'))
+    ws_host = twc.Param(default=twc.Required)
+    ws_port = twc.Param(default=twc.Required)
 
     template = "mako:moksha.api.widgets.websocket.templates.websocket"
