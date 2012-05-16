@@ -48,11 +48,9 @@ class StompHubExtension(MessagingHubExtension, ReconnectingClientFactory):
 
         super(StompHubExtension, self).__init__()
 
-
     def buildProtocol(self, addr):
         self.proto = StompProtocol(self, self.username, self.password)
         return self.proto
-
 
     def connected(self):
         for topic in self._topics:
@@ -64,10 +62,8 @@ class StompHubExtension(MessagingHubExtension, ReconnectingClientFactory):
             self.proto.transport.write(frame.pack())
         self._frames = []
 
-
     def clientConnectionLost(self, connector, reason):
         log.info('Lost connection.  Reason: %s' % reason)
-
 
     def clientConnectionFailed(self, connector, reason):
         log.error('Connection failed. Reason: %s' % reason)
@@ -85,7 +81,6 @@ class StompHubExtension(MessagingHubExtension, ReconnectingClientFactory):
             self.proto.transport.write(f.pack())
 
         super(StompHubExtension, self).send_message(topic, message, **headers)
-
 
     def subscribe(self, topic, callback):
         # FIXME -- note, the callback is just thrown away here.
