@@ -26,6 +26,7 @@ log = logging.getLogger(__name__)
 
 NONPERSISTENT_DELIVERY = PERSISTENT_DELIVERY = range(1, 3)
 
+
 class AMQPLibHubExtension(BaseAMQPHubExtension):
     """ An AMQPHub implemention using the amqplib module """
 
@@ -48,7 +49,8 @@ class AMQPLibHubExtension(BaseAMQPHubExtension):
             password=password
         )
         self.channel = self.conn.channel()
-        self.channel.access_request('/data', active=True, write=True, read=True)
+        self.channel.access_request(
+            '/data', active=True, write=True, read=True)
         super(AMQPLibHubExtension, self).__init__()
 
     @trace
@@ -72,7 +74,6 @@ class AMQPLibHubExtension(BaseAMQPHubExtension):
     def queue_bind(self, queue, exchange, routing_key=''):
         self.channel.queue_bind(queue, exchange, routing_key=routing_key)
 
-
     def send_message(self, topic, message, **headers):
         """
         Send an AMQP message to a given exchange with the specified routing key
@@ -87,7 +88,8 @@ class AMQPLibHubExtension(BaseAMQPHubExtension):
             headers.get('exchange', 'amq.topic'),
             routing_key=topic
         )
-        super(AMQPLibHubExtension, self).send_message(topic, message, **headers)
+        super(AMQPLibHubExtension, self).send_message(
+            topic, message, **headers)
 
     def subscribe(self, topic, callback):
         queue_name = str(uuid.uuid4())

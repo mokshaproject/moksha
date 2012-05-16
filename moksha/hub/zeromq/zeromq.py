@@ -64,9 +64,9 @@ class ZMQHubExtension(BaseZMQHubExtension):
             txZMQ.ZmqEndpoint(method, ep) for ep in _endpoints
         ]
 
-        # This is required so that the publishing socket can fully set itself up
-        # before we start trying to send messages on it.  This is a documented
-        # zmq issue that they do not plan to fix.
+        # This is required so that the publishing socket can fully set itself
+        # up before we start trying to send messages on it.  This is a
+        # documented zmq issue that they do not plan to fix.
         time.sleep(1)
 
         super(ZMQHubExtension, self).__init__()
@@ -84,8 +84,7 @@ class ZMQHubExtension(BaseZMQHubExtension):
             endpoints = config[attr].split(',')
             for endpoint in endpoints:
                 if 'localhost' in endpoint:
-                    # See the following for why.
-                    # http://stackoverflow.com/questions/6024003/why-doesnt-zeromq-work-on-localhost
+                    # This is why http://bit.ly/Jwdf6v
                     raise ValueError("'localhost' in %s is disallowed" % attr)
 
     def send_message(self, topic, message, **headers):
