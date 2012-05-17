@@ -722,6 +722,7 @@ except:
                                             dict.__repr__(self))
 
 
+# TODO -- consider removing this
 def cache_rendered_data(data):
     """ A method to cache ``data`` with the current request path as the key.
 

@@ -13,49 +13,135 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from paste.deploy.converters import asbool
+
 from live import (
     LiveWidget, LiveWidgetMeta,
     subscribe_topics, unsubscribe_topics
 )
+
 from moksha.api.widgets.stomp import StompWidget
 from moksha.api.widgets.amqp import AMQPSocket
 from moksha.api.widgets.websocket import WebSocketWidget
 
+def _make_kwargs(mappings, config):
+    return dict([
+        (
+            d['left_key'],
+            d.get('formatter', lambda o: o)(
+                config.get(d['right_key'], d['default'])
+            )
+        ) for d in mappings
+    ])
 
 def get_moksha_socket(config):
     livesocket_backend = \
             config.get('moksha.livesocket.backend', 'stomp').lower()
+
+    # This is a mapping of config mappings to widget attributes for the three types
+    # of socket widgets: stomp, amqp, and websocket.
+    global_mappings = [
+        dict(
+            left_key='notify',
+            right_key='moksha.socket.notify',
+            default=True,
+            formatter=asbool,
+        ),
+        dict(
+            left_key='reconnect_interval',
+            right_key='moksha.socket.reconnect_interval',
+            default=None,
+        ),
+    ]
+    orbited_mappings = [
+        dict(
+            left_key='orbited_host',
+            right_key='orbited_host',
+            default='localhost',
+        ),
+        dict(
+            left_key='orbited_port',
+            right_key='orbited_port',
+            default='9000',
+        ),
+        dict(
+            left_key='orbited_scheme',
+            right_key='orbited_scheme',
+            default='http',
+        ),
+    ]
     if livesocket_backend == 'stomp':
-        keys = [
-            'orbited_host',
-            'orbited_port',
-            'orbited_scheme',
-            'stomp_broker',
-            'stomp_port',
-            'stomp_user',
-            'stomp_pass',
+        mappings = global_mappings + orbited_mappings + [
+            dict(
+                left_key='stomp_broker',
+                right_key='stomp_broker',
+                default='localhost',
+            ),
+            dict(
+                left_key='stomp_port',
+                right_key='stomp_port',
+                default='61613',
+            ),
+            dict(
+                left_key='stomp_user',
+                right_key='stomp_user',
+                default='guest',
+            ),
+            dict(
+                left_key='stomp_pass',
+                right_key='stomp_pass',
+                default='guest',
+            ),
         ]
-        kwargs = dict([(key, config.get(key, None)) for key in keys])
-        moksha_socket = StompWidget(**kwargs)
+        socket_class = StompWidget
     elif livesocket_backend == 'amqp':
-        keys = [
-            'orbited_host',
-            'orbited_port',
-            'orbited_scheme',
-            'amqp_broker_host',
-            'amqp_broker_port',
-            'amqp_broker_user',
-            'amqp_broker_pass',
+        mappings = global_mappings + orbited_mappings + [
+            dict(
+                left_key='moksha_domain',
+                right_key='moksha.domain',
+                default='localhost',
+            ),
+            dict(
+                left_key='amqp_broker_host',
+                right_key='amqp_broker_host',
+                default='localhost',
+            ),
+            dict(
+                left_key='amqp_broker_port',
+                right_key='amqp_broker_port',
+                default='5672',
+            ),
+            dict(
+                left_key='amqp_broker_user',
+                right_key='amqp_broker_user',
+                default='guest',
+            ),
+            dict(
+                left_key='amqp_broker_pass',
+                right_key='amqp_broker_pass',
+                default='guest',
+            ),
         ]
-        kwargs = dict([(key, config.get(key, None)) for key in keys])
-        moksha_socket = AMQPSocket(**kwargs)
+        socket_class = AMQPSocket
     elif livesocket_backend == 'websocket':
-        ws_host = config.get('moksha.livesocket.websocket.host', 'localhost')
-        ws_port = config.get('moksha.livesocket.websocket.port', '9998')
-        moksha_socket = WebSocketWidget(ws_host=ws_host, ws_port=ws_port)
+        mappings = global_mappings + [
+            dict(
+                left_key='ws_host',
+                right_key='moksha.livesocket.websocket.host',
+                default='localhost',
+            ),
+            dict(
+                left_key='ws_port',
+                right_key='moksha.livesocket.websocket.port',
+                default='9998',
+            ),
+        ]
+        socket_class = WebSocketWidget
     else:
         raise Exception(
             "Unknown `moksha.livesocket.backend` %r.  Available backends: "
             "stomp, amqp, websocket" % livesocket_backend)
+
+    moksha_socket = socket_class(**_make_kwargs(mappings, config))
 
     return moksha_socket

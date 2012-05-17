@@ -17,8 +17,6 @@ import tw2.core as twc
 
 from moksha.lib.helpers import eval_app_config, ConfigWrapper
 
-from tg import config
-
 
 class AppListWidget(twc.Widget):
     template = 'mako:moksha.api.widgets.containers.templates.layout_applist'
@@ -56,7 +54,7 @@ class DashboardContainer(twc.Widget):
 
     def prepare(self):
         super(DashboardContainer, self).prepare()
-        layout = eval_app_config(config.get(self.config_key, "None"))
+        layout = eval_app_config(self.config_key)
 
         if not layout:
             if isinstance(self.layout, basestring):
