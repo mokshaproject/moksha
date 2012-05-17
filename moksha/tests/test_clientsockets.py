@@ -27,7 +27,7 @@ class TestClientSocketDumb:
         pass
 
     @testutils.crosstest
-    def test_middleware_wrap(self):
+    def test_has_socket_str(self):
         targets = ['moksha_websocket', 'TCPSocket']
         response = self.app.get('/')
         assert(any([target in response for target in targets]))
