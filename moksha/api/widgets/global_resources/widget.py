@@ -16,11 +16,6 @@
 import logging
 import pkg_resources
 
-from paste.deploy.converters import asbool
-# TODO -- this reference to pylons has got to go
-from pylons import request
-from inspect import isclass
-
 import tw2.core as twc
 import tw2.core.widgets
 
@@ -55,7 +50,9 @@ class GlobalResourceInjectionWidget(twc.Widget):
     profile = twc.Param(default=False)
     livesocket = twc.Param(default=True)
     extensionpoints = twc.Param(default=False)
+
     base_url = twc.Param(default='/')
+    request = twc.Param(default=twc.Required)
 
     @property
     def c(self):
@@ -68,8 +65,6 @@ class GlobalResourceInjectionWidget(twc.Widget):
         for widget_entry in pkg_resources.iter_entry_points('moksha.global'):
             log.info('Loading global resource: %s' % widget_entry.name)
             loaded = widget_entry.load()
-            #if isclass(loaded):
-            #    loaded = loaded(id=widget_entry.name)
             if isinstance(loaded, twc.JSLink):
                 self.resources.append(loaded)
             elif isinstance(loaded, twc.CSSLink):
@@ -101,7 +96,7 @@ class GlobalResourceInjectionWidget(twc.Widget):
     def prepare(self):
         super(GlobalResourceInjectionWidget, self).prepare()
 
-        identity = request.environ.get('repoze.who.identity')
+        identity = self.request.environ.get('repoze.who.identity')
         if identity:
             self.user_id = identity.get('user_id', '')
 

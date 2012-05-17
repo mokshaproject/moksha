@@ -26,13 +26,11 @@ import types
 from shove import Shove
 from paste.deploy.converters import asbool
 from inspect import isclass
-from pylons.i18n import ugettext
 from sqlalchemy import create_engine
 from feedcache.cache import Cache
 
 from moksha.exc import MokshaException
-from moksha.lib.helpers import (defaultdict, get_moksha_config_path,
-                                get_main_app_config_path)
+from moksha.lib.helpers import (defaultdict, get_moksha_config_path)
 from moksha.lib.helpers import appconfig
 
 log = logging.getLogger(__name__)
@@ -216,11 +214,6 @@ class MokshaMiddleware(object):
             moksha_config_path = os.path.dirname(moksha_config_path)
             apps = [{'path': moksha_config_path}]
 
-        try:
-            main_app_config_path = os.path.dirname(get_main_app_config_path())
-        except AttributeError:
-            main_app_config_path = None
-
         apps += moksha.utils._apps.values()
         for app in apps:
             for configfile in ('production.ini', 'development.ini'):
@@ -230,8 +223,7 @@ class MokshaMiddleware(object):
                         conf = appconfig('config:' + confpath)
                         if app.get('name'):
                             moksha.utils._apps[app['name']]['config'] = conf
-                        if app['path'] == main_app_config_path or \
-                                confpath in loaded_configs:
+                        if confpath in loaded_configs:
                             continue
                         log.info('Loading configuration: %s' % confpath)
 # This is leftover from the days of using paste.deploy.appconfig.  Is anything
@@ -327,7 +319,7 @@ def make_moksha_middleware(app, config):
 
     if asbool(config.get('moksha.extensionpoints', True)):
         from moksha.middleware import MokshaExtensionPointMiddleware
-        app = MokshaExtensionPointMiddleware(app)
+        app = MokshaExtensionPointMiddleware(app, config)
 
     app = MokshaMiddleware(app, config)
 

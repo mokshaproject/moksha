@@ -17,7 +17,6 @@ import moksha
 import moksha.utils
 import copy
 import time
-import pylons
 import urllib
 import uuid
 import re
@@ -50,6 +49,7 @@ from moksha.exc import MokshaConfigNotFound
 log = logging.getLogger(__name__)
 scrub_filter = re.compile('[^_a-zA-Z0-9-]')
 
+
 def _update_params(params, d):
     p = {}
     if params:
@@ -72,6 +72,7 @@ def _update_params(params, d):
                 p[k] = value
 
     return p
+
 
 class ConfigWrapper(object):
     """ Base class for container configuration wrappers
@@ -111,7 +112,8 @@ class ConfigWrapper(object):
 
         for p in predicates:
             if not isinstance(p, Predicate):
-                raise AttributeError('"%r" is not a subclass of repoze.who.predicates.Predicate' % p)
+                raise AttributeError('"%r" is not a subclass of '
+                                     'repoze.who.predicates.Predicate' % p)
 
     @staticmethod
     def process_wrappers(wrappers, d):
@@ -143,6 +145,7 @@ class ConfigWrapper(object):
                               type=self.__class__.__name__)
 
         return default_values
+
 
 class Category(ConfigWrapper):
     """A configuration wrapper class that displays a list of application
@@ -215,6 +218,7 @@ class Category(ConfigWrapper):
 
         return results
 
+
 class App(ConfigWrapper):
     """A configuration wrapper class that displays an application pointed to
     by a url
@@ -262,7 +266,8 @@ class App(ConfigWrapper):
         if self.label and not self.content_id:
             self.content_id = scrub_filter.sub('_', self.label.lower())
 
-    def clone(self, update_params=None, auth=None, content_id=None, label=None):
+    def clone(self, update_params=None, auth=None,
+              content_id=None, label=None):
         if not update_params:
             update_params = {}
 
@@ -339,9 +344,11 @@ class App(ConfigWrapper):
 
         return results
 
+
 class StaticLink(App):
     """A configuration wrapper class that shows up as a static link in nav
     elements"""
+
 
 class MokshaApp(App):
     """A configuration wrapper class that displays a Moksa application
@@ -388,15 +395,16 @@ class MokshaApp(App):
 
     def process(self, d=None):
         # We return a placeholder if the app is not registered
-        if not moksha._apps.has_key(self.app):
+        if not self.app in moksha._apps:
             return MokshaWidget(self.label, 'placeholder',
                                 self.content_id,
-                                {'appname':self.app},
+                                {'appname': self.app},
                                 self.auth,
                                 self.css_class).process(d)
         else:
             results = super(MokshaApp, self).process(d)
             return results
+
 
 class Widget(ConfigWrapper):
     """A configuration wrapper class that displays a ToscaWidget.  Use this
@@ -457,7 +465,7 @@ class Widget(ConfigWrapper):
         self._update_nested_dicts(params, update_params)
 
         if auth == None:
-            auth = self.auth;
+            auth = self.auth
 
         if content_id == None:
             content_id = self.content_id
@@ -483,11 +491,13 @@ class Widget(ConfigWrapper):
 
         content_id = self.content_id + '-' + results['id']
         url = '#' + content_id
-        results.update({'label': self.label, 'url': url,'widget': self.widget ,
-                'params':_update_params(self.params, d), 'id': results['id'],
-                'content_id': content_id, 'css_class': self.css_class})
+        results.update({
+            'label': self.label, 'url': url, 'widget': self.widget,
+            'params': _update_params(self.params, d), 'id': results['id'],
+            'content_id': content_id, 'css_class': self.css_class})
 
         return results
+
 
 class MokshaWidget(Widget):
     """A configuration wrapper class that displays a ToscaWidget registered
@@ -522,10 +532,12 @@ class MokshaWidget(Widget):
                     for this wrapper
         """
         widget = moksha.utils._widgets[moksha_widget]['widget']
-        return super(MokshaWidget, self).__init__(label=label, widget=widget,
-                                           content_id=content_id, params=params,
-                                           auth=auth,
-                                           css_class=css_class)
+        return super(MokshaWidget, self).__init__(
+            label=label, widget=widget,
+            content_id=content_id, params=params,
+            auth=auth,
+            css_class=css_class)
+
 
 class param_contains(Predicate):
     """
@@ -547,7 +559,7 @@ class param_contains(Predicate):
         p = req.params.getall(self.param)
 
         if not p:
-            return self.unmet(param = self.param, value = self.value)
+            return self.unmet(param=self.param, value=self.value)
 
         print p
         for v in p:
@@ -555,7 +567,8 @@ class param_contains(Predicate):
             if v == self.value:
                 return
 
-        return self.unmet(param = self.param, value = self.value)
+        return self.unmet(param=self.param, value=self.value)
+
 
 class param_has_value(Predicate):
     """
@@ -565,7 +578,7 @@ class param_has_value(Predicate):
     """
     message = u'Parameter "%(param)s" is not set'
 
-    def __init__(self, param, empty_str_is_valid = False, **kwargs):
+    def __init__(self, param, empty_str_is_valid=False, **kwargs):
         super(param_has_value, self).__init__(**kwargs)
         self.param = param
         self.empty_str_is_valid = empty_str_is_valid
@@ -575,14 +588,14 @@ class param_has_value(Predicate):
         p = req.params.getall(self.param)
 
         if not p:
-            return self.unmet(param = self.param)
+            return self.unmet(param=self.param)
 
         p = p[0]
         if p == None:
-            return self.unmet(param = self.param)
+            return self.unmet(param=self.param)
 
         if not self.empty_str_is_valid and p == '':
-            return self.unmet(param = self.param)
+            return self.unmet(param=self.param)
 
         return
 
@@ -623,7 +636,8 @@ def eval_app_config(config_str):
 
     :return: the evaluated configuration wrapper configuration
     """
-    return eval(config_str, {"__builtins__":None}, _app_config_callables)
+    return eval(
+        config_str, {"__builtins__": None}, _app_config_callables)
 
 
 def eval_predicates(predicate_str):
@@ -632,10 +646,11 @@ def eval_predicates(predicate_str):
 
     :return: the evaluated predicate configuration
     """
-    return eval(predicate_str, {"__builtins__":None}, _safe_predicate_callables)
+    return eval(
+        predicate_str, {"__builtins__": None}, _safe_predicate_callables)
 
 
-def check_predicates(predicates):
+def check_predicates(predicates, request):
     """
     Using the current WSGI environment run a list of predicates.
     This can only be used when inside a WSGI request
@@ -643,7 +658,6 @@ def check_predicates(predicates):
     :return: False is any one is False
     :return: True if they are all True
     """
-    from pylons import request
 
     if(not(isinstance(predicates, list) or isinstance(predicates, tuple))):
         predicates = (predicates,)
@@ -655,6 +669,7 @@ def check_predicates(predicates):
             return False
 
     return True
+
 
 def eval_and_check_predicates(predicate_str):
     """
@@ -671,7 +686,8 @@ def eval_and_check_predicates(predicate_str):
 
 @decorator
 def trace(f, *args, **kw):
-    """ A useful decorator for debugging method parameters and return values """
+    """ A useful decorator for debugging method parameters and return values
+    """
     r = None
     try:
         r = f(*args, **kw)
@@ -680,6 +696,7 @@ def trace(f, *args, **kw):
     return r
 
 
+# TODO -- remove this and just get it from pypi
 try:
     from collections import defaultdict
 except:
@@ -693,36 +710,42 @@ except:
                 raise TypeError('first argument must be callable')
             dict.__init__(self, *a, **kw)
             self.default_factory = default_factory
+
         def __getitem__(self, key):
             try:
                 return dict.__getitem__(self, key)
             except KeyError:
                 return self.__missing__(key)
+
         def __missing__(self, key):
             if self.default_factory is None:
                 raise KeyError(key)
             self[key] = value = self.default_factory()
             return value
+
         def __reduce__(self):
             if self.default_factory is None:
                 args = tuple()
             else:
                 args = self.default_factory,
             return type(self), args, None, None, self.items()
+
         def copy(self):
             return self.__copy__()
+
         def __copy__(self):
             return type(self)(self.default_factory, self)
+
         def __deepcopy__(self, memo):
             import copy
             return type(self)(self.default_factory,
                               copy.deepcopy(self.items()))
+
         def __repr__(self):
             return 'defaultdict(%s, %s)' % (self.default_factory,
                                             dict.__repr__(self))
 
 
-# TODO -- consider removing this
 def cache_rendered_data(data):
     """ A method to cache ``data`` with the current request path as the key.
 
@@ -743,10 +766,15 @@ def cache_rendered_data(data):
               its way out of the WSGI middleware stack.  Therefore, widget
               resources are not injected, and stored in the cache.
 
+    :Warning: This function only works with pylons.
+
     """
+    import pylons
+
     if hasattr(pylons.g, 'cache') and pylons.g.cache and \
             pylons.request.environ.get('HTTP_X_FORWARDED_PROTO'):
         pylons.g.cache.set(pylons.request.path_qs, str(data))
+
 
 @decorator
 def cache_rendered(func, *args, **kwargs):
@@ -757,47 +785,42 @@ def cache_rendered(func, *args, **kwargs):
 
 def in_full_moksha_stack():
     """
-    Figure out if we are running Moksha as WSGI middleware, or in our full stack.
+    Figure out if we are running Moksha as WSGI middleware, or in our full
+    stack.
+
     :returns: True if we are currently running in Moksha's full WSGI stack,
               False if we are running Moksha only as WSGI middleware.
     """
-    try:
-        return pylons.config['app_conf']['package'] == 'moksha'
-    except KeyError:
-        return False
-
-
-def get_main_app_config_path():
-    """
-    :returns: The path to the main applications configuration file
-    """
-    try:
-        return pylons.config['__file__']
-    except KeyError:
-        log.error('Cannot find main applications config file in '
-                  'pylons.config["__file__"]')
+    # This is deprecated, since there's no such thing as moksha 'full stack'
+    # anymore.
+    return False
 
 
 def get_moksha_config_path():
     """
     :returns: The path to Moksha's configuration file.
     """
-    if in_full_moksha_stack():
-        return get_main_app_config_path()
-    else:
-        for config_path in ('.', '/etc/moksha/', __file__ + '/../../../'):
-            for config_file in ('production.ini', 'development.ini'):
-                cfg = os.path.join(os.path.abspath(config_path), config_file)
-                if os.path.isfile(cfg):
-                    return cfg
+    for config_path in ('.', '/etc/moksha/', __file__ + '/../../../'):
+        for config_file in ('production.ini', 'development.ini'):
+            cfg = os.path.join(os.path.abspath(config_path), config_file)
+            if os.path.isfile(cfg):
+                return cfg
 
-        log.warn('No moksha configuration file found, make sure the controlling app is fully configured')
+    log.warn('No moksha configuration file found, make sure the '
+             'controlling app is fully configured')
 
-        return None
-        # raise MokshaConfigNotFound('Cannot find moksha configuration file!')
+    return None
+    # raise MokshaConfigNotFound('Cannot find moksha configuration file!')
+
 
 def get_moksha_dev_config():
-    cfgs = [os.path.join(os.path.abspath(__file__ + '/../../../'), 'development.ini'), os.path.join(os.path.abspath(__file__ + '/../../../../'), 'development.ini'), os.path.join(os.getcwd(), 'development.ini'), '/etc/moksha/development.ini']
+    fname = 'development.ini'
+    cfgs = [
+        os.path.join(os.path.abspath(__file__ + '/../../../'), fname),
+        os.path.join(os.path.abspath(__file__ + '/../../../../'), fname),
+        os.path.join(os.getcwd(), fname),
+        '/etc/moksha/%s' % fname,
+    ]
     for cfg in cfgs:
         if os.path.isfile(cfg):
             return cfg
@@ -807,6 +830,7 @@ def get_moksha_dev_config():
 def get_moksha_appconfig():
     """ Return the appconfig of Moksha """
     return appconfig('config:' + get_moksha_config_path())
+
 
 def appconfig(config_path):
     """ Our own reimplementation of paste.deploy.appconfig """
@@ -819,10 +843,11 @@ def appconfig(config_path):
     parser.read(filenames=[config_path])
     return dict(parser.items('app:main'))
 
-def create_app_engine(app):
+
+def create_app_engine(app, config):
     """ Create a new SQLAlchemy engine for a given app """
     from sqlalchemy import create_engine
-    return create_engine(pylons.config.get('app_db', 'sqlite:///%s.db') % app)
+    return create_engine(config.get('app_db', 'sqlite:///%s.db') % app)
 
 
 def to_unicode(obj, encoding='utf-8', errors='replace'):
@@ -844,6 +869,7 @@ def replace_app_header(app, header_name, value):
         replace_header(headers, header_name, value)
         app.headers = headers
 
+
 class EnumDataObj(dict):
     def __init__(self, code, data):
         super(EnumDataObj, self).__init__(code=code, data=data)
@@ -860,10 +886,10 @@ class EnumDataObj(dict):
     def replace_app_header(self, app, header_name):
         replace_app_header(app, header_name, self.code)
 
-
     def __repr__(self):
         # act as if the user requested the code
         return str(self['code'])
+
 
 class CategoryEnum(object):
     def __init__(self, prefix, *data):
@@ -875,7 +901,8 @@ class CategoryEnum(object):
             # id can not have any dots in them
             id = d[0]
             if id.find('.') != -1:
-                raise ValueError('The enumeration id %s can not contain dots', id)
+                raise ValueError(
+                    'The enumeration id %s can not contain dots', id)
 
             # code is prefix.id
             code = '%s.%s' % (prefix, d[0])
@@ -910,6 +937,7 @@ class CategoryEnum(object):
 
     def __call__(self, code):
         return self.get_data(code)
+
 
 class EnumGroup(object):
     def __init__(self):
