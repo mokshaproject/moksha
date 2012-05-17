@@ -14,6 +14,5 @@
 # limitations under the License.
 
 from live import LiveWidget, get_moksha_socket
-from util import *
 from placeholder import Placeholder
 from selectable import Selectable

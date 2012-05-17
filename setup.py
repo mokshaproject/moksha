@@ -29,7 +29,6 @@ setup(
     author_email='',
     url='http://moksha.fedorahosted.org',
     install_requires=[
-        "zope.sqlalchemy",
         "sqlalchemy",
         "psutil",
         "Shove",
@@ -48,9 +47,6 @@ setup(
         "pyOpenSSL",
         #"BeautifulSoup",
         "python-daemon",
-        "repoze.what-quickstart",
-        "repoze.what-pylons",
-        "repoze.tm2",
         "Bunch",
         "kitchen",
         "Mako",
@@ -65,8 +61,11 @@ setup(
         "tw2.excanvas",
         #"repoze.squeeze", # Not hard requirements
         #"repoze.profile", # Not hard requirements
-        "Pylons==1.0",  # TODO - temporary
-        "WebOb<=1.0.8", # TODO - temporary
+        "WebOb<=1.1.1", # TODO - temporary
+        "paste",
+        "PasteDeploy",
+        "WebHelpers",
+        "repoze.what",
     ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
