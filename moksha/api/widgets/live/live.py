@@ -92,7 +92,7 @@ class LiveWidget(twc.Widget):
                     moksha.utils.livewidgets[callback][topic].append(cb)
             elif callback in ['onconnectedframe', 'onopen']:
                 moksha.utils.livewidgets[callback].append(
-                    subscribe_topics(topics))
+                    self.subscribe_topics(topics))
             elif getattr(self, callback, None):
                 moksha.utils.livewidgets[callback].append(
                     getattr(self, callback))
@@ -110,35 +110,33 @@ class LiveWidget(twc.Widget):
                         topics += topic
         return topics
 
-    @classmethod
-    def subscribe_topics(cls, topics):
+    def subscribe_topics(self, topics):
         backend_lookup = {
             'stomp': stomp_subscribe,
             'amqp': amqp_subscribe,
             'websocket': websocket_subscribe,
         }
         try:
-            return backend_lookup[cls.backend](topics)
+            return backend_lookup[self.backend](topics)
         except KeyError:
             raise MokshaException("Unknown `moksha.livesocket.backend` %r. "
                                   "Valid backends are currently %s" % (
-                                      cls.backend,
+                                      self.backend,
                                       ", ".join(backend_lookup.keys())
                                   ))
 
-    @classmethod
-    def unsubscribe_topics(cls, topics):
+    def unsubscribe_topics(self, topics):
         backend_lookup = {
             'stomp': stomp_unsubscribe,
             'amqp': amqp_unsubscribe,
             'websocket': websocket_unsubscribe,
         }
         try:
-            return backend_lookup[cls.backend](topics)
+            return backend_lookup[self.backend](topics)
         except KeyError:
             raise MokshaException("Unknown `moksha.livesocket.backend` %r. "
                                   "Valid backends are currently %s" % (
-                                      cls.backend,
+                                      self.backend,
                                       ", ".join(backend_lookup.keys())
                                   ))
 
