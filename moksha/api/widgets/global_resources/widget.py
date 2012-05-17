@@ -15,6 +15,7 @@
 
 import logging
 import pkg_resources
+import types
 
 import tw2.core as twc
 import tw2.core.widgets
@@ -52,19 +53,29 @@ class GlobalResourceInjectionWidget(twc.Widget):
     extensionpoints = twc.Param(default=False)
 
     base_url = twc.Param(default='/')
-    request = twc.Param(default=twc.Required)
+
+    config = twc.Param("Configuration dict.", default=twc.Required)
+    request = twc.Param("The request.", default=twc.Required)
+
 
     @property
     def c(self):
         """ Synonym for the 'c' property for backwards compat with tw1 """
         return self.children
 
-    def __init__(self):
-        super(GlobalResourceInjectionWidget, self).__init__()
+    def prepare(self):
+        super(GlobalResourceInjectionWidget, self).prepare()
+
+        for required in ['config', 'request']:
+            if not getattr(self, required, None):
+                raise ValueError("GlobalResources must be given a %r." %
+                                 required)
 
         for widget_entry in pkg_resources.iter_entry_points('moksha.global'):
             log.info('Loading global resource: %s' % widget_entry.name)
             loaded = widget_entry.load()
+            if isinstance(loaded, types.FunctionType):
+                loaded = loaded(self.config)
             if isinstance(loaded, twc.JSLink):
                 self.resources.append(loaded)
             elif isinstance(loaded, twc.CSSLink):
@@ -86,15 +97,6 @@ class GlobalResourceInjectionWidget(twc.Widget):
 
         if self.extensionpoints:
             self.resources.append(moksha_extension_points_js)
-
-        # turn into quick lookup hash
-        item_list = []
-        for domain in trusted_domain_list:
-            item_list.append('"%s": true' % domain)
-        trusted_domain_hash = '{%s}' % ','.join(item_list)
-
-    def prepare(self):
-        super(GlobalResourceInjectionWidget, self).prepare()
 
         identity = self.request.environ.get('repoze.who.identity')
         if identity:
