@@ -16,8 +16,8 @@
 import logging
 import pkg_resources
 
-from tg import config, url
 from paste.deploy.converters import asbool
+# TODO -- this reference to pylons has got to go
 from pylons import request
 from inspect import isclass
 
@@ -49,15 +49,13 @@ class GlobalResourceInjectionWidget(twc.Widget):
     css = []
     template = "mako:moksha.api.widgets.global_resources.templates.global"
 
-    params = [
-        'base_url', 'csrf_token', 'user_id', 'debug', 'profile',
-        'csrf_trusted_domains',
-    ]
     base_url = '/'
-    csrf_token = ''
     user_id = ''
-    debug = 'false'
-    profile = 'false'
+    debug = twc.Param(default=False)
+    profile = twc.Param(default=False)
+    livesocket = twc.Param(default=True)
+    extensionpoints = twc.Param(default=False)
+    base_url = twc.Param(default='/')
 
     @property
     def c(self):
@@ -66,10 +64,6 @@ class GlobalResourceInjectionWidget(twc.Widget):
 
     def __init__(self):
         super(GlobalResourceInjectionWidget, self).__init__()
-        if asbool(config.get('debug')):
-            self.debug = 'true'
-        if asbool(config['global_conf'].get('profile')):
-            self.profile = 'true'
 
         for widget_entry in pkg_resources.iter_entry_points('moksha.global'):
             log.info('Loading global resource: %s' % widget_entry.name)
@@ -86,8 +80,8 @@ class GlobalResourceInjectionWidget(twc.Widget):
                               widget_entry.name)
                 else:
                     if issubclass(loaded, AbstractMokshaSocket):
-                        if not asbool(config.get('moksha.livesocket', True)):
-                            log.debug('Moksha Live Socket disabled in the config')
+                        if not self.livesocket:
+                            log.debug('Moksha Live Socket disabled in config')
                             continue
                     self.children.append(loaded)
             else:
@@ -95,27 +89,20 @@ class GlobalResourceInjectionWidget(twc.Widget):
                                 "either a JSLink or CSSLink." %
                                 widget_entry.name)
 
-        self.csrf_token_id = config.get('moksha.csrf.token_id', '_csrf_token')
-        if asbool(config.get('moksha.extensionpoints', False)):
+        if self.extensionpoints:
             self.resources.append(moksha_extension_points_js)
 
-        trusted_domain_list = config.get('moksha.csrf.trusted_domains', '').split(',')
         # turn into quick lookup hash
         item_list = []
         for domain in trusted_domain_list:
             item_list.append('"%s": true' % domain)
         trusted_domain_hash = '{%s}' % ','.join(item_list)
-        self.csrf_trusted_domains_hash = trusted_domain_hash
-        self.csrf_trusted_domains = self.csrf_trusted_domains_hash
 
     def prepare(self):
         super(GlobalResourceInjectionWidget, self).prepare()
 
-        self.base_url = url('/')
-
         identity = request.environ.get('repoze.who.identity')
         if identity:
-            self.csrf_token = identity.get(self.csrf_token_id, '')
             self.user_id = identity.get('user_id', '')
 
 

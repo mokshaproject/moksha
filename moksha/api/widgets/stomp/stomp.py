@@ -18,10 +18,6 @@
 import moksha
 import moksha.utils
 
-from tg import config
-from paste.deploy.converters import asbool
-from kitchen.text.converters import to_unicode as unicode
-
 import tw2.core as twc
 import tw2.jquery
 

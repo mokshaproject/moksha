@@ -65,7 +65,6 @@ setup(
         "tw2.excanvas",
         #"repoze.squeeze", # Not hard requirements
         #"repoze.profile", # Not hard requirements
-        "TurboGears2",
         "Pylons==1.0",  # TODO - temporary
         "WebOb<=1.0.8", # TODO - temporary
     ],

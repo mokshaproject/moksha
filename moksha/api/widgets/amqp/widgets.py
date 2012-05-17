@@ -19,10 +19,6 @@
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
 """
 
-from tg import config
-from paste.deploy.converters import asbool
-from kitchen.text.converters import to_unicode as unicode
-
 import moksha
 import moksha.utils
 
@@ -82,8 +78,7 @@ class AMQPSocket(AbstractMokshaSocket):
     orbited_port = twc.Param(default=orbited_port)
     orbited_scheme = twc.Param(default=orbited_scheme)
 
-    moksha_domain = twc.Param(
-        default=config.get('moksha.domain', 'localhost'))
+    moksha_domain = twc.Param(twc.Required)
 
     amqp_broker_host = twc.Param(default=twc.Required)
     amqp_broker_port = twc.Param(default=twc.Required)

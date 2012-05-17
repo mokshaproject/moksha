@@ -197,7 +197,6 @@ def install_hacks():
         'WebOb==1.0.8',
         'Pylons==1.0',
         'Extremes',
-        'tg.devtools',
         'orbited',
         'BeautifulSoup',
         'Jinja2',
