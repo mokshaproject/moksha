@@ -57,7 +57,7 @@ class Consumer(object):
         self.engine = self.DBSession = None
         if app:
             log.debug("Setting up individual engine for consumer")
-            self.engine = create_app_engine(app)
+            self.engine = create_app_engine(app, hub.config)
             self.DBSession = sessionmaker(bind=self.engine)()
 
     def _consume_json(self, message):
