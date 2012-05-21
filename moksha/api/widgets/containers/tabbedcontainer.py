@@ -18,7 +18,6 @@ import tw2.core as twc
 import tw2.forms
 import tw2.jqplugins.ui
 
-from pylons import config, request
 from repoze.what import predicates
 from moksha.lib.helpers import eval_app_config, ConfigWrapper, when_ready
 
@@ -67,6 +66,7 @@ class TabbedContainer(tw2.forms.widgets.FormField):
     resources = [moksha_ui_tabs_js]
 
     config_key = twc.Param(default=None)
+    config = twc.Param(default=None)
     tabs = twc.Param(default=())
     params = ["tabdefault", "staticLoadOnClick"]
     tabdefault = twc.Param(
@@ -79,6 +79,9 @@ class TabbedContainer(tw2.forms.widgets.FormField):
         if not getattr(self, "id", None):
             raise ValueError("JQueryUITabs is supposed to have id")
 
+        if self.config == None:
+            self.config = {}
+
         o = {
             'tabdefault': self.tabdefault,
             'staticLoadOnClick': self.staticLoadOnClick
@@ -86,7 +89,7 @@ class TabbedContainer(tw2.forms.widgets.FormField):
         self.add_call(when_ready(
             tw2.jquery.jQuery("#%s" % self.id).mokshatabs(o)))
 
-        tabs = eval_app_config(config.get(self.config_key, "None"))
+        tabs = eval_app_config(self.config.get(self.config_key, "None"))
         if not tabs:
             if isinstance(self.tabs, str):
                 tabs = eval_app_config(self.tabs)

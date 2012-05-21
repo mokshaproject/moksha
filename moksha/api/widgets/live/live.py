@@ -16,8 +16,6 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 #          Ralph Bean <ralph.bean@gmail.com>
 
-from tg import config
-
 import moksha
 import moksha.utils
 
@@ -31,6 +29,7 @@ from moksha.api.widgets.amqp import (
 from moksha.api.widgets.websocket import (
     WebSocketWidget, websocket_subscribe, websocket_unsubscribe)
 
+import tw2.core as twc
 import tw2.core.params as pm
 import tw2.core.widgets
 
@@ -39,7 +38,7 @@ class LiveWidgetMeta(tw2.core.widgets.WidgetMeta):
     pass
 
 
-class LiveWidget(tw2.core.Widget):
+class LiveWidget(twc.Widget):
     """ A live streaming widget based on toscawidgets2
 
     This widget handles automatically subscribing your widget to any given
@@ -54,9 +53,8 @@ class LiveWidget(tw2.core.Widget):
     """
     __metaclass__ = LiveWidgetMeta
 
-    backend = pm.Param(
-        'moksha livesocket backend to use',
-        default=config.get('moksha.livesocket.backend', 'stomp').lower())
+    backend = pm.Param('moksha livesocket backend to use',
+                       default=twc.Required)
     topic = pm.Param('Topic to which this widget is subscribed')
     onmessage = pm.Param('js to execute on message received', default=None)
 
@@ -94,7 +92,7 @@ class LiveWidget(tw2.core.Widget):
                     moksha.utils.livewidgets[callback][topic].append(cb)
             elif callback in ['onconnectedframe', 'onopen']:
                 moksha.utils.livewidgets[callback].append(
-                    subscribe_topics(topics))
+                    self.subscribe_topics(topics))
             elif getattr(self, callback, None):
                 moksha.utils.livewidgets[callback].append(
                     getattr(self, callback))
@@ -112,36 +110,34 @@ class LiveWidget(tw2.core.Widget):
                         topics += topic
         return topics
 
-    @classmethod
-    def subscribe_topics(cls, topics):
-        backend = config.get('moksha.livesocket.backend', 'stomp').lower()
+    def subscribe_topics(self, topics):
         backend_lookup = {
             'stomp': stomp_subscribe,
             'amqp': amqp_subscribe,
             'websocket': websocket_subscribe,
         }
         try:
-            return backend_lookup[backend](topics)
+            return backend_lookup[self.backend](topics)
         except KeyError:
             raise MokshaException("Unknown `moksha.livesocket.backend` %r. "
                                   "Valid backends are currently %s" % (
-                                    backend, ", ".join(backend_lookup.keys())
+                                      self.backend,
+                                      ", ".join(backend_lookup.keys())
                                   ))
 
-    @classmethod
-    def unsubscribe_topics(cls, topics):
-        backend = config.get('moksha.livesocket.backend', 'stomp').lower()
+    def unsubscribe_topics(self, topics):
         backend_lookup = {
             'stomp': stomp_unsubscribe,
             'amqp': amqp_unsubscribe,
             'websocket': websocket_unsubscribe,
         }
         try:
-            return backend_lookup[backend](topics)
+            return backend_lookup[self.backend](topics)
         except KeyError:
             raise MokshaException("Unknown `moksha.livesocket.backend` %r. "
                                   "Valid backends are currently %s" % (
-                                    backend, ", ".join(backend_lookup.keys())
+                                      self.backend,
+                                      ", ".join(backend_lookup.keys())
                                   ))
 
 

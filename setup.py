@@ -29,7 +29,6 @@ setup(
     author_email='',
     url='http://moksha.fedorahosted.org',
     install_requires=[
-        "zope.sqlalchemy",
         "sqlalchemy",
         "psutil",
         "Shove",
@@ -48,9 +47,6 @@ setup(
         "pyOpenSSL",
         #"BeautifulSoup",
         "python-daemon",
-        "repoze.what-quickstart",
-        "repoze.what-pylons",
-        "repoze.tm2",
         "Bunch",
         "kitchen",
         "Mako",
@@ -65,7 +61,11 @@ setup(
         "tw2.excanvas",
         #"repoze.squeeze", # Not hard requirements
         #"repoze.profile", # Not hard requirements
-        "TurboGears2",
+        "WebOb<=1.1.1", # TODO - temporary
+        "paste",
+        "PasteDeploy",
+        "WebHelpers",
+        "repoze.what",
     ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
@@ -89,12 +89,6 @@ setup(
     moksha-hub = moksha.hub:main
     moksha = moksha.commands.cli:main
 
-    [paste.app_factory]
-    main = moksha.config.middleware:make_app
-
-    [paste.app_install]
-    main = pylons.util:PylonsInstaller
-
     # Pulls in all widgets.  Used by the `archive_moksha_resources` command.
     [toscawidgets.widgets]
     widgets = moksha.widgets.all
@@ -108,10 +102,10 @@ setup(
 
     [moksha.widget]
     code_widget = moksha.widgets.source:code_widget
-    moksha_socket = moksha.api.widgets.live:moksha_socket
+    moksha_socket = moksha.api.widgets.live:get_moksha_socket
 
     [moksha.global]
-    moksha_socket = moksha.api.widgets.live:moksha_socket
+    moksha_socket = moksha.api.widgets.live:get_moksha_socket
 
     [paste.global_paster_command]
     moksha = moksha.commands.quickstart:MokshaQuickstartCommand

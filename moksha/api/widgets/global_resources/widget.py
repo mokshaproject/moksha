@@ -15,11 +15,7 @@
 
 import logging
 import pkg_resources
-
-from tg import config, url
-from paste.deploy.converters import asbool
-from pylons import request
-from inspect import isclass
+import types
 
 import tw2.core as twc
 import tw2.core.widgets
@@ -28,7 +24,7 @@ from moksha.widgets.moksha_js import (
     moksha_js, moksha_extension_points_js,
     moksha_js, moksha_extension_points_js,
 )
-from moksha.api.widgets.live import moksha_socket
+from moksha.api.widgets.socket import AbstractMokshaSocket
 
 log = logging.getLogger(__name__)
 
@@ -49,33 +45,37 @@ class GlobalResourceInjectionWidget(twc.Widget):
     css = []
     template = "mako:moksha.api.widgets.global_resources.templates.global"
 
-    params = [
-        'base_url', 'csrf_token', 'user_id', 'debug', 'profile',
-        'csrf_trusted_domains',
-    ]
     base_url = '/'
-    csrf_token = ''
     user_id = ''
-    debug = 'false'
-    profile = 'false'
+    debug = twc.Param(default=False)
+    profile = twc.Param(default=False)
+    livesocket = twc.Param(default=True)
+    extensionpoints = twc.Param(default=False)
+
+    base_url = twc.Param(default='/')
+
+    config = twc.Param("Configuration dict.", default=twc.Required)
+    request = twc.Param("The request.", default=twc.Required)
+
 
     @property
     def c(self):
         """ Synonym for the 'c' property for backwards compat with tw1 """
         return self.children
 
-    def __init__(self):
-        super(GlobalResourceInjectionWidget, self).__init__()
-        if asbool(config.get('debug')):
-            self.debug = 'true'
-        if asbool(config['global_conf'].get('profile')):
-            self.profile = 'true'
+    def prepare(self):
+        super(GlobalResourceInjectionWidget, self).prepare()
+
+        for required in ['config', 'request']:
+            if not getattr(self, required, None):
+                raise ValueError("GlobalResources must be given a %r." %
+                                 required)
 
         for widget_entry in pkg_resources.iter_entry_points('moksha.global'):
             log.info('Loading global resource: %s' % widget_entry.name)
             loaded = widget_entry.load()
-            #if isclass(loaded):
-            #    loaded = loaded(id=widget_entry.name)
+            if isinstance(loaded, types.FunctionType):
+                loaded = loaded(self.config)
             if isinstance(loaded, twc.JSLink):
                 self.resources.append(loaded)
             elif isinstance(loaded, twc.CSSLink):
@@ -85,9 +85,9 @@ class GlobalResourceInjectionWidget(twc.Widget):
                     log.debug("Skipping duplicate global widget: %s" %
                               widget_entry.name)
                 else:
-                    if loaded is moksha_socket:
-                        if not asbool(config.get('moksha.livesocket', True)):
-                            log.debug('Moksha Live Socket disabled in the config')
+                    if issubclass(loaded, AbstractMokshaSocket):
+                        if not self.livesocket:
+                            log.debug('Moksha Live Socket disabled in config')
                             continue
                     self.children.append(loaded)
             else:
@@ -95,27 +95,11 @@ class GlobalResourceInjectionWidget(twc.Widget):
                                 "either a JSLink or CSSLink." %
                                 widget_entry.name)
 
-        self.csrf_token_id = config.get('moksha.csrf.token_id', '_csrf_token')
-        if asbool(config.get('moksha.extensionpoints', False)):
+        if self.extensionpoints:
             self.resources.append(moksha_extension_points_js)
 
-        trusted_domain_list = config.get('moksha.csrf.trusted_domains', '').split(',')
-        # turn into quick lookup hash
-        item_list = []
-        for domain in trusted_domain_list:
-            item_list.append('"%s": true' % domain)
-        trusted_domain_hash = '{%s}' % ','.join(item_list)
-        self.csrf_trusted_domains_hash = trusted_domain_hash
-        self.csrf_trusted_domains = self.csrf_trusted_domains_hash
-
-    def prepare(self):
-        super(GlobalResourceInjectionWidget, self).prepare()
-
-        self.base_url = url('/')
-
-        identity = request.environ.get('repoze.who.identity')
+        identity = self.request.environ.get('repoze.who.identity')
         if identity:
-            self.csrf_token = identity.get(self.csrf_token_id, '')
             self.user_id = identity.get('user_id', '')
 
 

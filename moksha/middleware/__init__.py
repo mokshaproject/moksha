@@ -15,8 +15,7 @@
 
 from middleware import MokshaMiddleware, make_moksha_middleware
 from extensionpoint import MokshaExtensionPointMiddleware
-from csrf import CSRFProtectionMiddleware
 
 __all__ = ('MokshaMiddleware',
-           'MokshaExtensionPointMiddleware', 'CSRFProtectionMiddleware',
+           'MokshaExtensionPointMiddleware',
            'make_moksha_middleware')

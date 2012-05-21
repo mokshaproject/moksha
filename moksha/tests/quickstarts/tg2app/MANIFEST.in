@@ -1,4 +1,0 @@
-recursive-include tg2app/public *
-include tg2app/public/favicon.ico
-recursive-include tg2app/i18n *
-recursive-include tg2app/templates *

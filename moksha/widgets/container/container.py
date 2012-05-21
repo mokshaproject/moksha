@@ -89,15 +89,17 @@ class MokshaContainer(twc.Widget):
             # FIXME: also unregister the moksha callback functions.  Handle
             # cases where multiple widgets are listening to the same topics
 
-            if not isinstance(unsubscribe_topics(topics), basestring):
+            obj = self.content.req()
+
+            if not isinstance(unsubscribe_topics(obj, topics), basestring):
                 raise ValueError('wtf')
 
             self.onClose = "function(o){%s $(o).remove();}" % \
-                unsubscribe_topics(topics)
+                unsubscribe_topics(obj, topics)
             self.onIconize = self.onCollapse = "function(o){%s}" % \
-                unsubscribe_topics(topics)
+                unsubscribe_topics(obj, topics)
             self.onRestore = "function(o){%s}" % \
-                subscribe_topics(topics)
+                subscribe_topics(obj, topics)
 
         if self.content:
             self.content = self.content.display(**content_args)

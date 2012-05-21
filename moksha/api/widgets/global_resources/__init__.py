@@ -19,5 +19,4 @@ __all__ = [
     'global_resources',
     'GlobalResourceInjectionWidget',
     'moksha_js',
-    'moksha_socket',
 ]

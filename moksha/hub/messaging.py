@@ -15,7 +15,7 @@
 #
 # Authors: Luke Macken <lmacken@redhat.com>
 
-class MessagingHub(object):
+class MessagingHubExtension(object):
     """
     A generic messaging hub.
 

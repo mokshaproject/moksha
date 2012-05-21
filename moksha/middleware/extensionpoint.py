@@ -19,8 +19,6 @@ import logging
 import pkg_resources
 
 from webob import Request, Response
-from pylons import config
-from pylons.i18n import ugettext
 
 from moksha.exc import ApplicationNotFound, MokshaException
 
@@ -73,11 +71,14 @@ class MokshaExtensionPointMiddleware(object):
             'name': 'Hello World Message'}
 
     """
-    def __init__(self, application,
+    def __init__(self,
+                 application,
+                 config,
                  entry_point='moksha.extension_point',
                  test_dir=None):
         """
         :application: WSGI application to wrap
+        :config: a dict of config values
         :extension_point: the python extry point which specifies modules to
                           scan for JavaScript extension_points
         :test_dir: a directory to scan for JavaScript extension_points which

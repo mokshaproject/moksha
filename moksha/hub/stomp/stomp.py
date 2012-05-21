@@ -22,19 +22,21 @@ from twisted.internet.protocol import ReconnectingClientFactory
 
 from moksha.hub.reactor import reactor
 from moksha.hub.stomp.protocol import StompProtocol
-from moksha.hub.messaging import MessagingHub
+from moksha.hub.messaging import MessagingHubExtension
 
 log = logging.getLogger('moksha.hub')
 
 
-class StompHub(MessagingHub, ReconnectingClientFactory):
+class StompHubExtension(MessagingHubExtension, ReconnectingClientFactory):
     username = None
     password = None
     proto = None
     frames = None
 
-    def __init__(self):
-        self._topics = self.topics.keys()
+    def __init__(self, hub, config):
+        self.config = config
+        self.hub = hub
+        self._topics = hub.topics.keys()
         self._frames = []
 
         port = self.config.get('stomp_port', 61613)
@@ -45,13 +47,11 @@ class StompHub(MessagingHub, ReconnectingClientFactory):
 
         reactor.connectTCP(host, int(port), self)
 
-        super(StompHub, self).__init__()
-
+        super(StompHubExtension, self).__init__()
 
     def buildProtocol(self, addr):
         self.proto = StompProtocol(self, self.username, self.password)
         return self.proto
-
 
     def connected(self):
         for topic in self._topics:
@@ -63,10 +63,8 @@ class StompHub(MessagingHub, ReconnectingClientFactory):
             self.proto.transport.write(frame.pack())
         self._frames = []
 
-
     def clientConnectionLost(self, connector, reason):
         log.info('Lost connection.  Reason: %s' % reason)
-
 
     def clientConnectionFailed(self, connector, reason):
         log.error('Connection failed. Reason: %s' % reason)
@@ -83,8 +81,7 @@ class StompHub(MessagingHub, ReconnectingClientFactory):
         else:
             self.proto.transport.write(f.pack())
 
-        super(StompHub, self).send_message(topic, message, **headers)
-
+        super(StompHubExtension, self).send_message(topic, message, **headers)
 
     def subscribe(self, topic, callback):
         # FIXME -- note, the callback is just thrown away here.
@@ -95,4 +92,4 @@ class StompHub(MessagingHub, ReconnectingClientFactory):
         else:
             self.proto.subscribe(topic)
 
-        super(StompHub, self).subscribe(topic, callback)
+        super(StompHubExtension, self).subscribe(topic, callback)

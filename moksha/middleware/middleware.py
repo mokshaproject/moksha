@@ -16,29 +16,31 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 
 import os
-import tg
 import moksha
 import moksha.utils
 import logging
 import pkg_resources
 import warnings
+import types
 
-from tg.controllers import WSGIAppController
 from shove import Shove
-from pylons import config
 from paste.deploy.converters import asbool
 from inspect import isclass
-from pylons.i18n import ugettext
-from paste.deploy import appconfig
 from sqlalchemy import create_engine
 from feedcache.cache import Cache
 
 from moksha.exc import MokshaException
-from moksha.lib.helpers import (defaultdict, get_moksha_config_path,
-                                get_main_app_config_path)
-from moksha.wsgiapp import MokshaAppDispatcher
+from moksha.lib.helpers import (defaultdict, get_moksha_config_path)
+from moksha.lib.helpers import appconfig
 
 log = logging.getLogger(__name__)
+
+# A list of all the entry points
+APPS = 'moksha.application'
+WIDGETS = 'moksha.widget'
+ROOT = 'moksha.root'
+MENUS = 'moksha.menu'
+
 
 class MokshaMiddleware(object):
     """
@@ -53,30 +55,29 @@ class MokshaMiddleware(object):
     which acts as a registry for Moksha LiveWidget topic callbacks.
 
     """
-    def __init__(self, application):
+    def __init__(self, application, config):
         log.info('Creating Moksha Middleware')
         self.application = application
-        self.mokshaapp = MokshaAppDispatcher(application)
+        self.config = config
 
-        moksha.utils._apps = {}        # {'app name': tg.TGController/tg.WSGIAppController}
-        moksha.utils._widgets = {}    # {'widget name': tw.api.Widget}
-        moksha.utils.menus = {}       # {'menu name': moksha.api.menus.MokshaMenu}
-        self.engines = {}       # {'app name': sqlalchemy.engine.base.Engine}
+        moksha.utils._apps = {}
+        moksha.utils._widgets = {}  # {'widget name': tw.api.Widget}
+        moksha.utils.menus = {}  # {'menu name': moksha.api.menus.MokshaMenu}
+        self.engines = {}  # {'app name': sqlalchemy.engine.base.Engine}
 
         self.load_paths()
-        self.load_renderers()
         self.load_configs()
         self.load_widgets()
         self.load_applications()
-        self.load_wsgi_applications()
         self.load_models()
         self.load_menus()
         self.load_root()
 
         try:
-            moksha.utils.feed_storage = Shove(config.get('feed_store', 'simple://'),
-                                        config.get('feed_cache', 'simple://'),
-                                        compress=True)
+            moksha.utils.feed_storage = Shove(
+                config.get('feed_store', 'simple://'),
+                config.get('feed_cache', 'simple://'),
+                compress=True)
             moksha.utils.feed_cache = Cache(moksha.utils.feed_storage)
         except Exception, e:
             log.error(str(e))
@@ -84,7 +85,7 @@ class MokshaMiddleware(object):
 
     def __call__(self, environ, start_response):
         self.register_livewidgets(environ)
-        return self.mokshaapp(environ, start_response)
+        return self.application(environ, start_response)
 
     def register_livewidgets(self, environ):
         """ Register the `moksha.livewidgets` dictionary.
@@ -101,7 +102,7 @@ class MokshaMiddleware(object):
             'onerror': [],
             'onerrorframe': [],
             'onconnectedframe': [],
-            'onmessageframe': defaultdict(list) # {topic: [js_callback,]}
+            'onmessageframe': defaultdict(list)  # {topic: [js_callback,]}
         })
 
     def load_paths(self):
@@ -111,7 +112,7 @@ class MokshaMiddleware(object):
         ensure that we parse and load each of their configuration files
         beforehand.
         """
-        for app_entry in pkg_resources.iter_entry_points('moksha.application'):
+        for app_entry in pkg_resources.iter_entry_points(APPS):
             if app_entry.name in moksha.utils._apps:
                 raise MokshaException('Duplicate application name: %s' %
                                       app_entry.name)
@@ -121,7 +122,7 @@ class MokshaMiddleware(object):
                     'project_name': app_entry.dist.project_name,
                     'path': app_path,
                     }
-        for widget_entry in pkg_resources.iter_entry_points('moksha.widget'):
+        for widget_entry in pkg_resources.iter_entry_points(WIDGETS):
             if widget_entry.name in moksha.utils._widgets:
                 raise MokshaException('Duplicate widget name: %s' %
                                       widget_entry.name)
@@ -134,7 +135,7 @@ class MokshaMiddleware(object):
 
     def load_applications(self):
         log.info('Loading moksha applications')
-        for app_entry in pkg_resources.iter_entry_points('moksha.application'):
+        for app_entry in pkg_resources.iter_entry_points(APPS):
             log.info('Loading %s application' % app_entry.name)
             app_class = app_entry.load()
             app_path = app_entry.dist.location
@@ -157,160 +158,39 @@ class MokshaMiddleware(object):
             except ImportError, e:
                 log.debug("Cannot find application model: %r" % module)
 
-    def load_wsgi_applications(self):
-        log.info('Loading moksha WSGI applications')
-        for app_entry in pkg_resources.iter_entry_points('moksha.wsgiapp'):
-            log.info('Loading %s WSGI application' % app_entry.name)
-            app_path = app_entry.dist.location
-            app_class = app_entry.load()
-            moksha.utils._apps[app_entry.name] = {
-                    'name': getattr(app_class, 'name', app_entry.name),
-                    'controller': WSGIAppController(app_class),
-                    'path': app_path,
-                    'model': None,
-                    }
-
     def load_widgets(self):
         """ Load widgets from entry points. """
 
         log.info('Loading moksha widgets')
 
-        log.info('Preparing for tw2 widgets')
         import tw2.core.widgets
         from moksha.api.widgets.live import LiveWidgetMeta
-
-        # TODO -- do away with this callback.  It's a legacy from tw1
-        def instantiate_widget(cls, name):
-            # First, a sanity check
-            if not isinstance(cls, tw2.core.widgets.WidgetMeta):
-                warnings.warn("Encountered non-widget on widgets " +
-                              "entry point " + str(cls))
-            # TW2 widgets never *really* get instantiated.
-            #     The cake is a lie.
-            return cls
 
         def is_live(widget):
             return isinstance(widget, LiveWidgetMeta)
 
-        for widget_entry in pkg_resources.iter_entry_points('moksha.widget'):
+        for widget_entry in pkg_resources.iter_entry_points(WIDGETS):
             log.info('Loading %s widget' % widget_entry.name)
+
             widget_class = widget_entry.load()
+            if isinstance(widget_class, types.FunctionType):
+                widget_class = widget_class(config=self.config)
+
             widget_path = widget_entry.dist.location
-            widget = instantiate_widget(widget_class, widget_entry.name)
             moksha.utils._widgets[widget_entry.name] = {
                     'name': getattr(widget_class, 'name', widget_entry.name),
-                    'widget': widget,
+                    'widget': widget_class,
                     'path': widget_path,
-                    'live': is_live(widget),
+                    'live': is_live(widget_class),
                     }
 
     def load_menus(self):
         log.info('Loading moksha menus')
-        for menu_entry in pkg_resources.iter_entry_points('moksha.menu'):
+        for menu_entry in pkg_resources.iter_entry_points(MENUS):
             log.info('Loading %s menu' % menu_entry.name)
             menu_class = menu_entry.load()
             menu_path = menu_entry.dist.location
-            moksha.utils.menus[menu_entry.name] = menu_class(id=menu_entry.name)
-
-    def load_renderers(self):
-        """ Load our template renderers with our application paths.
-
-        We are currently overloading TG2's default Mako renderer because
-        the default `escape` filter causes our widgets to show up as escaped HTML.
-
-         """
-        from mako.template import Template
-        from mako.lookup import TemplateLookup
-        try: # TG2.1
-            from tg.dottednames.mako_lookup import DottedTemplateLookup
-        except ImportError:
-            try: # TG2b6
-                from tg.dottednamesupport import DottedTemplateLookup
-            except: # TG2b5 and earlier
-                from tg.util import get_dotted_filename
-
-                class DottedTemplateLookup(object):
-                    """this is an emulation of the Mako template lookup
-                    that will handle get_template and support dotted names
-                    in python path notation to support zipped eggs
-                    """
-                    def __init__(self, input_encoding, output_encoding,
-                                 imports, default_filters):
-                        self.input_encoding = input_encoding
-                        self.output_encoding = output_encoding
-                        self.imports = imports
-                        self.default_filters = default_filters
-
-                    def adjust_uri(self, uri, relativeto):
-                        """this method is used by mako for filesystem based reasons.
-                        In dotted lookup land we don't adjust uri so se just return
-                        the value we are given without any change
-                        """
-                        if '.' in uri:
-                            """we are in the DottedTemplateLookup system so dots in
-                            names should be treated as a python path.
-                            Since this method is called by template inheritance we must
-                            support dotted names also in the inheritance.
-                            """
-                            result = get_dotted_filename(template_name=uri,
-                                                         template_extension='.mak')
-
-                        else:
-                            """no dot detected, just return plain name
-                            """
-                            result = uri
-
-                        return result
-
-                    def get_template(self, template_name):
-                        """this is the emulated method that must return a template
-                        instance based on a given template name
-                        """
-                        return Template(open(template_name).read(),
-                            input_encoding=self.input_encoding,
-                            output_encoding=self.output_encoding,
-                            default_filters=self.default_filters,
-                            imports=self.imports,
-                            lookup=self)
-
-        if config.get('use_dotted_templatenames', True):
-            # support dotted names by injecting a slightly different template
-            # lookup system that will return templates from dotted template
-            # notation.
-            config['pylons.app_globals'].mako_lookup = DottedTemplateLookup(
-                input_encoding='utf-8', output_encoding='utf-8',
-                imports=[], default_filters=[])
-
-        else:
-            compiled_dir = tg.config.get('templating.mako.compiled_templates_dir', None)
-
-            if not compiled_dir:
-                # no specific compile dir give by conf... we expect that
-                # the server will have access to the first template dir
-                # to write the compiled version...
-                # If this is not the case we are doomed and the user should
-                # provide us the required config...
-                compiled_dir = self.paths['templates'][0]
-
-            # If no dotted names support was required we will just setup
-            # a file system based template lookup mechanism.
-            compiled_dir = tg.config.get('templating.mako.compiled_templates_dir', None)
-
-            if not compiled_dir:
-                # no specific compile dir give by conf... we expect that
-                # the server will have access to the first template dir
-                # to write the compiled version...
-                # If this is not the case we are doomed and the user should
-                # provide us the required config...
-                compiled_dir = self.paths['templates'][0]
-
-            config['pylons.app_globals'].mako_lookup = TemplateLookup(
-                directories=self.paths['templates'],
-                module_directory=compiled_dir,
-                input_encoding='utf-8', output_encoding='utf-8',
-                #imports=['from webhelpers.html import escape'],
-                #default_filters=['escape'],
-                filesystem_checks=self.auto_reload_templates)
+            moksha.utils.menus[menu_entry.name] = menu_class(menu_entry.name)
 
     def load_configs(self):
         """ Load the configuration files for all applications.
@@ -333,7 +213,6 @@ class MokshaMiddleware(object):
         if moksha_config_path:
             moksha_config_path = os.path.dirname(moksha_config_path)
             apps = [{'path': moksha_config_path}]
-        main_app_config_path = os.path.dirname(get_main_app_config_path())
 
         apps += moksha.utils._apps.values()
         for app in apps:
@@ -344,19 +223,20 @@ class MokshaMiddleware(object):
                         conf = appconfig('config:' + confpath)
                         if app.get('name'):
                             moksha.utils._apps[app['name']]['config'] = conf
-                        if app['path'] == main_app_config_path or \
-                                confpath in loaded_configs:
+                        if confpath in loaded_configs:
                             continue
                         log.info('Loading configuration: %s' % confpath)
-                        for entry in conf.global_conf:
-                            if entry.startswith('_'):
-                                continue
-                            if entry in config:
-                                log.warning('Conflicting variable: %s' % entry)
-                                continue
-                            else:
-                                config[entry] = conf.global_conf[entry]
-                                log.debug('Set `%s` in global config' % entry)
+# This is leftover from the days of using paste.deploy.appconfig.  Is anything
+# using this?
+#                       for entry in conf.global_conf:
+#                           if entry.startswith('_'):
+#                               continue
+#                           if entry in config:
+#                               log.warning('Conflicting variable: %s' % entry)
+#                               continue
+#                           else:
+#                               config[entry] = conf.global_conf[entry]
+#                               log.debug('Set `%s` in global config' % entry)
                         loaded_configs.append(confpath)
                         break
 
@@ -376,7 +256,7 @@ class MokshaMiddleware(object):
         """
         for name, app in moksha.utils._apps.items():
             sa_url = app.get('config', {}).get('sqlalchemy.url', None)
-            app_db = config.get('app_db', 'sqlite:///%s.db')
+            app_db = self.config.get('app_db', 'sqlite:///%s.db')
             if sa_url:
                 if app['config']['__file__'] == get_moksha_config_path():
                     # Moksha's apps don't specify their own SA url
@@ -408,31 +288,30 @@ class MokshaMiddleware(object):
 
         """
         root = None
-        for root_entry in pkg_resources.iter_entry_points('moksha.root'):
+        for root_entry in pkg_resources.iter_entry_points(ROOT):
             log.info('Loading the root of the project: %r' %
                      root_entry.dist.project_name)
             if root_entry.name == 'root':
                 root_class = root_entry.load()
                 moksha.utils.root = root_class
 
-                # TODO: support setting a root widget
-                #if issubclass(root_class, Widget):
-                #    widget = root_class(root_class.__name__)
-                #    moksha.utils._widgets[root_entry.name] = {
-                #        'name': getattr(root_class, 'name', widget_entry.name),
-                #        'widget': widget,
-                #        'path': root_entry.dist.location,
-                #        }
+               # TODO: support setting a root widget
+               #if issubclass(root_class, Widget):
+               #    widget = root_class(root_class.__name__)
+               #    moksha.utils._widgets[root_entry.name] = {
+               #        'name': getattr(root_class, 'name', widget_entry.name),
+               #        'widget': widget,
+               #        'path': root_entry.dist.location,
+               #        }
 
-                # TODO: handle root wsgi apps
+               # TODO: handle root wsgi apps
             else:
                 log.error('Ignoring [moksha.root] entry %r')
                 log.error('Please expose at most 1 object on this entry-point,'
                           ' named "root".')
 
 
-def make_moksha_middleware(app):
-
+def make_moksha_middleware(app, config):
     if asbool(config.get('moksha.connectors', False)):
         raise NotImplementedError(
             "moksha.connectors has moved to fedora-community"
@@ -440,20 +319,16 @@ def make_moksha_middleware(app):
 
     if asbool(config.get('moksha.extensionpoints', True)):
         from moksha.middleware import MokshaExtensionPointMiddleware
-        app = MokshaExtensionPointMiddleware(app)
+        app = MokshaExtensionPointMiddleware(app, config)
 
-    app = MokshaMiddleware(app)
+    app = MokshaMiddleware(app, config)
 
-    if asbool(config.get('moksha.csrf_protection', True)):
-        from moksha.middleware.csrf import CSRFProtectionMiddleware
-        app = CSRFProtectionMiddleware(
-                app,
-                csrf_token_id=config.get('moksha.csrf.token_id', '_csrf_token'),
-                clear_env=config.get('moksha.csrf.clear_env',
-                    'repoze.who.identity repoze.what.credentials'),
-                token_env=config.get('moksha.csrf.token_env', 'CSRF_TOKEN'),
-                auth_state=config.get('moksha.csrf.auth_state',
-                                      'CSRF_AUTH_STATE'),
-                )
+    if asbool(config.get('moksha.csrf_protection', False)):
+        raise NotImplementedError(
+            "moksha.csrf_protection has been moved to python-fedora")
+
+    if asbool(config.get('moksha.registry', True)):
+        from paste.registry import RegistryManager
+        app = RegistryManager(app)
 
     return app

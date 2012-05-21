@@ -13,9 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from tg import config
-from paste.deploy.converters import asbool
-
 import tw2.core as twc
 
 from moksha.api.widgets.feed import Feed

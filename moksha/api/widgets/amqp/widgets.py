@@ -19,10 +19,6 @@
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
 """
 
-from tg import config
-from paste.deploy.converters import asbool
-from kitchen.text.converters import to_unicode as unicode
-
 import moksha
 import moksha.utils
 
@@ -30,10 +26,11 @@ import tw2.core as twc
 from tw2.jqplugins.gritter import gritter_resources, gritter_callback
 
 from moksha.api.widgets.socket import AbstractMokshaSocket
-from moksha.api.widgets.orbited import orbited_host, orbited_port, orbited_url
-from moksha.api.widgets.orbited import orbited_js
 from moksha.lib.helpers import defaultdict, listify
 
+orbited_host = twc.Required
+orbited_port = twc.Required
+orbited_scheme = twc.Required
 
 jsio_js = twc.JSLink(
     filename='static/jsio/jsio.js',
@@ -77,32 +74,23 @@ class AMQPSocket(AbstractMokshaSocket):
     resources = AbstractMokshaSocket.resources + \
             [amqp_resources, jsio_js]
 
-    orbited_host = twc.Param(
-        default=config.get('orbited_host', 'localhost'))
-    orbited_port = twc.Param(
-        default=unicode(config.get('orbited_port', 9000)))
-    orbited_scheme = twc.Param(
-        default=config.get('orbited_scheme', 'http'))
-    orbited_js = twc.Param(default=orbited_js)
+    orbited_host = twc.Param(default=orbited_host)
+    orbited_port = twc.Param(default=orbited_port)
+    orbited_scheme = twc.Param(default=orbited_scheme)
 
-    moksha_domain = twc.Param(
-        default=config.get('moksha.domain', 'localhost'))
+    moksha_domain = twc.Param(twc.Required)
 
-    amqp_broker_host = twc.Param(
-        default=config.get('amqp_broker_host', 'localhost'))
-    amqp_broker_port = twc.Param(
-        default=unicode(config.get('amqp_broker_port', 5672)))
-    amqp_broker_user = twc.Param(
-        default=config.get('amqp_broker_user', 'guest'))
-    amqp_broker_pass = twc.Param(
-        default=config.get('amqp_broker_pass', 'guest'))
-
-    onconnectedframe = twc.Param(default='')
-    onmessageframe = twc.Param(default='')
+    amqp_broker_host = twc.Param(default=twc.Required)
+    amqp_broker_port = twc.Param(default=twc.Required)
+    amqp_broker_user = twc.Param(default=twc.Required)
+    amqp_broker_pass = twc.Param(default=twc.Required)
 
     template = "mako:moksha.api.widgets.amqp.templates.amqp"
 
     def prepare(self):
         super(AMQPSocket, self).prepare()
-        self.orbited_url = '%s://%s:%s' % (self.orbited_scheme,
-                self.orbited_host, self.orbited_port)
+        self.orbited_url = '%s://%s:%s' % (
+            self.orbited_scheme,
+            self.orbited_host,
+            self.orbited_port,
+        )
