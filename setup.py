@@ -23,9 +23,9 @@ except Exception:
 
 setup(
     name='moksha',
-    version='0.7.1',
-    description='',
-    author='',
+    version='0.8.0',
+    description='A platform for creating real-time web applications',
+    author='Luke Macken, John (J5) Palmieri, Mairin Duffy, and Ralph Bean',
     author_email='',
     url='http://moksha.fedorahosted.org',
     install_requires=[
