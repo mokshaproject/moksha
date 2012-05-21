@@ -19,7 +19,7 @@ from paste.deploy.converters import asbool
 
 import logging
 import time
-import txZMQ
+import txzmq
 import zmq
 
 from moksha.hub.zeromq.base import BaseZMQHubExtension
@@ -55,13 +55,13 @@ class ZMQHubExtension(BaseZMQHubExtension):
             self.pub_socket.bind(endpoint)
 
         # Factory used to lazily produce subsequent subscribers
-        self.twisted_zmq_factory = txZMQ.ZmqFactory()
+        self.twisted_zmq_factory = txzmq.ZmqFactory()
 
         # Establish a list of subscription endpoints for later use
         _endpoints = self.config['zmq_subscribe_endpoints'].split(',')
         method = self.config.get('zmq_subscribe_method', 'connect')
         self.sub_endpoints = [
-            txZMQ.ZmqEndpoint(method, ep) for ep in _endpoints
+            txzmq.ZmqEndpoint(method, ep) for ep in _endpoints
         ]
 
         # This is required so that the publishing socket can fully set itself
@@ -99,12 +99,12 @@ class ZMQHubExtension(BaseZMQHubExtension):
 
         for endpoint in self.sub_endpoints:
             log.info("Subscribing to %s on '%r'" % (topic, endpoint))
-            s = txZMQ.ZmqSubConnection(self.twisted_zmq_factory, endpoint)
+            s = txzmq.ZmqSubConnection(self.twisted_zmq_factory, endpoint)
 
             def intercept(_body, _topic):
                 """ The purpose of this intercept callback is twofold:
 
-                 - Callbacks from txZMQ are called with two arguments, body and
+                 - Callbacks from txzmq are called with two arguments, body and
                    topic but moksha is expecting an object which has a 'body'
                    attribute.  We create that object and pass it on here.
                  - 0mq topic-matching works differently than AMQP and STOMP.
