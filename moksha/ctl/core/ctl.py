@@ -71,6 +71,7 @@ def bootstrap():
             'openssl-devel',
             'python-devel',
             'python-zmq',
+            'zeromq-devel',
         ]
         ret = ret and not os.system(
             'sudo yum install -q -y ' + ' '.join(reqs))

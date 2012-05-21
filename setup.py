@@ -37,7 +37,7 @@ setup(
         "orbited==0.7.10",
         "Twisted",
         "stomper",
-        "txZMQ",
+        "txZMQ>=0.5.0",
         "txWS",
         "Sphinx",
         "fabulous",
