@@ -52,7 +52,7 @@ class MokshaContainer(twc.Widget):
     iconize = minimize = close = True
     hidden = True  # hide from the moksha menu
     content = ''  # either text, or a Widget instance
-    widget_name = None
+    widget_name = ''
     title = 'Moksha Container'
     skin = 'default'  # default, black, white, stiky, alert
     view_source = True
@@ -83,7 +83,7 @@ class MokshaContainer(twc.Widget):
             raise ValueError("non-tw2 widget found inside tw2 container")
 
         # If we weren't passed a widget_name explicitly, then take a guess.
-        if not getattr(self, 'widget_name'):
+        if not getattr(self, 'widget_name') and hasattr(self.content, 'id'):
             self.widget_name = self.content.id
 
         content_args = getattr(self, 'content_args', {})
