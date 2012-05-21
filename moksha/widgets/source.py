@@ -35,9 +35,9 @@ from pygments.formatters import HtmlFormatter
 class SourceCodeWidget(twc.Widget):
     widget = twc.Param("The name of the widget")
     module = twc.Param("Whether to display the entire module")
-    source = twc.Param("Optional source code")
+    source = twc.Param("Optional source code", default=None)
     code = twc.Param("The actual rendered source code")
-    title = twc.Param("An optional title for the document")
+    title = twc.Param("An optional title for the document", default='')
 
     template = "mako:moksha.widgets.templates.source"
 
