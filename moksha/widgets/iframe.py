@@ -22,6 +22,9 @@
 
 import tw2.core as twc
 
+# TODO -- this should be removed and replaced with
+#         http://tw2-demos.threebean.org/module?module=tw2.etc
+
 
 class IFrameWidget(twc.Widget):
     params = ['id', 'url', 'title', 'height', 'width']
