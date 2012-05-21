@@ -82,7 +82,10 @@ class MokshaContainer(twc.Widget):
             # hard errors here so I don't mess up jquery dependencies.
             raise ValueError("non-tw2 widget found inside tw2 container")
 
-        self.widget_name = self.content.__class__.__name__
+        # If we weren't passed a widget_name explicitly, then take a guess.
+        if not getattr(self, 'widget_name'):
+            self.widget_name = self.content.id
+
         content_args = getattr(self, 'content_args', {})
         if isinstance(self.content, (LiveWidget, LiveWidgetMeta)):
             topics = self.content.get_topics()
