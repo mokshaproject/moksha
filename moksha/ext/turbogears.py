@@ -21,7 +21,7 @@ def global_resources():
     """
     import tg
     from moksha.api.widgets.global_resources import global_resources as globs
-    globs = globs(config=tg.config, request=tg.request)
+    globs = globs(config=tg.config, request=tg.request, base_url=tg.url('/'))
 
     if tg.config.default_renderer == 'genshi':
         # There's Got To Be A Better Way!
