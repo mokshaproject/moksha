@@ -17,6 +17,8 @@ import logging
 import pkg_resources
 import types
 
+from paste.deploy.converters import asbool
+
 import tw2.core as twc
 import tw2.core.widgets
 
@@ -49,7 +51,6 @@ class GlobalResourceInjectionWidget(twc.Widget):
     user_id = ''
     debug = twc.Param(default=False)
     profile = twc.Param(default=False)
-    livesocket = twc.Param(default=True)
     extensionpoints = twc.Param(default=False)
 
     base_url = twc.Param(default='/')
@@ -71,6 +72,8 @@ class GlobalResourceInjectionWidget(twc.Widget):
                 raise ValueError("GlobalResources must be given a %r." %
                                  required)
 
+        live = asbool(self.config.get('moksha.livesocket', True))
+
         for widget_entry in pkg_resources.iter_entry_points('moksha.global'):
             log.info('Loading global resource: %s' % widget_entry.name)
             loaded = widget_entry.load()
@@ -85,10 +88,10 @@ class GlobalResourceInjectionWidget(twc.Widget):
                     log.debug("Skipping duplicate global widget: %s" %
                               widget_entry.name)
                 else:
-                    if issubclass(loaded, AbstractMokshaSocket):
-                        if not self.livesocket:
-                            log.debug('Moksha Live Socket disabled in config')
-                            continue
+                    if issubclass(loaded, AbstractMokshaSocket) and not live:
+                        log.debug('Moksha Live Socket disabled in config')
+                        continue
+
                     self.children.append(loaded)
             else:
                 raise Exception("Unknown global resource: %s.  Should be "
