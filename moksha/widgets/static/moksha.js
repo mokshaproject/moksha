@@ -323,47 +323,6 @@ moksha = {
         return results;
     },
 
-    /********************************************************************
-     * Take a url and attach the csrf hash if available
-     ********************************************************************/
-    csrf_rewrite_url: function(url, params) {
-        var purl = moksha.parseUri(url);
-
-        moksha.csrf_rewrite_uri(purl, params);
-
-        return purl.toString();
-    },
-
-    csrf_rewrite_uri: function(uri, params) {
-        if (typeof(params) == 'undefined')
-            params = {};
-
-        if (typeof(moksha_csrf_token) != 'undefined' && moksha_csrf_token)
-            params['_csrf_token'] = moksha_csrf_token;
-
-        uri.update_query_string(params);
-
-        return uri;
-    },
-
-    /*********************************************************************
-     * Take a form element and add or update a hidden field for the
-     * csrf token
-     *
-     * Example:
-     *   <form action="/process_form/"
-     *         onSubmit="moksha.csrf_add_form_field(this)">
-     *********************************************************************/
-    csrf_add_form_field: function(form_element) {
-        // do nothing if we don't actually have a token
-        if (typeof(moksha_csrf_token) === 'undefined' || !moksha_csrf_token)
-            return;
-
-        moksha.add_hidden_form_field(form_element,
-                                     '_csrf_token',
-                                     moksha_csrf_token);
-    },
-
     /*********************************************************************
      * Take a form element and add or update a hidden field
      *
@@ -401,7 +360,7 @@ moksha = {
     },
 
     /********************************************************************
-     * Take a url and target, attach the csrf hash if available and load
+     * Take a url and target and load
      *
      * FIXME: target is ignored for now
      *
@@ -733,10 +692,6 @@ moksha = {
            purl.prepend_base_url(burl);
            purl.update_query_string(params);
 
-           moksha.csrf_rewrite_uri(purl);
-       } else {
-           if (moksha_csrf_trusted_domains[purl.host])
-               moksha.csrf_rewrite_uri(purl);
        }
 
        return purl.toString();
