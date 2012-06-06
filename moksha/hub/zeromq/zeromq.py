@@ -90,7 +90,7 @@ class ZMQHubExtension(BaseZMQHubExtension):
     def send_message(self, topic, message, **headers):
         try:
             self.pub_socket.send_multipart([topic, message])
-        except zmq.ZMQError, e
+        except zmq.ZMQError, e:
             log.warn("Couldn't send message: %r" % e)
 
         super(ZMQHubExtension, self).send_message(topic, message, **headers)
