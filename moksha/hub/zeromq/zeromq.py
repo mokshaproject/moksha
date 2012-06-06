@@ -44,6 +44,7 @@ class ZMQHubExtension(BaseZMQHubExtension):
         self.config = config
         self.validate_config(self.config)
         self.strict = asbool(self.config.get('zmq_strict', False))
+        self.subscriber_factories = {}
 
         self.context = zmq.Context(1)
 
@@ -103,7 +104,21 @@ class ZMQHubExtension(BaseZMQHubExtension):
 
         for endpoint in self.sub_endpoints:
             log.info("Subscribing to %s on '%r'" % (topic, endpoint))
-            s = txzmq.ZmqSubConnection(self.twisted_zmq_factory, endpoint)
+            if endpoint in self.subscriber_factories:
+                log.debug("Using cached txzmq factory.")
+                s = self.subscriber_factories[endpoint]
+            else:
+                log.debug("Creating new txzmq factory.")
+                s = self.subscriber_factories[endpoint] = \
+                        txzmq.ZmqSubConnection(
+                            self.twisted_zmq_factory, endpoint)
+
+                def chain_over_moksha_callbacks(_body, _topic):
+                    for f in s._moksha_callbacks:
+                        f(_body, _topic)
+
+                s._moksha_callbacks = []
+                s.gotMessage = chain_over_moksha_callbacks
 
             def intercept(_body, _topic):
                 """ The purpose of this intercept callback is twofold:
@@ -124,7 +139,7 @@ class ZMQHubExtension(BaseZMQHubExtension):
 
                 return callback(ZMQMessage(_topic, _body))
 
-            s.gotMessage = intercept
+            s._moksha_callbacks.append(intercept)
             s.subscribe(topic)
 
         super(ZMQHubExtension, self).subscribe(original_topic, callback)
