@@ -88,7 +88,11 @@ class ZMQHubExtension(BaseZMQHubExtension):
                     raise ValueError("'localhost' in %s is disallowed" % attr)
 
     def send_message(self, topic, message, **headers):
-        self.pub_socket.send_multipart([topic, message])
+        try:
+            self.pub_socket.send_multipart([topic, message])
+        except zmq.ZMQError, e
+            log.warn("Couldn't send message: %r" % e)
+
         super(ZMQHubExtension, self).send_message(topic, message, **headers)
 
     def subscribe(self, topic, callback):
