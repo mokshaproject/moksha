@@ -18,6 +18,7 @@
 from paste.deploy.converters import asbool
 
 import logging
+import socket
 import time
 import txzmq
 import zmq
@@ -38,6 +39,19 @@ class ZMQMessage(object):
         return {'topic': self.topic, 'body': self.body}
 
 
+def hostname2ipaddr(endpoint):
+    """ Utility function to convert "tcp://hostname:port" to "tcp://ip:port"
+
+    Why?  -- http://bit.ly/Jwdf6v
+    """
+
+    hostname = endpoint[endpoint.rfind('/') + 1:endpoint.rfind(':')]
+    ip_addrs = socket.gethostbyname_ex(hostname)[2]
+    log.info("Resolving %s to %r" % (hostname, ip_addrs))
+    for addr in ip_addrs:
+        yield endpoint.replace(hostname, addr)
+
+
 class ZMQHubExtension(BaseZMQHubExtension):
 
     def __init__(self, hub, config):
@@ -53,7 +67,10 @@ class ZMQHubExtension(BaseZMQHubExtension):
         _endpoints = self.config.get('zmq_publish_endpoints', '').split(',')
         for endpoint in (e for e in _endpoints if e):
             log.info("Binding publish socket to '%s'" % endpoint)
-            self.pub_socket.bind(endpoint)
+            try:
+                self.pub_socket.bind(endpoint)
+            except zmq.ZMQError:
+                map(self.pub_socket.bind, hostname2ipaddr(endpoint))
 
         # Factory used to lazily produce subsequent subscribers
         self.twisted_zmq_factory = txzmq.ZmqFactory()
@@ -61,6 +78,10 @@ class ZMQHubExtension(BaseZMQHubExtension):
         # Establish a list of subscription endpoints for later use
         _endpoints = self.config['zmq_subscribe_endpoints'].split(',')
         method = self.config.get('zmq_subscribe_method', 'connect')
+
+        if method == 'bind':
+            _endpoints = sum(map(list, map(hostname2ipaddr, _endpoints)), [])
+
         self.sub_endpoints = [
             txzmq.ZmqEndpoint(method, ep) for ep in _endpoints
         ]
