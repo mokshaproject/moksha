@@ -30,13 +30,15 @@ NO_CONFIG_MESSAGE = """
 from moksha.hub.hub import CentralMokshaHub
 from moksha.hub.reactor import reactor
 
+
 def setup_logger(verbose):
     global log
     sh = logging.StreamHandler()
     level = verbose and logging.DEBUG or logging.INFO
     log.setLevel(level)
     sh.setLevel(level)
-    format = logging.Formatter('[moksha.hub] %(levelname)s %(asctime)s %(message)s')
+    format = logging.Formatter(
+        '[moksha.hub] %(levelname)s %(asctime)s %(message)s')
     sh.setFormatter(format)
     log.addHandler(sh)
 
