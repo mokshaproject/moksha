@@ -23,7 +23,7 @@ except Exception:
 
 setup(
     name='moksha',
-    version='0.8.1',
+    version='0.8.2',
     description='A platform for creating real-time web applications',
     author='Luke Macken, John (J5) Palmieri, Mairin Duffy, and Ralph Bean',
     author_email='',
