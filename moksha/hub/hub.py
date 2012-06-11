@@ -191,9 +191,14 @@ class CentralMokshaHub(MokshaHub):
     """
     producers = None # [<Producer>,]
 
-    def __init__(self, config):
+    def __init__(self, config, consumers=None, producers=None):
         log.info('Loading the Moksha Hub')
         self.topics = defaultdict(list)
+
+        # These are used to override the entry-points behavior
+        self._consumers = consumers
+        self._producers = producers
+
         self.__init_consumers()
 
         super(CentralMokshaHub, self).__init__(config)
@@ -285,8 +290,16 @@ class CentralMokshaHub(MokshaHub):
     def __init_consumers(self):
         """ Initialize all Moksha Consumer objects """
         log.info('Loading Consumers')
-        for consumer in pkg_resources.iter_entry_points('moksha.consumer'):
-            c_class = consumer.load()
+        if self._consumers == None:
+            log.debug("Loading from entry-points.")
+            self._consumers = [
+                consumer.load() for consumer in
+                pkg_resources.iter_entry_points('moksha.consumer')
+            ]
+        else:
+            log.debug("Loading explicitly passed entry-points.")
+
+        for c_class in self._consumers:
             log.info("%s consumer is watching the %r topic" % (
                      c_class.__name__, c_class.topic))
             self.topics[c_class.topic].append(c_class)
@@ -303,13 +316,22 @@ class CentralMokshaHub(MokshaHub):
     def __init_producers(self):
         """ Initialize all producers (aka data streams) """
         log.info('Loading Producers')
+        if self._producers == None:
+            log.debug("Loading from entry-points.")
+            self._producers = [
+                producer.load() for producer in sum([
+                    map(list, pkg_resources.iter_entry_points(epoint))
+                    for epoint in ('moksha.producer', 'moksha.stream')
+                ], [])
+            ]
+        else:
+            log.debug("Loading explicitly passed entry-points.")
+
         self.producers = []
-        for entry in ('moksha.producer', 'moksha.stream'):
-            for producer in pkg_resources.iter_entry_points(entry):
-                producer_class = producer.load()
-                log.info('Loading %s producer' % producer_class.__name__)
-                producer_obj = producer_class(self)
-                self.producers.append(producer_obj)
+        for producer_class in self._producers:
+            log.info('Loading %s producer' % producer_class.__name__)
+            producer_obj = producer_class(self)
+            self.producers.append(producer_obj)
 
     @trace
     def create_topic(self, topic):

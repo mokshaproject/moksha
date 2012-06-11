@@ -43,7 +43,7 @@ def setup_logger(verbose):
     log.addHandler(sh)
 
 
-def main(options=None):
+def main(options=None, consumers=None, producers=None):
     """ The main MokshaHub method """
     setup_logger('-v' in sys.argv or '--verbose' in sys.argv)
 
@@ -60,7 +60,7 @@ def main(options=None):
     else:
         config.update(options)
 
-    hub = CentralMokshaHub(config)
+    hub = CentralMokshaHub(config, consumers=consumers, producers=producers)
     global _hub
     _hub = hub
 
