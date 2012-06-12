@@ -28,7 +28,6 @@ NO_CONFIG_MESSAGE = """
 """
 
 from moksha.hub.hub import CentralMokshaHub
-from moksha.hub.reactor import reactor
 
 
 def setup_logger(verbose):
@@ -77,5 +76,6 @@ def main(options=None, consumers=None, producers=None):
     signal.signal(signal.SIGINT, handle_signal)
 
     log.info("Running the MokshaHub reactor")
+    from moksha.hub.reactor import reactor
     reactor.run(installSignalHandlers=False)
     log.info("MokshaHub reactor stopped")

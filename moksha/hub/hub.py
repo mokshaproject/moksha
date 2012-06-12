@@ -30,8 +30,6 @@ if os.getcwd() not in sys.path:
 import pkg_resources
 import logging
 
-from moksha.hub.reactor import reactor
-
 from orbited import json
 
 try:
@@ -166,6 +164,8 @@ class MokshaHub(object):
                                  message.body.encode('utf8'))
 
     def consume_stomp_message(self, message):
+        from moksha.hub.reactor import reactor
+
         topic = message['headers'].get('destination')
         if not topic:
             log.debug("Got message without a topic: %r" % message)
@@ -214,6 +214,8 @@ class CentralMokshaHub(MokshaHub):
         self.__init_websocket_server()
 
     def __init_websocket_server(self):
+        from moksha.hub.reactor import reactor
+
         if self.config.get('moksha.livesocket.backend', 'amqp') != 'websocket':
             return
         log.info("Enabling websocket server")

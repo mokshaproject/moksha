@@ -20,7 +20,6 @@ import logging
 
 from twisted.internet.protocol import ReconnectingClientFactory
 
-from moksha.hub.reactor import reactor
 from moksha.hub.stomp.protocol import StompProtocol
 from moksha.hub.messaging import MessagingHubExtension
 
@@ -34,6 +33,8 @@ class StompHubExtension(MessagingHubExtension, ReconnectingClientFactory):
     frames = None
 
     def __init__(self, hub, config):
+        from moksha.hub.reactor import reactor
+
         self.config = config
         self.hub = hub
         self._topics = hub.topics.keys()
