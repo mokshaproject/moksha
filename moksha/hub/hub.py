@@ -320,7 +320,7 @@ class CentralMokshaHub(MokshaHub):
             log.debug("Loading from entry-points.")
             self._producers = [
                 producer.load() for producer in sum([
-                    map(list, pkg_resources.iter_entry_points(epoint))
+                    list(pkg_resources.iter_entry_points(epoint))
                     for epoint in ('moksha.producer', 'moksha.stream')
                 ], [])
             ]
