@@ -194,7 +194,6 @@ def install_hacks():
     """ Install dependencies with weird workarounds. """
 
     distributions = [
-        'WebOb==1.0.8',
         'Extremes',
         'orbited',
         'BeautifulSoup',

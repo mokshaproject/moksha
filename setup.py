@@ -61,7 +61,6 @@ setup(
         "tw2.excanvas",
         #"repoze.squeeze", # Not hard requirements
         #"repoze.profile", # Not hard requirements
-        "WebOb<=1.1.1", # TODO - temporary
         "paste",
         "PasteDeploy",
         "WebHelpers",
