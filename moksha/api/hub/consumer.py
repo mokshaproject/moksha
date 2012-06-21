@@ -96,11 +96,21 @@ class Consumer(object):
                 # Weird.  I have no idea...
                 pass
 
-
-        self.consume({'body': body, 'topic': topic})
+        message_as_dict = {'body': body, 'topic': topic}
+        self._consume(message_as_dict)
 
     def _consume(self, message):
+        try:
+            self.validate(message)
+        except Exception, e:
+            log.warn("Received invalid message %r" % e)
+            return
+
         self.consume(message)
+
+    def validate(self, message):
+        """ Override to implement your own validation scheme. """
+        pass
 
     def consume(self, message):
         raise NotImplementedError
