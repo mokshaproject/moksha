@@ -23,7 +23,7 @@ except Exception:
 
 setup(
     name='moksha',
-    version='0.8.6',
+    version='0.8.7',
     description='A platform for creating real-time web applications',
     author='Luke Macken, John (J5) Palmieri, Mairin Duffy, and Ralph Bean',
     author_email='',
@@ -115,6 +115,9 @@ setup(
     moksha.stream = moksha.pastetemplate:MokshaStreamTemplate
     moksha.consumer = moksha.pastetemplate:MokshaConsumerTemplate
     moksha.controller = moksha.pastetemplate:MokshaControllerTemplate
+
+    [paste.filter_app_factory]
+    middleware = moksha.middleware:make_moksha_middleware
 
     """,
 )

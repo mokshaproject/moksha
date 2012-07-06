@@ -841,7 +841,10 @@ def appconfig(config_path):
     here = os.path.abspath(os.path.dirname(config_path))
     parser = ConfigParser.ConfigParser({"here": here})
     parser.read(filenames=[config_path])
-    return dict(parser.items('app:main'))
+    try:
+        return dict(parser.items('app:main'))
+    except ConfigParser.NoSectionError:
+        return dict()
 
 
 def create_app_engine(app, config):
