@@ -844,7 +844,12 @@ def appconfig(config_path):
     try:
         return dict(parser.items('app:main'))
     except ConfigParser.NoSectionError:
-        return dict()
+        for section in parser.sections():
+            if section.startswith('app:'):
+                print "Using %r" % section
+                return dict(parser.items(section))
+
+        raise ConfigParser.NoSectionError("Couldn't find app: section.")
 
 
 def create_app_engine(app, config):
