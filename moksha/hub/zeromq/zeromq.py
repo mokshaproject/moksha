@@ -130,9 +130,13 @@ class ZMQHubExtension(BaseZMQHubExtension):
                 s = self.subscriber_factories[endpoint]
             else:
                 log.debug("Creating new txzmq factory.")
-                s = self.subscriber_factories[endpoint] = \
-                        txzmq.ZmqSubConnection(
-                            self.twisted_zmq_factory, endpoint)
+                try:
+                    s = self.subscriber_factories[endpoint] = \
+                            txzmq.ZmqSubConnection(
+                                self.twisted_zmq_factory, endpoint)
+                except zmq.ZMQError:
+                    log.warn("Failed txzmq create on %r" % str(endpoint))
+                    continue
 
                 def chain_over_moksha_callbacks(_body, _topic):
                     for f in s._moksha_callbacks:
