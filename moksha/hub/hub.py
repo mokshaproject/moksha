@@ -252,11 +252,20 @@ class CentralMokshaHub(MokshaHub):
                         log.info("Websocket subscribing to %r." % _topic)
                         self.moksha_hub.subscribe(_topic, send_to_websocket)
                     else:
-                        # Else, simply forward on the message through the hub.
-                        self.moksha_hub.send_message(
-                            json['topic'],
-                            json['body'],
-                        )
+                        # FIXME - The following is disabled temporarily until we can
+                        # devise a secure method of "firewalling" where messages
+                        # can and can't go.  See the following for more info:
+                        #   https://fedorahosted.org/moksha/ticket/245
+                        #   https://github.com/gregjurman/zmqfirewall
+
+                        # The code here used to look like:
+                        ## Else, simply forward on the message through the hub.
+                        #self.moksha_hub.send_message(
+                        #    json['topic'],
+                        #    json['body'],
+                        #)
+
+                        pass
 
                 except Exception as e:
                     import traceback
