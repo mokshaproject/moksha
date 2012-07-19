@@ -47,9 +47,13 @@ function setup_moksha_socket() {
 	## Pre-connect callback
 	${unicode(tw._("before_open"))}
 
+	var ws_scheme = "ws://";
+	if (location.protocol === 'https:') {
+	  ws_scheme = "wss://";
+	}
 	## Create a new websocket for every connection
 	moksha_websocket = new WebSocket(
-	  'ws://${tw._("ws_host")}:${tw._("ws_port")}'
+	  ws_scheme + '${tw._("ws_host")}:${tw._("ws_port")}'
 	);
 
 	## Attach all the callbacks for that websocket
