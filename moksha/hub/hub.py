@@ -303,10 +303,14 @@ class CentralMokshaHub(MokshaHub):
         log.info('Loading Consumers')
         if self._consumers == None:
             log.debug("Loading from entry-points.")
-            self._consumers = [
-                consumer.load() for consumer in
-                pkg_resources.iter_entry_points('moksha.consumer')
-            ]
+            self._consumers = []
+            for consumer in pkg_resources.iter_entry_points('moksha.consumer'):
+                try:
+                    c = consumer.load()
+                    self._consumers.append(c)
+                except Exception as e:
+                    log.warn("Failed to load %r consumer." % consumer.name)
+                    log.warn(str(e))
         else:
             log.debug("Loading explicitly passed entry-points.")
 
@@ -320,29 +324,42 @@ class CentralMokshaHub(MokshaHub):
         self.consumers = []
         for topic in self.topics:
             for i, consumer in enumerate(self.topics[topic]):
-                c = consumer(self)
-                self.consumers.append(c)
-                self.topics[topic][i] = c.consume
+                try:
+                    c = consumer(self)
+                    self.consumers.append(c)
+                    self.topics[topic][i] = c.consume
+                except Exception as e:
+                    log.warn("Failed to init %r consumer." % consumer)
+                    log.warn(str(e))
 
     def __init_producers(self):
         """ Initialize all producers (aka data streams) """
         log.info('Loading Producers')
         if self._producers == None:
             log.debug("Loading from entry-points.")
-            self._producers = [
-                producer.load() for producer in sum([
-                    list(pkg_resources.iter_entry_points(epoint))
-                    for epoint in ('moksha.producer', 'moksha.stream')
-                ], [])
-            ]
+            self._producers = []
+            for producer in sum([
+                list(pkg_resources.iter_entry_points(epoint))
+                for epoint in ('moksha.producer', 'moksha.stream')
+            ], []):
+                try:
+                    p = producer.load()
+                    self._producers.append(p)
+                except Exception as e:
+                    log.warn("Failed to load %r producer." % producer.name)
+                    log.warn(str(e))
         else:
             log.debug("Loading explicitly passed entry-points.")
 
         self.producers = []
         for producer_class in self._producers:
-            log.info('Loading %s producer' % producer_class.__name__)
-            producer_obj = producer_class(self)
-            self.producers.append(producer_obj)
+            log.info('Initializing %s producer' % producer_class.__name__)
+            try:
+                producer_obj = producer_class(self)
+                self.producers.append(producer_obj)
+            except Exception as e:
+                log.warn("Failed to init %r producer." % producer_class)
+                log.warn(str(e))
 
     @trace
     def create_topic(self, topic):
