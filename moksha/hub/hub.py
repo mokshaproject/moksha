@@ -326,6 +326,11 @@ class CentralMokshaHub(MokshaHub):
             for i, consumer in enumerate(self.topics[topic]):
                 try:
                     c = consumer(self)
+                    if not c.__initialized:
+                        log.warn((
+                            "%r didn't initialize correctly.  " +
+                            "Did you call super(..).__init__?") % consumer)
+
                     self.consumers.append(c)
                     self.topics[topic][i] = c.consume
                 except Exception as e:
