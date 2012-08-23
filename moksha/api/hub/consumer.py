@@ -127,6 +127,8 @@ class Consumer(object):
             log.error('Cannot send message: %s' % e)
 
     def stop(self):
-        self.hub.close()
+        if getattr(self, 'hub'):
+            self.hub.close()
+
         if self.DBSession:
             self.DBSession.close()
