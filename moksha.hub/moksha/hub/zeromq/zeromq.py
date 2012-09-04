@@ -22,6 +22,8 @@ import time
 import txzmq
 import zmq
 
+from kitchen.text.converters import to_utf8
+
 from moksha.common.lib.converters import asbool
 from moksha.hub.zeromq.base import BaseZMQHubExtension
 
@@ -165,7 +167,7 @@ class ZMQHubExtension(BaseZMQHubExtension):
                 return callback(ZMQMessage(_topic, _body))
 
             s._moksha_callbacks.append(intercept)
-            s.subscribe(topic)
+            s.subscribe(to_utf8(topic))
 
         super(ZMQHubExtension, self).subscribe(original_topic, callback)
 
