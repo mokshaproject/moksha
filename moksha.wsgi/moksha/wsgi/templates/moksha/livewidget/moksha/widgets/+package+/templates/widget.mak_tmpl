@@ -1,0 +1,22 @@
+<%namespace name="tw" module="tw2.core.mako_util"/>
+<div id="${tw._('id')}">
+
+  <input id="chat_${tw._('id')}_name" type="text" value="Anonymous" size="10"/>
+  <input id="chat_${tw._('id')}_input" type="text" size="34" name="input"
+         onkeypress="moksha.on_enter(event, send_chat_message)">
+  <br/>
+  <textarea id="chat_${tw._('id')}" cols="55" rows="25" readonly="true">Welcome to ${tw._('topic')[0]}</textarea>
+
+  <script type="text/javascript">
+      function send_chat_message(){
+          var input = $('#chat_${tw._("id")}_input');
+          moksha.send_message('${tw._("topic")[0]}', {
+                  message: input.val() + '\n',
+                  name: $('#chat_${tw._("id")}_name').val()
+          });
+          input.val("");
+      }
+      $('#chat_${tw._("id")}_input').focus();
+  </script>
+
+</div>

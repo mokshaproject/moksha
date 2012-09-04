@@ -1,0 +1,139 @@
+
+div.ribbonbar{
+    background:url(images/ventitre.gif);
+    text-align:left;
+    background-color:GrayText;
+    float:none;
+    padding:10px;
+    padding-left:100px;
+}
+div.ribbonbar1{
+    text-align:left;
+    background-color:darkred;
+    float:none;
+    padding:10px;
+    padding-left:100px;
+}
+div.ribbonbar2{
+    text-align:left;
+    background-color:orangered;
+    float:none;
+    padding:10px;
+    padding-left:100px;
+}
+div.ribbonbar3{
+    text-align:left;
+    background-color:teal;
+    float:none;
+    padding:10px;
+    padding-left:100px;
+}
+
+.buttonspacer{
+    width:20px;
+    display:inline-block;
+    cursor:default;
+}
+a.button {
+    background-color:transparent;
+    background-image: url(images/default/btn_right.png);
+    background-repeat:no-repeat ;
+    background-position:top right;
+    color: #fff;
+    display:inline-block;
+    /*font: bold 12px arial, sans-serif;*/
+    font: normal 13px arial, sans-serif;
+    height: 32px;
+    margin-right: 0px;
+    padding-right: 10px;
+    text-decoration: none;
+    
+    display:block; /*opera*/
+	display:inline-block; /*ie*/
+	display:-moz-inline-box; /*ff*/
+}
+
+a.button span {
+    background-color:transparent;
+    background-image: url(images/default/btn.png);
+    background-repeat:no-repeat ;
+    display: block;
+    line-height: 21px;
+    padding: 3px 0 8px 10px;
+}
+
+a.button span img{
+    margin-left:-5px;
+    margin-top:-2px;
+    padding-right:5px;
+}
+
+
+/* Opaque buttons (moksha hack) */
+a.opaquebutton {
+    background-color:transparent;
+    background-image: url(images/default/btn_hover_right.png);
+    background-repeat:no-repeat ;
+    background-position:top right;
+    color: #fff;
+    display:inline-block;
+    /*font: bold 12px arial, sans-serif;*/
+    font: normal 13px arial, sans-serif;
+    height: 32px;
+    margin-right: 0px;
+    padding-right: 10px;
+    text-decoration: none;
+    
+    display:block; /*opera*/
+	display:inline-block; /*ie*/
+	display:-moz-inline-box; /*ff*/
+}
+
+a.opaquebutton span {
+    background-color:transparent;
+    background-image:url(images/default/btn_hover.png);
+    background-repeat:no-repeat ;
+    display: block;
+    line-height: 21px;
+    padding: 3px 0 8px 10px;
+}
+
+/*HOVER*/
+a.button:hover {
+    background-image: url(images/default/btn_hover_right.png);
+    color: #fff;
+    outline: none;
+}
+
+a.button:hover span {
+    background-image:url(images/default/btn_hover.png);
+}
+
+/*SPECIAL*/
+a.special {
+    background-image: url(images/special/btn_right.png);
+}
+a.special span {
+    background-image: url(images/special/btn.png);
+}
+
+a.special:hover {
+    background-image: url(images/special/btn_hover_right.png);
+}
+a.special:hover span {
+    background-image: url(images/special/btn_hover.png);
+}
+/*ORANGE*/
+a.orange {
+    background-image: url(images/orange/btn_right.png);
+}
+a.orange span {
+    background-image: url(images/orange/btn.png);
+}
+
+a.orange:hover {
+    background-image: url(images/orange/btn_hover_right.png);
+}
+a.orange:hover span {
+    background-image: url(images/orange/btn_hover.png);
+}
