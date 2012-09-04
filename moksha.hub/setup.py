@@ -42,6 +42,7 @@ setup(
     namespace_packages=['moksha'],
     tests_require=[
         'nose',
+        'mock',
         'pyzmq',
     ],
     entry_points="""
