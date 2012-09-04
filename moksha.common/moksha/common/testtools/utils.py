@@ -19,7 +19,7 @@ import functools
 import socket
 import unittest
 
-from moksha.lib.helpers import get_moksha_appconfig
+from moksha.common.lib.helpers import get_moksha_appconfig
 
 
 def crosstest(method):

@@ -22,9 +22,9 @@ except Exception:
     pass
 
 setup(
-    name='moksha',
+    name='moksha.common',
     version='1.0.0a',
-    description='A platform for creating real-time web applications',
+    description='Common components for Moksha',
     author='Luke Macken, John (J5) Palmieri, Mairin Duffy, and Ralph Bean',
     author_email='',
     url='http://moksha.fedorahosted.org',
