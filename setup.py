@@ -23,8 +23,8 @@ setup(
     author_email='',
     url='http://moksha.fedorahosted.org',
     install_requires=[
-        "moksha.hub",
-        "moksha.wsgi",
+        "moksha.hub>=1.0.0a",
+        "moksha.wsgi>=1.0.0a",
     ],
     packages=[],
 )
