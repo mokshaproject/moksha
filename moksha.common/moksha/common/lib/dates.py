@@ -68,15 +68,15 @@ class DateTimeDisplay(object):
         if isinstance(timestamp, basestring) and '.' in timestamp:
             timestamp = timestamp.split('.')[0]
         self.timestamp = timestamp
-        if isinstance(timestamp, datetime):
+        if isinstance(timestamp, datetime.datetime):
             self.datetime = timestamp
         elif isinstance(timestamp, time.struct_time):
-            self.datetime = datetime(*timestamp[:-2])
+            self.datetime = datetime.datetime(*timestamp[:-2])
         elif isinstance(timestamp, basestring):
             if hasattr(datetime, 'strptime'): # Python 2.5+
-                self.datetime = datetime.strptime(timestamp, format)
+                self.datetime = datetime.datetime.strptime(timestamp, format)
             else: # Python 2.4
-                self.datetime = datetime(*time.strptime(timestamp, format)[:-2])
+                self.datetime = datetime.datetime(*time.strptime(timestamp, format)[:-2])
         else:
             raise Exception("You must provide either a datetime object or a"
                             "string, not %s" % type(timestamp))
@@ -101,7 +101,7 @@ class DateTimeDisplay(object):
         """
         start = self.datetime
         if not end:
-            end = datetime.utcnow()
+            end = datetime.datetime.utcnow()
         else:
             if isinstance(end, DateTimeDisplay):
                 end = end.datetime
