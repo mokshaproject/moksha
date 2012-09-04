@@ -19,7 +19,7 @@
 
 import os
 import sys
-import json
+import json as JSON
 
 
 from moksha.common.lib.helpers import appconfig
@@ -136,7 +136,7 @@ class MokshaHub(object):
         """
 
         if jsonify:
-            message = json.dumps(message)
+            message = JSON.dumps(message)
 
         if not isinstance(topic, list):
             topics = [topic]
@@ -175,7 +175,7 @@ class MokshaHub(object):
         # TODO -- this isn't extensible.  how should forwarding work if there
         # are three broker types enabled?
         for ext in self.extensions:
-            if isinstance(ext, StompHubExtension):
+            if StompHubExtension and isinstance(ext, StompHubExtension):
                 ext.send_message(self, topic.encode('utf8'),
                                  message.body.encode('utf8'))
 
@@ -189,7 +189,7 @@ class MokshaHub(object):
 
         # FIXME: only do this if the consumer wants it `jsonified`
         try:
-            body = json.decode(message['body'])
+            body = JSON.decode(message['body'])
         except Exception, e:
             log.warning('Cannot decode message from JSON: %s' % e)
             #body = {}
@@ -222,7 +222,7 @@ class CentralMokshaHub(MokshaHub):
         # FIXME -- this needs to be reworked.
         # TODO -- consider moving this to the AMQP specific modules
         for ext in self.extensions:
-            if isinstance(ext, AMQPHubExtension):
+            if AMQPHubExtension and isinstance(ext, AMQPHubExtension):
                 self.__init_amqp()
 
         self.__run_consumers()
@@ -252,15 +252,15 @@ class CentralMokshaHub(MokshaHub):
                 """
 
                 try:
-                    json = json.loads(data)
+                    json = JSON.loads(data)
 
                     if json['topic'] == '__topic_subscribe__':
                         # If this is a custom control message, then subscribe.
                         def send_to_websocket(zmq_message):
                             """ Callback.  Sends a message to the browser """
-                            msg = json.dumps({
+                            msg = JSON.dumps({
                                 'topic': zmq_message.topic,
-                                'body': json.loads(zmq_message.body),
+                                'body': JSON.loads(zmq_message.body),
                             })
                             self.transport.write(msg)
 
@@ -299,7 +299,7 @@ class CentralMokshaHub(MokshaHub):
     def __init_amqp(self):
         # Ok this looks odd at first.  I think this is only used when we are briding stomp/amqp,
         # Since each producer and consumer opens up their own AMQP connections anyway
-        if not isinstance(self, StompHub):
+        if not (StompHubExtension and isinstance(self, StompHubExtension)):
             return
 
         log.debug("Initializing local AMQP queue...")
@@ -342,7 +342,7 @@ class CentralMokshaHub(MokshaHub):
             for i, consumer in enumerate(self.topics[topic]):
                 try:
                     c = consumer(self)
-                    if not c.__initialized:
+                    if not getattr(c, "__initialized", None):
                         log.warn((
                             "%r didn't initialize correctly.  " +
                             "Did you call super(..).__init__?") % consumer)
@@ -384,7 +384,7 @@ class CentralMokshaHub(MokshaHub):
 
     @trace
     def create_topic(self, topic):
-        if self.amqp_broker:
+        if AMQPHubExtension and self.amqp_broker:
             AMQPHubExtension.create_queue(topic)
 
         # @@ remove this when we keep track of this in a DB
