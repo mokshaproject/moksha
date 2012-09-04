@@ -44,10 +44,10 @@ setup(
     ],
     entry_points="""
     [console_scripts]
-    moksha = moksha.commands.cli:main
+    moksha = moksha.common.commands.cli:main
 
     [paste.global_paster_command]
-    moksha = moksha.commands.quickstart:MokshaQuickstartCommand
+    moksha = moksha.common.commands.quickstart:MokshaQuickstartCommand
 
     """,
 )

@@ -47,6 +47,5 @@ setup(
     entry_points="""
     [console_scripts]
     moksha-hub = moksha.hub:main
-    moksha = moksha.commands.cli:main
     """,
 )
