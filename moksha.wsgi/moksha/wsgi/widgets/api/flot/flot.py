@@ -12,19 +12,26 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+# Authors: Luke Macken <lmacken@redhat.com>
 
-from setuptools import setup
+import tw2.jqplugins.flot
+import tw2.excanvas
 
-setup(
-    name='moksha',
-    version='1.0.0a',
-    description='A platform for creating real-time web applications',
-    author='Luke Macken, John (J5) Palmieri, Mairin Duffy, and Ralph Bean',
-    author_email='',
-    url='http://moksha.fedorahosted.org',
-    install_requires=[
-        "moksha.hub>=1.0.0a",
-        "moksha.wsgi>=1.0.0a",
-    ],
-    packages=[],
-)
+from moksha.wsgi.widgets.api import LiveWidget
+
+
+class LiveFlotWidget(LiveWidget):
+    """ A live graphing widget """
+    topic = None
+    params = ['id', 'data', 'options', 'height', 'width', 'onmessage']
+    onmessage = '$.plot($("#${id}"),json[0]["data"],json[0]["options"])'
+    template = "mako:moksha.wsgi.widgets.api.flot.templates.flot"
+    resources = [
+        tw2.jqplugins.flot.flot_js,
+        tw2.excanvas.excanvas_js
+    ]
+    height = '250px'
+    width = '390px'
+    options = {}
+    data = [{}]

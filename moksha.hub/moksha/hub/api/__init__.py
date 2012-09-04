@@ -13,18 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from setuptools import setup
+from consumer import *
+from producer import *
 
-setup(
-    name='moksha',
-    version='1.0.0a',
-    description='A platform for creating real-time web applications',
-    author='Luke Macken, John (J5) Palmieri, Mairin Duffy, and Ralph Bean',
-    author_email='',
-    url='http://moksha.fedorahosted.org',
-    install_requires=[
-        "moksha.hub>=1.0.0a",
-        "moksha.wsgi>=1.0.0a",
-    ],
-    packages=[],
-)
+from moksha.hub.hub import MokshaHub

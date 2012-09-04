@@ -1,0 +1,15 @@
+from moksha.wsgi.widgets.api.live import LiveWidget
+from moksha.wsgi.widgets.moksha_js import moksha_js
+
+class {{widget_name}}(LiveWidget):
+    topic = '{{topic}}'
+    params = ['id', 'topic']
+    onmessage = """
+        $('#chat_${id}').val(json.name + ': ' + json.message +
+                             $('#chat_${id}').val())
+    """
+    javascript = [moksha_js]
+    template = 'mako:moksha.wsgi.widgets.{{package}}.templates.widget'
+
+    def update_params(self, d):
+        super({{widget_name}}, self).update_params(d)

@@ -13,18 +13,41 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from setuptools import setup
+from setuptools import setup, find_packages
+
+# This is required (oddly) to fix a python 2.7 bug with nose tests.
+try:
+    import multiprocessing, logging
+except Exception:
+    pass
 
 setup(
-    name='moksha',
-    version='1.0.0a',
-    description='A platform for creating real-time web applications',
+    name='moksha.common',
+    version='1.0.0a2',
+    description='Common components for Moksha',
     author='Luke Macken, John (J5) Palmieri, Mairin Duffy, and Ralph Bean',
     author_email='',
     url='http://moksha.fedorahosted.org',
     install_requires=[
-        "moksha.hub>=1.0.0a",
-        "moksha.wsgi>=1.0.0a",
+        "decorator",
+        "paste",
+        "pytz",
+        "kitchen",
     ],
-    packages=[],
+    packages=find_packages(exclude=['ez_setup']),
+    include_package_data=True,
+    test_suite='nose.collector',
+    namespace_packages=['moksha'],
+    tests_require=[
+        'nose',
+        'mock',
+    ],
+    entry_points="""
+    [console_scripts]
+    moksha = moksha.common.commands.cli:main
+
+    [paste.global_paster_command]
+    moksha = moksha.common.commands.quickstart:MokshaQuickstartCommand
+
+    """,
 )

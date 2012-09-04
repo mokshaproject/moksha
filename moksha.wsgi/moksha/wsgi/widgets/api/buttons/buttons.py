@@ -13,18 +13,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from setuptools import setup
+"""
+:mod:`moksha.wsgi.widgets.api.buttons` - Fancy Button CSS
+====================================================
 
-setup(
-    name='moksha',
-    version='1.0.0a',
-    description='A platform for creating real-time web applications',
-    author='Luke Macken, John (J5) Palmieri, Mairin Duffy, and Ralph Bean',
-    author_email='',
-    url='http://moksha.fedorahosted.org',
-    install_requires=[
-        "moksha.hub>=1.0.0a",
-        "moksha.wsgi>=1.0.0a",
-    ],
-    packages=[],
-)
+This module contains a ToscaWidget for the mbButtons
+project::
+
+    http://www.open-lab.com/mb.ideas/index.html#mbButtons
+
+.. moduleauthor:: Luke Macken <lmacken@redhat.com>
+"""
+
+import tw2.core as twc
+
+
+static_images = twc.DirLink(
+    filename='static/images/',
+    modname=__name__)
+
+buttons_css = twc.CSSLink(
+    filename='static/buttons.css',
+    resources=[static_images],
+    media='all', modname=__name__)

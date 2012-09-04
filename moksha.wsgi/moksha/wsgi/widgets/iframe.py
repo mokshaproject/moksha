@@ -13,18 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from setuptools import setup
+"""
+:mod:`moksha.wsgi.widgets.iframe` - An IFrame Widget
+===============================================
 
-setup(
-    name='moksha',
-    version='1.0.0a',
-    description='A platform for creating real-time web applications',
-    author='Luke Macken, John (J5) Palmieri, Mairin Duffy, and Ralph Bean',
-    author_email='',
-    url='http://moksha.fedorahosted.org',
-    install_requires=[
-        "moksha.hub>=1.0.0a",
-        "moksha.wsgi>=1.0.0a",
-    ],
-    packages=[],
-)
+.. moduleauthor:: Luke Macken <lmacken@redhat.com>
+"""
+
+import tw2.core as twc
+
+# TODO -- this should be removed and replaced with
+#         http://tw2-demos.threebean.org/module?module=tw2.etc
+
+
+class IFrameWidget(twc.Widget):
+    params = ['id', 'url', 'title', 'height', 'width']
+    template = "mako:moksha.wsgi.widgets.templates.iframe"
+    title = ''
+    height = width = '100%'
+
+
+iframe_widget = IFrameWidget(id='iframe_widget')
