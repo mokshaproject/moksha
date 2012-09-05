@@ -23,7 +23,7 @@ except Exception:
 
 setup(
     name='moksha.hub',
-    version='1.0.0a2',
+    version='1.0.0',
     description='Hub components for Moksha.',
     author='Luke Macken, John (J5) Palmieri, Mairin Duffy, and Ralph Bean',
     author_email='',

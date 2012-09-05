@@ -17,14 +17,14 @@ from setuptools import setup
 
 setup(
     name='moksha',
-    version='1.0.0a',
+    version='1.0.0',
     description='A platform for creating real-time web applications',
     author='Luke Macken, John (J5) Palmieri, Mairin Duffy, and Ralph Bean',
     author_email='',
     url='http://moksha.fedorahosted.org',
     install_requires=[
-        "moksha.hub>=1.0.0a",
-        "moksha.wsgi>=1.0.0a",
+        "moksha.hub>=1.0.0",
+        "moksha.wsgi>=1.0.0",
     ],
     packages=[],
 )
