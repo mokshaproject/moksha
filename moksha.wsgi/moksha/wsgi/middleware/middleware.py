@@ -22,11 +22,9 @@ import pkg_resources
 import warnings
 import types
 
-from shove import Shove
 from paste.deploy.converters import asbool
 from inspect import isclass
 from sqlalchemy import create_engine
-from feedcache.cache import Cache
 
 from moksha.common.exc import MokshaException
 from moksha.common.lib.helpers import (defaultdict, get_moksha_config_path)
@@ -71,16 +69,6 @@ class MokshaMiddleware(object):
         self.load_models()
         self.load_menus()
         self.load_root()
-
-        try:
-            moksha.common.utils.feed_storage = Shove(
-                config.get('feed_store', 'simple://'),
-                config.get('feed_cache', 'simple://'),
-                compress=True)
-            moksha.common.utils.feed_cache = Cache(moksha.common.utils.feed_storage)
-        except Exception, e:
-            log.error(str(e))
-            log.error("Unable to initialize the Feed Storage")
 
     def __call__(self, environ, start_response):
         self.register_livewidgets(environ)

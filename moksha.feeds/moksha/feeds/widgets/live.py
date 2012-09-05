@@ -29,7 +29,7 @@ class LiveFeedWidget(LiveWidget):
     d = twc.Param("The widget data")
     limit = twc.Param("The number of entries to display")
 
-    template = "mako:moksha.wsgi.widgets.api.feed.templates.live"
+    template = "mako:mako:moksha.feeds.widgets.templates.live"
     onmessage = """
         $.each(json, function() {
             $("#${id} ul li:last").remove();

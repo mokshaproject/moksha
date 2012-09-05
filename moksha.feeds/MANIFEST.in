@@ -1,0 +1,3 @@
+include LICENSE README AUTHORS COPYING
+include development.ini
+include orbited.cfg

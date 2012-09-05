@@ -43,7 +43,7 @@ class Feed(twc.Widget):
 
     """
     url = None
-    template = 'mako:moksha.wsgi.widgets.api.feed.templates.feed_home'
+    template = 'mako:moksha.feeds.widgets.templates.feed_home'
     title = twc.Param("The title of this feed")
     link = twc.Param("The url to the site that this feed is for")
     entries = twc.Param("A list of feed entries", default=[])
