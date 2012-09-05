@@ -1,6 +1,8 @@
 global-exclude *.swp
 
 include moksha.spec
+include development.ini
+include orbited.cfg
 include LICENSE README AUTHORS COPYING
 
 graft docs
