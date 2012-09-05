@@ -49,6 +49,7 @@ setup(
     test_suite='nose.collector',
     namespace_packages=['moksha'],
     tests_require=[
+        'mock',
         'nose',
         'webtest',
         'bunch',
