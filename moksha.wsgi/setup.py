@@ -70,7 +70,7 @@ setup(
     widgets = moksha.wsgi.widgets.all
 
     [distutils.commands]
-    archive_moksha_resources = moksha.distutils.command:archive_moksha_resources
+    archive_moksha_resources = moksha.wsgi.distutils.command:archive_moksha_resources
 
     [moksha.widget]
     code_widget = moksha.wsgi.widgets.source:code_widget
@@ -82,15 +82,12 @@ setup(
     [paste.filter_app_factory]
     middleware = moksha.wsgi.middleware:make_moksha_middleware
 
-    [paste.global_paster_command]
-    moksha = moksha.commands.quickstart:MokshaQuickstartCommand
-
-    [paste.paster_create_template]
-    moksha.master = moksha.pastetemplate:MokshaMasterTemplate
-    moksha.livewidget = moksha.pastetemplate:MokshaLiveWidgetTemplate
-    moksha.stream = moksha.pastetemplate:MokshaStreamTemplate
-    moksha.consumer = moksha.pastetemplate:MokshaConsumerTemplate
-    moksha.controller = moksha.pastetemplate:MokshaControllerTemplate
+    #[paste.paster_create_template]
+    #moksha.master = moksha.pastetemplate:MokshaMasterTemplate
+    #moksha.livewidget = moksha.pastetemplate:MokshaLiveWidgetTemplate
+    #moksha.stream = moksha.pastetemplate:MokshaStreamTemplate
+    #moksha.consumer = moksha.pastetemplate:MokshaConsumerTemplate
+    #moksha.controller = moksha.pastetemplate:MokshaControllerTemplate
 
     """,
 
