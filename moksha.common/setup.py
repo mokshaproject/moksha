@@ -23,7 +23,7 @@ except Exception:
 
 setup(
     name='moksha.common',
-    version='1.0.0',
+    version='1.0.1',
     description='Common components for Moksha',
     author='Luke Macken, John (J5) Palmieri, Mairin Duffy, and Ralph Bean',
     author_email='',

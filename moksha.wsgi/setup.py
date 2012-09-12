@@ -23,13 +23,13 @@ except Exception:
 
 setup(
     name='moksha.wsgi',
-    version='1.0.1',
+    version='1.0.2',
     description='WSGI components for Moksha.',
     author='Luke Macken, John (J5) Palmieri, Mairin Duffy, and Ralph Bean',
     author_email='',
     url='http://moksha.fedorahosted.org',
     install_requires=[
-        "moksha.common",
+        "moksha.common>=1.0.1",
         "tw2.core",
         "tw2.forms",
         "tw2.jquery",

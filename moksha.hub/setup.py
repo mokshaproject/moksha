@@ -23,13 +23,13 @@ except Exception:
 
 setup(
     name='moksha.hub',
-    version='1.0.0',
+    version='1.0.1',
     description='Hub components for Moksha.',
     author='Luke Macken, John (J5) Palmieri, Mairin Duffy, and Ralph Bean',
     author_email='',
     url='http://moksha.fedorahosted.org',
     install_requires=[
-        "moksha.common",
+        "moksha.common>=1.0.1",
         "Twisted",
         "stomper",
         "txZMQ>=0.5.0",
