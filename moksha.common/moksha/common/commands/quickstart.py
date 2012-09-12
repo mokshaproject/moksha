@@ -22,7 +22,7 @@ Example usage::
     $ paster moksha yourproject
 
     """
-    version = pkg_resources.get_distribution('moksha').version
+    version = pkg_resources.get_distribution('moksha.common').version
     max_args = 3
     min_args = 0
     summary = __doc__.splitlines()[0]
