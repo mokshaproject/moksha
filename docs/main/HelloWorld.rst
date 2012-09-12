@@ -232,7 +232,7 @@ can do just this.
 .. code-block:: python
 
    from datetime import timedelta
-   from moksha.api.hub.producer import PollingProducer
+   from moksha.hub.api.producer import PollingProducer
 
    class HelloWorldProducer(PollingProducer):
        frequency = timedelta(seconds=3)
@@ -266,7 +266,7 @@ broker.
 
 .. code-block:: python
 
-   from moksha.api.hub.consumer import Consumer
+   from moksha.hub.api.consumer import Consumer
    from demo.model import HelloWorldModel
 
    class HelloWorldConsumer(Consumer):
@@ -444,7 +444,7 @@ ORM session as ``self.DBSession``.
 
 .. code-block:: python
 
-   from moksha.api.hub.consumer import Consumer
+   from moksha.hub.api.consumer import Consumer
    from demo.model import HelloWorldModel
 
    class HelloWorldConsumer(Consumer):

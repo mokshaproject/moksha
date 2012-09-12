@@ -85,7 +85,7 @@ class MokshaCLI(object):
 
     def send(self, topic, message):
         """ Send a message to a topic """
-        from moksha.api.hub import MokshaHub, reactor
+        from moksha.hub.api import MokshaHub, reactor
         hub = MokshaHub()
         print "send_message(%s, %s)" % (topic, message)
         hub.send_message(topic, {'msg': message})

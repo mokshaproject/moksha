@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-:mod:`moksha.api.hub.producer - The Moksha Producer API
+:mod:`moksha.hub.api.producer - The Moksha Producer API
 =======================================================
 """
 

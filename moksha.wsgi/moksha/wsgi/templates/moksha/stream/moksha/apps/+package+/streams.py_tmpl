@@ -1,5 +1,5 @@
 from datetime import timedelta, datetime
-from moksha.api.hub.producer import PollingProducer
+from moksha.hub.api.producer import PollingProducer
 
 class {{stream_name}}(PollingProducer):
     frequency = timedelta(seconds=5)

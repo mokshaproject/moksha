@@ -14,7 +14,7 @@
 # limitations under the License.
 
 """
-:mod:`moksha.api.hub.consumer` - The Moksha Consumer API
+:mod:`moksha.hub.api.consumer` - The Moksha Consumer API
 ========================================================
 Moksha provides a simple API for creating "consumers" of message topics.
 

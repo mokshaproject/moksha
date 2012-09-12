@@ -1,14 +1,14 @@
 Consumers
 =========
 
-.. automodule:: moksha.api.hub.consumer
+.. automodule:: moksha.hub.api.consumer
 
 Creating
 --------
 
 .. code-block:: python
 
-    from moksha.api.hub import Consumer
+    from moksha.hub.api import Consumer
 
     class FeedConsumer(Consumer):
 

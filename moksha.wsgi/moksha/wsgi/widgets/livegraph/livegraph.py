@@ -21,7 +21,7 @@ from datetime import timedelta
 from moksha.wsgi.widgets.api import LiveWidget
 # TODO -- need to refactor this and move the livegraphproducer to a non-wsgi
 # module.
-#from moksha.api.hub.producer import PollingProducer
+#from moksha.hub.api.producer import PollingProducer
 
 import tw2.core
 import tw2.core.resources as res

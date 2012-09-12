@@ -23,7 +23,7 @@ seconds, and sends a 'Hello World!' message to the 'hello' `topic`.
 .. code-block:: python
 
     from datetime import timedelta
-    from moksha.api.hub.producer import PollingProducer
+    from moksha.hub.api.producer import PollingProducer
 
     class HelloWorldProducer(PollingProducer):
         frequency = timedelta(seconds=10)
