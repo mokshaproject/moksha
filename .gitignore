@@ -27,3 +27,4 @@ logs/*.log
 Paste*.egg
 moksha/tests/quickstarts/tg2app/devdata.db-journal
 *.coverage
+htmldoc
