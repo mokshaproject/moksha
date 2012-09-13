@@ -30,7 +30,7 @@ Creating
 
 .. note::
 
-   If your using AMQP, your `topic` can using wildcards.
+   If you're using AMQP, your `topic` can using wildcards.
    http://www.rabbitmq.com/faq.html#wildcards-in-topic-exchanges
 
    Wildcard topics do not work using STOMP.
@@ -58,13 +58,7 @@ make it look something like this:
 
         """
 
-After modifying your entry-points, you'll need to re-generate your project's `egg-info`.  The `moksha-ctl.py` command has a number of subcommands that can do this for you, in particular:
-
-.. code-block:: bash
-
-    $ ./moksha-ctl.py egg_info
-
-Alternatively, you can do it yourself.
+After modifying your entry-points, you'll need to re-generate your project's `egg-info`.
 
 .. code-block:: bash
 

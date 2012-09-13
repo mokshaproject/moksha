@@ -20,75 +20,19 @@ For Fedora/Red Hat/CentOS based environments:
 
 .. code-block:: bash
 
-    # yum -y install python-virtualenv gcc openssl-devel
+    # yum -y install python-virtualenv gcc openssl-devel zeromq-devel
     # yum-builddep -y python-lxml pyOpenSSL python-sqlite2
 
 On Ubuntu/Debian:
 
 .. code-block:: bash
 
-   # apt-get install git python-dev python-virtualenv
+   # apt-get install git python-dev python-virtualenv zeromq-dev
 
-
-Getting the code
-~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-    $ git clone git://git.fedorahosted.org/git/moksha
-
-
-Bootstrapping the environment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Install moksha
+~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-    $ ./moksha-ctl.py bootstrap
-    $ ./moksha-ctl.py rebuild
-
-.. note::
-   This script takes care of setting up your TurboGears2 virtual environment.
-   To drop into the virtualenv manually you can run `workon moksha` to enter it,
-   and `deactivate` to leave it.
-
-Starting
-~~~~~~~~
-
-.. code-block:: bash
-
-    $ ./moksha-ctl.py start
-
-You can also automatically tail the logs after starting by appending another
-subcommand.
-
-.. code-block:: bash
-
-    $ ./moksha-ctl.py restart logs
-
-Stopping
-~~~~~~~~
-
-.. code-block:: bash
-
-    $ ./moksha-ctl.py stop
-
-Debugging
-~~~~~~~~~
-
-.. code-block:: bash
-    $ ./moksha-ctl.py wtf
-
-.. note::
-    The ./moksha-ctl.py script contains a number of utilities.  You can see
-    a list by running ``$ ./moksha-ctl.py --help``.
-
-Using Moksha
-~~~~~~~~~~~~
-
-Now you can navigate your web browser to the following url:
-
-`http://localhost:8080 <http://localhost:8080>`_
-
-.. note::
-   Going to `127.0.0.1` will not work properly with the current Orbited setup,
-   so you must make sure to go to `localhost`.
+    $ virtualenv myenv
+    $ pip install moksha mdemos.server mdemos.menus mdemos.metrics

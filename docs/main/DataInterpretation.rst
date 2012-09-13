@@ -5,12 +5,6 @@ Data Interpretation
 Moksha provides various mechanisms that allow applications to more easily interpret
 dynamic data and act on it.
 
-Collaborative glue
-------------------
-
-Although it does not yet, Moksha will allow anything to be
-tagged, shared, discussed, annotated, rated, etc.
-
 Live streams
 ------------
 
@@ -23,7 +17,9 @@ Consumers
 ---------
 
 Moksha allows plugins to monitor arbitrary message `"topics"`, giving
-developers the ability to register actions on arbitrary events.
+developers the ability to register actions on arbitrary events.  Consumers (when
+designed well) form elementary building blocks and can be strung in a
+conceptual `pipeline` not unlike Unix programs.
 
 Extension Points
 ----------------

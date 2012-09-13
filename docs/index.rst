@@ -70,14 +70,14 @@ Widgets
    main/LiveWidget
    main/MokshaContainerWidgets
    main/Widgets
-..
-    Model
-    -----
 
-    .. toctree::
-       :maxdepth: 2
+Model
+-----
 
-       main/MokshaModel
+.. toctree::
+   :maxdepth: 2
+
+   main/MokshaModel
 
 WSGI Middleware
 ---------------
@@ -104,9 +104,9 @@ Deployment
 Third-party Documentation
 -------------------------
 
-* `TurboGears <http://turbogears.org/2.0/docs/index.html>`_
+* `TurboGears <http://turbogears.org/2.2/docs/index.html>`_
 * `ToscaWidgets <http://toscawidgets.org/>`_
-* `SQLAlchemy <http://www.sqlalchemy.org/docs/05>`_
+* `SQLAlchemy <http://www.sqlalchemy.org/docs>`_
 
 Indices and tables
 ==================
