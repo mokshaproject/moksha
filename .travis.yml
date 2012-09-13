@@ -8,7 +8,7 @@ install: ./.travis-dev-setup.sh
 script: ./.travis-run-tests.sh
 notifications:
     email: false
-#    irc:
-#        - "irc.freenode.net#fedora-apps"
+    irc:
+        - "irc.freenode.net#moksha"
     on_success: change
     on_failure: change
