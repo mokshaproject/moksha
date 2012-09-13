@@ -20,7 +20,7 @@ Set up a virtualenv and install Moksha and Pyramid (install
     $ mkdir tutorial
     $ cd tutorial
 
-Copy this dummy flask a file called ``tutorial.py``.
+Copy this dummy flask app into a file called ``tutorial.py``.
 It may `look familiar to you <http://flask.pocoo.org/>`_.
 
 .. code-block:: python
