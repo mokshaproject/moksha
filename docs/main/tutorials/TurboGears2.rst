@@ -67,7 +67,8 @@ place, put the following
 Provide some configuration for Moksha
 -------------------------------------
 
-Edit ``development.ini`` and add the following lines under the main section::
+Edit ``development.ini`` and add the following lines under
+the ``[app:main]`` section::
 
     moksha.domain = localhost
 
