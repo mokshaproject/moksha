@@ -1,7 +1,7 @@
 The Moksha Feed Widget
 ----------------------
 
-.. autoclass:: moksha.api.widgets.feed.Feed
+.. autoclass:: moksha.feeds.widgets.feed.Feed
    :members:
 
 Using the Feed widget
@@ -9,7 +9,7 @@ Using the Feed widget
 
 .. code-block:: python
 
-    from moksha.api.widgets.feed import Feed
+    from moksha.feeds.widgets.feed import Feed
     feed = Feed('myfeed')
     feed(url='http://lewk.org/rss')
 
@@ -46,7 +46,7 @@ ability access it in your template from the `c` context object.
 .. code-block:: python
 
     from tw.api import Widget
-    from moksha.api.widgets.feed import Feed
+    from moksha.feeds.widgets.feed import Feed
 
     class MyWidget(Widget):
         myfeedurl = 'http://foo.com/feed.xml'
@@ -58,7 +58,7 @@ The usage for ToscaWidgets2 is quite similar.
 .. code-block:: python
 
     from tw2.core import Widget
-    from moksha.api.widgets.feed import Feed
+    from moksha.feeds.widgets.feed import Feed
 
     class MyWidget(Widget):
         myfeedurl = 'http://foo.com/feed.xml'
