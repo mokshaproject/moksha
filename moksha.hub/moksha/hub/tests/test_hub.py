@@ -16,7 +16,11 @@
 """Test Moksha's Hub """
 
 import moksha
-import unittest
+
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 
 from time import sleep, time
 from uuid import uuid4
@@ -42,7 +46,7 @@ def simulate_reactor(duration=sleep_duration):
         _reactor.runUntilCurrent()
 
 
-class TestHub:
+class TestHub(unittest.TestCase):
 
     def _setUp(self):
         def kernel(config):

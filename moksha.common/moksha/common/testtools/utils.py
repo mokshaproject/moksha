@@ -17,7 +17,14 @@
 
 import functools
 import socket
-import unittest
+
+old_school = False
+try:
+    # For python-2.6
+    import unittest2 as unittest
+    old_school = True
+except ImportError:
+    import unittest
 
 from moksha.common.lib.helpers import get_moksha_appconfig
 
@@ -27,7 +34,18 @@ def crosstest(method):
     def wrapper(self):
         for setup, name in self._setUp():
             def _inner(name):
-                setup()
+                if not old_school:
+                    setup()
+                else:
+                    try:
+                        setup()
+                    except unittest.SkipTest:
+                        # For python-2.6
+                        # nose doesn't know how to catch this, so we just
+                        # return.  The test "passes" which is incorrect.  It
+                        # should be skipped.
+                        return
+
                 try:
                     return method(self)
                 finally:

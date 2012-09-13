@@ -14,12 +14,25 @@
 # limitations under the License.
 
 from setuptools import setup, find_packages
+import sys
 
 # This is required (oddly) to fix a python 2.7 bug with nose tests.
 try:
-    import multiprocessing, logging
+    import multiprocessing
+    import logging
 except Exception:
     pass
+
+tests_require = [
+    'nose',
+    'mock',
+]
+
+if sys.version_info[0] == 2 and sys.version_info[1] <= 6:
+    tests_require.extend([
+        'unittest2',
+    ])
+
 
 setup(
     name='moksha.common',
@@ -38,10 +51,7 @@ setup(
     include_package_data=True,
     test_suite='nose.collector',
     namespace_packages=['moksha'],
-    tests_require=[
-        'nose',
-        'mock',
-    ],
+    tests_require=tests_require,
     entry_points="""
     [console_scripts]
     moksha = moksha.common.commands.cli:main
