@@ -23,8 +23,6 @@ import tw2.jquery
 from moksha.wsgi.widgets.api.socket import AbstractMokshaSocket
 from moksha.common.lib.helpers import defaultdict
 
-from tw2.jqplugins.gritter import gritter_resources, gritter_callback
-
 orbited_host = twc.Required
 orbited_port = twc.Required
 orbited_scheme = twc.Required

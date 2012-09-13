@@ -23,7 +23,6 @@ from kitchen.text.converters import to_unicode as unicode
 import warnings
 
 import tw2.core as twc
-from tw2.jqplugins.gritter import gritter_resources, gritter_callback
 
 from moksha.common.lib.helpers import listify
 from moksha.wsgi.widgets.api.socket import AbstractMokshaSocket

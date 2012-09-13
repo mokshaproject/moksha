@@ -20,7 +20,6 @@
 """
 
 import tw2.core as twc
-from tw2.jqplugins.gritter import gritter_resources, gritter_callback
 
 from moksha.wsgi.widgets.api.socket import AbstractMokshaSocket
 from moksha.common.lib.helpers import defaultdict, listify
