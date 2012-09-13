@@ -113,6 +113,7 @@ tutorial`` and run the ``moksha-hub``:
 .. code-block:: bash
 
     $ workon tutorial
+    $ python setup.py develop
     $ moksha-hub
 
 This will start up the hub which should pick up and load your
