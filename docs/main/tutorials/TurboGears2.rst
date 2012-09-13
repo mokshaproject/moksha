@@ -151,7 +151,7 @@ method:
 .. code-block:: python
 
     import tutorial.widgets
-    from moksha.wsgi.ext.turbogears import global_resource
+    from moksha.wsgi.ext.turbogears import global_resources
 
     tmpl_context.notification_widget = tutorial.widgets.PopupNotification
     tmpl_context.moksha_global_resources = global_resources
