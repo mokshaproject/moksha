@@ -31,7 +31,7 @@ setup(
     install_requires=[
         "moksha.common",
         "moksha.wsgi",
-        "shove",
+        "shove <= 0.3.3",
         "feedcache",
         "feedparser",
     ],

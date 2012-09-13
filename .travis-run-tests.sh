@@ -1,9 +1,7 @@
 #!/bin/bash -e
 
-# Note that 'moksha.feeds' is explicitly excluded from the list because it
-# breaks everything.
 echo "running all tests"
-for package in moksha.{common,hub,wsgi}; do
+for package in moksha.{common,hub,wsgi,feeds}; do
     echo "[$package] running tests"
     pushd $package
     python setup.py test
