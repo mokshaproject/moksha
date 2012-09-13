@@ -15,7 +15,7 @@ def global_resources():
     You can override the BaseController of your app in ``yourapp.lib.base`` and
     set the following inside the __call__ method::
 
-        from moksha.ext.turbogears import global_resources
+        from moksha.wsgi.ext.turbogears import global_resources
         tmpl_context.moksha_global_resources = global_resources
 
     """
