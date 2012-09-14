@@ -39,8 +39,8 @@ except ImportError:  # Twisted 8.2.0 on RHEL5
 
 from twisted.internet import protocol
 from txws import WebSocketFactory
-
 from moksha.common.lib.helpers import trace, defaultdict, get_moksha_config_path
+from moksha.common.lib.converters import asbool
 
 AMQPHubExtension, StompHubExtension, ZMQHubExtension = None, None, None
 try:
@@ -274,14 +274,14 @@ class CentralMokshaHub(MokshaHub):
                         #   https://fedorahosted.org/moksha/ticket/245
                         #   https://github.com/gregjurman/zmqfirewall
 
-                        # The code here used to look like:
-                        ## Else, simply forward on the message through the hub.
-                        #self.moksha_hub.send_message(
-                        #    json['topic'],
-                        #    json['body'],
-                        #)
+                        key = 'moksha.livesocket.websocket.client2server'
+                        if asbool(self.config.get(key, False)):
+                            # Simply forward on the message through the hub.
+                            self.moksha_hub.send_message(
+                                json['topic'],
+                                json['body'],
+                            )
 
-                        pass
 
                 except Exception as e:
                     import traceback
