@@ -22,7 +22,6 @@ Moksha Widget Docs
    GlobalResources
    Feed
    LiveWidget
-   MokshaContainerWidgets
 
 .. seealso::
 

@@ -17,7 +17,7 @@ the 'stuff' message topic, and will perform an `alert` upon new messages.
 
 .. code-block:: python
 
-    from moksha.api.widgets.live import LiveWidget
+    from moksha.wsgi.widgets.api.live import LiveWidget
 
     class MyLiveWidget(LiveWidget):
         topic = 'stuff'
@@ -34,7 +34,7 @@ A Live Feed Demo Widget
 
 .. code-block:: python
 
-    from moksha.api.widgets.feed.live import LiveFeedWidget
+    from moksha.feeds.widgets.live import LiveFeedWidget
 
 The Live Feed Widget
 ~~~~~~~~~~~~~~~~~~~~
@@ -44,8 +44,8 @@ uses a little bit of jQuery to add and remove feed entries from a list.
 
 .. code-block:: python
 
-    from moksha.api.widgets.live import LiveWidget
-    from moksha.api.widgets.feed import Feed
+    from moksha.wsgi.widgets.api.live import LiveWidget
+    from moksha.feeds.widgets.feed import Feed
 
     class LiveFeedWidget(LiveWidget):
         """ A live streaming feed widget """

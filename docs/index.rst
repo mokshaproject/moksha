@@ -68,16 +68,7 @@ Widgets
 
    main/Feeds
    main/LiveWidget
-   main/MokshaContainerWidgets
    main/Widgets
-
-Model
------
-
-.. toctree::
-   :maxdepth: 2
-
-   main/MokshaModel
 
 WSGI Middleware
 ---------------
