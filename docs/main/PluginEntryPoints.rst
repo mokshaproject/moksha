@@ -1,11 +1,11 @@
 Moksha Plugin Entry Points
 ==========================
 
-When the :class:`moksha.middleware.MokshaMiddleware` is loaded, it will
+When the :class:`moksha.wsgi.middleware.MokshaMiddleware` is loaded, it will
 automatically load all applications and widgets from those entry points,
-and store them in ``moksha.apps`` and ``moksha._widgets`` dictionaries.
-These can then be accessed at any time by any application or widget during
-any request.
+and store them in ``moksha.common.utils.apps`` and
+``moksha.common.utils._widgets`` dictionaries.  These can then be accessed
+at any time by any application or widget during any request.
 
 What is an Entry Point?
 -----------------------
@@ -106,4 +106,6 @@ variable is `foo=bar`, you could rename it to `myapp.foo=bar`.
 
    :doc:`GettingStarted` for details on getting things up and running,
    :doc:`QuickstartTemplates` for creating new Moksha Components, and
-   :doc:`IntegratingWithTG2` for using Moksha with TurboGears2.
+   :doc:`tutorials/TurboGears2` for using Moksha with TurboGears2.
+   :doc:`tutorials/Pyramid` for using Moksha with Pyramid.
+   :doc:`tutorials/Flask` for using Moksha with Flask.
