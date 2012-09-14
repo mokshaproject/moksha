@@ -55,6 +55,11 @@ setup(
         "paste",
         "repoze.what",
 
+        # Needed for the "paster moksha" commands
+        # XXX -- potentially move this to its own moksha.devtools package?
+        "PasteScript",
+        "tempita",
+
         # Needed for the source code widget.
         "pygments",
     ],
@@ -91,12 +96,15 @@ setup(
     [paste.filter_app_factory]
     middleware = moksha.wsgi.middleware:make_moksha_middleware
 
-    #[paste.paster_create_template]
-    #moksha.master = moksha.pastetemplate:MokshaMasterTemplate
-    #moksha.livewidget = moksha.pastetemplate:MokshaLiveWidgetTemplate
-    #moksha.stream = moksha.pastetemplate:MokshaStreamTemplate
-    #moksha.consumer = moksha.pastetemplate:MokshaConsumerTemplate
-    #moksha.controller = moksha.pastetemplate:MokshaControllerTemplate
+    [paste.global_paster_command]
+    moksha = moksha.wsgi.pastetemplate:MokshaQuickstartCommand
+
+    [paste.paster_create_template]
+    moksha.master = moksha.wsgi.pastetemplate:MokshaMasterTemplate
+    moksha.livewidget = moksha.wsgi.pastetemplate:MokshaLiveWidgetTemplate
+    moksha.stream = moksha.wsgi.pastetemplate:MokshaStreamTemplate
+    moksha.consumer = moksha.wsgi.pastetemplate:MokshaConsumerTemplate
+    moksha.controller = moksha.wsgi.pastetemplate:MokshaControllerTemplate
 
     """,
 
