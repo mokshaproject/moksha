@@ -82,6 +82,7 @@ setup(
     # Pulls in all widgets.  Used by the `archive_moksha_resources` command.
     [tw2.widgets]
     widgets = moksha.wsgi.widgets.all
+    moksha_js = moksha.wsgi.widgets.moksha_js
 
     [distutils.commands]
     archive_moksha_resources = moksha.wsgi.distutils.command:archive_moksha_resources
