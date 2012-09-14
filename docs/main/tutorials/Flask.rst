@@ -99,7 +99,7 @@ its not crashing.
 
 .. seealso::
 
-   - :doc:`Middleware`
+   - :doc:`../Middleware`
 
 Your first Polling Producer
 ---------------------------
@@ -208,4 +208,4 @@ http://localhost:5000 again.  You should see popups from your PollingProducer.
 
 .. seealso::
 
-   - :doc:`LiveWidget`
+   - :doc:`../LiveWidget`

@@ -8,15 +8,15 @@ Moksha provides a `WSGI <http://wsgi.org>`_ (`PEP 333 <http://www.python.org/dev
 
 Moksha was once highly coupled with the TurboGears2 framework, but has since
 been separated.  You can concievably use Moksha's WSGI middleware and Widget
-API with any WSGI framework such as :doc:`TurboGears2`, :doc:`Pyramid`, or
-:doc:`Flask`.
+API with any WSGI framework such as `TurboGears2`, `Pyramid`, or
+`Flask`.
 
 .. seealso::
 
    - :doc:`Middleware`
-   - :doc:`TurboGears2`
-   - :doc:`Pyramid`
-   - :doc:`Flask`
+   - :doc:`tutorials/TurboGears2`
+   - :doc:`tutorials/Pyramid`
+   - :doc:`tutorials/Flask`
 
 Messaging Hub
 -------------

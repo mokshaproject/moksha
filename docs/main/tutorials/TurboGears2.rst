@@ -62,7 +62,7 @@ place, put the following
 
 .. seealso::
 
-   - :doc:`Middleware`
+   - :doc:`../Middleware`
 
 Provide some configuration for Moksha
 -------------------------------------
@@ -168,6 +168,6 @@ You should see popups from your PollingProducer.
 
 .. seealso::
 
-   - :doc:`LiveWidget`
+   - :doc:`../LiveWidget`
 
 
