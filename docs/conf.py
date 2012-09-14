@@ -43,9 +43,13 @@ copyright = '2008-2010, Red Hat, Inc'
 # other places throughout the built documents.
 #
 # The short X.Y version.
-version = '$VERSION'
+location = os.path.sep.join(__file__.split(os.path.sep)[:-2])
+with open(location + os.path.sep + 'setup.py', 'r') as f:
+    lines = f.readlines()
+lines = [l for l in lines if 'version' in l]
+version = lines[0].split("'")[1]
 # The full version, including alpha/beta/rc tags.
-release = '$VERSION'
+release = version
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
