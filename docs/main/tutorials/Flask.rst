@@ -97,7 +97,7 @@ You now have two new pieces of WSGI middleware floating under your Flask
 app.  Neat!  Restart the app and check http://localhost:5000 to make sure
 its not crashing.
 
-.. see-also::
+.. seealso::
 
    - :doc:`Middleware`
 
@@ -206,6 +206,6 @@ existing ``def hello()`` route and replace it with the following:
 Go restart your app (make sure ``moksha-hub`` is running in a second terminal) and check out
 http://localhost:5000 again.  You should see popups from your PollingProducer.
 
-.. see-also::
+.. seealso::
 
    - :doc:`LiveWidget`

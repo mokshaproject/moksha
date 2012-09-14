@@ -60,7 +60,7 @@ place, put the following
    app = make_base_app(global_conf, full_stack=True,
                        wrap_app=wrap_app, **app_conf)
 
-.. see-also::
+.. seealso::
 
    - :doc:`Middleware`
 
@@ -166,7 +166,7 @@ inside of the ``</body>`` tag::
 Go restart your ``paster`` server and check out http://localhost:8080 again.
 You should see popups from your PollingProducer.
 
-.. see-also::
+.. seealso::
 
    - :doc:`LiveWidget`
 

@@ -59,7 +59,7 @@ You now have three new pieces of WSGI middleware floating under your pyramid
 app.  Neat!  Restart pserve and check http://localhost:6543 to make sure
 its not crashing.
 
-.. see-also::
+.. seealso::
 
    - :doc:`Middleware`
 
@@ -176,6 +176,6 @@ but just inside of the ``</body>`` tag::
 Go restart your ``pserve`` server and check out http://localhost:6543 again.
 You should see popups from your PollingProducer.
 
-.. see-also::
+.. seealso::
 
    - :doc:`LiveWidget`
