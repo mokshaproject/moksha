@@ -276,10 +276,10 @@ class CentralMokshaHub(MokshaHub):
 
                         # The code here used to look like:
                         ## Else, simply forward on the message through the hub.
-                        #self.moksha_hub.send_message(
-                        #    json['topic'],
-                        #    json['body'],
-                        #)
+                        self.moksha_hub.send_message(
+                            str(json['topic']),
+                            json['body'],
+                        )
 
                         pass
 
