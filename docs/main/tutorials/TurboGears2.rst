@@ -143,7 +143,7 @@ definition:
 
 You'll need to expose this widget and the moksha global resources to your
 templates.  You could do this with some logic in a controller, but instead
-will just stuff it on every page for simplicity here.
+we'll just stuff it on every page for simplicity here.
 
 Edit ``tutorial/lib/base.py`` and add the following **inside** the ``__call__``
 method:

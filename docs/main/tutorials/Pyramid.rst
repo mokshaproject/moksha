@@ -154,7 +154,8 @@ Edit ``tutorial/views.py`` and add the following imports at the top:
     import tutorial.widgets
     from moksha.wsgi.widgets.api import get_moksha_socket
 
-In the same file, change the ``return`` statement of ``my_view()`` to return:
+In the same file, change the ``return`` statement of ``my_view()`` to return the
+following:
 
 .. code-block:: python
 
