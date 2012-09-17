@@ -144,6 +144,12 @@ class MokshaHub(object):
             topics = topic
 
         for topic in topics:
+            if isinstance(topic, unicode):
+                # txzmq isn't smart enough to handle unicode yet.
+                # Try removing this and sending a unicode topic in the future to
+                # see if it works.
+                topic = topic.encode('utf-8')
+
             for ext in self.extensions:
                 ext.send_message(topic, message)
 
