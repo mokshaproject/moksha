@@ -49,7 +49,11 @@ def main(options=None, consumers=None, producers=None):
     config = {}
 
     if not options:
-        config_path = get_moksha_config_path()
+        if sys.argv[-1].endswith('.ini'):
+            config_path = os.path.abspath(sys.argv[-1])
+        else:
+            config_path = get_moksha_config_path()
+
         if not config_path:
             print NO_CONFIG_MESSAGE
             return
