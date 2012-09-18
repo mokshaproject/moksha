@@ -130,5 +130,5 @@ class Consumer(object):
         if hasattr(self, 'hub'):
             self.hub.close()
 
-        if self.DBSession:
+        if getattr(self, 'DBSession', None):
             self.DBSession.close()
