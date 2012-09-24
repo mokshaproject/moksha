@@ -348,7 +348,7 @@ class CentralMokshaHub(MokshaHub):
             for i, consumer in enumerate(self.topics[topic]):
                 try:
                     c = consumer(self)
-                    if not getattr(c, "__initialized", None):
+                    if not getattr(c, "_initialized", None):
                         log.warn((
                             "%r didn't initialize correctly.  " +
                             "Did you call super(..).__init__?") % consumer)

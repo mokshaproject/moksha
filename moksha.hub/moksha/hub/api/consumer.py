@@ -39,7 +39,7 @@ class Consumer(object):
     jsonify = True
 
     # Internal use only
-    __initialized = False
+    _initialized = False
 
     def __init__(self, hub):
         self.hub = hub
@@ -63,7 +63,7 @@ class Consumer(object):
             self.engine = create_app_engine(app, hub.config)
             self.DBSession = sessionmaker(bind=self.engine)()
 
-        self.__initialized = True
+        self._initialized = True
 
     def _consume_json(self, message):
         """ Convert our AMQP messages into a consistent dictionary format.
