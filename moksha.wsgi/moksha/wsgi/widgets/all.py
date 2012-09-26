@@ -39,5 +39,3 @@ for entry_point in ('moksha.widget', 'moksha.menu', 'moksha.global'):
 # Other stuff that isn't exposed
 from moksha.wsgi.widgets.container import MokshaContainer
 __all__.append(MokshaContainer)
-from moksha.wsgi.widgets.notify import MokshaNotificationWidget
-__all__.append(MokshaNotificationWidget)
