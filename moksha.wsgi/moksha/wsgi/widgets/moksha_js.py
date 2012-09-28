@@ -23,5 +23,5 @@ moksha_js = twc.JSLink(
 
 moksha_extension_points_js = twc.JSLink(
     modname="moksha",
-    filename='public/javascript/moksha.extensions.js',
+    filename='static/moksha.extensions.js',
     resources=[moksha_js])
