@@ -126,7 +126,7 @@ class ZMQHubExtension(BaseZMQHubExtension):
         topic = topic.replace('*', '')
 
         for endpoint in self.sub_endpoints:
-            log.info("Subscribing to %s on '%r'" % (topic, endpoint))
+            log.debug("Subscribing to %s on '%r'" % (topic, endpoint))
             if endpoint in self.subscriber_factories:
                 log.debug("Using cached txzmq factory.")
                 s = self.subscriber_factories[endpoint]
