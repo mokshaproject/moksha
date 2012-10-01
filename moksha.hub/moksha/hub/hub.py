@@ -249,6 +249,8 @@ class CentralMokshaHub(MokshaHub):
         class RelayProtocol(protocol.Protocol):
             moksha_hub = self
 
+            subscribed_already = False
+
             def dataReceived(self, data):
                 """ Messages sent from the browser arrive here.
 
@@ -270,9 +272,19 @@ class CentralMokshaHub(MokshaHub):
                             })
                             self.transport.write(msg)
 
+                        # TODO -- the following "subscribed-already" logic can
+                        # be thrown away.  It is a stand-in until we can decide
+                        # on a more solid websocket authn/authz+routing
+                        # architecture like blastbeat, socketio, or autobahn.
                         _topic = json['body']
-                        log.info("Websocket subscribing to %r." % _topic)
-                        self.moksha_hub.subscribe(_topic, send_to_websocket)
+                        if not self.subscribed_already:
+                            self.subscribed_already = True
+                            _topic = "*"
+                            log.info("Websocket subscribing to %r." % _topic)
+                            self.moksha_hub.subscribe(_topic, send_to_websocket)
+                        else:
+                            log.debug("Websocket ignoring %r." % _topic)
+
                     else:
                         # FIXME - The following is disabled temporarily until we can
                         # devise a secure method of "firewalling" where messages
