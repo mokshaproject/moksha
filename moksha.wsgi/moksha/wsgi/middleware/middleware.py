@@ -83,7 +83,7 @@ class MokshaMiddleware(object):
         decoding the incoming JSON data, and dispatching messages to them as
         they arrive.
         """
-        environ['paste.registry'].register(moksha.common.utils.livewidgets, {
+        environ['paste.registry'].register(moksha.wsgi.lib.utils.livewidgets, {
             'onopen': [],
             'onclose': [],
             'onerror': [],

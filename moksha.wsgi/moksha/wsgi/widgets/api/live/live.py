@@ -17,7 +17,7 @@
 #          Ralph Bean <ralph.bean@gmail.com>
 
 import moksha
-import moksha.common.utils
+import moksha.wsgi.lib.utils
 
 from uuid import uuid4
 
@@ -89,12 +89,12 @@ class LiveWidget(twc.Widget):
             if callback == 'onmessageframe':
                 for topic in topics:
                     cb = getattr(self, 'onmessage').replace('${id}', self.id)
-                    moksha.common.utils.livewidgets[callback][topic].append(cb)
+                    moksha.wsgi.lib.utils.livewidgets[callback][topic].append(cb)
             elif callback in ['onconnectedframe', 'onopen']:
-                moksha.common.utils.livewidgets[callback].append(
+                moksha.wsgi.lib.utils.livewidgets[callback].append(
                     self.subscribe_topics(topics))
             elif getattr(self, callback, None):
-                moksha.common.utils.livewidgets[callback].append(
+                moksha.wsgi.lib.utils.livewidgets[callback].append(
                     getattr(self, callback))
 
     @classmethod

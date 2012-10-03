@@ -16,7 +16,7 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 
 import logging
-from paste.deploy.converters import asbool
+from moksha.common.lib.converters import asbool
 
 
 from moksha.lib.helpers import trace

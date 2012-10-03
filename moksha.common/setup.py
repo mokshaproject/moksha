@@ -43,7 +43,6 @@ setup(
     url='http://moksha.fedorahosted.org',
     install_requires=[
         "decorator",
-        "paste",
         "pytz",
         "kitchen",
     ],

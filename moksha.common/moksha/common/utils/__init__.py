@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from paste.registry import StackedObjectProxy
-
 # The root controller class
 root = None
 
@@ -35,9 +33,6 @@ wsgiapps = None
 
 # All loaded moksha menus
 menus = None
-
-# Per-request topic callbacks registered by rendered live widgets
-livewidgets = StackedObjectProxy(name="livewidgets")
 
 def get_widget(name):
     """ Get a widget instance by name """

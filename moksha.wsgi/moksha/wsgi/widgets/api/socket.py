@@ -3,7 +3,7 @@ from tw2.jqplugins.gritter import gritter_resources, gritter_callback
 
 from moksha.wsgi.widgets.moksha_js import moksha_js
 from moksha.common.lib.helpers import defaultdict
-import moksha.common.utils
+import moksha.wsgi.lib.utils
 
 
 class AbstractMokshaSocket(twc.Widget):
@@ -80,14 +80,14 @@ class AbstractMokshaSocket(twc.Widget):
                 cbs += "setTimeout(setup_moksha_socket, %i)" % \
                         int(self.reconnect_interval)
 
-            if len(moksha.common.utils.livewidgets[callback]):
+            if len(moksha.wsgi.lib.utils.livewidgets[callback]):
                 if callback == 'onmessageframe':
-                    for topic in moksha.common.utils.livewidgets[callback]:
+                    for topic in moksha.wsgi.lib.utils.livewidgets[callback]:
                         self.topics.append(topic)
-                        for cb in moksha.common.utils.livewidgets[callback][topic]:
+                        for cb in moksha.wsgi.lib.utils.livewidgets[callback][topic]:
                             self.onmessageframe[topic] += '%s;' % unicode(cb)
                 else:
-                    for cb in moksha.common.utils.livewidgets[callback]:
+                    for cb in moksha.wsgi.lib.utils.livewidgets[callback]:
                         if isinstance(cb, (twc.js_callback, twc.js_function)):
                             cbs += '$(%s);' % unicode(cb)
                         else:
