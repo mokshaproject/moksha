@@ -1,0 +1,2 @@
+include LICENSE README AUTHORS COPYING
+include development.ini

@@ -1,14 +1,14 @@
 Consumers
 =========
 
-.. automodule:: moksha.api.hub.consumer
+.. automodule:: moksha.hub.api.consumer
 
 Creating
 --------
 
 .. code-block:: python
 
-    from moksha.api.hub import Consumer
+    from moksha.hub.api import Consumer
 
     class FeedConsumer(Consumer):
 
@@ -30,10 +30,17 @@ Creating
 
 .. note::
 
-   If your using AMQP, your `topic` can using wildcards.
+   If you're using AMQP, your `topic` can using wildcards.
    http://www.rabbitmq.com/faq.html#wildcards-in-topic-exchanges
 
    Wildcard topics do not work using STOMP.
+
+.. note::
+
+   If you're using 0mq and ``zmq_strict`` is set to False in your config file,
+   then your topic will behave like it usually does with 0mq.  i.e.: `foo` will
+   match `foobar`, `foobaz, and `foo`.  If ``zmq_strict`` is set to True then
+   `foo` will match only `foo` and not `foobaz` or `foobar`.
 
 Installing
 ----------
@@ -51,11 +58,13 @@ make it look something like this:
 
         """
 
-After modifying your entry-points, you'll need to re-generate your project's `egg-info`.  The `start-moksha` script will do this for you.
+After modifying your entry-points, you'll need to re-generate your project's `egg-info`.
 
 .. code-block:: bash
 
+    $ workon moksha
     $ python setup.py egg_info
+    $ deactivate
 
 
 Moksha will now automatically detect, instantiate, and feed your consumer.

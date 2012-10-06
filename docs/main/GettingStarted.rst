@@ -12,12 +12,12 @@ There are currently two ways of installing and running Moksha.
 
 Once you have Moksha installed, there are many ways to start using it.
 
-
 .. toctree::
    :maxdepth: 1
 
-   HelloWorld
-   IntegratingWithTG2
+   tutorials/TurboGears2
+   tutorials/Pyramid
+   tutorials/Flask
    UsingLiveSocketOutsideOfMoksha
    QuickstartTemplates
    PluginEntryPoints

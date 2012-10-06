@@ -1,19 +1,15 @@
 The Moksha Feed Widget
 ----------------------
 
-.. autoclass:: moksha.api.widgets.feed.Feed
+.. autoclass:: moksha.feeds.widgets.feed.Feed
    :members:
-
-.. widgetbrowser:: moksha.widgets.demos.FeedDemo
-   :tabs: demo, source, template
-   :size: large
 
 Using the Feed widget
 ~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
-    from moksha.api.widgets.feed import Feed
+    from moksha.feeds.widgets.feed import Feed
     feed = Feed('myfeed')
     feed(url='http://lewk.org/rss')
 
@@ -43,26 +39,49 @@ Subclassing
 As ToscaWidget children
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-By defining your Feeds as children to a widget, ToscaWidgets will automatically
+By defining your Feeds as children to a widget, ToscaWidgets1 will automatically
 handle setting a unique id for your Feed object, as well as giving you the
 ability access it in your template from the `c` context object.
 
 .. code-block:: python
 
     from tw.api import Widget
-    from moksha.api.widgets.feed import Feed
+    from moksha.feeds.widgets.feed import Feed
 
     class MyWidget(Widget):
         myfeedurl = 'http://foo.com/feed.xml'
         children = [Feed('myfeed', url=myfeedurl)]
         template = "${c.myfeed()}"
 
+The usage for ToscaWidgets2 is quite similar.
+
+.. code-block:: python
+
+    from tw2.core import Widget
+    from moksha.feeds.widgets.feed import Feed
+
+    class MyWidget(Widget):
+        myfeedurl = 'http://foo.com/feed.xml'
+        myfeed = Feed(url=myfeedurl)
+        template = "${w.myfeed()}"
+
 As a generator
 ~~~~~~~~~~~~~~
+
+For ToscaWidgets1:
 
 .. code-block:: python
 
     feed = Feed('myfeed', url='http://foo.com/feed.xml')
+    print '%d entries' % feed.num_entries()
+    for entry in feed.iterentries():
+        print entry.title
+
+For ToscaWidgets2:
+
+.. code-block:: python
+
+    feed = Feed(id='myfeed', url='http://foo.com/feed.xml')
     print '%d entries' % feed.num_entries()
     for entry in feed.iterentries():
         print entry.title

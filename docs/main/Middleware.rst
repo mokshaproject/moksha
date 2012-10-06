@@ -3,7 +3,7 @@ Moksha Middleware
 =================
 
 Moksha can run as an application serving platform on its own, but
-also contains a small piece of WSGI middleware that provides your 
+also contains a small piece of WSGI middleware that provides your
 application with a lot of additional functionality as well.  This allows you to use Moksha in your existing `WSGI <http://www.python.org/dev/peps/pep-0333/>`_ application.
 
 It currently provides the following functionality
@@ -15,7 +15,6 @@ It currently provides the following functionality
     * Loads all application configuration
     * Initializes the :doc:`LiveWidget` callback registry
     * Initializes applications data models
-    * Sets up the moksha resource connectors
 
 Using the MokshaMiddleware
 --------------------------
@@ -30,7 +29,7 @@ how it looks in TurboGears2.  If you're using Moksha as a stand-alone platform, 
     from myapp.config.app_cfg import base_config
     from myapp.config.environment import load_environment
 
-    # make_base_app will wrap the TG2 app with all the middleware it needs. 
+    # make_base_app will wrap the TG2 app with all the middleware it needs.
     make_base_app = base_config.setup_tg_wsgi_app(load_environment)
 
     def make_app(global_conf, full_stack=True, **app_conf):

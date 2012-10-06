@@ -1,50 +1,30 @@
 The technology that powers Moksha
 =================================
 
-.. image:: ../_static/moksha-technology.png
-
 Python
 ------
 An high-level interpreted, interactive, object-oriented programming language.
 
-`TurboGears <http://turbogears.org>`_, `Pylons <http://pylonshq.org>`_, `Paste <http://pythonpaste.org>`_
----------------------------------------------------------------------------------------------------------
+`Twisted <http://twistedmatrix.com>`_
+-------------------------------------
 
-The frameworks that provide our `WSGI <http://wsgi.org>`_ application and
-middleware stack.
+Twisted is an event-driven networking engine written in Python.  It is the core engine for the :doc:`MokshaHub`, which reacts to incoming messages (:doc:`Consumers`), runs our :doc:`Producers`, and drives the :doc:`WebSocket` Server (if it is enabled).
 
-WSGI Middleware
----------------
-
-Powerful pre-existing middleware components provide massive functionality on
-top of existing applications.  Standard middleware includes `repoze.what
-<http://static.repoze.org/whatdocs/>`_ for authorization, `ToscaWidgets
-<http://toscawidgets.org>`_ for resource injection, `Beaker
-<http://wiki.pylonshq.com/display/beaker>`_ for sessions and caching, `Paste
-<http://pythonpaste.org>`_ for the Registry Manager, and `WebError
-<http://pypi.python.org/pypi/WebError>`_ for robust error handling and
-debugging.
-
-`ToscaWidgets <http://toscawidgets.org>`_
------------------------------------------
+`ToscaWidgets2 <http://toscawidgets.org>`_
+------------------------------------------
 
 The powerful API for creating reusable "Widgets", which are essentially just
-bundles of HTML, JavaScript, CSS, and render-time logic.  ToscaWidgets also
+bundles of HTML, JavaScript, CSS, and render-time logic.  ToscaWidgets2 also
 provides a piece of WSGI middleware that handles intelligent resource
 inejection.
 
-`Mako <http://www.makotemplates.org/>`_ and `Genshi <http://genshi.edgewall.org/>`_
------------------------------------------------------------------------------------
+Templating language of your choice
+----------------------------------
 
-Powerful templating languages that can be used for widgets or other
-applications.
-
-`SQLAlchemy <http://sqlalchemy.org>`_
--------------------------------------
-
-A powerful `Object Relational Mapper <http://en.wikipedia.org/wiki/Object-relational_mapping>`_ that makes it simple
-for plugins/widgets/applications to transparently utilize relational databases
-such as SQLite/MySQL/PostgreSQL/etc.
+We prefer `Mako <http://www.makotemplates.org/>`_ first and
+`Genshi <http://genshi.edgewall.org/>`_ second,
+powerful templating languages that can be used for widgets or other
+applications.  Other templating languages are possible.
 
 `jQuery <http://jquery.com>`_
 -----------------------------
@@ -67,13 +47,16 @@ Simplifies creating rich web applications by providing direct integration with
 open protocols.
 
 `AMQP <http://amqp.org/>`_/`Qpid <http://incubator.apache.org/qpid/>`_
----------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------
 
 `AMQP <http://amqp.org/>`_ is an open Internet Protocol for Business Messaging.
 `Qpid <http://incubator.apache.org/qpid/>`_ is a message broker daemon that
 receives, stores, and routes messages using the AMQP protocol.
 
-`Twisted <http://twistedmatrix.com>`_
--------------------------------------
+`0mq <http://www.zeromq.org/>`_
+-------------------------------
 
-Twisted is an event-driven networking engine written in Python.  It is the core engine for the :doc:`MokshaHub`, which reacts to incoming messages, as well as runs our :doc:`Producers`.
+`0mq <http://www.zeromq.org/>`_ is a socket library that acts as a concurrency
+framework.  Think `"spicy sockets on steroids"`.  It is one the pluggable
+messaging backends for the :doc:`MokshaHub` alongside AMQP and STOMP.
+

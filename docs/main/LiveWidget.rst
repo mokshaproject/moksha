@@ -17,7 +17,7 @@ the 'stuff' message topic, and will perform an `alert` upon new messages.
 
 .. code-block:: python
 
-    from moksha.api.widgets.live import LiveWidget
+    from moksha.wsgi.widgets.api.live import LiveWidget
 
     class MyLiveWidget(LiveWidget):
         topic = 'stuff'
@@ -34,11 +34,7 @@ A Live Feed Demo Widget
 
 .. code-block:: python
 
-    from moksha.api.widgets.feed.live import LiveFeedWidget
-
-.. widgetbrowser:: moksha.widgets.demos.LiveFeedDemo
-   :tabs: demo, source, template, parameters
-   :size: large
+    from moksha.feeds.widgets.live import LiveFeedWidget
 
 The Live Feed Widget
 ~~~~~~~~~~~~~~~~~~~~
@@ -48,8 +44,8 @@ uses a little bit of jQuery to add and remove feed entries from a list.
 
 .. code-block:: python
 
-    from moksha.api.widgets.live import LiveWidget
-    from moksha.api.widgets.feed import Feed
+    from moksha.wsgi.widgets.api.live import LiveWidget
+    from moksha.feeds.widgets.feed import Feed
 
     class LiveFeedWidget(LiveWidget):
         """ A live streaming feed widget """
@@ -74,5 +70,19 @@ uses a little bit of jQuery to add and remove feed entries from a list.
 Live Widget Interaction
 -----------------------
 
+Live Widget speaking AMQP or STOMP
+
 .. image:: ../_static/live_widget_interaction.png
 
+Live Widget speaking WebSocket to 0mq
+
+.. image:: ../_static/live_widget_interaction_websocket.png
+
+Dependency on GlobalResourceInjectionWidget
+-------------------------------------------
+
+Under the hood, each :class:`LiveWidget` depends on the
+:class:`GlobalResourceInjectionWidget`
+to render the the javascript callbacks for their topics.  Due to the way
+this works, you should ensure that the global resources are injected
+*last*, after each LiveWidget is rendered.

@@ -64,5 +64,29 @@ AMQP Broker in your``/etc/orbited.cfg``
 .. note::
 
    AMQP support in Moksha has been tested with `Qpid <http://qpid.apache.org>`_.
-      
+
       `RabbitMQ <http://rabbitmq.com>`_ support is under development.  See the :doc:`RabbitMQ` documentation for details on testing it.
+
+`0mq <http://www.zeromq.org>`_
+------------------------------
+
+It (perhaps) goes without saying that `0mq <http://www.zeromq.org>`_ is
+brokerless.  To configure what endpoints it will subscribe to and publish on,
+set the following in Moksha's ``development.ini`` or ``production.ini``:
+
+.. code-block:: none
+
+    zmq_enabled = True
+    zmq_publish_endpoints = tcp://\*:6543
+    zmq_subscribe_endpoints = tcp://127.0.0.1:6543
+
+0mq *requires* that the livesocket backend be set to ``websocket`` with any port
+of your choosing, like this:
+
+.. code-block:: none
+
+    moksha.livesocket.backend = websocket
+    moksha.livesocket.websocket.port = 9991
+
+Note that when using the 0mq+websocket setup there is no need to run either
+Orbited or qpidd.

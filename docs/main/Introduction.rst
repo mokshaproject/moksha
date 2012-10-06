@@ -1,6 +1,9 @@
 What is Moksha?
 ===============
 
+In their totality, Moksha's components make it a **platform**, **framework**,
+**architecture**, and **hub**.
+
 A Platform
 ~~~~~~~~~~
 A highly scalable platform for creating dashboards of live collaborative
@@ -18,7 +21,7 @@ stack.
 An Architecture
 ~~~~~~~~~~~~~~~
 Moksha brings many existing technologies together to create a next-generation
-web architecture that is designed to simplify the creation of create rich,
+web architecture that is designed to simplify the creation of rich,
 powerful, live web applications that can easily bridge existing services.
 
 A Hub

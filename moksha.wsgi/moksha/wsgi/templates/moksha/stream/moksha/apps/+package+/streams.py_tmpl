@@ -1,0 +1,12 @@
+from datetime import timedelta, datetime
+from moksha.hub.api.producer import PollingProducer
+
+class {{stream_name}}(PollingProducer):
+    frequency = timedelta(seconds=5)
+    topic = '{{topic}}'
+    i = 0
+
+    def poll(self):
+        """ This method is called by the MokshaHub reactor every `frequency` """
+        self.i += 1
+        self.send_message(self.topic, {'message': self.i})

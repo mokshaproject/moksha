@@ -8,9 +8,10 @@ docs/_build
 prompt.py
 mokshaenv
 *.db
+*.db-journal
 .build
-tg2env
 *.egg-info
+*.egg
 *.pid
 rabbitmq-codegen
 rabbitmq-server
@@ -22,3 +23,8 @@ tg2-bootstrap.py
 *.cachegrind
 dist
 build
+logs/*.log
+Paste*.egg
+moksha/tests/quickstarts/tg2app/devdata.db-journal
+*.coverage
+htmldoc

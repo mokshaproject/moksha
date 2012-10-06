@@ -1,0 +1,12 @@
+from moksha.hub.api import Consumer
+
+class {{consumer_name}}(Consumer):
+
+    # The message topic to listen to.
+    topic = '{{topic}}'
+
+    # Automatically decode message as JSON, and encode when using self.send_message
+    jsonify = True
+
+    def consume(self, message):
+        self.log.info("%r.consume(%r)" % (self, message))

@@ -1,0 +1,43 @@
+# -*- coding: utf-8 -*-
+from paver.easy import *
+from paver.setuputils import (setup, find_package_data, find_packages,
+                              install_distutils_tasks)
+install_distutils_tasks()
+from moksha.lib.paver_tasks import *
+
+options(
+    setup=Bunch(
+        name="{{project}}",
+        version="0.1",
+        release="1",
+        url="http://moksha.fedorahosted.org",
+        description="Describe your package here",
+        license="ASL 2.0",
+        long_description="",
+        author="",
+        author_email="",
+        rpm_name='{{package}}',
+        packages=find_packages(),
+        package_data=find_package_data(),
+        namespace_packages=[
+            'moksha',
+            {{if stream or consumer or controller}}'moksha.apps',{{endif}}
+            {{if livewidget}}'moksha.wsgi.widgets',{{endif}}
+        ],
+        install_requires=["Moksha"],
+        entry_points={
+            {{if stream}}'moksha.stream': (
+                '{{package}} = moksha.apps.{{package}}.streams:{{stream_name}}',
+            ),{{endif}}
+            {{if consumer}}'moksha.consumer': (
+                '{{package}} = moksha.apps.{{package}}.consumers:{{consumer_name}}'
+            ),{{endif}}
+            {{if livewidget}}'moksha.widget': (
+                '{{package}} = moksha.wsgi.widgets.{{package}}.widgets:{{widget_name}}',
+            ),{{endif}}
+            {{if controller}}'moksha.application': (
+                '{{package}} = moksha.apps.{{package}}.controllers:{{controller_name}}'
+            ),{{endif}}
+        }
+    ),
+)

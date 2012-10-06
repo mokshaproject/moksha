@@ -22,7 +22,10 @@ def handle_signal(signum, stackframe):
 
 if '--daemon' in sys.argv:
     from daemon import DaemonContext
-    from daemon.pidlockfile import PIDLockFile
+    try:
+        from daemon.pidfile import TimeoutPIDLockFile as PIDLockFile
+    except:
+        from daemon.pidlockfile import PIDLockFile
     pidlock = PIDLockFile('/var/run/moksha/moksha-hub.pid')
     output = file('/var/log/moksha/moksha-hub.log', 'a')
     daemon = DaemonContext(pidfile=pidlock, stdout=output, stderr=output)

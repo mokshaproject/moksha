@@ -10,7 +10,8 @@ Installing and configuring the Moksha mod_wsgi environment
 Serving ToscaWidgets static resources
 -------------------------------------
 
-`Deploying projects which use ToscaWidgets <http://toscawidgets.org/documentation/ToscaWidgets/deploy.html>`_
+`Deploying projects which use ToscaWidgets2
+<http://tw2core.readthedocs.org/en/latest/deploy/>`_
 
 Once extracted, comment out the ToscaWidgets alias in your
 `/etc/httpd/conf.d/moksha.conf`.

@@ -1,0 +1,13 @@
+include LICENSE README AUTHORS COPYING
+include development.ini
+include orbited.cfg
+
+recursive-include moksha/wsgi *.mak
+recursive-include moksha/wsgi *.html
+recursive-include moksha/wsgi *.css
+recursive-include moksha/wsgi *.js
+recursive-include moksha/wsgi *.png
+recursive-include moksha/wsgi *.gif
+recursive-include moksha/wsgi *.in
+recursive-include moksha/wsgi *.po
+recursive-include moksha/wsgi *tmpl

@@ -2,6 +2,7 @@
 Moksha Quickstart Templates
 ===========================
 
+If you're a TurboGears2 user, you're in luck!
 Moksha provides templates for easily creating basic components.
 
 .. code-block:: bash
@@ -14,7 +15,6 @@ Moksha provides templates for easily creating basic components.
      --version             show program's version number and exit
      -h, --help            show this help message and exit
      -l, --livewidget      Create an example Moksha LiveWidget
-     -c, --connector       Create an example Moksha Connector
      -u, --consumer        Create an example Moksha Consumer
      -C, --controller      Create an example Moksha Controller
      -P, --producer Create an example Moksha Producer
@@ -54,8 +54,11 @@ Creating and installing an RPM for your new package
    $ paver reinstall
 
 
-Creating a new TurboGears2 app
-------------------------------
+Creating a whole new app
+------------------------
 
-See the `TurboGears2 QuickStart Documentation <http://turbogears.org/2.0/docs/main/QuickStart.html>`_ as well as the :doc:`IntegratingWithTG2` example.
+See:
 
+ - :doc:`tutorials/TurboGears2`
+ - :doc:`tutorials/Pyramid`
+ - :doc:`tutorials/Flask`

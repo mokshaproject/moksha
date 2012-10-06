@@ -7,11 +7,11 @@ Moksha is a platform for creating live collaborative applications.  It provides
 a layer of cohesion and collaboration between existing applications, services,
 and communities.
 
-** Link to wiki, tickets, mailing lists, etc... 
+** Link to wiki, tickets, mailing lists, etc...
 ** be *the* homepage, let trac just be for tickets and wiki.
 
 :Homepage: http://moksha.fedorahosted.org
-:Demo Dashboard: http://65.49.60.166
+:Demo Dashboard: http://moksha.csh.rit.edu
 
 Vision
 ------
@@ -68,16 +68,7 @@ Widgets
 
    main/Feeds
    main/LiveWidget
-   main/MokshaContainerWidgets
    main/Widgets
-..
-    Model
-    -----
-
-    .. toctree::
-       :maxdepth: 2
-
-       main/MokshaModel
 
 WSGI Middleware
 ---------------
@@ -104,9 +95,9 @@ Deployment
 Third-party Documentation
 -------------------------
 
-* `TurboGears <http://turbogears.org/2.0/docs/index.html>`_
-* `ToscaWidgets <http://toscawidgets.org/documentation>`_
-* `SQLAlchemy <http://www.sqlalchemy.org/docs/05>`_
+* `TurboGears <http://turbogears.org/2.2/docs/index.html>`_
+* `ToscaWidgets <http://toscawidgets.org/>`_
+* `SQLAlchemy <http://www.sqlalchemy.org/docs>`_
 
 Indices and tables
 ==================
