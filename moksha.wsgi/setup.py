@@ -37,13 +37,13 @@ if sys.version_info[0] == 2 and sys.version_info[1] <= 6:
 
 setup(
     name='moksha.wsgi',
-    version='1.0.5',
+    version='1.0.6',
     description='WSGI components for Moksha.',
     author='Luke Macken, John (J5) Palmieri, Mairin Duffy, and Ralph Bean',
     author_email='',
     url='http://moksha.fedorahosted.org',
     install_requires=[
-        "moksha.common>=1.0.1",
+        "moksha.common>=1.0.6",
         "tw2.core",
         "tw2.forms",
         "tw2.jquery",
