@@ -14,7 +14,7 @@ if (typeof moksha_callbacks == 'undefined') { moksha_callbacks = {}; }
 		moksha_callbacks[topic].callbacks = [];
 	}
 	moksha_callbacks[topic].callbacks.push(function(json, frame) {
-		${tw._('onmessageframe')[topic]}
+		${tw._('onmessageframe')[topic]|n}
 	});
 % endfor
 
@@ -45,7 +45,7 @@ if (typeof WebSocket == 'undefined') { WebSocket = MozWebSocket; }
 
 function setup_moksha_socket() {
 	## Pre-connect callback
-	${unicode(tw._("before_open"))}
+  ${unicode(tw._("before_open"))|n}
 
 	var ws_scheme = "ws://";
 	if (location.protocol === 'https:') {
@@ -59,7 +59,7 @@ function setup_moksha_socket() {
 	## Attach all the callbacks for that websocket
 	% for callback in ['onopen', 'onerror', 'onclose']:
 	% if tw._(callback):
-	moksha_websocket.${callback} = function(e){${unicode(tw._(callback))};}
+  moksha_websocket.${callback} = function(e){${unicode(tw._(callback))|n};}
 	% endif
 	% endfor
 
@@ -70,7 +70,7 @@ function setup_moksha_socket() {
 if (typeof moksha_websocket == 'undefined') {
   setup_moksha_socket();
 } else {
-  ${unicode(tw._("onconnectedframe"))}
+	${unicode(tw._("onconnectedframe"))|n}
 }
 
 ## Extend the moksha object
@@ -83,7 +83,7 @@ moksha.send_message = function(topic, body) {
 }
 
 moksha.topic_subscribe = function(topic) {
-	moksha.send_message('__topic_subscribe__', topic);
+ moksha.send_message('__topic_subscribe__', topic);
 }
 
 });
