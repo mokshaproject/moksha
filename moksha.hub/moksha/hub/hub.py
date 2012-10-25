@@ -291,7 +291,7 @@ class CentralMokshaHub(MokshaHub):
                         #   https://github.com/gregjurman/zmqfirewall
 
                         key = 'moksha.livesocket.websocket.client2server'
-                        if asbool(self.config.get(key, False)):
+                        if asbool(self.moksha_hub.config.get(key, False)):
                             # Simply forward on the message through the hub.
                             self.moksha_hub.send_message(
                                 json['topic'],
