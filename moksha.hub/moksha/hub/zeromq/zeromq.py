@@ -174,6 +174,7 @@ class ZMQHubExtension(BaseZMQHubExtension):
                     # This second clause is a symptom that I'm doing something
                     # wrong.  The filtering should all be handled inside txZMQ by
                     # setsockopt.
+                    return None
 
                 return callback(ZMQMessage(_topic, _body))
 
