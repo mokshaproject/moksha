@@ -54,6 +54,10 @@ def hostname2ipaddr(endpoint):
         yield endpoint.replace(hostname, addr)
 
 
+def splat2ipaddr(endpoint):
+    return [endpoint.replace("*", "127.0.0.1")]
+
+
 class ZMQHubExtension(BaseZMQHubExtension):
 
     def __init__(self, hub, config):
@@ -83,6 +87,9 @@ class ZMQHubExtension(BaseZMQHubExtension):
 
         if method == 'bind':
             _endpoints = sum(map(list, map(hostname2ipaddr, _endpoints)), [])
+        else:
+            # Required for zeromq-3.x.
+            _endpoints = sum(map(list, map(splat2ipaddr, _endpoints)), [])
 
         self.sub_endpoints = [
             txzmq.ZmqEndpoint(method, ep) for ep in _endpoints
@@ -134,10 +141,10 @@ class ZMQHubExtension(BaseZMQHubExtension):
                 log.debug("Creating new txzmq factory.")
                 try:
                     s = self.subscriber_factories[endpoint] = \
-                            txzmq.ZmqSubConnection(
-                                self.twisted_zmq_factory, endpoint)
-                except zmq.ZMQError:
-                    log.warn("Failed txzmq create on %r" % str(endpoint))
+                        txzmq.ZmqSubConnection(
+                            self.twisted_zmq_factory, endpoint)
+                except zmq.ZMQError, e:
+                    log.warn("Failed txzmq create on %r %r" % (endpoint, e))
                     continue
 
                 def chain_over_moksha_callbacks(_body, _topic):
@@ -162,6 +169,11 @@ class ZMQHubExtension(BaseZMQHubExtension):
                 """
 
                 if self.strict and _topic != topic:
+                    return None
+                elif not self.strict and not _topic.startswith(topic):
+                    # This second clause is a symptom that I'm doing something
+                    # wrong.  The filtering should all be handled inside txZMQ by
+                    # setsockopt.
                     return None
 
                 return callback(ZMQMessage(_topic, _body))

@@ -118,7 +118,7 @@ class MokshaContainer(twc.Widget):
 
         self.id = str(uuid.uuid4())
 
-        self.elementsPath = '/resources/moksha.wsgi.widgets.container.container/static/css/elements/'
+        self.elementsPath = '/tw2/resources/moksha.wsgi.widgets.container.container/static/css/elements/'
 #        self.add_call(tw2.jquery.jQuery('#%s' % self.id).buildContainers({
 #            'elementsPath':
 #            'onClose': self.onClose,

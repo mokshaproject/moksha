@@ -98,8 +98,6 @@ def find_hub_extensions(config):
     extensions = tuple([
         b for k, b in possible_bases.items() if config.get(k, None)
     ])
-    import pprint
-    pprint.pprint(extensions)
     return extensions
 
 
@@ -293,7 +291,7 @@ class CentralMokshaHub(MokshaHub):
                         #   https://github.com/gregjurman/zmqfirewall
 
                         key = 'moksha.livesocket.websocket.client2server'
-                        if asbool(self.config.get(key, False)):
+                        if asbool(self.moksha_hub.config.get(key, False)):
                             # Simply forward on the message through the hub.
                             self.moksha_hub.send_message(
                                 json['topic'],
