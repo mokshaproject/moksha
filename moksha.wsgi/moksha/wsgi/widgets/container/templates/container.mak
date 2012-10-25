@@ -34,13 +34,13 @@
 <script type="text/javascript">
 $(document).ready(function() {
 	$('#${tw._("id")}').buildContainers({
-		'elementsPath': "${tw._('elementsPath')}",
-		'onClose': ${tw._('onClose')},
-		'onResize': ${tw._('onResize')},
-		'onCollapse': ${tw._('onCollapse')},
-		'onIconize': ${tw._('onIconize')},
-		'onDrag': ${tw._('onDrag')},
-		'onRestore': ${tw._('onRestore')},
+		'elementsPath': "${tw._('elementsPath')|n}",
+		'onClose': ${tw._('onClose')|n},
+		'onResize': ${tw._('onResize')|n},
+		'onCollapse': ${tw._('onCollapse')|n},
+		'onIconize': ${tw._('onIconize')|n},
+		'onDrag': ${tw._('onDrag')|n},
+		'onRestore': ${tw._('onRestore')|n},
 	});
 });
 </script>
