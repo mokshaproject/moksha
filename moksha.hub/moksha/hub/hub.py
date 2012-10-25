@@ -98,8 +98,6 @@ def find_hub_extensions(config):
     extensions = tuple([
         b for k, b in possible_bases.items() if config.get(k, None)
     ])
-    import pprint
-    pprint.pprint(extensions)
     return extensions
 
 
