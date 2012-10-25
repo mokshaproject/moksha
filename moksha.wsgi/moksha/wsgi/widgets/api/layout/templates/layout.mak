@@ -54,7 +54,7 @@
 
 	<div class="clear"></div>
 	<div id="overlay">
-		<div id="preloader"><img src="/toscawidgets/resources/moksha.wsgi.widgets.layout.layout/static/loader.gif" alt="" /></div>
+		<div id="preloader"><img src="/tw2/resources/moksha.wsgi.widgets.layout.layout/static/loader.gif" alt="" /></div>
 	</div>
 
 % for widget in invisible:
