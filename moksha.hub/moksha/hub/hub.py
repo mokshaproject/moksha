@@ -56,7 +56,6 @@ except ImportError:
 try:
     from moksha.hub.zeromq import ZMQHubExtension
 except ImportError as e:
-    print e
     pass
 
 log = logging.getLogger('moksha.hub')

@@ -16,17 +16,21 @@
 """
 Here is where we configure which AMQP hub implementation we are going to use.
 """
+
+import logging
+log = logging.getLogger("moksha.hub")
+
 try:
     from qpid010 import QpidAMQPHubExtension
     AMQPHubExtension = QpidAMQPHubExtension
 except ImportError:
-    print("Cannot find qpid python module. Make sure you have python-qpid installed.")
+    log.warn("Cannot find qpid python module. Make sure you have python-qpid installed.")
     try:
         from pyamqplib import AMQPLibHubExtension
         AMQPHubExtension = AMQPLibHubExtension
     except ImportError:
-        print("Cannot find pyamqplib")
-        print("Using FakeHub AMQP broker. Don't expect AMQP to work")
+        log.warn("Cannot find pyamqplib")
+        log.warn("Using FakeHub AMQP broker. Don't expect AMQP to work")
         class FakeHub(object):
             pass
         AMQPHub = FakeHub
