@@ -43,9 +43,16 @@ def setup_logger(verbose):
     log.addHandler(sh)
 
 
-def main(options=None, consumers=None, producers=None):
+def main(options=None, consumers=None, producers=None, framework=True):
     """ The main MokshaHub method """
-    setup_logger('-v' in sys.argv or '--verbose' in sys.argv)
+
+    # If we're running as a framework, then we're strictly calling other
+    # people's code.  So, as the outermost piece of software in the stack, we're
+    # responsible for setting up logging.
+    # If we're not running as a framework, but as a library, then someone else
+    # is calling us.  Therefore, we'll let them set up the logging themselves.
+    if framework:
+        setup_logger('-v' in sys.argv or '--verbose' in sys.argv)
 
     config = {}
 
