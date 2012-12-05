@@ -172,8 +172,8 @@ class ZMQHubExtension(BaseZMQHubExtension):
                     return None
                 elif not self.strict and not _topic.startswith(topic):
                     # This second clause is a symptom that I'm doing something
-                    # wrong.  The filtering should all be handled inside txZMQ by
-                    # setsockopt.
+                    # wrong.  The filtering should all be handled inside txZMQ
+                    # by setsockopt.
                     return None
 
                 return callback(ZMQMessage(_topic, _body))
