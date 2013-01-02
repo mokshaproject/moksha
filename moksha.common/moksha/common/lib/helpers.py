@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import moksha.common.utils
+import moksha.common.config
 import copy
 import time
 import urllib
@@ -193,7 +194,7 @@ def appconfig(config_path):
         config_path = config_path[7:]
 
     here = os.path.abspath(os.path.dirname(config_path))
-    parser = ConfigParser.ConfigParser({"here": here})
+    parser = moksha.common.config.EnvironmentConfigParser({"here": here})
     parser.read(filenames=[config_path])
     try:
         return dict(parser.items('app:main'))
