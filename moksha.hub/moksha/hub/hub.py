@@ -243,6 +243,9 @@ class CentralMokshaHub(MokshaHub):
         if not port:
             raise ValueError("websocket is backend, but no port set")
 
+        interface = self.config.get('moksha.livesocket.websocket.interface')
+        interface = interface or ''
+
         class RelayProtocol(protocol.Protocol):
             moksha_hub = self
 
@@ -307,7 +310,8 @@ class CentralMokshaHub(MokshaHub):
             def buildProtocol(self, addr):
                 return RelayProtocol()
 
-        reactor.listenTCP(port, WebSocketFactory(RelayFactory()))
+        reactor.listenTCP(port, WebSocketFactory(RelayFactory()),
+                          interface=interface)
         log.info("Websocket server set to run on port %r" % port)
 
     # TODO -- consider moving this to the AMQP specific modules
