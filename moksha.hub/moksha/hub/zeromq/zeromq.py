@@ -40,6 +40,9 @@ class ZMQMessage(object):
     def __json__(self):
         return {'topic': self.topic, 'body': self.body}
 
+    def __repr__(self):
+        return "<ZMQMessage; topic: %r, body: %r>" % (self.topic, self.body)
+
 
 def hostname2ipaddr(endpoint):
     """ Utility function to convert "tcp://hostname:port" to "tcp://ip:port"
