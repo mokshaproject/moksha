@@ -372,7 +372,7 @@ class TestProducer:
         sleep(sleep_duration)
 
         # Finally, the check.  Did we get our ten messages? (or about as much)
-        assert(len(messages_received) > 8, len(messages_received) < 12)
+        assert(len(messages_received) > 8 and len(messages_received) < 12)
 
     @testutils.crosstest
     def test_idempotence(self):
