@@ -317,8 +317,11 @@ class CentralMokshaHub(MokshaHub):
             def buildProtocol(self, addr):
                 return RelayProtocol()
 
-        reactor.listenTCP(port, WebSocketFactory(RelayFactory()),
-                          interface=interface)
+        self.websocket_server = reactor.listenTCP(
+            port,
+            WebSocketFactory(RelayFactory()),
+            interface=interface,
+        )
         log.info("Websocket server set to run on port %r" % port)
 
     # TODO -- consider moving this to the AMQP specific modules
@@ -418,18 +421,25 @@ class CentralMokshaHub(MokshaHub):
         if topic not in self.topics:
             self.topics[topic] = []
 
-    def stop(self):
+    def close(self):
         log.debug("Stopping the CentralMokshaHub")
-        MokshaHub.close(self)
+        super(CentralMokshaHub, self).close()
+
         if self.producers:
             for producer in self.producers:
                 log.debug("Stopping producer %s" % producer)
                 producer.stop()
+
         if self.consumers:
             for consumer in self.consumers:
                 log.debug("Stopping consumer %s" % consumer)
                 consumer.stop()
 
+        if hasattr(self, 'websocket_server'):
+            retval = self.websocket_server.stopListening()
+
+    # For backwards compatibility
+    stop = close
 
 if __name__ == '__main__':
     from moksha.hub import main
