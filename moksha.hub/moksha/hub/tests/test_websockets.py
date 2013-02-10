@@ -53,7 +53,7 @@ def simulate_reactor(duration=sleep_duration):
         _reactor.runUntilCurrent()
 
 
-class TestWat(unittest.TestCase):
+class TestWebSocketServer(unittest.TestCase):
 
     def setUp(self):
         config = {
@@ -71,6 +71,8 @@ class TestWat(unittest.TestCase):
 
     def tearDown(self):
         self.hub.close()
+        # It can take some time to unregister our WS server from its port
+        simulate_reactor(sleep_duration)
 
     def test_ws_subscribe_and_recv(self):
         """ Test that we can subscribe for and receive a message. """
@@ -115,6 +117,61 @@ class TestWat(unittest.TestCase):
 
         client.join()
         eq_(self.received_message, secret)
+
+    def test_ws_subscribe_filter(self):
+        """ Test that we can subscribe to a few different topics. """
+
+        # Do this in order to process the connection
+        simulate_reactor(sleep_duration)
+
+        self.received_messages = []
+        import threading
+
+        num_topics = 3
+
+        class client_thread(threading.Thread):
+            def run(thread):
+                ws = websocket.WebSocket()
+                ws.settimeout(5)
+                ws.connect("ws://127.0.0.1:{port}/".format(
+                    port=self.hub.config['moksha.livesocket.websocket.port'],
+                ))
+
+                for i in range(num_topics):
+                    ws.send(json.dumps(dict(
+                        topic="__topic_subscribe__",
+                        body=self.topic + "_" + str(i),
+                    )))
+
+                # Receive that..
+                for i in range(num_topics):
+                    try:
+                        self.received_messages.append(
+                            json.loads(ws.recv())['body']
+                        )
+                    except Exception:
+                        pass
+
+                ws.close()
+
+        client = client_thread()
+        client.start()
+
+        # Process the connection from the client-thread.
+        simulate_reactor(sleep_duration)
+
+        # Now, send a message...
+        for i in range(num_topics):
+            self.hub.send_message(
+                topic=self.topic + "_" + str(i),
+                message=secret,
+            )
+
+        # Process the sending of our special message.
+        simulate_reactor(sleep_duration)
+
+        client.join()
+        eq_(self.received_messages, [secret] * num_topics)
 
 
 if __name__ == '__main__':
