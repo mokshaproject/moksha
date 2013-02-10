@@ -219,5 +219,69 @@ class TestWebSocketServer(unittest.TestCase):
         client.join()
         eq_(self.received_messages, [secret] * num_topics)
 
+    def test_ws_multiple_clients_different_topics(self):
+        """ Test that the WS server can differentiate clients. """
+
+        import threading
+
+        num_topics = 2
+
+        class client_thread(threading.Thread):
+            def run(thread):
+                thread.received_messages = []
+                ws = websocket.WebSocket()
+                ws.settimeout(5)
+                ws.connect("ws://127.0.0.1:{port}/".format(
+                    port=self.hub.config['moksha.livesocket.websocket.port'],
+                ))
+
+                for i in range(num_topics):
+                    ws.send(json.dumps(dict(
+                        topic="__topic_subscribe__",
+                        body=thread.topic + "_" + str(i),
+                    )))
+
+                # Receive that..
+                for i in range(num_topics + 2):
+                    try:
+                        thread.received_messages.append(
+                            json.loads(ws.recv())['body']
+                        )
+                    except Exception:
+                        pass
+
+                ws.close()
+
+        client1 = client_thread()
+        client2 = client_thread()
+        client1.topic = self.topic + "_topic_1"
+        client2.topic = self.topic + "_topic_2"
+        client1.received_messages = []
+        client2.received_messages = []
+        client1.start()
+        client2.start()
+
+        # Process the connection from the client-thread.
+        simulate_reactor(sleep_duration)
+
+        # Now, send a message...
+        for i in range(num_topics):
+            self.hub.send_message(
+                topic=self.topic + "_topic_1" + "_" + str(i),
+                message=secret + "_1",
+            )
+            self.hub.send_message(
+                topic=self.topic + "_topic_2" + "_" + str(i),
+                message=secret + "_2",
+            )
+
+        # Process the sending of our special message.
+        simulate_reactor(sleep_duration)
+
+        client1.join()
+        client2.join()
+        eq_(client1.received_messages, [secret + "_1"] * num_topics)
+        eq_(client2.received_messages, [secret + "_2"] * num_topics)
+
 if __name__ == '__main__':
     unittest.main()
