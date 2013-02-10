@@ -39,7 +39,11 @@ except ImportError:  # Twisted 8.2.0 on RHEL5
 
 from twisted.internet import protocol
 from txws import WebSocketFactory
-from moksha.common.lib.helpers import trace, defaultdict, get_moksha_config_path
+from moksha.common.lib.helpers import (
+    trace,
+    defaultdict,
+    get_moksha_config_path,
+)
 from moksha.common.lib.converters import asbool
 
 AMQPHubExtension, StompHubExtension, ZMQHubExtension = None, None, None
@@ -109,7 +113,7 @@ class MokshaHub(object):
         if not self.topics:
             self.topics = defaultdict(list)
 
-        if topics == None:
+        if topics is None:
             topics = {}
 
         for topic, callbacks in topics.iteritems():
@@ -143,8 +147,8 @@ class MokshaHub(object):
         for topic in topics:
             if isinstance(topic, unicode):
                 # txzmq isn't smart enough to handle unicode yet.
-                # Try removing this and sending a unicode topic in the future to
-                # see if it works.
+                # Try removing this and sending a unicode topic in the future
+                # to see if it works.
                 topic = topic.encode('utf-8')
 
             for ext in self.extensions:
@@ -172,7 +176,8 @@ class MokshaHub(object):
         try:
             topic = message.get('delivery_properties').routing_key
         except AttributeError:
-            # If we receive an AMQP message without a toipc, don't proxy it to STOMP
+            # If we receive an AMQP message without a toipc, don't
+            # proxy it to STOMP
             return
 
         # TODO -- this isn't extensible.  how should forwarding work if there
@@ -208,7 +213,7 @@ class CentralMokshaHub(MokshaHub):
     The Moksha Hub is responsible for initializing all of the Hooks,
     AMQP queues, exchanges, etc.
     """
-    producers = None # [<Producer>,]
+    producers = None  # [<Producer>,]
 
     def __init__(self, config, consumers=None, producers=None):
         log.info('Loading the Moksha Hub')
@@ -281,14 +286,18 @@ class CentralMokshaHub(MokshaHub):
                             self.subscribed_already = True
                             _topic = "*"
                             log.info("Websocket subscribing to %r." % _topic)
-                            self.moksha_hub.subscribe(_topic, send_to_websocket)
+                            self.moksha_hub.subscribe(
+                                _topic,
+                                send_to_websocket,
+                            )
                         else:
                             log.debug("Websocket ignoring %r." % _topic)
 
                     else:
-                        # FIXME - The following is disabled temporarily until we can
-                        # devise a secure method of "firewalling" where messages
-                        # can and can't go.  See the following for more info:
+                        # FIXME - The following is disabled temporarily until
+                        # we can devise a secure method of "firewalling" where
+                        # messages can and can't go.  See the following for
+                        # more info:
                         #   https://fedorahosted.org/moksha/ticket/245
                         #   https://github.com/gregjurman/zmqfirewall
 
@@ -300,11 +309,9 @@ class CentralMokshaHub(MokshaHub):
                                 json['body'],
                             )
 
-
                 except Exception as e:
                     import traceback
                     log.error(traceback.format_exc())
-
 
         class RelayFactory(protocol.Factory):
             def buildProtocol(self, addr):
@@ -316,8 +323,9 @@ class CentralMokshaHub(MokshaHub):
 
     # TODO -- consider moving this to the AMQP specific modules
     def __init_amqp(self):
-        # Ok this looks odd at first.  I think this is only used when we are briding stomp/amqp,
-        # Since each producer and consumer opens up their own AMQP connections anyway
+        # Ok this looks odd at first.  I think this is only used when
+        # we are briding stomp/amqp.  Since each producer and consumer
+        # opens up their own AMQP connections anyway
         if not (StompHubExtension and isinstance(self, StompHubExtension)):
             return
 
@@ -336,7 +344,7 @@ class CentralMokshaHub(MokshaHub):
     def __init_consumers(self):
         """ Initialize all Moksha Consumer objects """
         log.info('Loading Consumers')
-        if self._consumers == None:
+        if self._consumers is None:
             log.debug("Loading from entry-points.")
             self._consumers = []
             for consumer in pkg_resources.iter_entry_points('moksha.consumer'):
@@ -375,7 +383,7 @@ class CentralMokshaHub(MokshaHub):
     def __init_producers(self):
         """ Initialize all producers (aka data streams) """
         log.info('Loading Producers')
-        if self._producers == None:
+        if self._producers is None:
             log.debug("Loading from entry-points.")
             self._producers = []
             for producer in sum([
