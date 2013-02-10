@@ -13,11 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Test Moksha's Websocket Server """
+""" Test Moksha's Websocket Server.
+
+ZeroMQ only for now.
+"""
 
 import moksha
 import json
 import websocket
+import copy
 
 try:
     import unittest2 as unittest
@@ -26,8 +30,6 @@ except ImportError:
 
 from time import sleep, time
 from uuid import uuid4
-
-import moksha.common.testtools.utils as testutils
 
 from moksha.hub.hub import CentralMokshaHub
 from moksha.hub.reactor import reactor as _reactor
@@ -51,33 +53,25 @@ def simulate_reactor(duration=sleep_duration):
         _reactor.runUntilCurrent()
 
 
-class TestWebSockets(unittest.TestCase):
+class TestWat(unittest.TestCase):
 
-    def _setUp(self):
-        def kernel(config):
-            config.update({
-                'zmq_strict': False,
-                'moksha.livesocket': True,
-                'moksha.livesocket.backend': 'websocket',
-                'moksha.socket.notify': True,
-                'moksha.livesocket.websocket.port': 8009,
-            })
-            self.hub = CentralMokshaHub(config=config)
-            self.topic = str(uuid4())
+    def setUp(self):
+        config = {
+            'moksha.livesocket': True,
+            'moksha.livesocket.backend': 'websocket',
+            'moksha.socket.notify': True,
+            'moksha.livesocket.websocket.port': 8009,
+            "zmq_publish_endpoints": "tcp://*:6543",
+            "zmq_subscribe_endpoints": "tcp://127.0.0.1:6543",
+            "zmq_enabled": True,
+            'zmq_strict': False,
+        }
+        self.hub = CentralMokshaHub(config=config)
+        self.topic = str(uuid4())
 
-        for __setup, name in testutils.make_setup_functions(kernel):
-            yield __setup, name
+    def tearDown(self):
+        self.hub.close()
 
-    def _tearDown(self):
-        pass #self.hub.close()
-
-    @testutils.crosstest
-    #@raises(NameError)
-    def test_this_should_fail(self):
-        """ This test should fail.. wtf is up. """
-        raise FailBoat
-
-    @testutils.crosstest
     def test_ws_subscribe_and_recv(self):
         """ Test that we can subscribe for and receive a message. """
 
@@ -86,6 +80,7 @@ class TestWebSockets(unittest.TestCase):
 
         self.received_message = None
         import threading
+
         class client_thread(threading.Thread):
             def run(thread):
                 ws = websocket.WebSocket()
@@ -106,6 +101,7 @@ class TestWebSockets(unittest.TestCase):
         client = client_thread()
         client.start()
 
+        # Process the connection from the client-thread.
         simulate_reactor(sleep_duration)
 
         # Now, send a message...
@@ -114,8 +110,8 @@ class TestWebSockets(unittest.TestCase):
             message=secret,
         )
 
+        # Process the sending of our special message.
         simulate_reactor(sleep_duration)
-        sleep(sleep_duration)
 
         client.join()
         eq_(self.received_message, secret)
