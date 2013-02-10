@@ -77,9 +77,6 @@ class TestWebSocketServer(unittest.TestCase):
     def test_ws_subscribe_and_recv(self):
         """ Test that we can subscribe for and receive a message. """
 
-        # Do this in order to process the connection
-        simulate_reactor(sleep_duration)
-
         self.received_message = None
         import threading
 
@@ -118,11 +115,8 @@ class TestWebSocketServer(unittest.TestCase):
         client.join()
         eq_(self.received_message, secret)
 
-    def test_ws_subscribe_filter(self):
+    def test_ws_subscribe_multiple(self):
         """ Test that we can subscribe to a few different topics. """
-
-        # Do this in order to process the connection
-        simulate_reactor(sleep_duration)
 
         self.received_messages = []
         import threading
