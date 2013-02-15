@@ -7,7 +7,7 @@ http://mokshaproject.net
 Documentation
 -------------
 
-http://mokshaproject.net/apps/docs
+http://moksha.rtfd.org/
 
 Build Status
 ------------
