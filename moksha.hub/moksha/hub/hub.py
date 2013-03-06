@@ -223,8 +223,6 @@ class CentralMokshaHub(MokshaHub):
         self._consumers = consumers
         self._producers = producers
 
-        self.__init_consumers()
-
         super(CentralMokshaHub, self).__init__(config)
 
         # FIXME -- this needs to be reworked.
@@ -233,7 +231,7 @@ class CentralMokshaHub(MokshaHub):
             if AMQPHubExtension and isinstance(ext, AMQPHubExtension):
                 self.__init_amqp()
 
-        self.__run_consumers()
+        self.__init_consumers()
         self.__init_producers()
         self.__init_websocket_server()
 
@@ -334,7 +332,7 @@ class CentralMokshaHub(MokshaHub):
         self.local_queue.listen(self.consume_amqp_message)
 
     def __init_consumers(self):
-        """ Initialize all Moksha Consumer objects """
+        """ Instantiate and run the consumers """
         log.info('Loading Consumers')
         if self._consumers is None:
             log.debug("Loading from entry-points.")
@@ -349,28 +347,30 @@ class CentralMokshaHub(MokshaHub):
         else:
             log.debug("Loading explicitly passed entry-points.")
 
-        for c_class in self._consumers:
-            log.info("%s consumer is watching the %r topic" % (
-                     c_class.__name__, c_class.topic))
-            self.topics[c_class.topic].append(c_class)
-
-    def __run_consumers(self):
-        """ Instantiate the consumers """
         self.consumers = []
-        for topic in self.topics:
-            for i, consumer in enumerate(self.topics[topic]):
-                try:
-                    c = consumer(self)
-                    if not getattr(c, "_initialized", None):
-                        log.warn((
-                            "%r didn't initialize correctly.  " +
-                            "Did you call super(..).__init__?") % consumer)
+        for c_class in self._consumers:
+            try:
+                c = c_class(self)
+                if not getattr(c, "_initialized", None):
+                    log.warn((
+                        "%r didn't initialize correctly.  " +
+                        "Did you call super(..).__init__?") % consumer)
 
-                    self.consumers.append(c)
-                    self.topics[topic][i] = c.consume
-                except Exception as e:
-                    log.warn("Failed to init %r consumer." % consumer)
-                    log.warn(str(e))
+                self.consumers.append(c)
+
+                # This can be dynamically assigned during instantiation
+                topic = c.topic
+
+                if topic not in self.topics:
+                    self.topics[topic] = []
+
+                if c.consume not in self.topics[topic]:
+                    self.topics[topic].append(c.consume)
+
+            except Exception as e:
+                log.warn("Failed to init %r consumer." % consumer)
+                log.warn(str(e))
+
 
     def __init_producers(self):
         """ Initialize all producers (aka data streams) """
