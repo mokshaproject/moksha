@@ -415,12 +415,14 @@ class CentralMokshaHub(MokshaHub):
         super(CentralMokshaHub, self).close()
 
         if self.producers:
-            for producer in self.producers:
+            while self.producers:
+                producer = self.producers.pop()
                 log.debug("Stopping producer %s" % producer)
                 producer.stop()
 
         if self.consumers:
-            for consumer in self.consumers:
+            while self.consumers:
+                consumer = self.consumers.pop()
                 log.debug("Stopping consumer %s" % consumer)
                 consumer.stop()
 

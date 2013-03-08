@@ -338,6 +338,25 @@ class TestConsumer:
         # Guarantee that "bad topic" is not in the topics list.
         eq_(central.topics.keys(), ["good topic"])
 
+    @testutils.crosstest
+    def test_open_and_close(self):
+        """ Test that a central hub with a consumer can be closed.. ;) """
+
+        class TestConsumer(moksha.hub.api.consumer.Consumer):
+            topic = "whatever"
+
+            def consume(self, message):
+                pass
+
+        # Just a little fake config.
+        config = dict(
+            zmq_enabled=True,
+            zmq_subscribe_endpoints='',
+            zmq_published_endpoints='',
+        )
+        central = CentralMokshaHub(config, [TestConsumer], [])
+        central.close()
+
 
 class TestProducer:
     def _setUp(self):
