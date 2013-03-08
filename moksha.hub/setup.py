@@ -27,7 +27,7 @@ except Exception:
 tests_require = [
     'nose',
     'mock',
-    'pyzmq',
+    'pyzmq<=2.2.0.1',
     'websocket-client',
 ]
 
@@ -48,6 +48,7 @@ setup(
         "moksha.common>=1.0.6",
         "Twisted",
         "stomper",
+        "pyzmq<=2.2.0.1",
         "txZMQ>=0.5.0",
         "txWS",
         "python-daemon",
