@@ -16,12 +16,6 @@
 # The root controller class
 root = None
 
-# The central feed cache, used by the Feed widget.
-feed_cache = None
-
-# A dict-like persistent backing store
-feed_storage = None
-
 # All loaded moksha applications
 _apps = None
 

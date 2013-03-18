@@ -15,7 +15,6 @@
 #
 # Authors: Luke Macken <lmacken@redhat.com>
 
-import moksha.common.utils
 import logging
 import uuid
 
@@ -26,10 +25,7 @@ from feedcache.cache import Cache
 
 log = logging.getLogger(__name__)
 
-# An in-memory sqlite feed cache.  Utilized when the moksha WSGI middleware
-# is unavailable.  By default, it will try and use the centralized
-# moksha.common.utils.feed_cache, which is setup by the middleware, but will
-# gracefully fallback to this cache.
+# An in-memory sqlite feed cache.
 feed_storage = None
 feed_cache = None
 
@@ -55,16 +51,11 @@ class Feed(twc.Widget):
             cls.id = str(uuid.uuid4())
         id = cls.id
         url = cls.url
-        if moksha.common.utils.feed_cache:
-            feed = moksha.common.utils.feed_cache.fetch(url)
-        else:
-            # MokshaMiddleware not running, so setup our own feed cache.
-            # This allows us to use this object outside of WSGI requests.
-            global feed_cache, feed_storage
-            if not feed_cache:
-                feed_storage = Shove('sqlite:///feeds.db', compress=True)
-                feed_cache = Cache(feed_storage)
-            feed = feed_cache.fetch(url)
+        global feed_cache, feed_storage
+        if not feed_cache:
+            feed_storage = Shove('sqlite:///feeds.db', compress=True)
+            feed_cache = Cache(feed_storage)
+        feed = feed_cache.fetch(url)
         if not (200 <= feed.get('status', 200) < 400):
             log.warning('Got %s status from %s: %s' % (
                         feed['status'], url, feed.headers.get('status')))
