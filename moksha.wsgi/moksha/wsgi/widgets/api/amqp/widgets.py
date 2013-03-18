@@ -22,7 +22,7 @@
 import tw2.core as twc
 
 from moksha.wsgi.widgets.api.socket import AbstractMokshaSocket
-from moksha.common.lib.helpers import defaultdict, listify
+from moksha.common.lib.helpers import listify
 
 orbited_host = twc.Required
 orbited_port = twc.Required

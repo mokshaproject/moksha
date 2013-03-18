@@ -20,7 +20,7 @@
 import os
 import sys
 import json as JSON
-
+from collections import defaultdict
 
 from moksha.common.lib.helpers import appconfig
 
@@ -39,11 +39,7 @@ except ImportError:  # Twisted 8.2.0 on RHEL5
 
 from twisted.internet import protocol
 from txws import WebSocketFactory
-from moksha.common.lib.helpers import (
-    trace,
-    defaultdict,
-    get_moksha_config_path,
-)
+from moksha.common.lib.helpers import trace, get_moksha_config_path
 from moksha.common.lib.converters import asbool
 
 AMQPHubExtension, StompHubExtension, ZMQHubExtension = None, None, None
