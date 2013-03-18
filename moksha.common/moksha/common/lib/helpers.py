@@ -28,19 +28,6 @@ log = logging.getLogger(__name__)
 scrub_filter = re.compile('[^_a-zA-Z0-9-]')
 
 
-def in_full_moksha_stack():
-    """
-    Figure out if we are running Moksha as WSGI middleware, or in our full
-    stack.
-
-    :returns: True if we are currently running in Moksha's full WSGI stack,
-              False if we are running Moksha only as WSGI middleware.
-    """
-    # This is deprecated, since there's no such thing as moksha 'full stack'
-    # anymore.
-    return False
-
-
 def get_moksha_config_path():
     """
     :returns: The path to Moksha's configuration file.
