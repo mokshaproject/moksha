@@ -29,3 +29,9 @@ def test_invalid_config():
 def test_default_config_value():
     p = load_config('/test_config.ini')
     eq_(p.get('test_default', 'test'), 'bar')
+
+
+@raises(ValueError)
+def test_missing_config_variable():
+    p = load_config('/test_config.ini')
+    p.get('test_missing_variable', 'test')
