@@ -41,43 +41,6 @@ def trace(f, *args, **kw):
     return r
 
 
-# TODO --
-def cache_rendered_data(data):
-    """ A method to cache ``data`` with the current request path as the key.
-
-    This method can be used within TurboGears2 hooks to cache rendered data
-    from a given method for a specific URL.  For example, to cache the
-    index.html, you could do something like this.
-
-    .. code-block:: python
-
-        from tg.decorators import after_render
-
-        @after_render(cache_rendered_data)
-        @expose('mako:moksha.templates.index')
-        def index(self):
-            return dict()
-
-    :Warning: In this example usage, the method caches the data before it makes
-              its way out of the WSGI middleware stack.  Therefore, widget
-              resources are not injected, and stored in the cache.
-
-    :Warning: This function only works with pylons.
-
-    """
-    import pylons
-
-    if hasattr(pylons.g, 'cache') and pylons.g.cache and \
-            pylons.request.environ.get('HTTP_X_FORWARDED_PROTO'):
-        pylons.g.cache.set(pylons.request.path_qs, str(data))
-
-
-@decorator
-def cache_rendered(func, *args, **kwargs):
-    content = func(*args, **kwargs)
-    cache_rendered_data(content)
-    return content
-
 
 def in_full_moksha_stack():
     """
