@@ -85,7 +85,3 @@ def create_app_engine(app, config):
     """ Create a new SQLAlchemy engine for a given app """
     from sqlalchemy import create_engine
     return create_engine(config.get('app_db', 'sqlite:///%s.db' % app))
-
-
-def deprecation(message):
-    warnings.warn(message, DeprecationWarning)
