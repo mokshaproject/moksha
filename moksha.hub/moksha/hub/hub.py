@@ -39,7 +39,7 @@ except ImportError:  # Twisted 8.2.0 on RHEL5
 
 from twisted.internet import protocol
 from txws import WebSocketFactory
-from moksha.common.lib.helpers import trace, get_moksha_config_path
+from moksha.common.lib.helpers import get_moksha_config_path
 from moksha.common.lib.converters import asbool
 
 AMQPHubExtension, StompHubExtension, ZMQHubExtension = None, None, None
@@ -397,7 +397,6 @@ class CentralMokshaHub(MokshaHub):
                 log.warn("Failed to init %r producer." % producer_class)
                 log.warn(str(e))
 
-    @trace
     def create_topic(self, topic):
         if AMQPHubExtension and self.amqp_broker:
             AMQPHubExtension.create_queue(topic)

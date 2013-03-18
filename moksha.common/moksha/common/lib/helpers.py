@@ -22,24 +22,10 @@ import warnings
 
 import ConfigParser
 
-from decorator import decorator
 from kitchen.text.converters import to_unicode as kitchen_unicode
 
 log = logging.getLogger(__name__)
 scrub_filter = re.compile('[^_a-zA-Z0-9-]')
-
-
-@decorator
-def trace(f, *args, **kw):
-    """ A useful decorator for debugging method parameters and return values
-    """
-    r = None
-    try:
-        r = f(*args, **kw)
-    finally:
-        print "%s(%s, %s) = %s" % (f.func_name, args, kw, r)
-    return r
-
 
 
 def in_full_moksha_stack():
