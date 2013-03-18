@@ -25,11 +25,12 @@ loaded, and receives each message for the specified topic through the
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
 """
 
-import uuid
+import json
 import logging
 log = logging.getLogger('moksha.hub')
 
-from moksha.common.lib.helpers import listify, create_app_engine, json
+from moksha.common.lib.helpers import listify, create_app_engine
+
 
 class Consumer(object):
     """ A message consumer """
