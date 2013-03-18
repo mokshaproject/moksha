@@ -196,13 +196,5 @@ def strip_script(environ):
     return path
 
 
-def get_num_cpus():
-    cpus = 1
-    for line in open('/proc/cpuinfo'):
-        if line.startswith('processor'):
-            cpus = int(line.split()[-1]) + 1
-    return cpus
-
-
 def deprecation(message):
     warnings.warn(message, DeprecationWarning)
