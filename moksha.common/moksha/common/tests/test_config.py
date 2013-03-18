@@ -22,8 +22,8 @@ def test_config():
 def test_invalid_config():
     expected = 'test_value 123'
     os.environ['test_variable'] = expected
-    p = load_config('/test_invalid_config.ini')
-    p.get('test', 'test')
+    p = load_config()
+    p.get('test_invalid_config', 'test')
 
 
 def test_default_config_value():
