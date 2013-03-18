@@ -15,24 +15,17 @@
 
 import moksha.common.utils
 import moksha.common.config
-import copy
-import time
-import urllib
-import uuid
 import re
 import os
 import logging
 import warnings
-import json
 
 import ConfigParser
 
-from pytz import timezone, utc
 from decorator import decorator
 from kitchen.text.converters import to_unicode as kitchen_unicode
 
 from moksha.common.exc import MokshaConfigNotFound
-from moksha.common.lib.dates import DateTimeDisplay, utc_offset
 
 log = logging.getLogger(__name__)
 scrub_filter = re.compile('[^_a-zA-Z0-9-]')
