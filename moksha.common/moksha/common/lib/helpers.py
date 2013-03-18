@@ -181,20 +181,5 @@ class EnumGroup(object):
         return enum.get_data(key)
 
 
-def strip_script(environ):
-    """
-    Strips the script portion of a url path so the middleware works even
-    when mounted under a path other than root.
-    """
-    path = environ['PATH_INFO']
-    if path.startswith('/') and 'SCRIPT_NAME' in environ:
-        prefix = environ.get('SCRIPT_NAME')
-        if prefix.endswith('/'):
-            prefix = prefix[:-1]
-        if path.startswith(prefix):
-            path = path[len(prefix):]
-    return path
-
-
 def deprecation(message):
     warnings.warn(message, DeprecationWarning)
