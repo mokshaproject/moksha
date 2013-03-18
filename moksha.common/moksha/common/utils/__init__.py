@@ -47,11 +47,3 @@ def get_widgets():
 def get_app(name):
     """ Get an app controller by name """
     return _apps[name]['controller']
-
-def shutdown():
-    """ Called when Moksha shuts down """
-    try:
-        if feed_storage:
-            feed_storage.close()
-    except AttributeError:
-        pass
