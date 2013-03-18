@@ -280,10 +280,3 @@ def get_num_cpus():
 
 def deprecation(message):
     warnings.warn(message, DeprecationWarning)
-
-
-def listify(something):
-    if something:
-        return not isinstance(something, list) and [something] or something
-    else:
-        return []
