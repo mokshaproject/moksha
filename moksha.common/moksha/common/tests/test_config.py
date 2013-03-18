@@ -24,3 +24,8 @@ def test_invalid_config():
     os.environ['test_variable'] = expected
     p = load_config('/test_invalid_config.ini')
     p.get('test', 'test')
+
+
+def test_default_config_value():
+    p = load_config('/test_config.ini')
+    eq_(p.get('test_default', 'test'), 'bar')
