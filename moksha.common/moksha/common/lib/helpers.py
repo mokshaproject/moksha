@@ -22,8 +22,6 @@ import warnings
 
 import ConfigParser
 
-from kitchen.text.converters import to_unicode as kitchen_unicode
-
 log = logging.getLogger(__name__)
 scrub_filter = re.compile('[^_a-zA-Z0-9-]')
 
@@ -88,14 +86,6 @@ def create_app_engine(app, config):
     from sqlalchemy import create_engine
     return create_engine(config.get('app_db', 'sqlite:///%s.db' % app))
 
-
-def to_unicode(obj, encoding='utf-8', errors='replace'):
-    """
-    :deprecated: by to_unicode in http://python-kitchen.fedorahosted.org
-    """
-    deprecation("to_unicode is deprecated in favor of "
-                "kitchen.text.coverters.to_unicode().")
-    return kitchen_unicode(obj, encoding, errors)
 
 
 def replace_app_header(app, header_name, value):
