@@ -35,7 +35,7 @@ from moksha.common.lib.helpers import create_app_engine
 
 class Consumer(object):
     """ A message consumer """
-    topic = None
+    topic = ''
 
     # Automatically decode JSON data
     jsonify = True
