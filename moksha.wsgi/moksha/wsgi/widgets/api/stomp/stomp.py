@@ -21,7 +21,6 @@ import tw2.core as twc
 import tw2.jquery
 
 from moksha.wsgi.widgets.api.socket import AbstractMokshaSocket
-from moksha.common.lib.helpers import defaultdict
 
 orbited_host = twc.Required
 orbited_port = twc.Required

@@ -22,7 +22,7 @@
 import tw2.core as twc
 
 from moksha.wsgi.widgets.api.socket import AbstractMokshaSocket
-from moksha.common.lib.helpers import defaultdict, listify
+from kitchen.iterutils import iterate
 
 orbited_host = twc.Required
 orbited_port = twc.Required
@@ -47,7 +47,7 @@ def amqp_subscribe(topic):
         receiver.onReady = raw_msg_callback;
         receiver.capacity(0xFFFFFFFF);
     """
-    return ''.join([sub % {'topic': t} for t in listify(topic)])
+    return ''.join([sub % {'topic': t} for t in iterate(topic)])
 
 
 def amqp_unsubscribe(topic):
