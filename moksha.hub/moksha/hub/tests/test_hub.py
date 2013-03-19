@@ -130,7 +130,7 @@ class TestConsumer:
         """ Ensure that conumsers with no consume method raise exceptions. """
 
         class StillAbstractConsumer(moksha.hub.api.consumer.Consumer):
-            topic = self.a_topic
+            pass
 
         try:
             c = StillAbstractConsumer(self.hub)
