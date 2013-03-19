@@ -22,12 +22,13 @@ import pkg_resources
 import warnings
 import types
 
+from collections import defaultdict
 from paste.deploy.converters import asbool
 from inspect import isclass
 from sqlalchemy import create_engine
 
 from moksha.common.exc import MokshaException
-from moksha.common.lib.helpers import (defaultdict, get_moksha_config_path)
+from moksha.common.lib.helpers import get_moksha_config_path
 from moksha.common.lib.helpers import appconfig
 
 log = logging.getLogger(__name__)

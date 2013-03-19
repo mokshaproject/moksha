@@ -37,7 +37,6 @@ class EnvironmentConfigParser(ConfigParser.ConfigParser):
                     raise ValueError(
                         "ConfigParser: no \")s\" found "
                         "after \"%(\" : " + rawval)
-                    return ""
 
                 rawkey = value[start + 2:end]
                 default = None

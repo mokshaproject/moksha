@@ -25,11 +25,13 @@ loaded, and receives each message for the specified topic through the
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
 """
 
-import uuid
+import json
 import logging
 log = logging.getLogger('moksha.hub')
 
-from moksha.common.lib.helpers import listify, create_app_engine, json
+from kitchen.iterutils import iterate
+from moksha.common.lib.helpers import create_app_engine
+
 
 class Consumer(object):
     """ A message consumer """
@@ -49,7 +51,7 @@ class Consumer(object):
         if self.jsonify:
             callback = self._consume_json
 
-        for topic in listify(self.topic):
+        for topic in iterate(self.topic):
             log.debug('Subscribing to consumer topic %s' % topic)
             self.hub.subscribe(topic, callback)
 
