@@ -68,7 +68,7 @@ class TestFeed(object):
     def test_feed_render_url(self):
         """ Ensure that a generic feed can be rendered with a url """
         feed = Feed()
-        rendered = feed.display(url='http://lewk.org/rss')
+        rendered = feed(url='http://lewk.org/rss').display()
         assert 'l e w k . o r g' in rendered, rendered
 
     @raises(ValueError)
