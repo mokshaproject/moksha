@@ -23,7 +23,7 @@ except Exception:
 
 setup(
     name='moksha.feeds',
-    version='1.0.0',
+    version='1.2.0',
     description='WSGI components for Moksha.',
     author='Luke Macken, John (J5) Palmieri, Mairin Duffy, and Ralph Bean',
     author_email='',
