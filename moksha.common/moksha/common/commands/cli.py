@@ -1,4 +1,5 @@
 """ The Moksha Command-line Interface """
+from __future__ import print_function
 
 import os
 import sys
@@ -30,8 +31,8 @@ class MokshaProcessProtocol(protocol.ProcessProtocol):
     def errConnectionLost(self):
         pass
     def processEnded(self, status_object):
-        print "Process %r quit with status %d" % (
-                self.name, status_object.value.exitCode)
+        print("Process %r quit with status %d" % (
+                self.name, status_object.value.exitCode))
         reactor.stop()
         for pid in pids:
             try:
@@ -44,7 +45,7 @@ class MokshaCLI(object):
 
     def _exec(self, process, *args, **kw):
         args = args and [process] + list(args) or [process]
-        print "Running %s" % ' '.join(args)
+        print("Running %s" % ' '.join(args))
         pp = MokshaProcessProtocol(name=process)
         process = reactor.spawnProcess(pp, process, args,
                 env={'PYTHONPATH': os.getcwd()}, **kw)
@@ -68,10 +69,10 @@ class MokshaCLI(object):
         entry_points = ('root', 'widget', 'application', 'wsgiapp',
                         'producer', 'consumer')
         for entry in entry_points:
-            print "[moksha.%s]" % entry
+            print("[moksha.%s]" % entry)
             for obj_entry in pkg_resources.iter_entry_points('moksha.' + entry):
-                print " * %s" % obj_entry.name
-            print
+                print(" * %s" % obj_entry.name)
+            print()
 
     def install(self):
         """ Install a Moksha component """
@@ -87,7 +88,7 @@ class MokshaCLI(object):
         """ Send a message to a topic """
         from moksha.hub.api import MokshaHub, reactor
         hub = MokshaHub()
-        print "send_message(%s, %s)" % (topic, message)
+        print("send_message(%s, %s)" % (topic, message))
         hub.send_message(topic, {'msg': message})
 
         def stop_reactor():
@@ -125,12 +126,12 @@ def main():
     log.addHandler(stdout)
 
     if opts.start or 'start' in args:
-        print "Starting Moksha..."
+        print("Starting Moksha...")
         moksha.start()
         try:
             reactor.run()
-        except Exception, e:
-            print "Caught exception: %s" % str(e)
+        except Exception as e:
+            print("Caught exception: %s" % str(e))
             moksha.stop()
     elif opts.list or 'list' in args:
         moksha.list()
