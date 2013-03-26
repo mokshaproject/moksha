@@ -19,20 +19,18 @@
 .. moduleauthor:: Ralph Bean <rbean@redhat.com>
 """
 
-from kitchen.text.converters import to_unicode as unicode
-import warnings
-
 import tw2.core as twc
+from kitchen.iterutils import iterate
 
-from moksha.common.lib.helpers import listify
 from moksha.wsgi.widgets.api.socket import AbstractMokshaSocket
+
 
 def websocket_subscribe(topic):
     """ Return a javascript callback that subscribes to a given topic,
         or a list of topics.
     """
     sub = "moksha.topic_subscribe('%(topic)s');"
-    return ''.join([sub % {'topic': t} for t in listify(topic)])
+    return ''.join([sub % {'topic': t} for t in iterate(topic)])
 
 
 def websocket_unsubscribe(topic):

@@ -17,30 +17,13 @@ import tw2.core as twc
 
 from moksha.feeds.widgets import Feed
 
-# Monkey-patch moksha.common.utils.feed_cache so we don't have to actually
-# fetch any feeds to run them
-import moksha.common.utils
-class FakeCache(object):
-    def fetch(self, url):
-        from bunch import Bunch
-        feed = Bunch()
-        feed.link = 'http://lewk.org/rss'
-        feed.title = 'l e w k . o r g'
-        feed.status = 200
-        feed.feed = feed
-        feed.entries = [feed, feed]
-        def get(key, *args, **kw):
-            return getattr(feed, key, '')
-        feed.get = get
-        return feed
+from nose.tools import raises
 
-moksha.common.utils.feed_cache = FakeCache()
 
 class TestFeed(object):
 
     def test_feed_subclassing(self):
         """ Ensure that we can easily subclass our Feed widget """
-        moksha.common.utils.feed_cache = FakeCache()
         class MyFeed(Feed):
             url = 'http://lewk.org/rss'
         feed = MyFeed()
@@ -53,8 +36,6 @@ class TestFeed(object):
 
     def test_widget_children(self):
         """ Ensure that we can easily set Feeds as ToscaWidget children """
-        moksha.common.utils.feed_cache = FakeCache()
-
         class MyWidget(twc.Widget):
             myfeedurl = 'http://lewk.org/rss'
             myfeed = Feed(url=myfeedurl)
@@ -68,8 +49,6 @@ class TestFeed(object):
         assert '<div id="myfeed"' in rendered
 
     def test_widget_child_with_dynamic_url(self):
-        moksha.common.utils.feed_cache = FakeCache()
-
         class MyWidget(twc.Widget):
             url = twc.Param("a url")
             feed = Feed
@@ -79,23 +58,8 @@ class TestFeed(object):
         rendered = widget.display(url='http://lewk.org/rss')
         assert '<div id="feed"' in rendered
 
-    # Broken for the moment...
-    #def test_genshi_widget(self):
-    #    """ Ensure that our Feed widget can be rendered in a Genshi widget """
-    #    moksha.common.utils.feed_cache = FakeCache()
-
-    #    class MyWidget(twc.Widget):
-    #        myfeed = Feed(url='http://lewk.org/rss')
-    #        template = "genshi:moksha.feeds.tests.templates.myfeed"
-
-    #    widget = MyWidget()
-    #    rendered = widget.display()
-    #    print rendered
-    #    assert '<div id="myfeed"' in rendered
-
     def test_feed_generator(self):
         """ Ensure that our Feed object can return a generator """
-        moksha.common.utils.feed_cache = FakeCache()
         feed = Feed(url='http://lewk.org/rss')
         iter = feed.iterentries()
         data = iter.next()
@@ -103,7 +67,11 @@ class TestFeed(object):
 
     def test_feed_render_url(self):
         """ Ensure that a generic feed can be rendered with a url """
-        moksha.common.utils.feed_cache = FakeCache()
         feed = Feed()
-        rendered = feed.display(url='http://lewk.org/rss')
+        rendered = feed(url='http://lewk.org/rss').display()
         assert 'l e w k . o r g' in rendered, rendered
+
+    @raises(ValueError)
+    def test_feed_demands_url(self):
+        """ Ensure that Feeds require a url """
+        Feed().display()

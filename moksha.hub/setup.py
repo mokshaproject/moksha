@@ -27,7 +27,8 @@ except Exception:
 tests_require = [
     'nose',
     'mock',
-    'pyzmq',
+    'pyzmq<=2.2.0.1',
+    'websocket-client',
 ]
 
 if sys.version_info[0] == 2 and sys.version_info[1] <= 6:
@@ -38,7 +39,7 @@ if sys.version_info[0] == 2 and sys.version_info[1] <= 6:
 
 setup(
     name='moksha.hub',
-    version='1.0.8',
+    version='1.2.0',
     description='Hub components for Moksha.',
     author='Luke Macken, John (J5) Palmieri, Mairin Duffy, and Ralph Bean',
     author_email='',
@@ -47,6 +48,7 @@ setup(
         "moksha.common>=1.0.6",
         "Twisted",
         "stomper",
+        "pyzmq<=2.2.0.1",
         "txZMQ>=0.5.0",
         "txWS",
         "python-daemon",

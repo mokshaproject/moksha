@@ -1,8 +1,8 @@
 import tw2.core as twc
 from tw2.jqplugins.gritter import gritter_resources, gritter_callback
+from collections import defaultdict
 
 from moksha.wsgi.widgets.moksha_js import moksha_js
-from moksha.common.lib.helpers import defaultdict
 import moksha.wsgi.lib.utils
 
 

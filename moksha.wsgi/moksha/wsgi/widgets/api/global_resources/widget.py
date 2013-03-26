@@ -91,6 +91,13 @@ class GlobalResourceInjectionWidget(twc.Widget):
                         log.debug('Moksha Live Socket disabled in config')
                         continue
 
+                    if issubclass(loaded, AbstractMokshaSocket) and any([
+                        issubclass(c, AbstractMokshaSocket)
+                        for c in self.children
+                    ]):
+                        log.debug('Not injecting two Moksha Live Sockets')
+                        continue
+
                     self.children.append(loaded)
             else:
                 raise Exception("Unknown global resource: %s.  Should be "

@@ -40,6 +40,9 @@ class ZMQMessage(object):
     def __json__(self):
         return {'topic': self.topic, 'body': self.body}
 
+    def __repr__(self):
+        return "<ZMQMessage; topic: %r, body: %r>" % (self.topic, self.body)
+
 
 def hostname2ipaddr(endpoint):
     """ Utility function to convert "tcp://hostname:port" to "tcp://ip:port"
@@ -67,6 +70,19 @@ class ZMQHubExtension(BaseZMQHubExtension):
         self.subscriber_factories = {}
 
         self.context = zmq.Context(1)
+
+        # Configure txZMQ to use our highwatermark and keepalive if we have 'em
+        self.connection_cls = txzmq.ZmqSubConnection
+        self.connection_cls.highWaterMark = \
+            config.get('high_water_mark', 0)
+        self.connection_cls.tcpKeepalive = \
+            config.get('zmq_tcp_keepalive', 0)
+        self.connection_cls.tcpKeepaliveCount = \
+            config.get('zmq_tcp_keepalive_cnt', 0)
+        self.connection_cls.tcpKeepaliveIdle = \
+            config.get('zmq_tcp_keepalive_idle', 0)
+        self.connection_cls.tcpKeepaliveInterval = \
+            config.get('zmq_tcp_keepalive_intvl', 0)
 
         # Set up the publishing socket
         self.pub_socket = self.context.socket(zmq.PUB)
@@ -141,7 +157,7 @@ class ZMQHubExtension(BaseZMQHubExtension):
                 log.debug("Creating new txzmq factory.")
                 try:
                     s = self.subscriber_factories[endpoint] = \
-                        txzmq.ZmqSubConnection(
+                        self.connection_cls(
                             self.twisted_zmq_factory, endpoint)
                 except zmq.ZMQError, e:
                     log.warn("Failed txzmq create on %r %r" % (endpoint, e))
@@ -172,8 +188,8 @@ class ZMQHubExtension(BaseZMQHubExtension):
                     return None
                 elif not self.strict and not _topic.startswith(topic):
                     # This second clause is a symptom that I'm doing something
-                    # wrong.  The filtering should all be handled inside txZMQ by
-                    # setsockopt.
+                    # wrong.  The filtering should all be handled inside txZMQ
+                    # by setsockopt.
                     return None
 
                 return callback(ZMQMessage(_topic, _body))

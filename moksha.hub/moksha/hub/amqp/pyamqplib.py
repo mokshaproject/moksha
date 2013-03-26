@@ -19,7 +19,6 @@ import logging
 from moksha.common.lib.converters import asbool
 
 
-from moksha.lib.helpers import trace
 from moksha.hub.amqp.base import BaseAMQPHubExtension
 
 log = logging.getLogger(__name__)
@@ -53,7 +52,6 @@ class AMQPLibHubExtension(BaseAMQPHubExtension):
             '/data', active=True, write=True, read=True)
         super(AMQPLibHubExtension, self).__init__()
 
-    @trace
     def create_queue(self, queue, exchange='amq.fanout', durable=True,
                      exclusive=False, auto_delete=False):
         """ Declare a `queue` and bind it to an `exchange` """
@@ -64,13 +62,11 @@ class AMQPLibHubExtension(BaseAMQPHubExtension):
                                        exclusive=exclusive,
                                        auto_delete=auto_delete)
 
-    @trace
     def exchange_declare(self, exchange, type='fanout', durable=True,
                          auto_delete=False):
         self.channel.exchange_declare(exchange=exchange, type=type,
                                       durable=durable, auto_delete=auto_delete)
 
-    @trace
     def queue_bind(self, queue, exchange, routing_key=''):
         self.channel.queue_bind(queue, exchange, routing_key=routing_key)
 
@@ -99,7 +95,6 @@ class AMQPLibHubExtension(BaseAMQPHubExtension):
         self.queue_subscribe(queue_name, callback)
         super(AMQPLibHubExtension, self).subscribe(topic, callback)
 
-    @trace
     def get_message(self, queue):
         """ Immediately grab a message from the queue.
 
@@ -118,7 +113,6 @@ class AMQPLibHubExtension(BaseAMQPHubExtension):
     def wait(self):
         self.channel.wait()
 
-    @trace
     def close(self):
         try:
             if hasattr(self, 'channel') and self.channel:

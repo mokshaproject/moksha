@@ -36,7 +36,7 @@ if sys.version_info[0] == 2 and sys.version_info[1] <= 6:
 
 setup(
     name='moksha.common',
-    version='1.0.6',
+    version='1.2.0',
     description='Common components for Moksha',
     author='Luke Macken, John (J5) Palmieri, Mairin Duffy, and Ralph Bean',
     author_email='',
@@ -45,6 +45,17 @@ setup(
         "decorator",
         "pytz",
         "kitchen",
+    ],
+    classifiers = [
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: Apache Software License",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Programming Language :: Python :: 2.6",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.2",
+        "Programming Language :: Python :: 3.3",
     ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,

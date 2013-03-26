@@ -27,7 +27,7 @@ from uuid import uuid4
 
 import moksha.common.testtools.utils as testutils
 
-from moksha.hub.hub import MokshaHub
+from moksha.hub.hub import MokshaHub, CentralMokshaHub
 from moksha.hub.reactor import reactor as _reactor
 from nose.tools import eq_, assert_true, assert_false
 
@@ -313,6 +313,50 @@ class TestConsumer:
 
         eq_(len(messages_received), n_messages)
 
+    @testutils.crosstest
+    def test_dynamic_topic(self):
+        """ Test that a topic can be set at runtime (not import time) """
+
+        class TestConsumer(moksha.hub.api.consumer.Consumer):
+            topic = "bad topic"
+
+            def __init__(self, *args, **kw):
+                super(TestConsumer, self).__init__(*args, **kw)
+                self.topic = "good topic"
+
+            def consume(self, message):
+                pass
+
+        # Just a little fake config.
+        config = dict(
+            zmq_enabled=True,
+            zmq_subscribe_endpoints='',
+            zmq_published_endpoints='',
+        )
+        central = CentralMokshaHub(config, [TestConsumer], [])
+
+        # Guarantee that "bad topic" is not in the topics list.
+        eq_(central.topics.keys(), ["good topic"])
+
+    @testutils.crosstest
+    def test_open_and_close(self):
+        """ Test that a central hub with a consumer can be closed.. ;) """
+
+        class TestConsumer(moksha.hub.api.consumer.Consumer):
+            topic = "whatever"
+
+            def consume(self, message):
+                pass
+
+        # Just a little fake config.
+        config = dict(
+            zmq_enabled=True,
+            zmq_subscribe_endpoints='',
+            zmq_published_endpoints='',
+        )
+        central = CentralMokshaHub(config, [TestConsumer], [])
+        central.close()
+
 
 class TestProducer:
     def _setUp(self):
@@ -372,7 +416,7 @@ class TestProducer:
         sleep(sleep_duration)
 
         # Finally, the check.  Did we get our ten messages? (or about as much)
-        assert(len(messages_received) > 8, len(messages_received) < 12)
+        assert(len(messages_received) > 8 and len(messages_received) < 12)
 
     @testutils.crosstest
     def test_idempotence(self):

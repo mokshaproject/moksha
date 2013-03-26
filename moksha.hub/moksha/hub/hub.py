@@ -20,7 +20,7 @@
 import os
 import sys
 import json as JSON
-
+from collections import defaultdict
 
 from moksha.common.lib.helpers import appconfig
 
@@ -39,7 +39,7 @@ except ImportError:  # Twisted 8.2.0 on RHEL5
 
 from twisted.internet import protocol
 from txws import WebSocketFactory
-from moksha.common.lib.helpers import trace, defaultdict, get_moksha_config_path
+from moksha.common.lib.helpers import get_moksha_config_path
 from moksha.common.lib.converters import asbool
 
 AMQPHubExtension, StompHubExtension, ZMQHubExtension = None, None, None
@@ -56,7 +56,6 @@ except ImportError:
 try:
     from moksha.hub.zeromq import ZMQHubExtension
 except ImportError as e:
-    print e
     pass
 
 log = logging.getLogger('moksha.hub')
@@ -110,7 +109,7 @@ class MokshaHub(object):
         if not self.topics:
             self.topics = defaultdict(list)
 
-        if topics == None:
+        if topics is None:
             topics = {}
 
         for topic, callbacks in topics.iteritems():
@@ -144,8 +143,8 @@ class MokshaHub(object):
         for topic in topics:
             if isinstance(topic, unicode):
                 # txzmq isn't smart enough to handle unicode yet.
-                # Try removing this and sending a unicode topic in the future to
-                # see if it works.
+                # Try removing this and sending a unicode topic in the future
+                # to see if it works.
                 topic = topic.encode('utf-8')
 
             for ext in self.extensions:
@@ -173,7 +172,8 @@ class MokshaHub(object):
         try:
             topic = message.get('delivery_properties').routing_key
         except AttributeError:
-            # If we receive an AMQP message without a toipc, don't proxy it to STOMP
+            # If we receive an AMQP message without a toipc, don't
+            # proxy it to STOMP
             return
 
         # TODO -- this isn't extensible.  how should forwarding work if there
@@ -209,7 +209,7 @@ class CentralMokshaHub(MokshaHub):
     The Moksha Hub is responsible for initializing all of the Hooks,
     AMQP queues, exchanges, etc.
     """
-    producers = None # [<Producer>,]
+    producers = None  # [<Producer>,]
 
     def __init__(self, config, consumers=None, producers=None):
         log.info('Loading the Moksha Hub')
@@ -219,8 +219,6 @@ class CentralMokshaHub(MokshaHub):
         self._consumers = consumers
         self._producers = producers
 
-        self.__init_consumers()
-
         super(CentralMokshaHub, self).__init__(config)
 
         # FIXME -- this needs to be reworked.
@@ -229,7 +227,7 @@ class CentralMokshaHub(MokshaHub):
             if AMQPHubExtension and isinstance(ext, AMQPHubExtension):
                 self.__init_amqp()
 
-        self.__run_consumers()
+        self.__init_consumers()
         self.__init_producers()
         self.__init_websocket_server()
 
@@ -244,10 +242,11 @@ class CentralMokshaHub(MokshaHub):
         if not port:
             raise ValueError("websocket is backend, but no port set")
 
+        interface = self.config.get('moksha.livesocket.websocket.interface')
+        interface = interface or ''
+
         class RelayProtocol(protocol.Protocol):
             moksha_hub = self
-
-            subscribed_already = False
 
             def dataReceived(self, data):
                 """ Messages sent from the browser arrive here.
@@ -270,23 +269,18 @@ class CentralMokshaHub(MokshaHub):
                             })
                             self.transport.write(msg)
 
-                        # TODO -- the following "subscribed-already" logic can
-                        # be thrown away.  It is a stand-in until we can decide
-                        # on a more solid websocket authn/authz+routing
-                        # architecture like blastbeat, socketio, or autobahn.
                         _topic = json['body']
-                        if not self.subscribed_already:
-                            self.subscribed_already = True
-                            _topic = "*"
-                            log.info("Websocket subscribing to %r." % _topic)
-                            self.moksha_hub.subscribe(_topic, send_to_websocket)
-                        else:
-                            log.debug("Websocket ignoring %r." % _topic)
+                        log.info("Websocket subscribing to %r." % _topic)
+                        self.moksha_hub.subscribe(
+                            _topic,
+                            send_to_websocket,
+                        )
 
                     else:
-                        # FIXME - The following is disabled temporarily until we can
-                        # devise a secure method of "firewalling" where messages
-                        # can and can't go.  See the following for more info:
+                        # FIXME - The following is disabled temporarily until
+                        # we can devise a secure method of "firewalling" where
+                        # messages can and can't go.  See the following for
+                        # more info:
                         #   https://fedorahosted.org/moksha/ticket/245
                         #   https://github.com/gregjurman/zmqfirewall
 
@@ -298,23 +292,26 @@ class CentralMokshaHub(MokshaHub):
                                 json['body'],
                             )
 
-
                 except Exception as e:
                     import traceback
                     log.error(traceback.format_exc())
-
 
         class RelayFactory(protocol.Factory):
             def buildProtocol(self, addr):
                 return RelayProtocol()
 
-        reactor.listenTCP(port, WebSocketFactory(RelayFactory()))
+        self.websocket_server = reactor.listenTCP(
+            port,
+            WebSocketFactory(RelayFactory()),
+            interface=interface,
+        )
         log.info("Websocket server set to run on port %r" % port)
 
     # TODO -- consider moving this to the AMQP specific modules
     def __init_amqp(self):
-        # Ok this looks odd at first.  I think this is only used when we are briding stomp/amqp,
-        # Since each producer and consumer opens up their own AMQP connections anyway
+        # Ok this looks odd at first.  I think this is only used when
+        # we are briding stomp/amqp.  Since each producer and consumer
+        # opens up their own AMQP connections anyway
         if not (StompHubExtension and isinstance(self, StompHubExtension)):
             return
 
@@ -331,9 +328,9 @@ class CentralMokshaHub(MokshaHub):
         self.local_queue.listen(self.consume_amqp_message)
 
     def __init_consumers(self):
-        """ Initialize all Moksha Consumer objects """
+        """ Instantiate and run the consumers """
         log.info('Loading Consumers')
-        if self._consumers == None:
+        if self._consumers is None:
             log.debug("Loading from entry-points.")
             self._consumers = []
             for consumer in pkg_resources.iter_entry_points('moksha.consumer'):
@@ -346,33 +343,35 @@ class CentralMokshaHub(MokshaHub):
         else:
             log.debug("Loading explicitly passed entry-points.")
 
-        for c_class in self._consumers:
-            log.info("%s consumer is watching the %r topic" % (
-                     c_class.__name__, c_class.topic))
-            self.topics[c_class.topic].append(c_class)
-
-    def __run_consumers(self):
-        """ Instantiate the consumers """
         self.consumers = []
-        for topic in self.topics:
-            for i, consumer in enumerate(self.topics[topic]):
-                try:
-                    c = consumer(self)
-                    if not getattr(c, "_initialized", None):
-                        log.warn((
-                            "%r didn't initialize correctly.  " +
-                            "Did you call super(..).__init__?") % consumer)
+        for c_class in self._consumers:
+            try:
+                c = c_class(self)
+                if not getattr(c, "_initialized", None):
+                    log.warn((
+                        "%r didn't initialize correctly.  " +
+                        "Did you call super(..).__init__?") % consumer)
 
-                    self.consumers.append(c)
-                    self.topics[topic][i] = c.consume
-                except Exception as e:
-                    log.warn("Failed to init %r consumer." % consumer)
-                    log.warn(str(e))
+                self.consumers.append(c)
+
+                # This can be dynamically assigned during instantiation
+                topic = c.topic
+
+                if topic not in self.topics:
+                    self.topics[topic] = []
+
+                if c.consume not in self.topics[topic]:
+                    self.topics[topic].append(c.consume)
+
+            except Exception as e:
+                log.warn("Failed to init %r consumer." % consumer)
+                log.warn(str(e))
+
 
     def __init_producers(self):
         """ Initialize all producers (aka data streams) """
         log.info('Loading Producers')
-        if self._producers == None:
+        if self._producers is None:
             log.debug("Loading from entry-points.")
             self._producers = []
             for producer in sum([
@@ -398,7 +397,6 @@ class CentralMokshaHub(MokshaHub):
                 log.warn("Failed to init %r producer." % producer_class)
                 log.warn(str(e))
 
-    @trace
     def create_topic(self, topic):
         if AMQPHubExtension and self.amqp_broker:
             AMQPHubExtension.create_queue(topic)
@@ -407,18 +405,27 @@ class CentralMokshaHub(MokshaHub):
         if topic not in self.topics:
             self.topics[topic] = []
 
-    def stop(self):
+    def close(self):
         log.debug("Stopping the CentralMokshaHub")
-        MokshaHub.close(self)
+        super(CentralMokshaHub, self).close()
+
         if self.producers:
-            for producer in self.producers:
+            while self.producers:
+                producer = self.producers.pop()
                 log.debug("Stopping producer %s" % producer)
                 producer.stop()
+
         if self.consumers:
-            for consumer in self.consumers:
+            while self.consumers:
+                consumer = self.consumers.pop()
                 log.debug("Stopping consumer %s" % consumer)
                 consumer.stop()
 
+        if hasattr(self, 'websocket_server'):
+            retval = self.websocket_server.stopListening()
+
+    # For backwards compatibility
+    stop = close
 
 if __name__ == '__main__':
     from moksha.hub import main
