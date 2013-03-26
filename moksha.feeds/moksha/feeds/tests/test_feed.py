@@ -17,6 +17,8 @@ import tw2.core as twc
 
 from moksha.feeds.widgets import Feed
 
+from nose.tools import raises
+
 
 class TestFeed(object):
 
@@ -68,3 +70,8 @@ class TestFeed(object):
         feed = Feed()
         rendered = feed.display(url='http://lewk.org/rss')
         assert 'l e w k . o r g' in rendered, rendered
+
+    @raises(ValueError)
+    def test_feed_demands_url(self):
+        """ Ensure that Feeds require a url """
+        Feed().display()

@@ -51,6 +51,10 @@ class Feed(twc.Widget):
             cls.id = str(uuid.uuid4())
         id = cls.id
         url = cls.url
+
+        if not cls.url:
+            raise ValueError("Feed must be supplied with a url.")
+
         global feed_cache, feed_storage
         if not feed_cache:
             feed_storage = Shove('sqlite:///feeds.db', compress=True)
