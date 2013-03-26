@@ -1,3 +1,4 @@
+from __future__ import print_function
 # This file is part of Moksha.
 # Copyright (C) 2008-2010  Red Hat, Inc.
 #
@@ -75,7 +76,7 @@ def appconfig(config_path):
     except ConfigParser.NoSectionError:
         for section in parser.sections():
             if section.startswith('app:'):
-                print "Using %r" % section
+                print("Using %r" % section)
                 return dict(parser.items(section))
 
         raise ConfigParser.NoSectionError("Couldn't find app: section.")
