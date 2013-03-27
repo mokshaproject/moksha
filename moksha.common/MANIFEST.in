@@ -1,1 +1,2 @@
 include LICENSE README AUTHORS COPYING
+include moksha/common/tests/test_config.ini
