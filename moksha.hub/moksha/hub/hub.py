@@ -364,7 +364,7 @@ class CentralMokshaHub(MokshaHub):
                     self.topics[topic].append(c.consume)
 
             except Exception as e:
-                log.warn("Failed to init %r consumer." % consumer)
+                log.warn("Failed to init %r consumer." % c_class)
                 log.warn(str(e))
 
 
