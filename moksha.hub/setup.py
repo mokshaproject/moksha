@@ -49,7 +49,7 @@ setup(
         "Twisted",
         "stomper",
         "pyzmq",
-        "txZMQ>=0.6.2",
+        "txZMQ",
         "txWS",
         "python-daemon",
     ],
