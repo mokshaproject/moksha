@@ -338,8 +338,7 @@ class CentralMokshaHub(MokshaHub):
                     c = consumer.load()
                     self._consumers.append(c)
                 except Exception as e:
-                    log.warn("Failed to load %r consumer." % consumer.name)
-                    log.warn(str(e))
+                    log.exception("Failed to load %r consumer." % consumer.name)
         else:
             log.debug("Loading explicitly passed entry-points.")
 
@@ -364,8 +363,7 @@ class CentralMokshaHub(MokshaHub):
                     self.topics[topic].append(c.consume)
 
             except Exception as e:
-                log.warn("Failed to init %r consumer." % c_class)
-                log.warn(str(e))
+                log.exception("Failed to init %r consumer." % c_class)
 
 
     def __init_producers(self):
@@ -382,8 +380,7 @@ class CentralMokshaHub(MokshaHub):
                     p = producer.load()
                     self._producers.append(p)
                 except Exception as e:
-                    log.warn("Failed to load %r producer." % producer.name)
-                    log.warn(str(e))
+                    log.exception("Failed to load %r producer." % producer.name)
         else:
             log.debug("Loading explicitly passed entry-points.")
 
@@ -394,8 +391,7 @@ class CentralMokshaHub(MokshaHub):
                 producer_obj = producer_class(self)
                 self.producers.append(producer_obj)
             except Exception as e:
-                log.warn("Failed to init %r producer." % producer_class)
-                log.warn(str(e))
+                log.exception("Failed to init %r producer." % producer_class)
 
     def create_topic(self, topic):
         if AMQPHubExtension and self.amqp_broker:
