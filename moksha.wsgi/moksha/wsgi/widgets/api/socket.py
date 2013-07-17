@@ -33,14 +33,14 @@ class AbstractMokshaSocket(twc.Widget):
         "onerrorframe",
     ]
 
-    onopen = twc.Param(default='function (e) {moksha.debug(e)}')
-    onclose = twc.Param(default='function (e) {moksha.debug(e)}')
-    onerror = twc.Param(default='function (e) {moksha.debug(e)}')
-    onerrorframe = twc.Param(default='function (e) {moksha.debug(e)}')
-    onconnectedframe = twc.Param(default='function (e) {moksha.debug(e)}')
+    onopen = twc.Param(default='')
+    onclose = twc.Param(default='')
+    onerror = twc.Param(default='')
+    onerrorframe = twc.Param(default='')
+    onconnectedframe = twc.Param(default='')
 
     # Used internally
-    before_open = twc.Variable(default='function () {}')
+    before_open = twc.Variable(default='')
 
     notifications = {
         'before_open': 'Attempting to connect Moksha Live Socket',
