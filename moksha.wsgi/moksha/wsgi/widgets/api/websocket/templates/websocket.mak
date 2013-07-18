@@ -45,15 +45,11 @@ if (typeof WebSocket == 'undefined') { WebSocket = MozWebSocket; }
 
 function setup_moksha_socket() {
 	## Pre-connect callback
-  ${unicode(tw._("before_open"))|n}
+	${unicode(tw._("before_open"))|n}
 
-	var ws_scheme = "ws://";
-	if (location.protocol === 'https:') {
-	  ws_scheme = "wss://";
-	}
 	## Create a new websocket for every connection
 	moksha_websocket = new WebSocket(
-	  ws_scheme + '${tw._("ws_host")}:${tw._("ws_port")}'
+		'${tw._("ws_scheme")}://${tw._("ws_host")}:${tw._("ws_port")}'
 	);
 
 	## Attach all the callbacks for that websocket

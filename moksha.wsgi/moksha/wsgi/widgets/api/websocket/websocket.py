@@ -50,6 +50,7 @@ def websocket_unsubscribe(topic):
 class WebSocketWidget(AbstractMokshaSocket):
     __shorthand__ = 'WebSocket'
 
+    ws_scheme = twc.Param(default=twc.Required)
     ws_host = twc.Param(default=twc.Required)
     ws_port = twc.Param(default=twc.Required)
 

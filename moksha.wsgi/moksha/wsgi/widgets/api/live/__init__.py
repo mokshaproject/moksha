@@ -126,6 +126,11 @@ def get_moksha_socket(config):
     elif livesocket_backend == 'websocket':
         mappings = global_mappings + [
             dict(
+                left_key='ws_scheme',
+                right_key='moksha.livesocket.websocket.scheme',
+                default='ws',
+            ),
+            dict(
                 left_key='ws_host',
                 right_key='moksha.livesocket.websocket.host',
                 default='localhost',
