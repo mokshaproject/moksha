@@ -40,9 +40,9 @@ class Feed(twc.Widget):
     """
     url = None
     template = 'mako:moksha.feeds.widgets.templates.feed_home'
-    title = twc.Param("The title of this feed")
-    link = twc.Param("The url to the site that this feed is for")
-    entries = twc.Param("A list of feed entries", default=[])
+    title = twc.Variable("The title of this feed")
+    link = twc.Variable("The url to the site that this feed is for")
+    entries = twc.Variable("A list of feed entries", default=[])
     limit = twc.Param("A limit on the number of entries", default=None)
 
     @classmethod
