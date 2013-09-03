@@ -347,9 +347,8 @@ class CentralMokshaHub(MokshaHub):
             try:
                 c = c_class(self)
                 if not getattr(c, "_initialized", None):
-                    log.warn((
-                        "%r didn't initialize correctly.  " +
-                        "Did you call super(..).__init__?") % c_class)
+                    log.info("%s:%s not initialized." % (
+                        c_class.__module__, c_class.__name__,))
 
                 self.consumers.append(c)
 
