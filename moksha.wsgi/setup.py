@@ -53,7 +53,6 @@ setup(
         "tw2.jit",
         "tw2.excanvas",
         "paste",
-        "repoze.what",
 
         # Needed for the "paster moksha" commands
         # XXX -- potentially move this to its own moksha.devtools package?
