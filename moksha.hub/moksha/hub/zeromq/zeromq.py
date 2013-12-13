@@ -142,6 +142,15 @@ class ZMQHubExtension(BaseZMQHubExtension):
 
         super(ZMQHubExtension, self).send_message(topic, message, **headers)
 
+    def unsubscribe(self, callback):
+        for endpoint, factory in self.subscriber_factories.items():
+            kill_list = []
+            for intercept_func in factory._moksha_callbacks:
+                if intercept_func.handled_callback == callback:
+                    kill_list.append(intercept_func)
+            for intercept_func in kill_list:
+                factory._moksha_callbacks.remove(intercept_func)
+
     def subscribe(self, topic, callback):
         original_topic = topic
 
@@ -194,6 +203,7 @@ class ZMQHubExtension(BaseZMQHubExtension):
 
                 return callback(ZMQMessage(_topic, _body))
 
+            intercept.handled_callback = callback  # bookkeeping
             s._moksha_callbacks.append(intercept)
             s.subscribe(to_bytes(topic, encoding='utf8'))
 

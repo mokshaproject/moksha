@@ -158,6 +158,13 @@ class MokshaHub(object):
         except Exception, e:
             log.warning('Exception when closing MokshaHub: %s' % str(e))
 
+    def unsubscribe(self, callback):
+        """
+        This removes the callback from any backends where it can be found.
+        """
+        for ext in self.extensions:
+            ext.unsubscribe(callback)
+
     def subscribe(self, topic, callback):
         """
         This method will cause the specified `callback` to be executed with
@@ -248,6 +255,18 @@ class CentralMokshaHub(MokshaHub):
         class RelayProtocol(protocol.Protocol):
             moksha_hub = self
 
+            def send_to_ws(self, zmq_message):
+                """ Callback.  Sends a message to the browser """
+                msg = JSON.dumps({
+                    'topic': zmq_message.topic,
+                    'body': JSON.loads(zmq_message.body),
+                })
+                self.transport.write(msg)
+
+            def connectionLost(self, reason):
+                log.info("Lost Websocket connection.  Cleaning up.")
+                self.moksha_hub.unsubscribe(self.send_to_ws)
+
             def dataReceived(self, data):
                 """ Messages sent from the browser arrive here.
 
@@ -261,21 +280,9 @@ class CentralMokshaHub(MokshaHub):
 
                     if json['topic'] == '__topic_subscribe__':
                         # If this is a custom control message, then subscribe.
-                        def send_to_websocket(zmq_message):
-                            """ Callback.  Sends a message to the browser """
-                            msg = JSON.dumps({
-                                'topic': zmq_message.topic,
-                                'body': JSON.loads(zmq_message.body),
-                            })
-                            self.transport.write(msg)
-
                         _topic = json['body']
                         log.info("Websocket subscribing to %r." % _topic)
-                        self.moksha_hub.subscribe(
-                            _topic,
-                            send_to_websocket,
-                        )
-
+                        self.moksha_hub.subscribe(_topic, self.send_to_ws)
                     else:
                         # FIXME - The following is disabled temporarily until
                         # we can devise a secure method of "firewalling" where
