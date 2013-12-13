@@ -30,3 +30,6 @@ class MessagingHubExtension(object):
 
     def subscribe(self, topic, callback):
         pass
+
+    def unsubscribe(self, callback):
+        pass

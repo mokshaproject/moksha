@@ -33,5 +33,8 @@ class BaseZMQHubExtension(MessagingHubExtension):
     def subscribe(self, topic, callback):
         super(BaseZMQHubExtension, self).subscribe(topic, callback)
 
+    def unsubscribe(self, callback):
+        super(BaseZMQHubExtension, self).unsubscribe(callback)
+
     def close(self):
         super(BaseZMQHubExtension, self).close()
