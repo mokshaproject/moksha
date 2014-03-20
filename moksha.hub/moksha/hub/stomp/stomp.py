@@ -46,21 +46,23 @@ class StompHubExtension(MessagingHubExtension, ReconnectingClientFactory):
         self.username = self.config.get('stomp_user', 'guest')
         self.password = self.config.get('stomp_pass', 'guest')
 
+        log.info("connecting to %r %r %r" % (host, int(port), self))
         reactor.connectTCP(host, int(port), self)
 
         super(StompHubExtension, self).__init__()
 
     def buildProtocol(self, addr):
+        log.info("build protocol was called with %r" % addr)
         self.proto = StompProtocol(self, self.username, self.password)
         return self.proto
 
     def connected(self):
         for topic in self._topics:
-            log.debug('Subscribing to %s topic' % topic)
+            log.info('Subscribing to %s topic' % topic)
             self.subscribe(topic, callback=lambda msg: None)
         self._topics = []
         for frame in self._frames:
-            log.debug('Flushing queued frame')
+            log.info('Flushing queued frame')
             self.proto.transport.write(frame.pack())
         self._frames = []
 
@@ -77,7 +79,7 @@ class StompHubExtension(MessagingHubExtension, ReconnectingClientFactory):
         f = stomper.Frame()
         f.unpack(stomper.send(topic, message))
         if not self.proto:
-            log.debug("Queueing stomp frame for later delivery")
+            log.info("Queueing stomp frame for later delivery")
             self._frames.append(f)
         else:
             self.proto.transport.write(f.pack())
@@ -86,11 +88,12 @@ class StompHubExtension(MessagingHubExtension, ReconnectingClientFactory):
 
     def subscribe(self, topic, callback):
         # FIXME -- note, the callback is just thrown away here.
-        log.warn("STOMP callback thrown away.")
         if not self.proto:
+            log.info("queuing topic for later subscription %r." % topic)
             if topic not in self._topics:
                 self._topics.append(topic)
         else:
+            log.info("sending subscription to the protocol")
             self.proto.subscribe(topic)
 
         super(StompHubExtension, self).subscribe(topic, callback)
