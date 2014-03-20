@@ -32,15 +32,14 @@ from moksha.hub.hub import CentralMokshaHub
 
 
 def setup_logger(verbose):
-    global log
-    sh = logging.StreamHandler()
+    logging.basicConfig()
+    root = logging.getLogger()
+    handler = root.handlers[0]
     level = verbose and logging.DEBUG or logging.INFO
-    log.setLevel(level)
-    sh.setLevel(level)
+    root.setLevel(level)
     format = logging.Formatter(
-        '[moksha.hub] %(levelname)s %(asctime)s %(message)s')
-    sh.setFormatter(format)
-    log.addHandler(sh)
+        '[%(name)12s] %(levelname)s %(asctime)s %(message)s')
+    handler.setFormatter(format)
 
 
 def main(options=None, consumers=None, producers=None, framework=True):
