@@ -100,7 +100,6 @@ flash_keys = list(set(flash_keys))
 
 def should_skip_config_set(name, config_set):
     if name == 'stomp':
-        return True  # TODO - remove this.  This disables all STOMP tests.
         address = (config_set['stomp_broker'],
                    config_set['stomp_port'])
         # If we can connect, then run tests.  If we can't, then don't.

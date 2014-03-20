@@ -200,7 +200,7 @@ class MokshaHub(object):
 
         # FIXME: only do this if the consumer wants it `jsonified`
         try:
-            body = JSON.decode(message['body'])
+            body = JSON.loads(message['body'])
         except Exception, e:
             log.warning('Cannot decode message from JSON: %s' % e)
             #body = {}
