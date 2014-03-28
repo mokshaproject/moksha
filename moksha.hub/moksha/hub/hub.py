@@ -31,12 +31,6 @@ if os.getcwd() not in sys.path:
 import pkg_resources
 import logging
 
-try:
-    from twisted.internet.error import ReactorNotRunning
-except ImportError:  # Twisted 8.2.0 on RHEL5
-    class ReactorNotRunning(object):
-        pass
-
 from twisted.internet import protocol
 from txws import WebSocketFactory
 from moksha.common.lib.helpers import get_moksha_config_path

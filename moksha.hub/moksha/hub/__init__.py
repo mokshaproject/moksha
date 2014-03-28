@@ -18,6 +18,12 @@ import signal
 import sys
 import os
 
+try:
+    from twisted.internet.error import ReactorNotRunning
+except ImportError:  # Twisted 8.2.0 on RHEL5
+    class ReactorNotRunning(object):
+        pass
+
 from moksha.common.lib.helpers import appconfig
 from moksha.common.lib.helpers import get_moksha_config_path
 
