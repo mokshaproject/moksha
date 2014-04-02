@@ -46,8 +46,25 @@ class StompHubExtension(MessagingHubExtension, ReconnectingClientFactory):
         self.username = self.config.get('stomp_user', 'guest')
         self.password = self.config.get('stomp_pass', 'guest')
 
-        log.info("connecting to %r %r %r" % (host, int(port), self))
-        reactor.connectTCP(host, int(port), self)
+        self.key = self.config.get('stomp_ssl_key', None)
+        self.crt = self.config.get('stomp_ssl_crt', None)
+        if self.key and self.crt:
+            log.info("connecting encrypted to %r %r %r" % (
+                host, int(port), self))
+
+            from twisted.internet import ssl
+
+            with open(self.key) as key_file:
+                with open(self.crt) as cert_file:
+                    client_cert = ssl.PrivateCertificate.loadPEM(
+                        key_file.read() + cert_file.read())
+
+            ssl_context = client_cert.options()
+            reactor.connectSSL(host, int(port), self, ssl_context)
+        else:
+            log.info("connecting unencrypted to %r %r %r" % (
+                host, int(port), self))
+            reactor.connectTCP(host, int(port), self)
 
         super(StompHubExtension, self).__init__()
 
