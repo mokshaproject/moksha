@@ -65,6 +65,7 @@ def find_hub_extensions(config):
     possible_bases = {
         'amqp_broker': AMQPHubExtension,
         'stomp_broker': StompHubExtension,
+        'stomp_uri': StompHubExtension,
         'zmq_enabled': ZMQHubExtension,
     }
 
@@ -88,7 +89,7 @@ def find_hub_extensions(config):
         log.warning("Running with multiple brokers.  "
                     "This mode is experimental and may or may not work")
 
-    extensions = tuple([
+    extensions = set([
         b for k, b in possible_bases.items() if config.get(k, None)
     ])
     return extensions
