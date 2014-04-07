@@ -22,6 +22,7 @@ from twisted.internet.protocol import ClientFactory
 
 from moksha.hub.stomp.protocol import StompProtocol
 from moksha.hub.messaging import MessagingHubExtension
+from moksha.hub.reactor import reactor
 
 log = logging.getLogger('moksha.hub')
 
@@ -61,8 +62,6 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
         super(StompHubExtension, self).__init__()
 
     def connect(self, address, key=None, crt=None):
-        from moksha.hub.reactor import reactor
-
         host, port = address
         if key and crt:
             log.info("connecting encrypted to %r %r %r" % (
@@ -107,7 +106,6 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
         self.failover()
 
     def failover(self):
-        from moksha.hub.reactor import reactor
         self.address_index = (self.address_index + 1) % len(self.addresses)
         args = (self.addresses[self.address_index], self.key, self.crt,)
         self._delay = self._delay * (1 + (2.0 / len(self.addresses)))
