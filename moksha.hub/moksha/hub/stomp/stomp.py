@@ -1,5 +1,5 @@
 # This file is part of Moksha.
-# Copyright (C) 2008-2010  Red Hat, Inc.
+# Copyright (C) 2008-2014  Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 # Authors: Luke Macken <lmacken@redhat.com>
+#          Ralph Bean <rbean@redhat.com>
 
 import stomper
 import logging
