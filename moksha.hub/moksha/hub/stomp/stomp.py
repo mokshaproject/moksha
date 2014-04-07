@@ -100,14 +100,18 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
 
     def clientConnectionLost(self, connector, reason):
         log.info('Lost connection.  Reason: %s' % reason)
+        self.failover()
 
     def clientConnectionFailed(self, connector, reason):
         log.error('Connection failed. Reason: %s' % reason)
+        self.failover()
+
+    def failover(self):
+        from moksha.hub.reactor import reactor
         self.address_index = (self.address_index + 1) % len(self.addresses)
         args = (self.addresses[self.address_index], self.key, self.crt,)
-        self._delay = self._delay * 2
-        log.info('Reconnecting in %i seconds.' % self._delay)
-        from moksha.hub.reactor import reactor
+        self._delay = self._delay * (1 + (2.0 / len(self.addresses)))
+        log.info('(failover) reconnecting in %f seconds.' % self._delay)
         reactor.callLater(self._delay, self.connect, *args)
 
     def send_message(self, topic, message, **headers):
