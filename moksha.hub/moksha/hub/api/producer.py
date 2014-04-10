@@ -26,6 +26,7 @@ from moksha.common.lib.helpers import create_app_engine
 
 log = logging.getLogger('moksha.hub')
 
+
 class Producer(object):
     """ The parent Producer class. """
 
@@ -37,7 +38,8 @@ class Producer(object):
         self.log = log
 
         # If the stream specifies an 'app', then setup `self.engine` to
-        # be a SQLAlchemy engine for that app, along with a configured DBSession
+        # be a SQLAlchemy engine for that app, along with a configured
+        # DBSession
         app = getattr(self, 'app', None)
         self.engine = self.DBSession = None
         if app:
@@ -74,7 +76,7 @@ class PollingProducer(Producer):
     This class represents a data stream that wakes up at a given frequency,
     and calls the :meth:`poll` method.
     """
-    frequency = None # Either a timedelta object, or the number of seconds
+    frequency = None  # Either a timedelta object, or the number of seconds
     now = False
 
     def __init__(self, hub):
@@ -82,8 +84,8 @@ class PollingProducer(Producer):
         self.timer = LoopingCall(self.poll)
         if isinstance(self.frequency, timedelta):
             seconds = self.frequency.seconds + \
-                    (self.frequency.days * 24 * 60 * 60) + \
-                    (self.frequency.microseconds / 1000000.0)
+                (self.frequency.days * 24 * 60 * 60) + \
+                (self.frequency.microseconds / 1000000.0)
         else:
             seconds = self.frequency
         log.debug("Setting a %s second timer" % seconds)
