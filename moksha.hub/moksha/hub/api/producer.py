@@ -48,6 +48,13 @@ class Producer(object):
 
         self._initialized = True
 
+    def __json__(self):
+        return {
+            "name": type(self).__name__,
+            "module": type(self).__module__,
+            "initialized": self._initialized,
+        }
+
     def send_message(self, topic, message):
         try:
             self.hub.send_message(topic, message)
@@ -81,6 +88,14 @@ class PollingProducer(Producer):
             seconds = self.frequency
         log.debug("Setting a %s second timer" % seconds)
         self.timer.start(seconds, now=self.now)
+
+    def __json__(self):
+        data = super(PollingProducer, self).__json__()
+        data.update({
+            "frequency": self.frequency,
+            "now": self.now,
+        })
+        return data
 
     def poll(self):
         raise NotImplementedError

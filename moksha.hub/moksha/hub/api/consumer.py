@@ -1,5 +1,5 @@
 # This file is part of Moksha.
-# Copyright (C) 2008-2010  Red Hat, Inc.
+# Copyright (C) 2008-2014  Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -66,6 +66,15 @@ class Consumer(object):
             self.DBSession = sessionmaker(bind=self.engine)()
 
         self._initialized = True
+
+    def __json__(self):
+        return {
+            "name": type(self).__name__,
+            "module": type(self).__module__,
+            "topic": self.topic,
+            "initialized": self._initialized,
+            "jsonify": self.jsonify,
+        }
 
     def _consume_json(self, message):
         """ Convert our AMQP messages into a consistent dictionary format.
