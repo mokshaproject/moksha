@@ -1,5 +1,5 @@
 # This file is part of Moksha.
-# Copyright (C) 2008-2010  Red Hat, Inc.
+# Copyright (C) 2008-2014  Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,6 +29,9 @@ log = logging.getLogger('moksha.hub')
 class Producer(object):
     """ The parent Producer class. """
 
+    # Internal use only
+    _initialized = False
+
     def __init__(self, hub):
         self.hub = hub
         self.log = log
@@ -42,6 +45,8 @@ class Producer(object):
             from sqlalchemy.orm import sessionmaker
             self.engine = create_app_engine(app)
             self.DBSession = sessionmaker(bind=self.engine)()
+
+        self._initialized = True
 
     def send_message(self, topic, message):
         try:
