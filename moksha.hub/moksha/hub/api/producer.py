@@ -32,6 +32,7 @@ class Producer(object):
 
     # Internal use only
     _initialized = False
+    _exception_count = 0
 
     def __init__(self, hub):
         self.hub = hub
@@ -55,6 +56,7 @@ class Producer(object):
             "name": type(self).__name__,
             "module": type(self).__module__,
             "initialized": self._initialized,
+            "exceptions": self._exception_count,
         }
 
     def send_message(self, topic, message):
@@ -81,7 +83,7 @@ class PollingProducer(Producer):
 
     def __init__(self, hub):
         super(PollingProducer, self).__init__(hub)
-        self.timer = LoopingCall(self.poll)
+        self.timer = LoopingCall(self._poll)
         if isinstance(self.frequency, timedelta):
             seconds = self.frequency.seconds + \
                 (self.frequency.days * 24 * 60 * 60) + \
@@ -101,6 +103,16 @@ class PollingProducer(Producer):
 
     def poll(self):
         raise NotImplementedError
+
+    def _poll(self):
+        try:
+            self.poll()
+            self._exception_count = 0  # Reset to 0 if things are gravy
+        except Exception:
+            # Otherwise, keep track of how many exceptions we hit in a row
+            self._exception_count = self._exception_count + 1
+            # And re-raise the exception so it can be logged.
+            raise
 
     def stop(self):
         super(PollingProducer, self).stop()

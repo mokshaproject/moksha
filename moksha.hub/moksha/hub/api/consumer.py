@@ -42,6 +42,7 @@ class Consumer(object):
 
     # Internal use only
     _initialized = False
+    _exception_count = 0
 
     def __init__(self, hub):
         self.hub = hub
@@ -73,6 +74,7 @@ class Consumer(object):
             "module": type(self).__module__,
             "topic": self.topic,
             "initialized": self._initialized,
+            "exceptions": self._exception_count,
             "jsonify": self.jsonify,
         }
 
@@ -112,8 +114,15 @@ class Consumer(object):
                 # Weird.  I have no idea...
                 pass
 
-        message_as_dict = {'body': body, 'topic': topic}
-        self._consume(message_as_dict)
+        try:
+            message_as_dict = {'body': body, 'topic': topic}
+            self._consume(message_as_dict)
+            self._exception_count = 0  # Reset if everything went swimmingly
+        except Exception:
+            # Otherwise, keep track of how many exceptions we've hit in a row
+            self._exception_count = self._exception_count + 1
+            # And then re-raise the exception to be logged
+            raise
 
     def _consume(self, message):
         try:
