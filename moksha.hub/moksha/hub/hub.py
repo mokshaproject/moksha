@@ -1,5 +1,5 @@
 # This file is part of Moksha.
-# Copyright (C) 2008-2010  Red Hat, Inc.
+# Copyright (C) 2008-2014  Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -390,6 +390,11 @@ class CentralMokshaHub(MokshaHub):
             log.info('Initializing %s producer' % producer_class.__name__)
             try:
                 producer_obj = producer_class(self)
+
+                if not getattr(producer_obj, "_initialized", None):
+                    log.info("%s:%s not initialized." % (
+                        producer_class.__module__, producer_class.__name__,))
+
                 self.producers.append(producer_obj)
             except Exception as e:
                 log.exception("Failed to init %r producer." % producer_class)

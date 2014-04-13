@@ -1,5 +1,5 @@
 # This file is part of Moksha.
-# Copyright (C) 2008-2010  Red Hat, Inc.
+# Copyright (C) 2008-2014  Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,15 +26,21 @@ from moksha.common.lib.helpers import create_app_engine
 
 log = logging.getLogger('moksha.hub')
 
+
 class Producer(object):
     """ The parent Producer class. """
+
+    # Internal use only
+    _initialized = False
+    _exception_count = 0
 
     def __init__(self, hub):
         self.hub = hub
         self.log = log
 
         # If the stream specifies an 'app', then setup `self.engine` to
-        # be a SQLAlchemy engine for that app, along with a configured DBSession
+        # be a SQLAlchemy engine for that app, along with a configured
+        # DBSession
         app = getattr(self, 'app', None)
         self.engine = self.DBSession = None
         if app:
@@ -42,6 +48,16 @@ class Producer(object):
             from sqlalchemy.orm import sessionmaker
             self.engine = create_app_engine(app)
             self.DBSession = sessionmaker(bind=self.engine)()
+
+        self._initialized = True
+
+    def __json__(self):
+        return {
+            "name": type(self).__name__,
+            "module": type(self).__module__,
+            "initialized": self._initialized,
+            "exceptions": self._exception_count,
+        }
 
     def send_message(self, topic, message):
         try:
@@ -62,23 +78,41 @@ class PollingProducer(Producer):
     This class represents a data stream that wakes up at a given frequency,
     and calls the :meth:`poll` method.
     """
-    frequency = None # Either a timedelta object, or the number of seconds
+    frequency = None  # Either a timedelta object, or the number of seconds
     now = False
 
     def __init__(self, hub):
         super(PollingProducer, self).__init__(hub)
-        self.timer = LoopingCall(self.poll)
+        self.timer = LoopingCall(self._poll)
         if isinstance(self.frequency, timedelta):
             seconds = self.frequency.seconds + \
-                    (self.frequency.days * 24 * 60 * 60) + \
-                    (self.frequency.microseconds / 1000000.0)
+                (self.frequency.days * 24 * 60 * 60) + \
+                (self.frequency.microseconds / 1000000.0)
         else:
             seconds = self.frequency
         log.debug("Setting a %s second timer" % seconds)
         self.timer.start(seconds, now=self.now)
 
+    def __json__(self):
+        data = super(PollingProducer, self).__json__()
+        data.update({
+            "frequency": self.frequency,
+            "now": self.now,
+        })
+        return data
+
     def poll(self):
         raise NotImplementedError
+
+    def _poll(self):
+        try:
+            self.poll()
+            self._exception_count = 0  # Reset to 0 if things are gravy
+        except Exception:
+            # Otherwise, keep track of how many exceptions we hit in a row
+            self._exception_count = self._exception_count + 1
+            # And re-raise the exception so it can be logged.
+            raise
 
     def stop(self):
         super(PollingProducer, self).stop()

@@ -1,5 +1,5 @@
 # This file is part of Moksha.
-# Copyright (C) 2008-2010  Red Hat, Inc.
+# Copyright (C) 2008-2014  Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ class Consumer(object):
 
     # Internal use only
     _initialized = False
+    _exception_count = 0
 
     def __init__(self, hub):
         self.hub = hub
@@ -66,6 +67,16 @@ class Consumer(object):
             self.DBSession = sessionmaker(bind=self.engine)()
 
         self._initialized = True
+
+    def __json__(self):
+        return {
+            "name": type(self).__name__,
+            "module": type(self).__module__,
+            "topic": self.topic,
+            "initialized": self._initialized,
+            "exceptions": self._exception_count,
+            "jsonify": self.jsonify,
+        }
 
     def _consume_json(self, message):
         """ Convert our AMQP messages into a consistent dictionary format.
@@ -103,8 +114,15 @@ class Consumer(object):
                 # Weird.  I have no idea...
                 pass
 
-        message_as_dict = {'body': body, 'topic': topic}
-        self._consume(message_as_dict)
+        try:
+            message_as_dict = {'body': body, 'topic': topic}
+            self._consume(message_as_dict)
+            self._exception_count = 0  # Reset if everything went swimmingly
+        except Exception:
+            # Otherwise, keep track of how many exceptions we've hit in a row
+            self._exception_count = self._exception_count + 1
+            # And then re-raise the exception to be logged
+            raise
 
     def _consume(self, message):
         try:
