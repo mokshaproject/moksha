@@ -76,7 +76,7 @@ class Consumer(object):
             self.engine = create_app_engine(app, hub.config)
             self.DBSession = sessionmaker(bind=self.engine)()
 
-        self.N = int(self.hub.config.get('moksha.workers_per_consumer', 0))
+        self.N = int(self.hub.config.get('moksha.workers_per_consumer', 1))
         for i in range(self.N):
             moksha.hub.reactor.reactor.callInThread(self._work)
 
@@ -159,7 +159,7 @@ class Consumer(object):
                 self.validate(message)
             except Exception, e:
                 log.warn("Received invalid message %r" % e)
-                return
+                continue
 
             self.consume(message)
             self.debug("Going back to waiting on the incoming queue.")
