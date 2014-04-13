@@ -1,5 +1,5 @@
 # This file is part of Moksha.
-# Copyright (C) 2008-2010  Red Hat, Inc.
+# Copyright (C) 2008-2014  Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,48 +14,64 @@
 # limitations under the License.
 #
 # Authors: Luke Macken <lmacken@redhat.com>
+#          Ralph Bean <rbean@redhat.com>
 
 import stomper
 import logging
 
-from twisted.internet.protocol import ReconnectingClientFactory
+from twisted.internet.protocol import ClientFactory
 
 from moksha.hub.stomp.protocol import StompProtocol
 from moksha.hub.messaging import MessagingHubExtension
+from moksha.hub.reactor import reactor
 
 log = logging.getLogger('moksha.hub')
 
 
-class StompHubExtension(MessagingHubExtension, ReconnectingClientFactory):
+class StompHubExtension(MessagingHubExtension, ClientFactory):
     username = None
     password = None
     proto = None
     frames = None
 
     def __init__(self, hub, config):
-        from moksha.hub.reactor import reactor
-
         self.config = config
         self.hub = hub
         self._topics = hub.topics.keys()
         self._frames = []
 
-        port = self.config.get('stomp_port', 61613)
-        host = self.config.get('stomp_broker')
+        uri = self.config.get('stomp_uri', None)
+        if not uri:
+            port = self.config.get('stomp_port', 61613)
+            host = self.config.get('stomp_broker')
+            uri = "%s:%i" % (host, port)
+
+        # A list of addresses over which we emulate failover()
+        self.addresses = [pair.split(":") for pair in uri.split(',')]
+        self.address_index = 0
+
+        # An exponential delay used to back off if we keep failing.
+        self._delay = 0.1
 
         self.username = self.config.get('stomp_user', 'guest')
         self.password = self.config.get('stomp_pass', 'guest')
 
         self.key = self.config.get('stomp_ssl_key', None)
         self.crt = self.config.get('stomp_ssl_crt', None)
-        if self.key and self.crt:
+
+        self.connect(self.addresses[self.address_index], self.key, self.crt)
+        super(StompHubExtension, self).__init__()
+
+    def connect(self, address, key=None, crt=None):
+        host, port = address
+        if key and crt:
             log.info("connecting encrypted to %r %r %r" % (
                 host, int(port), self))
 
             from twisted.internet import ssl
 
-            with open(self.key) as key_file:
-                with open(self.crt) as cert_file:
+            with open(key) as key_file:
+                with open(crt) as cert_file:
                     client_cert = ssl.PrivateCertificate.loadPEM(
                         key_file.read() + cert_file.read())
 
@@ -66,9 +82,8 @@ class StompHubExtension(MessagingHubExtension, ReconnectingClientFactory):
                 host, int(port), self))
             reactor.connectTCP(host, int(port), self)
 
-        super(StompHubExtension, self).__init__()
-
     def buildProtocol(self, addr):
+        self._delay = 0.1
         log.info("build protocol was called with %r" % addr)
         self.proto = StompProtocol(self, self.username, self.password)
         return self.proto
@@ -85,12 +100,18 @@ class StompHubExtension(MessagingHubExtension, ReconnectingClientFactory):
 
     def clientConnectionLost(self, connector, reason):
         log.info('Lost connection.  Reason: %s' % reason)
+        self.failover()
 
     def clientConnectionFailed(self, connector, reason):
         log.error('Connection failed. Reason: %s' % reason)
-        ReconnectingClientFactory.clientConnectionFailed(self,
-                                                         connector,
-                                                         reason)
+        self.failover()
+
+    def failover(self):
+        self.address_index = (self.address_index + 1) % len(self.addresses)
+        args = (self.addresses[self.address_index], self.key, self.crt,)
+        self._delay = self._delay * (1 + (2.0 / len(self.addresses)))
+        log.info('(failover) reconnecting in %f seconds.' % self._delay)
+        reactor.callLater(self._delay, self.connect, *args)
 
     def send_message(self, topic, message, **headers):
         f = stomper.Frame()
