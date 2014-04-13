@@ -71,6 +71,10 @@ class TestWebSocketServer(unittest.TestCase):
 
     def tearDown(self):
         self.hub.close()
+
+        if hasattr(self.hub, 'websocket_server'):
+            retval = self.hub.websocket_server.stopListening()
+
         # It can take some time to unregister our WS server from its port
         simulate_reactor(sleep_duration)
 
