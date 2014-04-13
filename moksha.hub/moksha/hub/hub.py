@@ -409,6 +409,7 @@ class CentralMokshaHub(MokshaHub):
 
     def close(self):
         log.debug("Stopping the CentralMokshaHub")
+
         super(CentralMokshaHub, self).close()
 
         if self.producers:
@@ -422,9 +423,6 @@ class CentralMokshaHub(MokshaHub):
                 consumer = self.consumers.pop()
                 log.debug("Stopping consumer %s" % consumer)
                 consumer.stop()
-
-        if hasattr(self, 'websocket_server'):
-            retval = self.websocket_server.stopListening()
 
     # For backwards compatibility
     stop = close
