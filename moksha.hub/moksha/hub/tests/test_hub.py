@@ -149,7 +149,7 @@ class TestConsumer:
             jsonify = False
             topic = self.a_topic
 
-            def consume(self, message):
+            def _consume(self, message):
                 messages_received.append(message)
 
         self.fake_register_consumer(TestConsumer)
@@ -169,7 +169,7 @@ class TestConsumer:
         class TestConsumer(moksha.hub.api.consumer.Consumer):
             topic = self.a_topic
 
-            def consume(self, message):
+            def _consume(self, message):
                 messages_received.append(message['body'])
 
         self.fake_register_consumer(TestConsumer)
@@ -190,13 +190,13 @@ class TestConsumer:
         class TestConsumer1(moksha.hub.api.consumer.Consumer):
             topic = self.a_topic
 
-            def consume(self, message):
+            def _consume(self, message):
                 messages_received.append(message['body'])
 
         class TestConsumer2(moksha.hub.api.consumer.Consumer):
             topic = self.a_topic
 
-            def consume(self, message):
+            def _consume(self, message):
                 messages_received.append(message['body'])
 
         self.fake_register_consumer(TestConsumer1)
@@ -218,7 +218,7 @@ class TestConsumer:
         class BaseConsumer(moksha.hub.api.consumer.Consumer):
             topic = self.a_topic
 
-            def consume(self, message):
+            def _consume(self, message):
                 messages_received.append(message['body'])
 
         class Consumer1(BaseConsumer):
@@ -251,7 +251,7 @@ class TestConsumer:
         class TestConsumer(moksha.hub.api.consumer.Consumer):
             topic = self.a_topic
 
-            def consume(self, message):
+            def _consume(self, message):
                 obj = message['body']
                 messages_received.append(obj['secret'])
 
@@ -274,7 +274,7 @@ class TestConsumer:
         class TestConsumer(moksha.hub.api.consumer.Consumer):
             topic = self.a_topic
 
-            def consume(self, message):
+            def _consume(self, message):
                 messages_received.append(message['body'])
 
         self.fake_register_consumer(TestConsumer)
@@ -299,7 +299,7 @@ class TestConsumer:
         class TestConsumer(moksha.hub.api.consumer.Consumer):
             topic = self.a_topic
 
-            def consume(self, message):
+            def _consume(self, message):
                 messages_received.append(message['body'])
 
         self.fake_register_consumer(TestConsumer)
@@ -324,7 +324,7 @@ class TestConsumer:
                 super(TestConsumer, self).__init__(*args, **kw)
                 self.topic = "good topic"
 
-            def consume(self, message):
+            def _consume(self, message):
                 pass
 
         # Just a little fake config.
@@ -345,7 +345,7 @@ class TestConsumer:
         class TestConsumer(moksha.hub.api.consumer.Consumer):
             topic = "whatever"
 
-            def consume(self, message):
+            def _consume(self, message):
                 pass
 
         # Just a little fake config.
