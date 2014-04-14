@@ -42,6 +42,7 @@ setup(
     author_email='',
     url='http://moksha.fedorahosted.org',
     install_requires=[
+        "six",
         "decorator",
         "pytz",
         "kitchen",
