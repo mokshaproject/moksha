@@ -26,11 +26,15 @@ loaded, and receives each message for the specified topic through the
 """
 
 import json
+import threading
+import Queue as queue
 import logging
 log = logging.getLogger('moksha.hub')
 
+
 from kitchen.iterutils import iterate
 from moksha.common.lib.helpers import create_app_engine
+import moksha.hub.reactor
 
 
 class Consumer(object):
@@ -47,6 +51,12 @@ class Consumer(object):
     def __init__(self, hub):
         self.hub = hub
         self.log = log
+
+        # Set up a queue to communicate between the main twisted thread
+        # receiving raw messages, and a worker thread that pulls items off
+        # the queue to do "consume" work.
+        # TODO -- someday, have this be monitored by the monitoring socket
+        self.incoming = queue.Queue()
 
         callback = self._consume
         if self.jsonify:
@@ -66,6 +76,10 @@ class Consumer(object):
             self.engine = create_app_engine(app, hub.config)
             self.DBSession = sessionmaker(bind=self.engine)()
 
+        self.N = int(self.hub.config.get('moksha.workers_per_consumer', 1))
+        for i in range(self.N):
+            moksha.hub.reactor.reactor.callInThread(self._work)
+
         self._initialized = True
 
     def __json__(self):
@@ -77,6 +91,10 @@ class Consumer(object):
             "exceptions": self._exception_count,
             "jsonify": self.jsonify,
         }
+
+    def debug(self, message):
+        idx = threading.current_thread().ident
+        log.debug("%r thread %r | %s" % (type(self).__name__, idx, message))
 
     def _consume_json(self, message):
         """ Convert our AMQP messages into a consistent dictionary format.
@@ -125,13 +143,28 @@ class Consumer(object):
             raise
 
     def _consume(self, message):
-        try:
-            self.validate(message)
-        except Exception, e:
-            log.warn("Received invalid message %r" % e)
-            return
+        self.incoming.put(message)
 
-        self.consume(message)
+    def _work(self):
+        while True:
+            # This is a blocking call.  It waits until a message is available.
+            message = self.incoming.get()
+
+            # Then we are being asked to quit
+            if message is StopIteration:
+                break
+
+            self.debug("Worker thread picking up %r" % message)
+            try:
+                self.validate(message)
+            except Exception, e:
+                log.warn("Received invalid message %r" % e)
+                continue
+
+            self.consume(message)
+            self.debug("Going back to waiting on the incoming queue.")
+
+        self.debug("Worker thread exiting.")
 
     def validate(self, message):
         """ Override to implement your own validation scheme. """
@@ -147,6 +180,9 @@ class Consumer(object):
             log.error('Cannot send message: %s' % e)
 
     def stop(self):
+        for i in range(getattr(self, 'N', 0)):
+            self.incoming.put(StopIteration)
+
         if hasattr(self, 'hub'):
             self.hub.close()
 
