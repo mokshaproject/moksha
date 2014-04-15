@@ -336,7 +336,7 @@ class TestConsumer:
         central = CentralMokshaHub(config, [TestConsumer], [])
 
         # Guarantee that "bad topic" is not in the topics list.
-        eq_(central.topics.keys(), ["good topic"])
+        eq_(list(central.topics.keys()), ["good topic"])
 
     @testutils.crosstest
     def test_open_and_close(self):

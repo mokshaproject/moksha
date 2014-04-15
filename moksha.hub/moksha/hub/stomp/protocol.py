@@ -19,15 +19,22 @@
 # (c) Oisin Mulvihill, 2007-07-26.
 # License: http://www.apache.org/licenses/LICENSE-2.0
 
-import stomper
 import logging
 
-from stomper.stompbuffer import StompBuffer
-from twisted.internet.protocol import Protocol
+
+try:
+    # stomper is not ready for py3
+    import stomper
+    from stomper.stompbuffer import StompBuffer
+    from twisted.internet.protocol import Protocol
+    class Base(Protocol, stomper.Engine):
+        pass
+except ImportError:
+    Base = object
 
 log = logging.getLogger(__name__)
 
-class StompProtocol(Protocol, stomper.Engine):
+class StompProtocol(Base):
 
     def __init__(self, client, username='', password=''):
         stomper.Engine.__init__(self)

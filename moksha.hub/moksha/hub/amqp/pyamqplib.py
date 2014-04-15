@@ -117,10 +117,10 @@ class AMQPLibHubExtension(BaseAMQPHubExtension):
         try:
             if hasattr(self, 'channel') and self.channel:
                 self.channel.close()
-        except Exception, e:
+        except Exception as e:
             log.exception(e)
         try:
             if hasattr(self, 'conn') and self.conn:
                 self.conn.close()
-        except Exception, e:
+        except Exception as e:
             log.exception(e)

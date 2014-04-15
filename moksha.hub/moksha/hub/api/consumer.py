@@ -27,10 +27,13 @@ loaded, and receives each message for the specified topic through the
 
 import json
 import threading
-import Queue as queue
 import logging
 log = logging.getLogger('moksha.hub')
 
+try:
+    import queue  # py3
+except ImportError:
+    import Queue as queue  # py2
 
 from kitchen.iterutils import iterate
 from moksha.common.lib.helpers import create_app_engine
@@ -157,7 +160,7 @@ class Consumer(object):
             self.debug("Worker thread picking up %r" % message)
             try:
                 self.validate(message)
-            except Exception, e:
+            except Exception as e:
                 log.warn("Received invalid message %r" % e)
                 continue
 
@@ -176,7 +179,7 @@ class Consumer(object):
     def send_message(self, topic, message):
         try:
             self.hub.send_message(topic, message)
-        except Exception, e:
+        except Exception as e:
             log.error('Cannot send message: %s' % e)
 
     def stop(self):

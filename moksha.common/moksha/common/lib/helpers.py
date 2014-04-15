@@ -21,7 +21,7 @@ import os
 import logging
 import warnings
 
-import ConfigParser
+import six.moves.configparser as configparser
 
 log = logging.getLogger(__name__)
 scrub_filter = re.compile('[^_a-zA-Z0-9-]')
@@ -73,13 +73,13 @@ def appconfig(config_path):
     parser.read(filenames=[config_path])
     try:
         return dict(parser.items('app:main'))
-    except ConfigParser.NoSectionError:
+    except configparser.NoSectionError:
         for section in parser.sections():
             if section.startswith('app:'):
                 print("Using %r" % section)
                 return dict(parser.items(section))
 
-        raise ConfigParser.NoSectionError("Couldn't find app: section.")
+        raise configparser.NoSectionError("Couldn't find app: section.")
 
 
 def create_app_engine(app, config):

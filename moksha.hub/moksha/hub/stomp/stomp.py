@@ -16,7 +16,11 @@
 # Authors: Luke Macken <lmacken@redhat.com>
 #          Ralph Bean <rbean@redhat.com>
 
-import stomper
+try:
+    import stomper
+except ImportError:
+    pass
+
 import logging
 
 from twisted.internet.protocol import ClientFactory

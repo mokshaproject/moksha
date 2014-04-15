@@ -18,6 +18,7 @@
 
 
 import os
+import six
 import sys
 import json as JSON
 from collections import defaultdict
@@ -85,12 +86,12 @@ def find_hub_extensions(config):
     if not any(broker_vals):
         raise ValueError("No messaging methods defined.")
 
-    if len(filter(None, broker_vals)) > 1:
+    if len(list(filter(None, broker_vals))) > 1:
         log.warning("Running with multiple brokers.  "
                     "This mode is experimental and may or may not work")
 
     extensions = set([
-        b for k, b in possible_bases.items() if config.get(k, None)
+        b for k, b in possible_bases.items() if config.get(k, None) and b
     ])
     return extensions
 
@@ -107,7 +108,7 @@ class MokshaHub(object):
         if topics is None:
             topics = {}
 
-        for topic, callbacks in topics.iteritems():
+        for topic, callbacks in topics.items():
             if not isinstance(callbacks, list):
                 callbacks = [callbacks]
 
@@ -136,7 +137,7 @@ class MokshaHub(object):
             topics = topic
 
         for topic in topics:
-            if isinstance(topic, unicode):
+            if isinstance(topic, six.text_type):
                 # txzmq isn't smart enough to handle unicode yet.
                 # Try removing this and sending a unicode topic in the future
                 # to see if it works.
@@ -150,8 +151,8 @@ class MokshaHub(object):
             for ext in self.extensions:
                 if hasattr(ext, 'close'):
                     ext.close()
-        except Exception, e:
-            log.warning('Exception when closing MokshaHub: %s' % str(e))
+        except Exception as e:
+            log.warning('Exception when closing MokshaHub: %r' % e)
 
     def unsubscribe(self, callback):
         """
@@ -196,7 +197,7 @@ class MokshaHub(object):
         # FIXME: only do this if the consumer wants it `jsonified`
         try:
             body = JSON.loads(message['body'])
-        except Exception, e:
+        except Exception as e:
             log.warning('Cannot decode message from JSON: %s' % e)
             #body = {}
             body = message['body']
@@ -271,6 +272,7 @@ class CentralMokshaHub(MokshaHub):
                 """
 
                 try:
+                    data = data.decode('utf-8')
                     json = JSON.loads(data)
 
                     if json['topic'] == '__topic_subscribe__':

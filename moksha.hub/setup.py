@@ -47,11 +47,11 @@ setup(
     install_requires=[
         "moksha.common>=1.0.6",
         "Twisted",
-        "stomper",
+        #"stomper",
         "pyzmq",
         "txZMQ",
         "txWS",
-        "python-daemon",
+        #"python-daemon",
     ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
