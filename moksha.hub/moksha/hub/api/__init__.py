@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from consumer import *
-from producer import *
+from .consumer import *
+from .producer import *
 
 from moksha.hub.hub import MokshaHub

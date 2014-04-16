@@ -62,7 +62,7 @@ class Producer(object):
     def send_message(self, topic, message):
         try:
             self.hub.send_message(topic, message)
-        except Exception, e:
+        except Exception as e:
             log.error('Cannot send message: %s' % e)
 
     def stop(self):
@@ -119,5 +119,5 @@ class PollingProducer(Producer):
         try:
             if hasattr(self, 'timer'):
                 self.timer.stop()
-        except Exception, e:
+        except Exception as e:
             self.log.warn(e)

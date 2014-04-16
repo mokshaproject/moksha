@@ -98,13 +98,16 @@ class TestWebSocketServer(unittest.TestCase):
                 )))
 
                 # Receive that..
-                self.received_message = json.loads(ws.recv())['body']
+                message = ws.recv().decode('utf-8')
+                self.received_message = json.loads(message)['body']
                 ws.close()
 
         client = client_thread()
         client.start()
 
         # Process the connection from the client-thread.
+        simulate_reactor(sleep_duration)
+        sleep(sleep_duration)
         simulate_reactor(sleep_duration)
 
         # Now, send a message...
@@ -114,6 +117,8 @@ class TestWebSocketServer(unittest.TestCase):
         )
 
         # Process the sending of our special message.
+        simulate_reactor(sleep_duration)
+        sleep(sleep_duration)
         simulate_reactor(sleep_duration)
 
         client.join()
@@ -145,7 +150,7 @@ class TestWebSocketServer(unittest.TestCase):
                 for i in range(num_topics):
                     try:
                         self.received_messages.append(
-                            json.loads(ws.recv())['body']
+                            json.loads(ws.recv().decode('utf-8'))['body']
                         )
                     except Exception:
                         pass
@@ -157,6 +162,8 @@ class TestWebSocketServer(unittest.TestCase):
 
         # Process the connection from the client-thread.
         simulate_reactor(sleep_duration)
+        sleep(sleep_duration)
+        simulate_reactor(sleep_duration)
 
         # Now, send a message...
         for i in range(num_topics):
@@ -166,6 +173,8 @@ class TestWebSocketServer(unittest.TestCase):
             )
 
         # Process the sending of our special message.
+        simulate_reactor(sleep_duration)
+        sleep(sleep_duration)
         simulate_reactor(sleep_duration)
 
         client.join()
@@ -197,7 +206,7 @@ class TestWebSocketServer(unittest.TestCase):
                 for i in range(num_topics + 1):
                     try:
                         self.received_messages.append(
-                            json.loads(ws.recv())['body']
+                            json.loads(ws.recv().decode('utf-8'))['body']
                         )
                     except Exception:
                         pass
@@ -209,6 +218,8 @@ class TestWebSocketServer(unittest.TestCase):
 
         # Process the connection from the client-thread.
         simulate_reactor(sleep_duration)
+        sleep(sleep_duration)
+        simulate_reactor(sleep_duration)
 
         # Now, send a message...
         for i in range(num_topics + 1):
@@ -218,6 +229,8 @@ class TestWebSocketServer(unittest.TestCase):
             )
 
         # Process the sending of our special message.
+        simulate_reactor(sleep_duration)
+        sleep(sleep_duration)
         simulate_reactor(sleep_duration)
 
         client.join()
@@ -249,7 +262,7 @@ class TestWebSocketServer(unittest.TestCase):
                 for i in range(num_topics + 2):
                     try:
                         thread.received_messages.append(
-                            json.loads(ws.recv())['body']
+                            json.loads(ws.recv().decode('utf-8'))['body']
                         )
                     except Exception:
                         pass
@@ -267,6 +280,8 @@ class TestWebSocketServer(unittest.TestCase):
 
         # Process the connection from the client-thread.
         simulate_reactor(sleep_duration)
+        sleep(sleep_duration)
+        simulate_reactor(sleep_duration)
 
         # Now, send a message...
         for i in range(num_topics):
@@ -281,11 +296,14 @@ class TestWebSocketServer(unittest.TestCase):
 
         # Process the sending of our special message.
         simulate_reactor(sleep_duration)
+        sleep(sleep_duration)
+        simulate_reactor(sleep_duration)
 
         client1.join()
         client2.join()
         eq_(client1.received_messages, [secret + "_1"] * num_topics)
         eq_(client2.received_messages, [secret + "_2"] * num_topics)
+
 
 if __name__ == '__main__':
     unittest.main()

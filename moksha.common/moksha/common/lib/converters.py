@@ -3,9 +3,10 @@
 # Licensed under the MIT license:
 #   http://www.opensource.org/licenses/mit-license.php
 
+import six
 
 def asbool(obj):
-    if isinstance(obj, basestring):
+    if isinstance(obj, six.string_types):
         obj = obj.strip().lower()
         if obj in ['true', 'yes', 'on', 'y', 't', '1']:
             return True
@@ -24,7 +25,7 @@ def asint(obj):
 
 
 def aslist(obj, sep=None, strip=True):
-    if isinstance(obj, basestring):
+    if isinstance(obj, six.string_types):
         lst = obj.split(sep)
         if strip:
             lst = [v.strip() for v in lst]

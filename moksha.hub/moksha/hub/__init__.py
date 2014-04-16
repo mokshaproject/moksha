@@ -1,5 +1,5 @@
 # This file is part of Moksha.
-# Copyright (C) 2008-2010  Red Hat, Inc.
+# Copyright (C) 2008-2014  Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,6 +12,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+from __future__ import print_function
 
 import logging
 import signal
@@ -68,7 +70,7 @@ def main(options=None, consumers=None, producers=None, framework=True):
             config_path = get_moksha_config_path()
 
         if not config_path:
-            print NO_CONFIG_MESSAGE
+            print(NO_CONFIG_MESSAGE)
             return
 
         cfg = appconfig('config:' + config_path)

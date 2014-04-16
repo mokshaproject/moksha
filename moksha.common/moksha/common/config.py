@@ -1,18 +1,19 @@
 import os
-import ConfigParser
+import six.moves.configparser as configparser
 
 
-class EnvironmentConfigParser(ConfigParser.ConfigParser):
+class EnvironmentConfigParser(configparser.ConfigParser):
     """ConfigParser which is able to substitute environment variables.
     """
 
     def get(self, section, option, raw=0, vars=None):
         try:
-            val = ConfigParser.ConfigParser.get(
-                self, section, option, raw, vars)
+            val = configparser.ConfigParser.get(
+                self, section, option, raw=raw, vars=vars)
         except Exception:
-            val = ConfigParser.ConfigParser.get(
-                self, section, option, 1, vars)
+            val = configparser.ConfigParser.get(
+                self, section, option, raw=1, vars=vars)
+
         return self._interpolate(section, option, val, vars)
 
     def _interpolate(self, section, option, rawval, vars):
@@ -27,7 +28,7 @@ class EnvironmentConfigParser(ConfigParser.ConfigParser):
                 vars[k] = v
 
         value = rawval
-        depth = ConfigParser.MAX_INTERPOLATION_DEPTH
+        depth = configparser.MAX_INTERPOLATION_DEPTH
         while depth:                    # Loop through this until it's done
             depth -= 1
             start = value.find("%(")
@@ -35,7 +36,7 @@ class EnvironmentConfigParser(ConfigParser.ConfigParser):
                 end = value.find(")s", start)
                 if end <= start:
                     raise ValueError(
-                        "ConfigParser: no \")s\" found "
+                        "configparser: no \")s\" found "
                         "after \"%(\" : " + rawval)
 
                 rawkey = value[start + 2:end]
@@ -53,11 +54,11 @@ class EnvironmentConfigParser(ConfigParser.ConfigParser):
                         value = value.replace("%(" + rawkey + ")s", default, 1)
                     else:
                         raise ValueError(
-                            "ConfigParser: Key %s not found in: %s" % (
+                            "configparser: Key %s not found in: %s" % (
                                 rawval, key))
             else:
                 break
         if value.find("%(") != -1:
             raise ValueError(
-                "ConfigParser: Interpolation Depth error: %s" % rawval)
+                "configparser: Interpolation Depth error: %s" % rawval)
         return value

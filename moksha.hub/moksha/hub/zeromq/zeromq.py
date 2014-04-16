@@ -17,6 +17,7 @@
 
 
 import logging
+import six
 import socket
 import time
 import txzmq
@@ -135,9 +136,13 @@ class ZMQHubExtension(BaseZMQHubExtension):
                     raise ValueError("'localhost' in %s is disallowed" % attr)
 
     def send_message(self, topic, message, **headers):
+        if isinstance(topic, six.text_type):
+            topic = topic.encode('utf-8')
+        if isinstance(message, six.text_type):
+            message = message.encode('utf-8')
         try:
             self.pub_socket.send_multipart([topic, message])
-        except zmq.ZMQError, e:
+        except zmq.ZMQError as e:
             log.warn("Couldn't send message: %r" % e)
 
         super(ZMQHubExtension, self).send_message(topic, message, **headers)
@@ -168,11 +173,15 @@ class ZMQHubExtension(BaseZMQHubExtension):
                     s = self.subscriber_factories[endpoint] = \
                         self.connection_cls(
                             self.twisted_zmq_factory, endpoint)
-                except zmq.ZMQError, e:
+                except zmq.ZMQError as e:
                     log.warn("Failed txzmq create on %r %r" % (endpoint, e))
                     continue
 
                 def chain_over_moksha_callbacks(_body, _topic):
+                    if isinstance(_topic, six.binary_type):
+                        _topic = _topic.decode('utf-8')
+                    if isinstance(_body, six.binary_type):
+                        _body = _body.decode('utf-8')
                     for f in s._moksha_callbacks:
                         f(_body, _topic)
 

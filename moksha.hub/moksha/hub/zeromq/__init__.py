@@ -1,6 +1,6 @@
 # This file is part of Moksha.
 # Copyright (C) 2008-2010  Red Hat, Inc.
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -17,4 +17,4 @@
 Here is where we configure which zeromq hub implementation we are going to use.
 """
 
-from zeromq import ZMQHubExtension
+from moksha.hub.zeromq.zeromq import ZMQHubExtension

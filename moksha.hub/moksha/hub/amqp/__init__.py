@@ -21,12 +21,12 @@ import logging
 log = logging.getLogger("moksha.hub")
 
 try:
-    from qpid010 import QpidAMQPHubExtension
+    from moksha.hub.amqp.qpid010 import QpidAMQPHubExtension
     AMQPHubExtension = QpidAMQPHubExtension
 except ImportError:
     log.warn("Cannot find qpid python module. Make sure you have python-qpid installed.")
     try:
-        from pyamqplib import AMQPLibHubExtension
+        from moksha.hub.amqp.pyamqplib import AMQPLibHubExtension
         AMQPHubExtension = AMQPLibHubExtension
     except ImportError:
         log.warn("Cannot find pyamqplib")
