@@ -84,14 +84,14 @@ class PollingProducer(Producer):
     def __init__(self, hub):
         super(PollingProducer, self).__init__(hub)
         self.timer = LoopingCall(self._poll)
+
         if isinstance(self.frequency, timedelta):
-            seconds = self.frequency.seconds + \
+            self.frequency = self.frequency.seconds + \
                 (self.frequency.days * 24 * 60 * 60) + \
                 (self.frequency.microseconds / 1000000.0)
-        else:
-            seconds = self.frequency
-        log.debug("Setting a %s second timer" % seconds)
-        self.timer.start(seconds, now=self.now)
+
+        log.debug("Setting a %s second timer" % self.frequency)
+        self.timer.start(self.frequency, now=self.now)
 
     def __json__(self):
         data = super(PollingProducer, self).__json__()
