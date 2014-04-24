@@ -85,6 +85,12 @@ class Consumer(object):
         self._initialized = True
 
     def __json__(self):
+
+        if self._initialized:
+            backlog = self.incoming.qsize()
+        else:
+            backlog = None
+
         return {
             "name": type(self).__name__,
             "module": type(self).__module__,
@@ -92,7 +98,7 @@ class Consumer(object):
             "initialized": self._initialized,
             "exceptions": self._exception_count,
             "jsonify": self.jsonify,
-            "backlog": self.incoming.qsize(),
+            "backlog": backlog,
         }
 
     def debug(self, message):
