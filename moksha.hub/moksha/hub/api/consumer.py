@@ -58,7 +58,6 @@ class Consumer(object):
         # Set up a queue to communicate between the main twisted thread
         # receiving raw messages, and a worker thread that pulls items off
         # the queue to do "consume" work.
-        # TODO -- someday, have this be monitored by the monitoring socket
         self.incoming = queue.Queue()
 
         callback = self._consume
@@ -93,6 +92,7 @@ class Consumer(object):
             "initialized": self._initialized,
             "exceptions": self._exception_count,
             "jsonify": self.jsonify,
+            "backlog": self.incoming.qsize(),
         }
 
     def debug(self, message):
