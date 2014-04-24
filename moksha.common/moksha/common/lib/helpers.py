@@ -21,7 +21,10 @@ import os
 import logging
 import warnings
 
-import six.moves.configparser as configparser
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
 
 log = logging.getLogger(__name__)
 scrub_filter = re.compile('[^_a-zA-Z0-9-]')
