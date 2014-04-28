@@ -84,6 +84,10 @@ class ZMQHubExtension(BaseZMQHubExtension):
             config.get('zmq_tcp_keepalive_idle', 0)
         self.connection_cls.tcpKeepaliveInterval = \
             config.get('zmq_tcp_keepalive_intvl', 0)
+        self.connection_cls.reconnectInterval = \
+            config.get('zmq_reconnect_ivl', 100)
+        self.connection_cls.reconnectIntervalMax = \
+            config.get('zmq_reconnect_ivl_max', 100)
 
         # Set up the publishing socket
         self.pub_socket = self.context.socket(zmq.PUB)
