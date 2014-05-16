@@ -163,7 +163,7 @@ class Consumer(object):
             if message is StopIteration:
                 break
 
-            self.debug("Worker thread picking up %r" % message)
+            self.debug("Worker thread picking a message.")
             try:
                 self.validate(message)
             except Exception as e:
