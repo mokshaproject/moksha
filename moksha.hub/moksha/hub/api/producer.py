@@ -18,10 +18,11 @@
 """
 
 import logging
+import time
 
 from datetime import timedelta
-from twisted.internet.task import LoopingCall
 
+import moksha.hub.reactor
 from moksha.common.lib.helpers import create_app_engine
 
 log = logging.getLogger('moksha.hub')
@@ -80,10 +81,10 @@ class PollingProducer(Producer):
     """
     frequency = None  # Either a timedelta object, or the number of seconds
     now = False
+    die = False
 
     def __init__(self, hub):
         super(PollingProducer, self).__init__(hub)
-        self.timer = LoopingCall(self._poll)
 
         if isinstance(self.frequency, timedelta):
             self.frequency = self.frequency.seconds + \
@@ -91,7 +92,7 @@ class PollingProducer(Producer):
                 (self.frequency.microseconds / 1000000.0)
 
         log.debug("Setting a %s second timer" % self.frequency)
-        self.timer.start(self.frequency, now=self.now)
+        moksha.hub.reactor.reactor.callInThread(self._work)
 
     def __json__(self):
         data = super(PollingProducer, self).__json__()
@@ -114,10 +115,15 @@ class PollingProducer(Producer):
             # And re-raise the exception so it can be logged.
             raise
 
+    def _work(self):
+        # If asked to, we can fire immediately at startup
+        if self.now:
+            self._poll()
+
+        while not self.die:
+            time.sleep(self.frequency)
+            self._poll()
+
     def stop(self):
         super(PollingProducer, self).stop()
-        try:
-            if hasattr(self, 'timer'):
-                self.timer.stop()
-        except Exception as e:
-            self.log.warn(e)
+        self.die = True
