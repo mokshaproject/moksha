@@ -15,6 +15,7 @@
 
 """Test Moksha's Hub """
 
+import threading
 import moksha
 
 try:
@@ -27,9 +28,12 @@ from uuid import uuid4
 
 import moksha.common.testtools.utils as testutils
 
+import moksha.hub.api
 from moksha.hub.hub import MokshaHub, CentralMokshaHub
 from moksha.hub.reactor import reactor as _reactor
-from nose.tools import eq_, assert_true, assert_false
+from nose.tools import (eq_, assert_true, assert_false, assert_less,
+                        assert_greater)
+
 
 
 # Some constants used throughout the hub tests
@@ -386,37 +390,27 @@ class TestProducer:
 
         messages_received = []
 
-        def callback(json):
-            messages_received.append(json.body[1:-1])
-
-        self.hub.subscribe(topic=self.a_topic, callback=callback)
-
         class TestProducer(moksha.hub.api.producer.PollingProducer):
             topic = self.a_topic
             frequency = sleep_duration / 10.9
+            called = 0
 
             def poll(self):
-                self.send_message(self.topic, secret)
+                self.called = self.called + 1
 
         # Ready?
-        self.fake_register_producer(TestProducer)
+        prod = self.fake_register_producer(TestProducer)
 
-        # Go!
-        simulate_reactor(duration=sleep_duration)
+        def killer():
+            sleep(sleep_duration)
+            prod.die = True
 
-        # Ok.
-
-        # We also need to sleep for `sleep_duration` seconds after the reactor
-        # has stopped, not because the messages still need to get where they're
-        # going, but so that the `messages_received` object can sync between
-        # python threads.
-
-        # It has already been updated in callback(json) at this point, but it
-        # hasn't yet propagated to this context.
-        sleep(sleep_duration)
+        threading.Thread(target=killer).start()
+        prod._work()
 
         # Finally, the check.  Did we get our ten messages? (or about as much)
-        assert(len(messages_received) > 8 and len(messages_received) < 12)
+        assert_greater(prod.called, 8)
+        assert_less(prod.called, 12)
 
     @testutils.crosstest
     def test_idempotence(self):
