@@ -31,9 +31,7 @@ import moksha.common.testtools.utils as testutils
 import moksha.hub.api
 from moksha.hub.hub import MokshaHub, CentralMokshaHub
 from moksha.hub.reactor import reactor as _reactor
-from nose.tools import (eq_, assert_true, assert_false, assert_less,
-                        assert_greater)
-
+from nose.tools import (eq_, assert_true, assert_false)
 
 
 # Some constants used throughout the hub tests
@@ -409,8 +407,8 @@ class TestProducer:
         prod._work()
 
         # Finally, the check.  Did we get our ten messages? (or about as much)
-        assert_greater(prod.called, 8)
-        assert_less(prod.called, 12)
+        assert prod.called > 8
+        assert prod.called < 12
 
     @testutils.crosstest
     def test_idempotence(self):
