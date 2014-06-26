@@ -170,7 +170,12 @@ class Consumer(object):
                 log.warn("Received invalid message %r" % e)
                 continue
 
-            self.consume(message)
+            try:
+                self.consume(message)
+            except Exception as e:
+                self.log.error("%r" % )message)
+                self.log.exception(e)
+
             self.debug("Going back to waiting on the incoming queue.")
 
         self.debug("Worker thread exiting.")
