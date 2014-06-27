@@ -173,7 +173,7 @@ class Consumer(object):
             try:
                 self.consume(message)
             except Exception as e:
-                self.log.error("%r" % )message)
+                self.log.error("%r" % message)
                 self.log.exception(e)
 
             self.debug("Going back to waiting on the incoming queue.")
