@@ -171,7 +171,17 @@ class Consumer(object):
                 continue
 
             try:
+                self.pre_consume(message)
+            except Exception as e:
+                self.log.exception(message)
+
+            try:
                 self.consume(message)
+            except Exception as e:
+                self.log.exception(message)
+
+            try:
+                self.post_consume(message)
             except Exception as e:
                 self.log.exception(message)
 
@@ -183,8 +193,14 @@ class Consumer(object):
         """ Override to implement your own validation scheme. """
         pass
 
+    def pre_consume(self, message):
+        pass
+
     def consume(self, message):
         raise NotImplementedError
+
+    def post_consume(self, message):
+        pass
 
     def send_message(self, topic, message):
         try:
