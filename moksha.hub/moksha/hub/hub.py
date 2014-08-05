@@ -331,6 +331,16 @@ class CentralMokshaHub(MokshaHub):
         self.local_queue.start()
         self.local_queue.listen(self.consume_amqp_message)
 
+    @property
+    def num_consumers(self):
+        return len([
+            c for c in self.consumers if getattr(c, '_initialized', None)])
+
+    @property
+    def num_producers(self):
+        return len([
+            p for p in self.producers if getattr(p, '_initialized', None)])
+
     def __init_consumers(self):
         """ Instantiate and run the consumers """
         log.info('Loading Consumers')
