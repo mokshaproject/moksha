@@ -96,5 +96,15 @@ def main(options=None, consumers=None, producers=None, framework=True):
 
     log.info("Running the MokshaHub reactor")
     from moksha.hub.reactor import reactor
+
+    threadcount = config.get('moksha.threadpool_size', None)
+    if not threadcount:
+        N = int(config.get('moksha.workers_per_consumer', 1))
+        threadcount = 1 + hub.num_producers + hub.num_consumers * N
+
+    threadcount = int(threadcount)
+    log.info("Suggesting threadpool size at %i" % threadcount)
+    reactor.suggestThreadPoolSize(threadcount)
+
     reactor.run(installSignalHandlers=False)
     log.info("MokshaHub reactor stopped")
