@@ -60,9 +60,11 @@ class MonitoringProducer(PollingProducer):
             "consumers": self.serialize(self.hub.consumers),
             "producers": self.serialize(self.hub.producers),
         }
-        self.socket.send(json.dumps(data))
+        if self.socket:
+            self.socket.send(json.dumps(data))
 
     def stop(self):
+        super(MonitoringProducer, self).stop()
         if self.socket:
             self.socket.close()
             self.socket = None
