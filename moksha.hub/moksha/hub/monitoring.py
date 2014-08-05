@@ -16,6 +16,8 @@
 # Authors: Ralph Bean  <rbean@redhat.com>
 
 from moksha.hub.api import PollingProducer
+import os
+import string
 import zmq
 import json
 
@@ -43,6 +45,15 @@ class MonitoringProducer(PollingProducer):
         self.ctx = zmq.Context()
         self.socket = self.ctx.socket(zmq.PUB)
         self.socket.bind(endpoint)
+
+        # If this is a unix socket (which is almost always is) then set some
+        # permissions so that whatever monitoring service is deployed can talk
+        # to us.
+        mode = hub.config.get('moksha.monitoring.socket.mode')
+        if endpoint.startswith("ipc://") and mode:
+            mode = string.atoi(mode, base=8)
+            path = endpoint.split("ipc://")[-1]
+            os.chmod(path, mode)
 
         super(MonitoringProducer, self).__init__(hub, *args, **kwargs)
 
