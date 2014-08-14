@@ -88,10 +88,13 @@ class Consumer(object):
 
         if self._initialized:
             backlog = self.incoming.qsize()
+            headcount_out = self.headcount_out
+            headcount_in = self.headcount_in
         else:
             backlog = None
+            headcount_out, headcount_in = 0, 0
 
-        return {
+        results = {
             "name": type(self).__name__,
             "module": type(self).__module__,
             "topic": self.topic,
@@ -99,7 +102,12 @@ class Consumer(object):
             "exceptions": self._exception_count,
             "jsonify": self.jsonify,
             "backlog": backlog,
+            "headcount_out": headcount_out,
+            "headcount_in": headcount_in,
         }
+        # Reset these counters before returning.
+        self.headcount_out, self.headcount_in = 0, 0
+        return results
 
     def debug(self, message):
         idx = threading.current_thread().ident
@@ -152,12 +160,14 @@ class Consumer(object):
             raise
 
     def _consume(self, message):
+        self.headcount_in = self.headcount_in + 1
         self.incoming.put(message)
 
     def _work(self):
         while True:
             # This is a blocking call.  It waits until a message is available.
             message = self.incoming.get()
+            self.headcount_out = self.headcount_out + 1
 
             # Then we are being asked to quit
             if message is StopIteration:
