@@ -92,7 +92,7 @@ class Consumer(object):
             headcount_in = self.headcount_in
         else:
             backlog = None
-            headcount_out, headcount_in = 0, 0
+            headcount_out = headcount_in = 0
 
         results = {
             "name": type(self).__name__,
@@ -106,7 +106,7 @@ class Consumer(object):
             "headcount_in": headcount_in,
         }
         # Reset these counters before returning.
-        self.headcount_out, self.headcount_in = 0, 0
+        self.headcount_out = self.headcount_in = 0
         return results
 
     def debug(self, message):
@@ -155,19 +155,19 @@ class Consumer(object):
             self._exception_count = 0  # Reset if everything went swimmingly
         except Exception:
             # Otherwise, keep track of how many exceptions we've hit in a row
-            self._exception_count = self._exception_count + 1
+            self._exception_count += 1
             # And then re-raise the exception to be logged
             raise
 
     def _consume(self, message):
-        self.headcount_in = self.headcount_in + 1
+        self.headcount_in += 1
         self.incoming.put(message)
 
     def _work(self):
         while True:
             # This is a blocking call.  It waits until a message is available.
             message = self.incoming.get()
-            self.headcount_out = self.headcount_out + 1
+            self.headcount_out += 1
 
             # Then we are being asked to quit
             if message is StopIteration:
