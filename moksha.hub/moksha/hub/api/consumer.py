@@ -59,6 +59,7 @@ class Consumer(object):
         # receiving raw messages, and a worker thread that pulls items off
         # the queue to do "consume" work.
         self.incoming = queue.Queue()
+        self.headcount_in = self.headcount_out = 0
 
         callback = self._consume
         if self.jsonify:
