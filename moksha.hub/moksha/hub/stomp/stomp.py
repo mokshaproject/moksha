@@ -46,7 +46,7 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
 
         uri = self.config.get('stomp_uri', None)
         if not uri:
-            port = self.config.get('stomp_port', 61613)
+            port = int(self.config.get('stomp_port', 61613))
             host = self.config.get('stomp_broker')
             uri = "%s:%i" % (host, port)
 
