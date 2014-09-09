@@ -17,9 +17,14 @@
 #          Ralph Bean <rbean@redhat.com>
 
 try:
-    import stomper
+    # Try first to use modern stomp-1.1
+    import stomper.stomp_11 as stomper
 except ImportError:
-    pass
+    # Failing that, use whatever is available.
+    try:
+        import stomper
+    except ImportError:
+        pass
 
 import logging
 

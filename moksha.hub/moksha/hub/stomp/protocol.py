@@ -24,7 +24,15 @@ import logging
 
 try:
     # stomper is not ready for py3
-    import stomper
+    try:
+        # Try first to use modern stomp-1.1
+        import stomper.stomp_11 as stomper
+    except ImportError:
+        # Failing that, use whatever is available.
+        try:
+            import stomper
+        except ImportError:
+            pass
     from stomper.stompbuffer import StompBuffer
     from twisted.internet.protocol import Protocol
     class Base(Protocol, stomper.Engine):
@@ -65,13 +73,18 @@ class StompProtocol(Base):
 
     def subscribe(self, dest, **headers):
         f = stomper.Frame()
-        f.unpack(stomper.subscribe(dest))
+        if stomper.STOMP_VERSION != '1.0':
+            f.unpack(stomper.subscribe(dest, dest))
         f.headers.update(headers)
         self.transport.write(f.pack())
 
     def connectionMade(self):
         """ Register with stomp server """
-        cmd = stomper.connect(self.username, self.password)
+        if stomper.STOMP_VERSION != '1.0':
+            host, port = self.client.addresses[self.client.address_index]
+            cmd = stomper.connect(self.username, self.password, host)
+        else:
+            cmd = stomper.connect(self.username, self.password)
         self.transport.write(cmd)
 
     def dataReceived(self, data):
