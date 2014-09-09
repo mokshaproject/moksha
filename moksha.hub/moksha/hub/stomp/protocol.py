@@ -75,6 +75,8 @@ class StompProtocol(Base):
         f = stomper.Frame()
         if stomper.STOMP_VERSION != '1.0':
             f.unpack(stomper.subscribe(dest, dest))
+        else:
+            f.unpack(stomper.subscribe(dest))
         f.headers.update(headers)
         self.transport.write(f.pack())
 
