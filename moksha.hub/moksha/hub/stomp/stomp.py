@@ -68,6 +68,8 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
         self.key = self.config.get('stomp_ssl_key', None)
         self.crt = self.config.get('stomp_ssl_crt', None)
 
+        self.client_heartbeat = int(self.config.get('stomp_heartbeat', 0))
+
         self.connect(self.addresses[self.address_index], self.key, self.crt)
         super(StompHubExtension, self).__init__()
 
@@ -97,11 +99,20 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
         self.proto = StompProtocol(self, self.username, self.password)
         return self.proto
 
-    def connected(self):
+    def connected(self, server_heartbeat):
+        if server_heartbeat and self.client_heartbeat:
+            interval = max(self.client_heartbeat, server_heartbeat)
+            log.info("Heartbeat of %ims negotiated from (%i,%i); starting." % (
+                interval, self.client_heartbeat, server_heartbeat))
+            self.start_heartbeat(interval)
+        else:
+            log.info("Skipping heartbeat initialization")
+
         for topic in self._topics:
             log.info('Subscribing to %s topic' % topic)
             self.subscribe(topic, callback=lambda msg: None)
         self._topics = []
+
         for frame in self._frames:
             log.info('Flushing queued frame')
             self.proto.transport.write(frame.pack())
@@ -109,10 +120,12 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
 
     def clientConnectionLost(self, connector, reason):
         log.info('Lost connection.  Reason: %s' % reason)
+        self.stop_heartbeat()
         self.failover()
 
     def clientConnectionFailed(self, connector, reason):
         log.error('Connection failed. Reason: %s' % reason)
+        self.stop_heartbeat()
         self.failover()
 
     def failover(self):
@@ -121,6 +134,21 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
         self._delay = self._delay * (1 + (2.0 / len(self.addresses)))
         log.info('(failover) reconnecting in %f seconds.' % self._delay)
         reactor.callLater(self._delay, self.connect, *args)
+
+    def start_heartbeat(self, interval):
+        self._heartbeat_enabled = True
+        reactor.callLater(interval / 1000.0, self.heartbeat, interval)
+
+    def heartbeat(self, interval):
+        if self._heartbeat_enabled:
+            self.proto.transport.write(chr(0x0A))  # Lub-dub
+            reactor.callLater(interval / 1000.0, self.heartbeat, interval)
+        else:
+            log.info("(heartbeat stopped)")
+
+    def stop_heartbeat(self):
+        log.info("stopping heartbeat")
+        self._heartbeat_enabled = False
 
     def send_message(self, topic, message, **headers):
         f = stomper.Frame()
