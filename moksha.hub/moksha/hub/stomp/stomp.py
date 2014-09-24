@@ -111,7 +111,6 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
         for topic in self._topics:
             log.info('Subscribing to %s topic' % topic)
             self.subscribe(topic, callback=lambda msg: None)
-        self._topics = []
 
         for frame in self._frames:
             log.info('Flushing queued frame')
