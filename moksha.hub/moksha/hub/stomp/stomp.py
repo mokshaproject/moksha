@@ -60,7 +60,7 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
         self.address_index = 0
 
         # An exponential delay used to back off if we keep failing.
-        self._delay = 0.1
+        self._delay = float(self.config.get('stomp_delay', '0.1'))
 
         self.username = self.config.get('stomp_user', 'guest')
         self.password = self.config.get('stomp_pass', 'guest')
@@ -94,7 +94,7 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
             reactor.connectTCP(host, int(port), self)
 
     def buildProtocol(self, addr):
-        self._delay = 0.1
+        self._delay = float(self.config.get('stomp_delay', '0.1'))
         log.info("build protocol was called with %r" % addr)
         self.proto = StompProtocol(self, self.username, self.password)
         return self.proto
