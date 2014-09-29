@@ -91,6 +91,8 @@ class PollingProducer(Producer):
                 (self.frequency.days * 24 * 60 * 60) + \
                 (self.frequency.microseconds / 1000000.0)
 
+        self._last_ran = None
+
         log.debug("Setting a %s second timer" % self.frequency)
         moksha.hub.reactor.reactor.callInThread(self._work)
 
@@ -99,6 +101,7 @@ class PollingProducer(Producer):
         data.update({
             "frequency": self.frequency,
             "now": self.now,
+            "last_ran": self._last_ran,
         })
         return data
 
@@ -106,6 +109,7 @@ class PollingProducer(Producer):
         raise NotImplementedError
 
     def _poll(self):
+        self._last_ran = time.time()
         try:
             self.poll()
             self._exception_count = 0  # Reset to 0 if things are gravy
