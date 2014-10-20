@@ -25,6 +25,7 @@ except ImportError:
 
 from time import sleep, time
 from uuid import uuid4
+from kitchen.iterutils import iterate
 
 import moksha.common.testtools.utils as testutils
 
@@ -106,7 +107,7 @@ class TestConsumer:
     def _setUp(self):
         def kernel(config):
             self.hub = MokshaHub(config=config)
-            self.a_topic = a_topic = str(uuid4())
+            self.a_topic = str(uuid4())
 
         for __setup, name in testutils.make_setup_functions(kernel):
             yield __setup, name
@@ -123,8 +124,12 @@ class TestConsumer:
         I'm not sure how to do that, so we're going to fake it and manually
         add this consumer to the list of consumers of which the Hub is aware.
         """
-        self.hub.topics[cons.topic] = self.hub.topics.get(cons.topic, [])
-        self.hub.topics[cons.topic].append(cons(self.hub).consume)
+        consume = cons(self.hub).consume
+        for topic in iterate(cons.topic):
+            self.hub.topics[topic] = self.hub.topics.get(topic, [])
+            if consume not in self.hub.topics[topic]:
+                print('registering fake topic %r' % topic)
+                self.hub.topics[topic].append(consume)
         sleep(sleep_duration)
 
     @testutils.crosstest
@@ -309,6 +314,30 @@ class TestConsumer:
         # Now, send n objects and make sure that n objects were consumed.
         for i in range(n_messages):
             self.hub.send_message(topic=self.a_topic, message=obj)
+
+        simulate_reactor(sleep_duration)
+        sleep(sleep_duration)
+
+        eq_(len(messages_received), n_messages)
+
+    @testutils.crosstest
+    def test_multiple_topics(self):
+        """ Send a message to multiple topics. """
+        n_messages = 2
+        obj = {'secret': secret}
+        messages_received = []
+        b_topic = str(uuid4())
+
+        class TestConsumer(moksha.hub.api.consumer.Consumer):
+            topic = [self.a_topic, b_topic]
+
+            def _consume(self, message):
+                messages_received.append(message['body'])
+
+        self.fake_register_consumer(TestConsumer)
+
+        self.hub.send_message(topic=self.a_topic, message=obj)
+        self.hub.send_message(topic=b_topic, message=obj)
 
         simulate_reactor(sleep_duration)
         sleep(sleep_duration)

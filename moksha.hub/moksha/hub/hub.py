@@ -23,6 +23,7 @@ import sys
 import json as JSON
 from collections import defaultdict
 
+from kitchen.iterutils import iterate
 from moksha.common.lib.helpers import appconfig
 
 # Look in the current directory for egg-info
@@ -367,13 +368,12 @@ class CentralMokshaHub(MokshaHub):
                 self.consumers.append(c)
 
                 # This can be dynamically assigned during instantiation
-                topic = c.topic
+                for topic in iterate(c.topic):
+                    if topic not in self.topics:
+                        self.topics[topic] = []
 
-                if topic not in self.topics:
-                    self.topics[topic] = []
-
-                if c.consume not in self.topics[topic]:
-                    self.topics[topic].append(c.consume)
+                    if c.consume not in self.topics[topic]:
+                        self.topics[topic].append(c.consume)
 
             except Exception as e:
                 log.exception("Failed to init %r consumer." % c_class)
