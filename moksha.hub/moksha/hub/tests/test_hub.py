@@ -124,9 +124,9 @@ class TestConsumer:
         I'm not sure how to do that, so we're going to fake it and manually
         add this consumer to the list of consumers of which the Hub is aware.
         """
+        consume = cons(self.hub).consume
         for topic in iterate(cons.topic):
             self.hub.topics[topic] = self.hub.topics.get(topic, [])
-            consume = cons(self.hub).consume
             if consume not in self.hub.topics[topic]:
                 print('registering fake topic %r' % topic)
                 self.hub.topics[topic].append(consume)
