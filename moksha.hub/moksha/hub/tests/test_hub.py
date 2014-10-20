@@ -107,7 +107,7 @@ class TestConsumer:
     def _setUp(self):
         def kernel(config):
             self.hub = MokshaHub(config=config)
-            self.a_topic = a_topic = str(uuid4())
+            self.a_topic = str(uuid4())
 
         for __setup, name in testutils.make_setup_functions(kernel):
             yield __setup, name
