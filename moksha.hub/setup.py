@@ -39,7 +39,7 @@ if sys.version_info[0] == 2 and sys.version_info[1] <= 6:
 
 setup(
     name='moksha.hub',
-    version='1.4.3',
+    version='1.4.4',
     description='Hub components for Moksha.',
     author='Luke Macken, John (J5) Palmieri, Mairin Duffy, and Ralph Bean',
     author_email='',
