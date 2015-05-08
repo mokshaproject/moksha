@@ -108,6 +108,7 @@ class Consumer(object):
         }
         # Reset these counters before returning.
         self.headcount_out = self.headcount_in = 0
+        self._exception_count = 0
         return results
 
     def debug(self, message):
@@ -150,15 +151,8 @@ class Consumer(object):
                 # Weird.  I have no idea...
                 pass
 
-        try:
-            message_as_dict = {'body': body, 'topic': topic}
-            self._consume(message_as_dict)
-            self._exception_count = 0  # Reset if everything went swimmingly
-        except Exception:
-            # Otherwise, keep track of how many exceptions we've hit in a row
-            self._exception_count += 1
-            # And then re-raise the exception to be logged
-            raise
+        message_as_dict = {'body': body, 'topic': topic}
+        self._consume(message_as_dict)
 
     def _consume(self, message):
         self.headcount_in += 1
@@ -190,6 +184,8 @@ class Consumer(object):
                 self.consume(message)
             except Exception as e:
                 self.log.exception(message)
+                # Keep track of how many exceptions we've hit in a row
+                self._exception_count += 1
 
             try:
                 self.post_consume(message)
