@@ -45,7 +45,7 @@ class MokshaCLI(object):
 
     def _exec(self, process, *args, **kw):
         args = args and [process] + list(args) or [process]
-        print("Running %s" % ' '.join(args))
+        print("Running %r" % (args,))
         pp = MokshaProcessProtocol(name=process)
         process = reactor.spawnProcess(pp, process, args,
                 env={'PYTHONPATH': os.getcwd()}, **kw)
@@ -54,7 +54,7 @@ class MokshaCLI(object):
     def start(self):
         """ Start all of the Moksha components """
 
-        from moksha.lib.helpers import get_moksha_config_path
+        from moksha.common.lib.helpers import get_moksha_config_path
 
         orbited = ['orbited']
         if os.path.exists('/etc/moksha/orbited.cfg'):
