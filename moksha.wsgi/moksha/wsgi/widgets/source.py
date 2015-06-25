@@ -27,7 +27,7 @@ import inspect
 
 import tw2.core as twc
 
-from moksha.common.lib.reflect import namedAny
+from twisted.python.reflect import namedAny
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
