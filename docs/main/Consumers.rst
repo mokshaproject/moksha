@@ -58,6 +58,12 @@ make it look something like this:
 
         """
 
+.. note::
+
+        You can also install a collection of consumers in the same manner.  Just
+        specify the name of an iterable object in place of the consumer class
+        name in the example above.  This even works with generator objects.
+
 After modifying your entry-points, you'll need to re-generate your project's `egg-info`.
 
 .. code-block:: bash
