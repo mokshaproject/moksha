@@ -261,7 +261,7 @@ class CentralMokshaHub(MokshaHub):
                 self.transport.write(msg)
 
             def connectionLost(self, reason):
-                log.info("Lost Websocket connection.  Cleaning up.")
+                log.debug("Lost Websocket connection.  Cleaning up.")
                 self.moksha_hub.unsubscribe(self.send_to_ws)
 
             def dataReceived(self, data):
