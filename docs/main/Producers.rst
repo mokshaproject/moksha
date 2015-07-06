@@ -41,3 +41,9 @@ in your `setup.py`, like so:
 
     [moksha.producer]
     hello = myproject.producers:HelloWorldProducer
+
+.. note::
+
+    Just as with consumers, you can also expose a collection of producers by
+    creating a list, generator object, etc. inside of your code and providing
+    that variable as an entry-point under `[moksha.producer]`.

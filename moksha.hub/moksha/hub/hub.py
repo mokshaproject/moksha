@@ -351,7 +351,10 @@ class CentralMokshaHub(MokshaHub):
             for consumer in pkg_resources.iter_entry_points('moksha.consumer'):
                 try:
                     c = consumer.load()
-                    self._consumers.append(c)
+                    try:
+                        self._consumers.extend(c) # assume to be collection
+                    except TypeError:
+                        self._consumers.append(c)
                 except Exception as e:
                     log.exception("Failed to load %r consumer." % consumer.name)
         else:
@@ -391,7 +394,10 @@ class CentralMokshaHub(MokshaHub):
             ], []):
                 try:
                     p = producer.load()
-                    self._producers.append(p)
+                    try:
+                        self._producers.extend(p) # assume to be collection
+                    except TypeError:
+                        self._producers.append(p)
                 except Exception as e:
                     log.exception("Failed to load %r producer." % producer.name)
         else:
