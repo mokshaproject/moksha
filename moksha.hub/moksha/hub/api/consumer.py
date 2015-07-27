@@ -23,10 +23,12 @@ loaded, and receives each message for the specified topic through the
 :meth:`Consumer.consume` method.
 
 .. moduleauthor:: Luke Macken <lmacken@redhat.com>
+.. moduleauthor:: Ralph Bean <rbean@redhat.com>
 """
 
 import json
 import threading
+import time
 import logging
 log = logging.getLogger('moksha.hub')
 
@@ -60,6 +62,7 @@ class Consumer(object):
         # the queue to do "consume" work.
         self.incoming = queue.Queue()
         self.headcount_in = self.headcount_out = 0
+        self._times = []
 
         callback = self._consume
         if self.jsonify:
@@ -86,14 +89,15 @@ class Consumer(object):
         self._initialized = True
 
     def __json__(self):
-
         if self._initialized:
             backlog = self.incoming.qsize()
             headcount_out = self.headcount_out
             headcount_in = self.headcount_in
+            times = self._times
         else:
             backlog = None
             headcount_out = headcount_in = 0
+            times = []
 
         results = {
             "name": type(self).__name__,
@@ -105,10 +109,12 @@ class Consumer(object):
             "backlog": backlog,
             "headcount_out": headcount_out,
             "headcount_in": headcount_in,
+            "times": times,
         }
         # Reset these counters before returning.
         self.headcount_out = self.headcount_in = 0
         self._exception_count = 0
+        self._times = []
         return results
 
     def debug(self, message):
@@ -163,6 +169,7 @@ class Consumer(object):
             # This is a blocking call.  It waits until a message is available.
             message = self.incoming.get()
             self.headcount_out += 1
+            start = time.time()
 
             # Then we are being asked to quit
             if message is StopIteration:
@@ -191,6 +198,9 @@ class Consumer(object):
                 self.post_consume(message)
             except Exception as e:
                 self.log.exception(message)
+
+            # Record how long it took to process this message (for stats)
+            self._times.append(time.time() - start)
 
             self.debug("Going back to waiting on the incoming queue.")
 
