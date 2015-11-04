@@ -27,7 +27,6 @@ import inspect
 
 import tw2.core as twc
 
-from twisted.python.reflect import namedAny
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
@@ -46,6 +45,7 @@ class SourceCodeWidget(twc.Widget):
     hidden = True
 
     def prepare(self):
+        from twisted.python.reflect import namedAny
         super(SourceCodeWidget, self).prepare()
         title = self.widget.__class__.__name__
         if not self.source:
