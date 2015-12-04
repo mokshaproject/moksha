@@ -95,25 +95,25 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
 
     def buildProtocol(self, addr):
         self._delay = float(self.config.get('stomp_delay', '0.1'))
-        log.info("build protocol was called with %r" % addr)
+        log.debug("build protocol was called with %r" % addr)
         self.proto = StompProtocol(self, self.username, self.password)
         return self.proto
 
     def connected(self, server_heartbeat):
         if server_heartbeat and self.client_heartbeat:
             interval = max(self.client_heartbeat, server_heartbeat)
-            log.info("Heartbeat of %ims negotiated from (%i,%i); starting." % (
+            log.debug("Heartbeat of %ims negotiated from (%i,%i); starting." % (
                 interval, self.client_heartbeat, server_heartbeat))
             self.start_heartbeat(interval)
         else:
-            log.info("Skipping heartbeat initialization")
+            log.debug("Skipping heartbeat initialization")
 
         for topic in self._topics:
             log.info('Subscribing to %s topic' % topic)
             self.subscribe(topic, callback=lambda msg: None)
 
         for frame in self._frames:
-            log.info('Flushing queued frame')
+            log.debug('Flushing queued frame')
             self.proto.transport.write(frame.pack())
         self._frames = []
 
@@ -143,10 +143,10 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
             self.proto.transport.write(chr(0x0A))  # Lub-dub
             reactor.callLater(interval / 1000.0, self.heartbeat, interval)
         else:
-            log.info("(heartbeat stopped)")
+            log.debug("(heartbeat stopped)")
 
     def stop_heartbeat(self):
-        log.info("stopping heartbeat")
+        log.debug("stopping heartbeat")
         self._heartbeat_enabled = False
 
     def send_message(self, topic, message, **headers):
@@ -167,7 +167,7 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
             if topic not in self._topics:
                 self._topics.append(topic)
         else:
-            log.info("sending subscription to the protocol")
+            log.debug("sending subscription to the protocol")
             self.proto.subscribe(topic)
 
         super(StompHubExtension, self).subscribe(topic, callback)
