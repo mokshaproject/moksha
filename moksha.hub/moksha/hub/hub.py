@@ -190,7 +190,8 @@ class MokshaHub(object):
     def consume_stomp_message(self, message):
         from moksha.hub.reactor import reactor
 
-        topic = message['headers'].get('destination')
+        headers = message['headers']
+        topic = headers.get('destination')
         if not topic:
             log.debug("Got message without a topic: %r" % message)
             return
@@ -204,8 +205,9 @@ class MokshaHub(object):
             body = message['body']
 
         # feed all of our consumers
+        envelope = {'body': body, 'topic': topic, 'headers': headers}
         for callback in self.topics.get(topic, []):
-            reactor.callInThread(callback, {'body': body, 'topic': topic})
+            reactor.callInThread(callback, envelope)
 
 
 class CentralMokshaHub(MokshaHub):
