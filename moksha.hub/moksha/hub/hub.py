@@ -17,6 +17,7 @@
 #          Ralph Bean  <rbean@redhat.com>
 
 
+import fnmatch
 import os
 import six
 import sys
@@ -208,8 +209,10 @@ class MokshaHub(object):
         envelope = {'body': body, 'topic': topic, 'headers': headers}
 
         # Some consumers subscribe to topics directly
-        for callback in self.topics.get(topic, []):
-            reactor.callInThread(callback, envelope)
+        for pattern, callbacks in self.topics.items():
+            if fnmatch.fnmatch(topic, pattern):
+                for callback in callbacks:
+                    reactor.callInThread(callback, envelope)
 
         # Others subscribe to a queue composed of many topics..
         subscription = headers.get('subscription')
