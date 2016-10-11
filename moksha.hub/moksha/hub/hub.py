@@ -391,8 +391,8 @@ class CentralMokshaHub(MokshaHub):
                     if topic not in self.topics:
                         self.topics[topic] = []
 
-                    if c.consume not in self.topics[topic]:
-                        self.topics[topic].append(c.consume)
+                    if c._consume not in self.topics[topic]:
+                        self.topics[topic].append(c._consume)
 
             except Exception as e:
                 log.exception("Failed to init %r consumer." % c_class)
