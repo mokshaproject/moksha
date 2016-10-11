@@ -206,8 +206,16 @@ class MokshaHub(object):
 
         # feed all of our consumers
         envelope = {'body': body, 'topic': topic, 'headers': headers}
+
+        # Some consumers subscribe to topics directly
         for callback in self.topics.get(topic, []):
             reactor.callInThread(callback, envelope)
+
+        # Others subscribe to a queue composed of many topics..
+        subscription = headers.get('subscription')
+        if subscription != topic:
+            for callback in self.topics.get(subscription, []):
+                reactor.callInThread(callback, envelope)
 
 
 class CentralMokshaHub(MokshaHub):
