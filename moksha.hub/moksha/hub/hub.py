@@ -205,9 +205,6 @@ class MokshaHub(object):
             #body = {}
             body = message['body']
 
-        # Make this available for convenience to fedmsg consumers.
-        body = {'msg': body, 'topic': topic}
-
         # feed all of our consumers
         envelope = {'body': body, 'topic': topic, 'headers': headers}
 
