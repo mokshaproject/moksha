@@ -17,6 +17,7 @@
 #          Ralph Bean  <rbean@redhat.com>
 
 
+import fnmatch
 import os
 import six
 import sys
@@ -206,8 +207,18 @@ class MokshaHub(object):
 
         # feed all of our consumers
         envelope = {'body': body, 'topic': topic, 'headers': headers}
-        for callback in self.topics.get(topic, []):
-            reactor.callInThread(callback, envelope)
+
+        # Some consumers subscribe to topics directly
+        for pattern, callbacks in self.topics.items():
+            if fnmatch.fnmatch(topic, pattern):
+                for callback in callbacks:
+                    reactor.callInThread(callback, envelope)
+
+        # Others subscribe to a queue composed of many topics..
+        subscription = headers.get('subscription')
+        if subscription != topic:
+            for callback in self.topics.get(subscription, []):
+                reactor.callInThread(callback, envelope)
 
 
 class CentralMokshaHub(MokshaHub):
@@ -377,8 +388,8 @@ class CentralMokshaHub(MokshaHub):
                     if topic not in self.topics:
                         self.topics[topic] = []
 
-                    if c.consume not in self.topics[topic]:
-                        self.topics[topic].append(c.consume)
+                    if c._consume not in self.topics[topic]:
+                        self.topics[topic].append(c._consume)
 
             except Exception as e:
                 log.exception("Failed to init %r consumer." % c_class)

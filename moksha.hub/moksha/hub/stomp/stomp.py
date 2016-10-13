@@ -55,6 +55,16 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
             host = self.config.get('stomp_broker')
             uri = "%s:%i" % (host, port)
 
+        # Sometimes, a stomp consumer may wish to be subscribed to a queue
+        # which is composed of messages from many different topics.  In this
+        # case, the hub hands dispatching messages to the right consumers.
+        # This extension is only concerned with the queue, and negotiating that
+        # with the broker.
+        stomp_queue = self.config.get('stomp_queue', None)
+        if stomp_queue:
+            # Overwrite the declarations of all of our consumers.
+            self._topics = [stomp_queue]
+
         # A list of addresses over which we emulate failover()
         self.addresses = [pair.split(":") for pair in uri.split(',')]
         self.address_index = 0
