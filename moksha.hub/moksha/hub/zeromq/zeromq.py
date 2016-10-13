@@ -181,7 +181,14 @@ class ZMQHubExtension(BaseZMQHubExtension):
                     log.warn("Failed txzmq create on %r %r" % (endpoint, e))
                     continue
 
-                def chain_over_moksha_callbacks(_body, _topic):
+                def chain_over_moksha_callbacks(*parts):
+                    if len(parts) != 2:
+                        raise ValueError(
+                            "Moksha can only handle multipart messages with a "
+                            "topic followed by a body.  Got %r" % parts)
+
+                    _body, _topic = parts
+
                     if isinstance(_topic, six.binary_type):
                         _topic = _topic.decode('utf-8')
                     if isinstance(_body, six.binary_type):
