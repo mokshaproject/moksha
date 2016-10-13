@@ -61,7 +61,7 @@ class StompProtocol(Base):
         # https://stomp.github.io/stomp-specification-1.1.html#Heart-beating
         server_heartbeat = msg['headers'].get('heart-beat', 0)
         if server_heartbeat:
-            log.info("(server wants heart-beat (%s))" % server_heartbeat)
+            log.debug("(server wants heart-beat (%s))" % server_heartbeat)
             sx, sy = server_heartbeat.split(',')
             server_heartbeat = int(sy)
 
@@ -77,7 +77,7 @@ class StompProtocol(Base):
         generate an ack message.
         """
         #stomper.Engine.ack(self, msg)
-        #log.info("SENDER - received: %s " % msg['body'])
+        #log.debug("SENDER - received: %s " % msg['body'])
         return stomper.NO_REPONSE_NEEDED
 
     def subscribe(self, dest, **headers):
@@ -91,11 +91,11 @@ class StompProtocol(Base):
 
     def connectionMade(self):
         """ Register with stomp server """
-        log.info("Connecting with stomp-%s" % stomper.STOMP_VERSION)
+        log.debug("Connecting with stomp-%s" % stomper.STOMP_VERSION)
         if stomper.STOMP_VERSION != '1.0':
             host, port = self.client.addresses[self.client.address_index]
             interval = (self.client.client_heartbeat, 0)
-            log.info("(proposing heartbeat of (%i,%i))" % interval)
+            log.debug("(proposing heartbeat of (%i,%i))" % interval)
             cmd = stomper.connect(self.username, self.password, host, interval)
         else:
             cmd = stomper.connect(self.username, self.password)
