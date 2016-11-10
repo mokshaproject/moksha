@@ -380,6 +380,7 @@ class CentralMokshaHub(MokshaHub):
                 if not getattr(c, "_initialized", None):
                     log.info("%s:%s not initialized." % (
                         c_class.__module__, c_class.__name__,))
+                    continue
 
                 self.consumers.append(c)
 
