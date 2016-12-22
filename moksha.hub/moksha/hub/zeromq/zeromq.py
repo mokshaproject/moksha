@@ -97,7 +97,7 @@ class ZMQHubExtension(BaseZMQHubExtension):
             try:
                 self.pub_socket.bind(endpoint)
             except zmq.ZMQError:
-                map(self.pub_socket.bind, hostname2ipaddr(endpoint))
+                map(self.pub_socket.bind, set(hostname2ipaddr(endpoint)))
 
         # Factory used to lazily produce subsequent subscribers
         self.twisted_zmq_factory = txzmq.ZmqFactory()
