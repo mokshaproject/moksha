@@ -74,3 +74,29 @@ After modifying your entry-points, you'll need to re-generate your project's `eg
 
 
 Moksha will now automatically detect, instantiate, and feed your consumer.
+
+Configuring
+-----------
+
+A few configuration options can affect the behavior of your consumers.
+
+.. code-block::
+
+    moksha.workers_per_consumer = 3
+
+By default, moksha will consume all messages off the bus as they're available
+and store them in an internal queue.  A number of threads (workers) are spawned
+that handle messages off of that queue in parallel.  If you're having problems
+scaling your consumer, try increasing or decreasing ``moksha.workers_per_consumer``.
+
+.. code-block::
+
+    moksha.blocking_mode = False
+
+As stated above, by default moksha will consumer all messages off the bus and
+store them in an internal queue.  If you don't want this behavior (say, if
+you're using a broker with a *durable queue*), then set
+``moksha.blocking_mode`` to True in your configuration.  This will cause moksha
+to block on each message received off the bus, ensuring that the consumer
+handles it before signalling the broker that moksha is ready for another
+message.

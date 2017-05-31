@@ -39,6 +39,7 @@ except ImportError:
 
 from kitchen.iterutils import iterate
 from moksha.common.lib.helpers import create_app_engine
+from moksha.common.lib.converters import asbool
 import moksha.hub.reactor
 
 
@@ -82,9 +83,17 @@ class Consumer(object):
             self.engine = create_app_engine(app, hub.config)
             self.DBSession = sessionmaker(bind=self.engine)()
 
-        self.N = int(self.hub.config.get('moksha.workers_per_consumer', 1))
-        for i in range(self.N):
-            moksha.hub.reactor.reactor.callInThread(self._work)
+        self.blocking_mode = asbool(self.hub.config.get('moksha.blocking_mode', False))
+        if self.blocking_mode:
+            log.info("Blocking mode true for %r.  "
+                     "Messages handled as they arrive." % self)
+        else:
+            self.N = int(self.hub.config.get('moksha.workers_per_consumer', 1))
+            log.info("Blocking mode false for %r.  "
+                     "Messages to be queued and distributed to %r threads." % (
+                         self, self.N))
+            for i in range(self.N):
+                moksha.hub.reactor.reactor.callInThread(self._work_loop)
 
         self._initialized = True
 
@@ -162,49 +171,55 @@ class Consumer(object):
 
     def _consume(self, message):
         self.headcount_in += 1
-        self.incoming.put(message)
+        if self.blocking_mode:
+            # Do the work right now
+            self._do_work(message)
+        else:
+            # Otherwise, put the message in a queue for other threads to handle
+            self.incoming.put(message)
 
-    def _work(self):
+    def _work_loop(self):
         while True:
             # This is a blocking call.  It waits until a message is available.
             message = self.incoming.get()
-            self.headcount_out += 1
-            start = time.time()
-
             # Then we are being asked to quit
             if message is StopIteration:
                 break
-
-            self.debug("Worker thread picking a message.")
-            try:
-                self.validate(message)
-            except Exception as e:
-                log.warn("Received invalid message %r" % e)
-                continue
-
-            try:
-                self.pre_consume(message)
-            except Exception as e:
-                self.log.exception(message)
-
-            try:
-                self.consume(message)
-            except Exception as e:
-                self.log.exception(message)
-                # Keep track of how many exceptions we've hit in a row
-                self._exception_count += 1
-
-            try:
-                self.post_consume(message)
-            except Exception as e:
-                self.log.exception(message)
-
-            # Record how long it took to process this message (for stats)
-            self._times.append(time.time() - start)
-
-            self.debug("Going back to waiting on the incoming queue.")
-
+            self._do_work(message)
         self.debug("Worker thread exiting.")
+
+    def _do_work(self, message):
+        self.headcount_out += 1
+        start = time.time()
+
+        self.debug("Worker thread picking a message.")
+        try:
+            self.validate(message)
+        except Exception as e:
+            log.warn("Received invalid message %r" % e)
+            return
+
+        try:
+            self.pre_consume(message)
+        except Exception as e:
+            self.log.exception(message)
+
+        try:
+            self.consume(message)
+        except Exception as e:
+            self.log.exception(message)
+            # Keep track of how many exceptions we've hit in a row
+            self._exception_count += 1
+
+        try:
+            self.post_consume(message)
+        except Exception as e:
+            self.log.exception(message)
+
+        # Record how long it took to process this message (for stats)
+        self._times.append(time.time() - start)
+
+        self.debug("Going back to waiting on the incoming queue.")
 
     def validate(self, message):
         """ Override to implement your own validation scheme. """
