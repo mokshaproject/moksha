@@ -22,7 +22,7 @@ import os
 import six
 import sys
 import json as JSON
-from collections import defaultdict
+from collections import defaultdict, OrderedDict as ordereddict
 
 from kitchen.iterutils import iterate
 from moksha.common.lib.helpers import appconfig
@@ -196,6 +196,18 @@ class MokshaHub(object):
         if not topic:
             log.debug("Got message without a topic: %r" % message)
             return
+
+        # https://stomp.github.io/stomp-specification-1.2.html#Value_Encoding
+        if asbool(self.config.get('stomp_unescape_headers', True)):
+            replacements = ordereddict([
+                ('\\r', '\r'),
+                ('\\n', '\n'),
+                ('\c', ':'),
+                ('\\\\', '\\'),
+            ])
+            for key in headers:
+                for old, new in replacements.items():
+                    headers[key] = headers[key].replace(old, new)
 
         # FIXME: only do this if the consumer wants it `jsonified`
         try:
