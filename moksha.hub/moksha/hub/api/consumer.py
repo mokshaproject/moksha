@@ -39,6 +39,7 @@ except ImportError:
 
 from kitchen.iterutils import iterate
 from moksha.common.lib.helpers import create_app_engine
+from moksha.common.lib.converters import asbool
 import moksha.hub.reactor
 
 
@@ -82,7 +83,7 @@ class Consumer(object):
             self.engine = create_app_engine(app, hub.config)
             self.DBSession = sessionmaker(bind=self.engine)()
 
-        self.blocking_mode = self.hub.config.get('moksha.blocking_mode', True)
+        self.blocking_mode = asbool(self.hub.config.get('moksha.blocking_mode', False))
         if self.blocking_mode:
             log.info("Blocking mode true for %r.  "
                      "Messages handled as they arrive." % self)
