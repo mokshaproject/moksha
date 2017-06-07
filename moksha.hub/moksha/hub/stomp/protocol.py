@@ -112,5 +112,7 @@ class StompProtocol(Base):
            self.client.hub.consume_stomp_message(msg)
 
            returned = self.react(msg)
+
            if returned:
+               log.debug("StompProtocol response to message: %r", returned)
                self.transport.write(returned)
