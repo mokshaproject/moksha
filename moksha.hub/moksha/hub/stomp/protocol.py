@@ -109,8 +109,8 @@ class StompProtocol(Base):
            if msg is None:
                break
 
+           self.client.hub.consume_stomp_message(msg)
+
            returned = self.react(msg)
            if returned:
                self.transport.write(returned)
-
-           self.client.hub.consume_stomp_message(msg)
