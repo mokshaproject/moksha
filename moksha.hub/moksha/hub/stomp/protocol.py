@@ -67,19 +67,6 @@ class StompProtocol(Base):
 
         self.client.connected(server_heartbeat)
 
-        #f = stomper.Frame()
-        #f.unpack(stomper.subscribe(topic))
-        #print f
-        #return f.pack()
-
-    def ack(self, msg):
-        """Processes the received message. I don't need to
-        generate an ack message.
-        """
-        #stomper.Engine.ack(self, msg)
-        #log.debug("SENDER - received: %s " % msg['body'])
-        return stomper.NO_REPONSE_NEEDED
-
     def subscribe(self, dest, **headers):
         f = stomper.Frame()
         if stomper.STOMP_VERSION != '1.0':
