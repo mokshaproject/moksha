@@ -69,10 +69,12 @@ class StompProtocol(Base):
 
     def subscribe(self, dest, **headers):
         f = stomper.Frame()
+        # https://stomp.github.io/stomp-specification-1.2.html#SUBSCRIBE_ack_Header
+        ack = self.client.hub.config.get('stomp_ack_mode', 'auto')
         if stomper.STOMP_VERSION != '1.0':
-            f.unpack(stomper.subscribe(dest, dest))
+            f.unpack(stomper.subscribe(dest, dest, ack=ack))
         else:
-            f.unpack(stomper.subscribe(dest))
+            f.unpack(stomper.subscribe(dest, ack=ack))
         f.headers.update(headers)
         self.transport.write(f.pack())
 
