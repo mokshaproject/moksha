@@ -23,6 +23,15 @@ try:
 except Exception:
     pass
 
+install_requires = [
+    "moksha.common>=1.0.6",
+    "Twisted",
+    #"stomper>=0.2.9",
+    "pyzmq",
+    "txZMQ",
+    "txWS",
+    #"python-daemon",
+]
 
 tests_require = [
     'nose',
@@ -35,6 +44,7 @@ if sys.version_info[0] == 2 and sys.version_info[1] <= 6:
     tests_require.extend([
         'unittest2',
     ])
+    require.append('ordereddict')
 
 
 setup(
@@ -44,15 +54,7 @@ setup(
     author='Luke Macken, John (J5) Palmieri, Mairin Duffy, and Ralph Bean',
     author_email='',
     url='http://moksha.fedorahosted.org',
-    install_requires=[
-        "moksha.common>=1.0.6",
-        "Twisted",
-        #"stomper>=0.2.9",
-        "pyzmq",
-        "txZMQ",
-        "txWS",
-        #"python-daemon",
-    ],
+    install_requires=install_requires,
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
     test_suite='nose.collector',
