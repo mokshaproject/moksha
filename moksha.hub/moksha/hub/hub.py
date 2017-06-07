@@ -22,7 +22,12 @@ import os
 import six
 import sys
 import json as JSON
-from collections import defaultdict, OrderedDict as ordereddict
+from collections import defaultdict
+
+try:
+    from collections import OrderedDict
+except ImportError:
+    from ordereddict import OrderedDict
 
 from kitchen.iterutils import iterate
 from moksha.common.lib.helpers import appconfig
@@ -199,7 +204,7 @@ class MokshaHub(object):
 
         # https://stomp.github.io/stomp-specification-1.2.html#Value_Encoding
         if asbool(self.config.get('stomp_unescape_headers', True)):
-            replacements = ordereddict([
+            replacements = OrderedDict([
                 ('\\r', '\r'),
                 ('\\n', '\n'),
                 ('\c', ':'),
