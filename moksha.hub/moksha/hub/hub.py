@@ -224,13 +224,13 @@ class MokshaHub(object):
         for pattern, callbacks in self.topics.items():
             if fnmatch.fnmatch(topic, pattern):
                 for callback in callbacks:
-                    reactor.callInThread(callback, envelope)
+                    callback(envelope)
 
         # Others subscribe to a queue composed of many topics..
         subscription = headers.get('subscription')
         if subscription != topic:
             for callback in self.topics.get(subscription, []):
-                reactor.callInThread(callback, envelope)
+                callback(envelope)
 
 
 class CentralMokshaHub(MokshaHub):
