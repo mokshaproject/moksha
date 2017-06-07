@@ -96,10 +96,29 @@ class StompProtocol(Base):
            if msg is None:
                break
 
-           self.client.hub.consume_stomp_message(msg)
+           handled = self.client.hub.consume_stomp_message(msg)
 
-           returned = self.react(msg)
+           # See if stomper thinks we need to send anything back.
+           response = self.react(msg)
 
-           if returned:
-               log.debug("StompProtocol response to message: %r", returned)
-               self.transport.write(returned)
+           # If this kind of message doesn't need any response, then quit.
+           if not response:
+               log.debug("StompProtocol sending no response to broker.")
+               return
+
+           # Otherwise, see if we need to turn a naive 'ack' from stomper into
+           # a 'nack' if our consumers failed to do their jobs.
+           if handled is False and response.startswith("ACK\n"):
+               if stomper.STOMP_VERSION != '1.1':
+                   log.error("Unable to NACK stomp %r" % stomper.STOMP_VERSION)
+                   # Also, not sending an erroneous ack.
+                   return
+
+               message_id = msg['headers']['message-id']
+               subscription = msg['headers']['subscription']
+               transaction_id = msg['headers'].get('transaction-id')
+               response = stomper.stomp_11.nack(message_id, subscription, transaction_id)
+
+           # Finally, send our response (ACK or NACK) back to the broker.
+           log.debug("StompProtocol response: %r", response)
+           self.transport.write(response)
