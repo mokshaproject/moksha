@@ -44,7 +44,7 @@ if sys.version_info[0] == 2 and sys.version_info[1] <= 6:
     tests_require.extend([
         'unittest2',
     ])
-    require.append('ordereddict')
+    install_requires.append('ordereddict')
 
 
 setup(
