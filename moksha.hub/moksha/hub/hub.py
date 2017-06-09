@@ -225,17 +225,21 @@ class MokshaHub(object):
         # feed all of our consumers
         envelope = {'body': body, 'topic': topic, 'headers': headers}
 
+        handled = True
+
         # Some consumers subscribe to topics directly
         for pattern, callbacks in self.topics.items():
             if fnmatch.fnmatch(topic, pattern):
                 for callback in callbacks:
-                    reactor.callInThread(callback, envelope)
+                    handled = handled and callback(envelope)
 
         # Others subscribe to a queue composed of many topics..
         subscription = headers.get('subscription')
         if subscription != topic:
             for callback in self.topics.get(subscription, []):
-                reactor.callInThread(callback, envelope)
+                handled = handled and callback(envelope)
+
+        return handled
 
 
 class CentralMokshaHub(MokshaHub):

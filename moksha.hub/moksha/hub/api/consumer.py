@@ -167,13 +167,13 @@ class Consumer(object):
                 pass
 
         message_as_dict = {'body': body, 'topic': topic}
-        self._consume(message_as_dict)
+        return self._consume(message_as_dict)
 
     def _consume(self, message):
         self.headcount_in += 1
         if self.blocking_mode:
             # Do the work right now
-            self._do_work(message)
+            return self._do_work(message)
         else:
             # Otherwise, put the message in a queue for other threads to handle
             self.incoming.put(message)
@@ -191,13 +191,14 @@ class Consumer(object):
     def _do_work(self, message):
         self.headcount_out += 1
         start = time.time()
+        handled = True
 
         self.debug("Worker thread picking a message.")
         try:
             self.validate(message)
         except Exception as e:
             log.warn("Received invalid message %r" % e)
-            return
+            return False  # Not handled
 
         try:
             self.pre_consume(message)
@@ -207,6 +208,7 @@ class Consumer(object):
         try:
             self.consume(message)
         except Exception as e:
+            handled = False  # Not handled.  Return this later.
             self.log.exception(message)
             # Keep track of how many exceptions we've hit in a row
             self._exception_count += 1
@@ -220,6 +222,7 @@ class Consumer(object):
         self._times.append(time.time() - start)
 
         self.debug("Going back to waiting on the incoming queue.")
+        return handled
 
     def validate(self, message):
         """ Override to implement your own validation scheme. """
