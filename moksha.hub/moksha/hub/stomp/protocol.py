@@ -76,7 +76,9 @@ class StompProtocol(Base):
         else:
             f.unpack(stomper.subscribe(dest, ack=ack))
         f.headers.update(headers)
-        self.transport.write(f.pack())
+        cmd = f.pack()
+        log.debug(cmd)
+        self.transport.write(cmd)
 
     def connectionMade(self):
         """ Register with stomp server """
@@ -88,6 +90,7 @@ class StompProtocol(Base):
             cmd = stomper.connect(self.username, self.password, host, interval)
         else:
             cmd = stomper.connect(self.username, self.password)
+        log.debug(cmd)
         self.transport.write(cmd)
 
     def dataReceived(self, data):
@@ -122,5 +125,5 @@ class StompProtocol(Base):
                response = stomper.stomp_11.nack(message_id, subscription, transaction_id)
 
            # Finally, send our response (ACK or NACK) back to the broker.
-           log.debug("StompProtocol response: %r", response)
+           log.debug(response)
            self.transport.write(response)
