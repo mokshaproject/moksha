@@ -27,7 +27,7 @@ setup(
     description='WSGI components for Moksha.',
     author='Luke Macken, John (J5) Palmieri, Mairin Duffy, and Ralph Bean',
     author_email='',
-    url='http://moksha.fedorahosted.org',
+    url='https://mokshaproject.net',
     install_requires=[
         "moksha.common",
         "moksha.wsgi",

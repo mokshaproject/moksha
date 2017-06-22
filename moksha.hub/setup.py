@@ -53,7 +53,7 @@ setup(
     description='Hub components for Moksha.',
     author='Luke Macken, John (J5) Palmieri, Mairin Duffy, and Ralph Bean',
     author_email='',
-    url='http://moksha.fedorahosted.org',
+    url='https://mokshaproject.net',
     install_requires=install_requires,
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
