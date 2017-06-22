@@ -90,6 +90,19 @@ class StompProtocol(Base):
             cmd = stomper.connect(self.username, self.password)
         self.transport.write(cmd)
 
+
+    def ack(self, msg):
+        """ Override stomper's own ack to be smarter, based on mode. """
+        # stomper does the incorrect thing when the ack mode is auto.  It acks
+        # every message, regardless of the mode.  However, if the mode is
+        # 'auto', then we should *not* send acks.  Here, make sure we don't
+        # send an ack in that mode.
+        if self.client.hub.config.get('stomp_ack_mode', 'auto') == 'auto':
+            return stomper.NO_REPONSE_NEEDED
+
+        # Otherwise, do what stomper do if the mode is *not* auto.
+        return super(StompProtocol, self).ack(msg)
+
     def dataReceived(self, data):
         """Data received, react to it and respond if needed """
         self.buffer.appendData(data)
