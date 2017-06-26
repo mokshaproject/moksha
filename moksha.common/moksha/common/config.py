@@ -50,6 +50,9 @@ class EnvironmentConfigParser(configparser.ConfigParser):
 
                 if key in vars:
                     value = value.replace("%(" + rawkey + ")s", vars[key], 1)
+                elif rawkey in self.defaults():
+                    value = value.replace("%(" + rawkey + ")s",
+                                          self.defaults()[rawkey], 1)
                 else:
                     if default:
                         value = value.replace("%(" + rawkey + ")s", default, 1)
