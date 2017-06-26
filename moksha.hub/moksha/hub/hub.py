@@ -197,7 +197,14 @@ class MokshaHub(object):
         from moksha.hub.reactor import reactor
 
         headers = message['headers']
-        topic = headers.get('destination')
+
+        # Prefer "original-destination"
+        topic = headers.get('original-destination')
+
+        # ...but if it is not present, fall back to "destination"
+        if not topic:
+            topic = headers.get('destination')
+
         if not topic:
             log.debug("Got message without a topic: %r" % message)
             return
