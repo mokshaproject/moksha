@@ -194,7 +194,7 @@ class Consumer(object):
         try:
             self.validate(message)
         except Exception as e:
-            log.warn("Received invalid message %r" % e)
+            log.warning("Received invalid message %r" % e)
             return False  # Not handled
 
         try:
