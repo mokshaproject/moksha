@@ -25,7 +25,7 @@ class EnvironmentConfigParser(configparser.ConfigParser):
             vars = {}
 
         for k, v in os.environ.items():
-            if not k in vars.keys():
+            if k not in vars.keys():
                 vars[k] = v
 
         value = rawval
