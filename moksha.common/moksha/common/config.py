@@ -7,7 +7,7 @@ class EnvironmentConfigParser(configparser.ConfigParser):
     """ConfigParser which is able to substitute environment variables.
     """
 
-    def get(self, section, option, raw=0, vars=None):
+    def get(self, section, option, raw=0, vars=None, **kwargs):
         try:
             val = configparser.ConfigParser.get(
                 self, section, option, raw=raw, vars=vars)
