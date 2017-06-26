@@ -19,7 +19,6 @@ import moksha.common.config
 import re
 import os
 import logging
-import warnings
 
 try:
     import configparser
