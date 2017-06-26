@@ -1,9 +1,6 @@
 import os
 
-try:
-    import configparser
-except ImportError:
-    import ConfigParser as configparser
+from six.moves import configparser
 
 
 class EnvironmentConfigParser(configparser.ConfigParser):

@@ -32,10 +32,7 @@ import time
 import logging
 log = logging.getLogger('moksha.hub')
 
-try:
-    import queue  # py3
-except ImportError:
-    import Queue as queue  # py2
+import six.moves.queue as queue
 
 from kitchen.iterutils import iterate
 from moksha.common.lib.helpers import create_app_engine
