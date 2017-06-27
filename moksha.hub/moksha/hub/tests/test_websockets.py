@@ -98,7 +98,7 @@ class TestWebSocketServer(unittest.TestCase):
                 )))
 
                 # Receive that..
-                message = ws.recv().decode('utf-8')
+                message = ws.recv()
                 self.received_message = json.loads(message)['body']
                 ws.close()
 
@@ -150,7 +150,7 @@ class TestWebSocketServer(unittest.TestCase):
                 for i in range(num_topics):
                     try:
                         self.received_messages.append(
-                            json.loads(ws.recv().decode('utf-8'))['body']
+                            json.loads(ws.recv())['body']
                         )
                     except Exception:
                         pass
@@ -206,7 +206,7 @@ class TestWebSocketServer(unittest.TestCase):
                 for i in range(num_topics + 1):
                     try:
                         self.received_messages.append(
-                            json.loads(ws.recv().decode('utf-8'))['body']
+                            json.loads(ws.recv())['body']
                         )
                     except Exception:
                         pass
@@ -262,7 +262,7 @@ class TestWebSocketServer(unittest.TestCase):
                 for i in range(num_topics + 2):
                     try:
                         thread.received_messages.append(
-                            json.loads(ws.recv().decode('utf-8'))['body']
+                            json.loads(ws.recv())['body']
                         )
                     except Exception:
                         pass
