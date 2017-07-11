@@ -19,7 +19,6 @@ import moksha.common.config
 import re
 import os
 import logging
-import warnings
 
 try:
     import configparser
@@ -40,7 +39,7 @@ def get_moksha_config_path():
             if os.path.isfile(cfg):
                 return cfg
 
-    log.warn('No moksha configuration file found, make sure the '
+    log.warning('No moksha configuration file found, make sure the '
              'controlling app is fully configured')
 
     return None
@@ -57,7 +56,7 @@ def get_moksha_dev_config():
     for cfg in cfgs:
         if os.path.isfile(cfg):
             return cfg
-    log.warn("Cannot find configuration in %r" % cfgs)
+    log.warning("Cannot find configuration in %r" % cfgs)
 
 
 def get_moksha_appconfig():

@@ -24,13 +24,13 @@ try:
     from moksha.hub.amqp.qpid010 import QpidAMQPHubExtension
     AMQPHubExtension = QpidAMQPHubExtension
 except ImportError:
-    log.warn("Cannot find qpid python module. Make sure you have python-qpid installed.")
+    log.warning("Cannot find qpid python module. Make sure you have python-qpid installed.")
     try:
         from moksha.hub.amqp.pyamqplib import AMQPLibHubExtension
         AMQPHubExtension = AMQPLibHubExtension
     except ImportError:
-        log.warn("Cannot find pyamqplib")
-        log.warn("Using FakeHub AMQP broker. Don't expect AMQP to work")
+        log.warning("Cannot find pyamqplib")
+        log.warning("Using FakeHub AMQP broker. Don't expect AMQP to work")
         class FakeHub(object):
             pass
         AMQPHub = FakeHub

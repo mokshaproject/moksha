@@ -58,7 +58,7 @@ class QpidAMQP08Hub(BaseAMQPHub):
         self.client.start({'LOGIN': self.user, 'PASSWORD': self.password})
         self.conn = self.client.channel(1)
         self.conn.channel_open()
-        print "opened channel!"
+        print("opened channel!")
 
     def create_queue(self, queue, routing_key, exchange='amq.topic',
                      auto_delete=False, durable=True, **kw):
@@ -66,7 +66,7 @@ class QpidAMQP08Hub(BaseAMQPHub):
                                 durable=durable, **kw)
         self.conn.queue_bind(queue=queue, exchange=exchange,
                              routing_key=routing_key)
-        print "Created %s queue" % queue
+        print("Created %s queue" % queue)
 
     def send_message(self, message, exchange='amq.topic', routing_key=''):
         self.conn.basic_publish(routing_key=routing_key,
@@ -75,14 +75,14 @@ class QpidAMQP08Hub(BaseAMQPHub):
 
     def get(self, queue):
         t = self.conn.basic_consume(queue=queue, no_ack=True)
-        print "t.consumer_tag =", t.consumer_tag
+        print("t.consumer_tag =", t.consumer_tag)
         q = self.client.queue(t.consumer_tag)
         msg = q.get()
-        print "got message: ", msg
+        print("got message: ", msg)
         return msg.content.body
         q.close()
 
     def close(self):
         if self.conn:
-            print "Closing connection"
+            print("Closing connection")
             self.conn.close()

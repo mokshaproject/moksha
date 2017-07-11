@@ -1,16 +1,13 @@
 import os
 
-try:
-    import configparser
-except ImportError:
-    import ConfigParser as configparser
+from six.moves import configparser
 
 
 class EnvironmentConfigParser(configparser.ConfigParser):
     """ConfigParser which is able to substitute environment variables.
     """
 
-    def get(self, section, option, raw=0, vars=None):
+    def get(self, section, option, raw=0, vars=None, **kwargs):
         try:
             val = configparser.ConfigParser.get(
                 self, section, option, raw=raw, vars=vars)
@@ -28,7 +25,7 @@ class EnvironmentConfigParser(configparser.ConfigParser):
             vars = {}
 
         for k, v in os.environ.items():
-            if not k in vars.keys():
+            if k not in vars.keys():
                 vars[k] = v
 
         value = rawval
@@ -53,6 +50,9 @@ class EnvironmentConfigParser(configparser.ConfigParser):
 
                 if key in vars:
                     value = value.replace("%(" + rawkey + ")s", vars[key], 1)
+                elif rawkey in self.defaults():
+                    value = value.replace("%(" + rawkey + ")s",
+                                          self.defaults()[rawkey], 1)
                 else:
                     if default:
                         value = value.replace("%(" + rawkey + ")s", default, 1)

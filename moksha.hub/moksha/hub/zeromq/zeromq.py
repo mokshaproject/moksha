@@ -130,7 +130,7 @@ class ZMQHubExtension(BaseZMQHubExtension):
         required_attrs = ['zmq_publish_endpoints', 'zmq_subscribe_endpoints']
         for attr in required_attrs:
             if not config.get(attr, None):
-                log.warn("No '%s' set.  Are you sure?" % attr)
+                log.warning("No '%s' set.  Are you sure?" % attr)
                 continue
 
             endpoints = config[attr].split(',')
@@ -147,7 +147,7 @@ class ZMQHubExtension(BaseZMQHubExtension):
         try:
             self.pub_socket.send_multipart([topic, message])
         except zmq.ZMQError as e:
-            log.warn("Couldn't send message: %r" % e)
+            log.warning("Couldn't send message: %r" % e)
 
         super(ZMQHubExtension, self).send_message(topic, message, **headers)
 
@@ -178,7 +178,7 @@ class ZMQHubExtension(BaseZMQHubExtension):
                         self.connection_cls(
                             self.twisted_zmq_factory, endpoint)
                 except zmq.ZMQError as e:
-                    log.warn("Failed txzmq create on %r %r" % (endpoint, e))
+                    log.warning("Failed txzmq create on %r %r" % (endpoint, e))
                     continue
 
                 def chain_over_moksha_callbacks(*parts):
