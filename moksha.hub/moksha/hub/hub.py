@@ -225,7 +225,7 @@ class MokshaHub(object):
         try:
             body = JSON.loads(message['body'])
         except Exception as e:
-            log.warning('Cannot decode message from JSON: %s' % e)
+            log.warning('Cannot decode body from JSON: %s -> %r' % (e, message))
             #body = {}
             body = message['body']
 
