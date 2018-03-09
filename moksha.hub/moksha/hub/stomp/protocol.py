@@ -21,6 +21,7 @@
 
 import logging
 
+from moksha.common.lib.converters import asbool
 
 try:
     # stomper is not ready for py3
@@ -127,6 +128,14 @@ class StompProtocol(Base):
            # Otherwise, see if we need to turn a naive 'ack' from stomper into
            # a 'nack' if our consumers failed to do their jobs.
            if handled is False and response.startswith("ACK\n"):
+
+               send_nacks = asbool(self.client.hub.config.get('stomp_send_explicit_nacks', True))
+               if not send_nacks:
+                   log.warn("Message handling failed.  stomp_send_explicit_nacks=%r.  "
+                            "Sending no reply to the broker.", send_nacks)
+                   # Return, so as not to send an erroneous ack.
+                   return
+
                if stomper.STOMP_VERSION != '1.1':
                    log.error("Unable to NACK stomp %r" % stomper.STOMP_VERSION)
                    # Also, not sending an erroneous ack.
@@ -138,5 +147,8 @@ class StompProtocol(Base):
                response = stomper.stomp_11.nack(message_id, subscription, transaction_id)
 
            # Finally, send our response (ACK or NACK) back to the broker.
-           log.debug(response)
+           if not handled:
+               log.warn("handled=%r.  Responding with %s" % (handled, response))
+           else:
+               log.debug("handled=%r.  Responding with %s" % (handled, response))
            self.transport.write(response)

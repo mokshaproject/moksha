@@ -218,7 +218,7 @@ class Consumer(object):
         # Record how long it took to process this message (for stats)
         self._times.append(time.time() - start)
 
-        self.debug("Going back to waiting on the incoming queue.")
+        self.debug("Going back to waiting on the incoming queue.  Message handled: %r" % handled)
         return handled
 
     def validate(self, message):
