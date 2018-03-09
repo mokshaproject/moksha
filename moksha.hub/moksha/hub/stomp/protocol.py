@@ -135,7 +135,7 @@ class StompProtocol(Base):
                message_id = msg['headers']['message-id']
                subscription = msg['headers']['subscription']
                transaction_id = msg['headers'].get('transaction-id')
-               response = stomper.stomp_11.nack(message_id, subscription, transaction_id)
+               response = stomper.nack(message_id, subscription, transaction_id)
 
            # Finally, send our response (ACK or NACK) back to the broker.
            log.debug(response)
