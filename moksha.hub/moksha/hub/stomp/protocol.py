@@ -21,6 +21,8 @@
 
 import logging
 
+from distutils.version import LooseVersion
+
 from moksha.common.lib.converters import asbool
 
 try:
@@ -136,7 +138,7 @@ class StompProtocol(Base):
                    # Return, so as not to send an erroneous ack.
                    return
 
-               if stomper.STOMP_VERSION != '1.1':
+               if LooseVersion(stomper.STOMP_VERSION) < LooseVersion('1.1'):
                    log.error("Unable to NACK stomp %r" % stomper.STOMP_VERSION)
                    # Also, not sending an erroneous ack.
                    return
