@@ -100,3 +100,21 @@ you're using a broker with a *durable queue*), then set
 to block on each message received off the bus, ensuring that the consumer
 handles it before signalling the broker that moksha is ready for another
 message.
+
+Other options that influence interaction with durable queues include
+``stomp_ack_mode`` and ``stomp_send_explicit_nacks``.
+
+.. code-block::
+
+    stomp_ack_mode = auto
+    stomp_send_explicit_nacks = True
+
+When using a STOMP backend, the ``stomp_ack_mode`` variable (which defaults to
+'auto') is passed through to the protocol subscription.  It may take any of the
+valid values in the `STOMP specification
+<https://stomp.github.io/stomp-specification-1.2.html#SUBSCRIBE_ack_Header>`_.
+Closely related, the ``stomp_send_explicit_nacks`` setting (which defaults to
+True) can be used to turn off explicit nacks to the broker.  When set to
+``True``, explicit nacks are sent when exceptions are raised from any running
+Consumer.  When set to ``False``, raised exceptions will result in neither an
+ACK nor a NACK being sent.
