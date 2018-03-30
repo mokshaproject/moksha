@@ -90,3 +90,39 @@ of your choosing, like this:
 
 Note that when using the 0mq+websocket setup there is no need to run either
 Orbited or qpidd.
+
+`Mqtt <https://mqtt.org/>`_
+---------------------------
+
+MQTT is a machine-to-machine (M2M)/"Internet of Things" connectivity protocol.
+It was designed as an extremely lightweight publish/subscribe messaging transport.
+
+Required settings for mqtt:
+
+.. code-block:: none
+
+    # Toggle to enable / disable mqtt
+    mqtt = True
+    # Hostname of mqtt server
+    mqtt_hostname = test.mosquitto.org
+
+Optional settings which can be set:
+
+.. code-block:: none
+
+    # Port of mqtt server
+    mqtt_port = 1883
+    # Client ID to be used, if None the client will generate
+    mqtt_client_id = None
+    # Keepalive timeout value
+    mqtt_keepalive = 60
+    # Username for authentication
+    mqtt_username = None
+    # Password for authentication
+    mqtt_password = None
+    # Settings to enable TLS
+    mqtt_ca_certs = '/path/to/an/root-ca.crt'
+    mqtt_certfile = '/path/to/an/server.crt'
+    mqtt_keyfile = '/path/to/an/server.key'
+    # The qos used when publishing
+    mqtt_qos = 0
