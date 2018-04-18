@@ -1,11 +1,12 @@
 language: python
-python:
- - "2.6"
- - "2.7"
-# Someday, soon.
-# - "3.2"
-install: ./.travis-dev-setup.sh
-script: ./.travis-run-tests.sh
+matrix:
+  include:
+  - python: 2.7
+    env: PACKAGES=common hub wsgi
+  - python: 3.6
+    env: PACKAGES=common hub
+install: ./.travis-dev-setup.sh $PACKAGES
+script: ./.travis-run-tests.sh $PACKAGES
 notifications:
     email: false
     irc:
