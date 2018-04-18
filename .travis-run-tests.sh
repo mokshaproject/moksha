@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 echo "running all tests"
-for package in moksha.{common,hub,wsgi,feeds}; do
+for package in moksha.{common,hub,wsgi}; do
     echo "[$package] running tests"
     pushd $package
     python setup.py test
