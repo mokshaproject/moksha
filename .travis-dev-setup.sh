@@ -1,10 +1,12 @@
 #!/bin/bash -e
 
+PACKAGES=${1:-common hub wsgi}
+
 echo "Installing all packages in development mode"
-for package in moksha.{common,hub,wsgi,feeds}; do
-    echo "[$package] Installing"
-    pushd $package
+for package in $PACKAGES; do
+    echo "[moksha.$package] Installing"
+    pushd moksha.$package
     python setup.py develop
     popd
-    echo "[$package] done."
+    echo "[moksha.$package] done."
 done

@@ -1,10 +1,12 @@
 #!/bin/bash -e
 
+PACKAGES=${1:-common hub wsgi}
+
 echo "running all tests"
-for package in moksha.{common,hub,wsgi,feeds}; do
-    echo "[$package] running tests"
-    pushd $package
+for package in $PACKAGES; do
+    echo "[moksha.$package] running tests"
+    pushd moksha.$package
     python setup.py test
     popd
-    echo "[$package] done with tests"
+    echo "[moksha.$package] done with tests"
 done
