@@ -140,7 +140,7 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
     def failover(self):
         self.address_index = (self.address_index + 1) % len(self.addresses)
         args = (self.addresses[self.address_index], self.key, self.crt,)
-        self._delay = self._delay * (1 + (2.0 / len(self.addresses)))
+        self._delay = min(60.0, self._delay * (1 + (2.0 / len(self.addresses))))
         log.info('(failover) reconnecting in %f seconds.' % self._delay)
         reactor.callLater(self._delay, self.connect, *args)
 
