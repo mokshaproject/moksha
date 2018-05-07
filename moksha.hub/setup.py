@@ -27,6 +27,7 @@ install_requires = [
     "moksha.common>=1.0.6",
     "Twisted",
     #"stomper>=0.2.9",
+    "paho-mqtt",
     "pyzmq",
     "txZMQ",
     "txWS",

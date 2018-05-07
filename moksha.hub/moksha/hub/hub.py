@@ -44,9 +44,18 @@ from txws import WebSocketFactory
 from moksha.common.lib.helpers import get_moksha_config_path
 from moksha.common.lib.converters import asbool
 
-AMQPHubExtension, StompHubExtension, ZMQHubExtension = None, None, None
+AMQPHubExtension = None
+MqttHubExtension = None
+StompHubExtension = None
+ZMQHubExtension = None
+
 try:
     from moksha.hub.amqp import AMQPHubExtension
+except ImportError:
+    pass
+
+try:
+    from moksha.hub.mqtt import MqttHubExtension
 except ImportError:
     pass
 
@@ -72,6 +81,7 @@ def find_hub_extensions(config):
 
     possible_bases = {
         'amqp_broker': AMQPHubExtension,
+        'mqtt': MqttHubExtension,
         'stomp_broker': StompHubExtension,
         'stomp_uri': StompHubExtension,
         'zmq_enabled': ZMQHubExtension,
