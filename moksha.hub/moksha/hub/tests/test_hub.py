@@ -124,13 +124,15 @@ class TestConsumer:
         I'm not sure how to do that, so we're going to fake it and manually
         add this consumer to the list of consumers of which the Hub is aware.
         """
-        consume = cons(self.hub).consume
+        consumer = cons(self.hub)
+        consume = consumer.consume
         for topic in iterate(cons.topic):
             self.hub.topics[topic] = self.hub.topics.get(topic, [])
             if consume not in self.hub.topics[topic]:
                 print('registering fake topic %r' % topic)
                 self.hub.topics[topic].append(consume)
         sleep(sleep_duration)
+        return consumer
 
     @testutils.crosstest
     def test_abstract(self):
@@ -387,6 +389,102 @@ class TestConsumer:
         )
         central = CentralMokshaHub(config, [TestConsumer], [])
         central.close()
+
+    @testutils.crosstest
+    def test_consumer_stats_queued(self):
+        """ Verify that message processing stats are set for queued messages. """
+
+        class TestConsumer(moksha.hub.api.consumer.Consumer):
+            topic = self.a_topic
+
+            def consume(self, message):
+                pass
+
+        cons = self.fake_register_consumer(TestConsumer)
+
+        for i in range(5):
+            self.hub.send_message(topic=self.a_topic, message=secret)
+
+        simulate_reactor(sleep_duration)
+        sleep(sleep_duration)
+
+        eq_(cons.headcount_in, 5)
+        eq_(cons.headcount_out, 0)
+        eq_(cons._exception_count, 0)
+        eq_(len(cons._times), 0)
+
+    @testutils.crosstest
+    def test_consumer_stats_processed(self):
+        """ Verify that message processing stats are set for processed messages. """
+
+        class TestConsumer(moksha.hub.api.consumer.Consumer):
+            topic = self.a_topic
+
+            def consume(self, message):
+                pass
+
+        self.hub.config['moksha.blocking_mode'] = True
+        cons = self.fake_register_consumer(TestConsumer)
+
+        for i in range(5):
+            self.hub.send_message(topic=self.a_topic, message=secret)
+
+        simulate_reactor(sleep_duration)
+        sleep(sleep_duration)
+
+        eq_(cons.headcount_in, 5)
+        eq_(cons.headcount_out, 5)
+        eq_(cons._exception_count, 0)
+        eq_(len(cons._times), 5)
+
+    @testutils.crosstest
+    def test_consumer_stats_exceptions(self):
+        """ Verify that message processing stats are set for messages that generate exceptions. """
+
+        class TestConsumer(moksha.hub.api.consumer.Consumer):
+            topic = self.a_topic
+
+            def consume(self, message):
+                if message['body'] % 2:
+                    raise RuntimeError()
+
+        self.hub.config['moksha.blocking_mode'] = True
+        cons = self.fake_register_consumer(TestConsumer)
+
+        for i in range(5):
+            self.hub.send_message(topic=self.a_topic, message=i)
+
+        simulate_reactor(sleep_duration)
+        sleep(sleep_duration)
+
+        eq_(cons.headcount_in, 5)
+        eq_(cons.headcount_out, 5)
+        eq_(cons._exception_count, 2)
+        eq_(len(cons._times), 5)
+
+    @testutils.crosstest
+    def test_consumer_stats_overflow(self):
+        """ Verify that Consumer._times doesn't grow beyond a maximum size. """
+
+        class TestConsumer(moksha.hub.api.consumer.Consumer):
+            topic = self.a_topic
+
+            def consume(self, message):
+                pass
+
+        self.hub.config['moksha.blocking_mode'] = True
+        cons = self.fake_register_consumer(TestConsumer)
+
+        for i in range(1500):
+            self.hub.send_message(topic=self.a_topic, message=secret)
+
+        simulate_reactor(sleep_duration)
+        sleep(sleep_duration)
+
+        eq_(cons.headcount_in, 1500)
+        eq_(cons.headcount_out, 1500)
+        eq_(cons._exception_count, 0)
+        eq_(len(cons._times), 1024)
 
 
 class TestProducer:

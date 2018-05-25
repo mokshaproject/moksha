@@ -33,6 +33,7 @@ import logging
 log = logging.getLogger('moksha.hub')
 
 import six.moves.queue as queue
+from collections import deque
 
 from kitchen.iterutils import iterate
 from moksha.common.lib.helpers import create_app_engine
@@ -60,7 +61,7 @@ class Consumer(object):
         # the queue to do "consume" work.
         self.incoming = queue.Queue()
         self.headcount_in = self.headcount_out = 0
-        self._times = []
+        self._times = deque(maxlen=1024)
 
         callback = self._consume
         if self.jsonify:
@@ -99,7 +100,7 @@ class Consumer(object):
             backlog = self.incoming.qsize()
             headcount_out = self.headcount_out
             headcount_in = self.headcount_in
-            times = self._times
+            times = list(self._times)
         else:
             backlog = None
             headcount_out = headcount_in = 0
@@ -120,7 +121,7 @@ class Consumer(object):
         # Reset these counters before returning.
         self.headcount_out = self.headcount_in = 0
         self._exception_count = 0
-        self._times = []
+        self._times.clear()
         return results
 
     def debug(self, message):
