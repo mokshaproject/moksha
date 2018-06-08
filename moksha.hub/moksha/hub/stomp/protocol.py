@@ -81,7 +81,7 @@ class StompProtocol(Base):
         f.headers.update(headers)
         cmd = f.pack()
         log.debug(cmd)
-        self.transport.write(cmd)
+        self.transport.write(cmd.encode('utf-8'))
 
     def connectionMade(self):
         """ Register with stomp server """
@@ -94,7 +94,7 @@ class StompProtocol(Base):
         else:
             cmd = stomper.connect(self.username, self.password)
         log.debug(cmd)
-        self.transport.write(cmd)
+        self.transport.write(cmd.encode('utf-8'))
 
 
     def ack(self, msg):
@@ -111,7 +111,7 @@ class StompProtocol(Base):
 
     def dataReceived(self, data):
         """Data received, react to it and respond if needed """
-        self.buffer.appendData(data)
+        self.buffer.appendData(data.decode('utf-8'))
         while True:
            msg = self.buffer.getOneMessage()
            if msg is None:
@@ -153,4 +153,4 @@ class StompProtocol(Base):
                log.warn("handled=%r.  Responding with %s" % (handled, response))
            else:
                log.debug("handled=%r.  Responding with %s" % (handled, response))
-           self.transport.write(response)
+           self.transport.write(response.encode('utf-8'))
