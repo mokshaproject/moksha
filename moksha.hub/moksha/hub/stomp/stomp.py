@@ -46,7 +46,7 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
     def __init__(self, hub, config):
         self.config = config
         self.hub = hub
-        self._topics = hub.topics.keys()
+        self._topics = list(hub.topics.keys())
         self._frames = []
 
         uri = self.config.get('stomp_uri', None)
@@ -126,7 +126,7 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
 
         for frame in self._frames:
             log.debug('Flushing queued frame')
-            self.proto.transport.write(frame.pack())
+            self.proto.transport.write(frame.pack().encode('utf-8'))
         self._frames = []
 
     def clientConnectionLost(self, connector, reason):
@@ -152,7 +152,7 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
 
     def heartbeat(self, interval):
         if self._heartbeat_enabled:
-            self.proto.transport.write(chr(0x0A))  # Lub-dub
+            self.proto.transport.write(chr(0x0A).encode('utf-8'))  # Lub-dub
             reactor.callLater(interval / 1000.0, self.heartbeat, interval)
         else:
             log.debug("(heartbeat stopped)")
@@ -168,7 +168,7 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
             log.info("Queueing stomp frame for later delivery")
             self._frames.append(f)
         else:
-            self.proto.transport.write(f.pack())
+            self.proto.transport.write(f.pack().encode('utf-8'))
 
         super(StompHubExtension, self).send_message(topic, message, **headers)
 
