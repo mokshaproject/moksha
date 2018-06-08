@@ -114,7 +114,7 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
         # This extension is only concerned with the queue, and negotiating that
         # with the broker.
         stomp_queue = self.config.get('stomp_queue', None)
-        if stomp_queue and self._topics and self.topics != [stomp_queue]:
+        if stomp_queue and self._topics and self._topics != [stomp_queue]:
             log.info('Discarding consumer-specified topics in favor of '
                      'stomp_queue=%s: %r' % (stomp_queue, self._topics))
             # Overwrite the declarations of all of our consumers.
