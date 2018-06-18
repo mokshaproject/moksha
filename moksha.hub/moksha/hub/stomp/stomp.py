@@ -28,6 +28,7 @@ except ImportError:
 
 import logging
 
+import six
 from twisted.internet.protocol import ClientFactory
 
 from moksha.hub.stomp.protocol import StompProtocol
@@ -162,6 +163,9 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
         self._heartbeat_enabled = False
 
     def send_message(self, topic, message, **headers):
+        # Convert any utf-8 encoded payloads back to unicode.  stomper can't handle bytestrings
+        topic = topic.decode('utf-8') if isinstance(topic, six.binary_type) else topic
+        message = message.decode('utf-8') if isinstance(message, six.binary_type) else message
         f = stomper.Frame()
         f.unpack(stomper.send(topic, message))
         if not self.proto:
