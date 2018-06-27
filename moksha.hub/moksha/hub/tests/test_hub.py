@@ -26,12 +26,19 @@ except ImportError:
 from time import sleep, time
 from uuid import uuid4
 from kitchen.iterutils import iterate
+import tempfile
+import shutil
+import os
+import stat
+import zmq
+import json
 
 import moksha.common.testtools.utils as testutils
 
 import moksha.hub.api
 from moksha.hub.hub import MokshaHub, CentralMokshaHub
 from moksha.hub.reactor import reactor as _reactor
+from moksha.hub.monitoring import MonitoringProducer
 from nose.tools import (eq_, assert_true, assert_false)
 
 
@@ -49,7 +56,7 @@ def simulate_reactor(duration=sleep_duration):
         _reactor.runUntilCurrent()
 
 
-class TestHub(unittest.TestCase):
+class TestHub:
 
     def _setUp(self):
         def kernel(config):
@@ -541,3 +548,49 @@ class TestProducer:
     def test_idempotence(self):
         """ Test that running the same test twice still works. """
         return self.test_produce_ten_strs()
+
+
+class TestMonitoring:
+    def _setUp(self):
+        def kernel(config):
+            self.hub = CentralMokshaHub(config=config)
+            self.a_topic = a_topic = str(uuid4())
+
+        for __setup, name in testutils.make_setup_functions(kernel):
+            yield __setup, name
+
+    def _tearDown(self):
+        self.hub.close()
+
+    @testutils.crosstest
+    def test_monitoring(self):
+        """ Test that the MonitoringProducer works as expected. """
+        tmpdir = tempfile.mkdtemp()
+        try:
+            zmq_file = tmpdir + '/socket'
+            zmq_socket = 'ipc://' + zmq_file
+            self.hub.config['moksha.monitoring.socket'] = zmq_socket
+            self.hub.config['moksha.monitoring.socket.mode'] = '777'
+            mon = MonitoringProducer(self.hub)
+            assert_true(os.path.exists(zmq_file))
+            assert_true(stat.S_IMODE(os.stat(zmq_file).st_mode) == 0o777)
+            ctx = zmq.Context()
+            sub = ctx.socket(zmq.SUB)
+            sub.setsockopt(zmq.RCVTIMEO, 10000)
+            sub.setsockopt_string(zmq.SUBSCRIBE, u'')
+            sub.connect(zmq_socket)
+            data = []
+            def recv():
+                data.append(sub.recv())
+            thread = threading.Thread(target=recv)
+            thread.start()
+            sleep(sleep_duration)
+            mon.poll()
+            thread.join()
+            eq_(len(data), 1)
+            d = json.loads(data[0])
+            eq_(len(d['consumers']), 0)
+            eq_(len(d['producers']), 1)
+            eq_(d['producers'][0]['name'], 'MonitoringProducer')
+        finally:
+            shutil.rmtree(tmpdir)
