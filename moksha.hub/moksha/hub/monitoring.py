@@ -51,7 +51,7 @@ class MonitoringProducer(PollingProducer):
         # to us.
         mode = hub.config.get('moksha.monitoring.socket.mode')
         if endpoint.startswith("ipc://") and mode:
-            mode = string.atoi(mode, base=8)
+            mode = int(mode, base=8)
             path = endpoint.split("ipc://")[-1]
             os.chmod(path, mode)
 
@@ -72,7 +72,7 @@ class MonitoringProducer(PollingProducer):
             "producers": self.serialize(self.hub.producers),
         }
         if self.socket:
-            self.socket.send(json.dumps(data))
+            self.socket.send_string(json.dumps(data))
 
     def stop(self):
         super(MonitoringProducer, self).stop()
