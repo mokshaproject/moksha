@@ -56,7 +56,7 @@ def simulate_reactor(duration=sleep_duration):
         _reactor.runUntilCurrent()
 
 
-class TestHub(unittest.TestCase):
+class TestHub:
 
     def _setUp(self):
         def kernel(config):
