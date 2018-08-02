@@ -111,7 +111,7 @@ class StompProtocol(Base):
 
     def dataReceived(self, data):
         """Data received, react to it and respond if needed """
-        self.buffer.appendData(data.decode('utf-8'))
+        self.buffer.appendData(data.decode('utf-8', errors='replace'))
         while True:
            msg = self.buffer.getOneMessage()
            if msg is None:
