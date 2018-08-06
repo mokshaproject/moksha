@@ -24,6 +24,7 @@ import logging
 from distutils.version import LooseVersion
 
 from moksha.common.lib.converters import asbool
+from moksha.hub.reactor import reactor
 
 try:
     # stomper is not ready for py3
@@ -96,6 +97,11 @@ class StompProtocol(Base):
         log.debug(cmd)
         self.transport.write(cmd.encode('utf-8'))
 
+    def error(self, msg):
+        """ Extend stomper's own error method to kill the hub. """
+        super(StompProtocol, self).error(msg)
+        log.error("Requesting shutdown of hub for STOMP error.")
+        reactor.callLater(0, self.client.hub.close)
 
     def ack(self, msg):
         """ Override stomper's own ack to be smarter, based on mode. """
