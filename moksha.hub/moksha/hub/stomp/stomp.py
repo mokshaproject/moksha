@@ -105,7 +105,13 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
             interval = max(self.client_heartbeat, server_heartbeat)
             log.debug("Heartbeat of %ims negotiated from (%i,%i); starting." % (
                 interval, self.client_heartbeat, server_heartbeat))
-            self.start_heartbeat(interval)
+            # According to STOMP documentation, we have negotiated a heartbeat
+            # of `interval` milliseconds and heartbeats must be sent *at least*
+            # that often.  Here, we'll send them twice as often to give plenty
+            # of room for latency.
+            # https://stomp.github.io/stomp-specification-1.2.html#Heart-beating
+            fudge_factor = 0.5
+            self.start_heartbeat(interval=(interval * fudge_factor))
         else:
             log.debug("Skipping heartbeat initialization")
 
