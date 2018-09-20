@@ -27,6 +27,7 @@ except ImportError:
         pass
 
 import logging
+import time
 
 import six
 from twisted.internet.protocol import ClientFactory
@@ -110,7 +111,7 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
             # that often.  Here, we'll send them twice as often to give plenty
             # of room for latency.
             # https://stomp.github.io/stomp-specification-1.2.html#Heart-beating
-            fudge_factor = 0.5
+            fudge_factor = 0.75
             self.start_heartbeat(interval=(interval * fudge_factor))
         else:
             log.debug("Skipping heartbeat initialization")
@@ -155,12 +156,13 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
 
     def start_heartbeat(self, interval):
         self._heartbeat_enabled = True
-        reactor.callLater(interval / 1000.0, self.heartbeat, interval)
+        reactor.callInThread(self.heartbeat, interval)
 
     def heartbeat(self, interval):
+        time.sleep(interval / 1000.0)
         if self._heartbeat_enabled:
             self.proto.transport.write(chr(0x0A).encode('utf-8'))  # Lub-dub
-            reactor.callLater(interval / 1000.0, self.heartbeat, interval)
+            reactor.callInThread(self.heartbeat, interval)
         else:
             log.debug("(heartbeat stopped)")
 
