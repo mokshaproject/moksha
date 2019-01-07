@@ -86,8 +86,9 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
                 with open(crt) as cert_file:
                     client_cert = ssl.PrivateCertificate.loadPEM(
                         key_file.read() + cert_file.read())
-
-            ssl_context = client_cert.options()
+            # connect SSL/TLS with SNI support (https://twistedmatrix.com/trac/ticket/5190)
+            # This requires service_identity module: https://pypi.python.org/pypi/service_identity
+            ssl_context = ssl.optionsForClientTLS(host.decode('utf-8'), clientCertificate=client_cert)
             reactor.connectSSL(host, int(port), self, ssl_context)
         else:
             log.info("connecting unencrypted to %r %r %r" % (
