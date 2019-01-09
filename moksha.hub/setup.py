@@ -30,9 +30,11 @@ install_requires = [
     "pyzmq",
     "txZMQ",
     "txWS",
-    "service_identity",
-    "pyasn1",
     #"python-daemon",
+
+    # Optional
+    #"service_identity",
+    #"pyasn1",
 ]
 
 tests_require = [
