@@ -102,6 +102,7 @@ class StompProtocol(Base):
         super(StompProtocol, self).error(msg)
         log.error("Requesting shutdown of hub for STOMP error.")
         reactor.callLater(0, self.client.hub.close)
+        reactor.callLater(0, reactor.close)
 
     def ack(self, msg):
         """ Override stomper's own ack to be smarter, based on mode. """
