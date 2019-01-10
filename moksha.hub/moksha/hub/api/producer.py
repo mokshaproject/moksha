@@ -92,6 +92,10 @@ class PollingProducer(Producer):
                 (self.frequency.microseconds / 1000000.0)
 
         self._last_ran = None
+        # This is used to determine if the configured frequency has been meet,
+        # and the poller should run. This allows the poller to check if
+        # self.die is True more frequently.
+        self._until_next_poll = self.frequency
 
         log.debug("Setting a %s second timer" % self.frequency)
         moksha.hub.reactor.reactor.callInThread(self._work)
@@ -125,8 +129,27 @@ class PollingProducer(Producer):
             self._poll()
 
         while not self.die:
-            time.sleep(self.frequency)
-            self._poll()
+            if not self.frequency:
+                # If no frequency is set, just continuously poll
+                self._poll()
+                continue
+
+            # If _until_next_poll is less than or equal to 0, that means
+            # the frequency has been met and the poller needs to run again
+            if self._until_next_poll <= 0:
+                self._poll()
+                # Reset _until_next_poll so that polling doesn't happen
+                # until the frequency is met again
+                self._until_next_poll = self.frequency
+            else:
+                # Only sleep 5 seconds (or _until_next_poll if it's shorter) at
+                # a time since we want to check if the poller should die
+                # frequently. Otherwise, you'll end up with Moksha Hub in a
+                # state where the hub is stopped but the poller is still
+                # sleeping until the frequency is met
+                sleep_time = min((5, self._until_next_poll))
+                time.sleep(sleep_time)
+                self._until_next_poll -= sleep_time
 
     def stop(self):
         super(PollingProducer, self).stop()
