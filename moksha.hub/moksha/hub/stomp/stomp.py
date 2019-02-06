@@ -91,7 +91,7 @@ class StompHubExtension(MessagingHubExtension, ClientFactory):
                 import service_identity
                 # connect SSL/TLS with SNI support (https://twistedmatrix.com/trac/ticket/5190)
                 # This requires service_identity module: https://pypi.python.org/pypi/service_identity
-                ssl_context = ssl.optionsForClientTLS(host.decode('utf-8'), clientCertificate=client_cert)
+                ssl_context = ssl.optionsForClientTLS(six.text_type(host), clientCertificate=client_cert)
             except ImportError:
                 log.warn("Connecting without SNI support due to absence of service_identity module.")
                 ssl_context = client_cert.options()
