@@ -34,6 +34,7 @@ setup(
         "shove <= 0.3.3",
         "feedcache",
         "feedparser",
+        "setuptools",  # needed for pkg_resources
     ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,

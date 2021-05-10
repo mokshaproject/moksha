@@ -32,6 +32,9 @@ install_requires = [
     "txWS",
     #"python-daemon",
 
+    # Needed for pkg_resources
+    "setuptools",
+
     # Optional
     #"service_identity",
     #"pyasn1",
