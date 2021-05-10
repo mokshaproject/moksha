@@ -61,6 +61,9 @@ setup(
 
         # Needed for the source code widget.
         "pygments",
+
+        # Needed for pkg_resources
+        "setuptools",
     ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,

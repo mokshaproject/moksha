@@ -46,6 +46,7 @@ setup(
         "decorator",
         "pytz",
         "kitchen",
+        "setuptools",  # needed for pkg_resources
     ],
     classifiers = [
         "Development Status :: 5 - Production/Stable",
