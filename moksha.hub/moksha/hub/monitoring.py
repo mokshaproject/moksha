@@ -71,6 +71,16 @@ class MonitoringProducer(PollingProducer):
             "consumers": self.serialize(self.hub.consumers),
             "producers": self.serialize(self.hub.producers),
         }
+        # Decode topics if they are byte array
+        # This will prevent the json.dumps() to fail
+        for consumer in data["consumers"]:
+            decoded_topics = []
+            for topic in consumer["topic"]:
+                if isinstance(topic, bytes):
+                    decoded_topics.append(topic.decode())
+            if decoded_topics:
+                consumer["topic"] = decoded_topics
+
         if self.socket:
             self.socket.send_string(json.dumps(data))
 
